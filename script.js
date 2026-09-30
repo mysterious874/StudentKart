@@ -1,10 +1,6 @@
 /* =========================================================
    STUDENTKART - COMPLETE SCRIPT
-   ========================================================= */
-
-
-/* =========================================================
-   SUPABASE CONFIG
+   Notifications + Wishlist + Seller Profile + Inquiries
    ========================================================= */
 
 const SUPABASE_URL =
@@ -19,43 +15,32 @@ const supabaseClient =
         SUPABASE_KEY
     );
 
-const STORAGE_BUCKET =
-    "product-images";
-
-
-/* =========================================================
-   GLOBAL STATE
-   ========================================================= */
+const STORAGE_BUCKET = "product-images";
 
 let currentUser = null;
 let currentProducts = [];
 let currentProduct = null;
-
 let editingProductId = null;
 let selectedInquiryProduct = null;
+let currentSellerProfile = null;
+
+let currentNotifications = [];
+let notificationRefreshTimer = null;
 
 let toastTimer = null;
 
 
 /* =========================================================
-   SHORT SELECTOR
+   BASIC HELPERS
    ========================================================= */
 
 function $(id) {
     return document.getElementById(id);
 }
 
-
-/* =========================================================
-   HTML ESCAPE
-   ========================================================= */
-
 function escapeHTML(value) {
 
-    if (
-        value === null ||
-        value === undefined
-    ) {
+    if (value === null || value === undefined) {
         return "";
     }
 
@@ -67,24 +52,16 @@ function escapeHTML(value) {
         .replace(/'/g, "&#039;");
 }
 
+function formatPrice(value) {
 
-/* =========================================================
-   PRICE
-   ========================================================= */
+    const number = Number(value || 0);
 
-function formatPrice(price) {
-
-    const number =
-        Number(price) || 0;
-
-    return "₹" +
-        number.toLocaleString("en-IN");
+    return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        maximumFractionDigits: 0
+    }).format(number);
 }
-
-
-/* =========================================================
-   DATE
-   ========================================================= */
 
 function formatDate(dateValue) {
 
@@ -92,31 +69,18 @@ function formatDate(dateValue) {
         return "Recently";
     }
 
-    const date =
-        new Date(dateValue);
+    const date = new Date(dateValue);
 
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
+    if (Number.isNaN(date.getTime())) {
         return "Recently";
     }
 
-    return date.toLocaleDateString(
-        "en-IN",
-        {
-            day: "numeric",
-            month: "short",
-            year: "numeric"
-        }
-    );
+    return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
 }
-
-
-/* =========================================================
-   RELATIVE DATE
-   ========================================================= */
 
 function getRelativeDate(dateValue) {
 
@@ -124,50 +88,38 @@ function getRelativeDate(dateValue) {
         return "Recently";
     }
 
-    const date =
-        new Date(dateValue);
+    const date = new Date(dateValue);
 
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
+    if (Number.isNaN(date.getTime())) {
         return "Recently";
     }
 
-    const now =
-        new Date();
+    const diff =
+        Date.now() - date.getTime();
 
-    const difference =
-        now.getTime() -
-        date.getTime();
+    const seconds =
+        Math.floor(diff / 1000);
 
-    const minutes =
-        Math.floor(
-            difference / 60000
-        );
-
-    const hours =
-        Math.floor(
-            difference / 3600000
-        );
-
-    const days =
-        Math.floor(
-            difference / 86400000
-        );
-
-    if (minutes < 1) {
+    if (seconds < 60) {
         return "Just now";
     }
+
+    const minutes =
+        Math.floor(seconds / 60);
 
     if (minutes < 60) {
         return `${minutes}m ago`;
     }
 
+    const hours =
+        Math.floor(minutes / 60);
+
     if (hours < 24) {
         return `${hours}h ago`;
     }
+
+    const days =
+        Math.floor(hours / 24);
 
     if (days < 7) {
         return `${days}d ago`;
@@ -176,44 +128,31 @@ function getRelativeDate(dateValue) {
     return formatDate(dateValue);
 }
 
-
-/* =========================================================
-   INITIALS
-   ========================================================= */
-
 function getInitials(name) {
 
-    if (!name) {
+    const value =
+        String(name || "Student").trim();
+
+    if (!value) {
         return "S";
     }
 
-    const words =
-        String(name)
-            .trim()
-            .split(/\s+/)
-            .filter(Boolean);
+    const parts =
+        value.split(/\s+/).filter(Boolean);
 
-    if (words.length === 1) {
-
-        return words[0]
+    if (parts.length === 1) {
+        return parts[0]
             .slice(0, 2)
             .toUpperCase();
     }
 
     return (
-        words[0][0] +
-        words[words.length - 1][0]
+        parts[0][0] +
+        parts[parts.length - 1][0]
     ).toUpperCase();
 }
 
-
-/* =========================================================
-   PLACEHOLDER IMAGE
-   ========================================================= */
-
-function getPlaceholderImage(
-    name = "StudentKart"
-) {
+function getPlaceholderImage(name = "StudentKart") {
 
     const text =
         encodeURIComponent(
@@ -221,7 +160,9 @@ function getPlaceholderImage(
         );
 
     return (
-        `https://placehold.co/800x600/1f2937/e5e7eb?text=${text}`
+        "https://placehold.co/900x650/e8f5ed/16834b" +
+        "?text=" +
+        text
     );
 }
 
@@ -230,65 +171,44 @@ function getPlaceholderImage(
    TOAST
    ========================================================= */
 
-function showToast(
-    message,
-    type = "success"
-) {
+function showToast(message, type = "success") {
 
-    const toast =
-        $("toast");
+    const toast = $("toast");
+    const icon = $("toastIcon");
+    const text = $("toastMessage");
 
-    const toastMessage =
-        $("toastMessage");
-
-    const toastIcon =
-        $("toastIcon");
-
-    if (
-        !toast ||
-        !toastMessage
-    ) {
+    if (!toast || !text) {
         return;
     }
 
-    toastMessage.textContent =
-        message;
+    text.textContent = message;
 
-    if (toastIcon) {
+    if (icon) {
 
-        if (type === "error") {
+        const iconElement =
+            icon.querySelector("i");
 
-            toastIcon.innerHTML =
-                '<i class="fa-solid fa-circle-exclamation"></i>';
+        if (iconElement) {
 
-        } else if (
-            type === "warning"
-        ) {
-
-            toastIcon.innerHTML =
-                '<i class="fa-solid fa-triangle-exclamation"></i>';
-
-        } else {
-
-            toastIcon.innerHTML =
-                '<i class="fa-solid fa-check"></i>';
+            iconElement.className =
+                type === "error"
+                    ? "fas fa-circle-exclamation"
+                    : type === "warning"
+                        ? "fas fa-triangle-exclamation"
+                        : "fas fa-check";
         }
     }
 
-    toast.classList.remove(
-        "hidden"
-    );
+    toast.classList.remove("hidden");
 
     clearTimeout(toastTimer);
 
     toastTimer =
         setTimeout(() => {
 
-            toast.classList.add(
-                "hidden"
-            );
+            toast.classList.add("hidden");
 
-        }, 3500);
+        }, 3200);
 }
 
 
@@ -298,94 +218,59 @@ function showToast(
 
 function openModal(id) {
 
-    const modal =
-        $(id);
+    const modal = $(id);
 
     if (!modal) {
         return;
     }
 
-    modal.classList.remove(
-        "hidden"
-    );
+    modal.classList.remove("hidden");
 
-    modal.classList.add(
-        "active"
-    );
-
-    document.body.classList.add(
-        "modal-open"
-    );
+    document.body.classList.add("modal-open");
 }
-
 
 function closeModal(id) {
 
-    const modal =
-        $(id);
+    const modal = $(id);
 
     if (!modal) {
         return;
     }
 
-    modal.classList.add(
-        "hidden"
-    );
+    modal.classList.add("hidden");
 
-    modal.classList.remove(
-        "active"
-    );
-
-    const openModals =
-        document.querySelectorAll(
+    const anyOpen =
+        document.querySelector(
             ".modal:not(.hidden)"
         );
 
-    if (!openModals.length) {
-
-        document.body.classList.remove(
-            "modal-open"
-        );
+    if (!anyOpen) {
+        document.body.classList.remove("modal-open");
     }
 }
-
 
 function closeAllModals() {
 
     document
         .querySelectorAll(".modal")
         .forEach(modal => {
-
-            modal.classList.add(
-                "hidden"
-            );
-
-            modal.classList.remove(
-                "active"
-            );
+            modal.classList.add("hidden");
         });
 
-    document.body.classList.remove(
-        "modal-open"
-    );
+    document.body.classList.remove("modal-open");
 }
 
 
 /* =========================================================
-   LOCAL PROFILE STORAGE
+   LOCAL PROFILE
    ========================================================= */
 
 function getProfileStorageKey() {
 
-    if (!currentUser) {
-        return null;
-    }
-
-    return (
-        `studentkart_profile_${currentUser.id}`
-    );
+    return currentUser
+        ? `studentkart_profile_${currentUser.id}`
+        : null;
 }
-
 
 function getSavedProfile() {
 
@@ -393,22 +278,28 @@ function getSavedProfile() {
         getProfileStorageKey();
 
     if (!key) {
-        return {};
+        return null;
     }
 
     try {
 
-        return JSON.parse(
-            localStorage.getItem(key) ||
-            "{}"
-        );
+        const data =
+            localStorage.getItem(key);
+
+        return data
+            ? JSON.parse(data)
+            : null;
 
     } catch (error) {
 
-        return {};
+        console.error(
+            "Profile storage error:",
+            error
+        );
+
+        return null;
     }
 }
-
 
 function saveProfile(profile) {
 
@@ -419,81 +310,82 @@ function saveProfile(profile) {
         return;
     }
 
-    localStorage.setItem(
-        key,
-        JSON.stringify(profile)
-    );
+    try {
+
+        localStorage.setItem(
+            key,
+            JSON.stringify(profile)
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Could not save profile:",
+            error
+        );
+    }
 }
 
-
-/* =========================================================
-   USER PROFILE
-   ========================================================= */
-
-function getUserProfile() {
+async function getUserProfile() {
 
     if (!currentUser) {
-
-        return {
-            name: "Student",
-            college: "College",
-            email: "",
-            avatar: ""
-        };
+        return null;
     }
-
-    const metadata =
-        currentUser.user_metadata || {};
 
     const saved =
         getSavedProfile();
 
-    return {
+    try {
 
-        name:
-            saved.name ||
-            metadata.full_name ||
-            metadata.name ||
-            "Student",
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("profiles")
+                .select(
+                    "id,name,college,email,avatar_url,created_at,updated_at"
+                )
+                .eq(
+                    "id",
+                    currentUser.id
+                )
+                .maybeSingle();
 
-        college:
-            saved.college ||
-            metadata.college ||
-            "College",
+        if (!error && data) {
 
-        email:
-            currentUser.email ||
-            "",
+            saveProfile(data);
 
-        avatar:
-            saved.avatar ||
-            ""
-    };
-}
+            return data;
+        }
 
+    } catch (error) {
 
-/* =========================================================
-   AVATAR
-   ========================================================= */
-
-function getProfileAvatar() {
-
-    const profile =
-        getUserProfile();
-
-    return profile.avatar || "";
-}
-
-
-function getPlaceholderAvatar(name) {
-
-    const initials =
-        encodeURIComponent(
-            getInitials(name)
+        console.error(
+            "Profile fetch error:",
+            error
         );
+    }
 
     return (
-        `https://placehold.co/160x160/167c6a/ffffff?text=${initials}`
+        saved || {
+            id: currentUser.id,
+            name:
+                currentUser.user_metadata
+                    ?.name ||
+                currentUser.email
+                    ?.split("@")[0] ||
+                "Student",
+            college:
+                currentUser.user_metadata
+                    ?.college ||
+                "",
+            email:
+                currentUser.email || "",
+            avatar_url: "",
+            created_at:
+                currentUser.created_at
+        }
     );
 }
 
@@ -504,74 +396,53 @@ function getPlaceholderAvatar(name) {
 
 function getWishlistStorageKey() {
 
-    if (currentUser) {
-
-        return (
-            `studentkart_wishlist_${currentUser.id}`
-        );
-    }
-
-    return "studentkart_wishlist_guest";
+    return currentUser
+        ? `studentkart_wishlist_${currentUser.id}`
+        : "studentkart_wishlist_guest";
 }
-
 
 function getWishlist() {
 
-    const key =
-        getWishlistStorageKey();
-
     try {
 
-        const data =
-            JSON.parse(
-                localStorage.getItem(key) ||
-                "[]"
+        const raw =
+            localStorage.getItem(
+                getWishlistStorageKey()
             );
 
-        if (!Array.isArray(data)) {
-            return [];
-        }
+        const parsed =
+            raw ? JSON.parse(raw) : [];
 
-        return data.map(String);
+        return Array.isArray(parsed)
+            ? parsed
+            : [];
 
     } catch (error) {
-
-        console.error(
-            "Wishlist read error:",
-            error
-        );
 
         return [];
     }
 }
 
-
-function saveWishlist(list) {
-
-    const key =
-        getWishlistStorageKey();
+function saveWishlist(items) {
 
     localStorage.setItem(
-        key,
-        JSON.stringify(
-            list.map(String)
-        )
+        getWishlistStorageKey(),
+        JSON.stringify(items)
     );
-}
 
+    updateWishlistNavbar();
+    updateWishlistButtons();
+}
 
 function isWishlisted(productId) {
 
     return getWishlist()
-        .includes(
-            String(productId)
+        .some(
+            item =>
+                String(item.id) ===
+                String(productId)
         );
 }
-
-
-/* =========================================================
-   WISHLIST NAVBAR COUNT
-   ========================================================= */
 
 function updateWishlistNavbar() {
 
@@ -586,135 +457,115 @@ function updateWishlistNavbar() {
         getWishlist().length;
 
     countElement.textContent =
-        count;
+        count > 99
+            ? "99+"
+            : String(count);
 
-    countElement.style.display =
-        count > 0
-            ? "inline-flex"
-            : "none";
+    countElement.classList.toggle(
+        "hidden",
+        count === 0
+    );
 }
 
-
-/* =========================================================
-   UPDATE WISHLIST BUTTONS
-   ========================================================= */
-
-function updateWishlistButtons(
-    productId
-) {
-
-    const active =
-        isWishlisted(productId);
+function updateWishlistButtons() {
 
     document
         .querySelectorAll(
-            `[data-wishlist-id="${CSS.escape(String(productId))}"]`
+            "[data-wishlist-id]"
         )
         .forEach(button => {
+
+            const id =
+                button.dataset.wishlistId;
+
+            const active =
+                isWishlisted(id);
 
             button.classList.toggle(
                 "active",
                 active
             );
 
-            button.setAttribute(
-                "aria-pressed",
-                active
-                    ? "true"
-                    : "false"
-            );
-
             const icon =
-                button.querySelector(
-                    ".wishlist-icon"
-                );
+                button.querySelector("i");
 
             if (icon) {
 
-                icon.textContent =
+                icon.className =
                     active
-                        ? "♥"
-                        : "♡";
+                        ? "fas fa-heart"
+                        : "far fa-heart";
             }
+
+            button.setAttribute(
+                "aria-label",
+                active
+                    ? "Remove from wishlist"
+                    : "Add to wishlist"
+            );
         });
 }
 
+function toggleWishlist(productId) {
 
-/* =========================================================
-   TOGGLE WISHLIST
-   ========================================================= */
-
-function toggleWishlist(
-    productId,
-    button = null
-) {
-
-    if (
-        productId === null ||
-        productId === undefined
-    ) {
+    if (!productId) {
         return;
     }
-
-    const id =
-        String(productId);
 
     const wishlist =
         getWishlist();
 
     const index =
-        wishlist.indexOf(id);
-
-    let added = false;
+        wishlist.findIndex(
+            item =>
+                String(item.id) ===
+                String(productId)
+        );
 
     if (index >= 0) {
 
-        wishlist.splice(
-            index,
-            1
-        );
+        wishlist.splice(index, 1);
 
-        added = false;
+        saveWishlist(wishlist);
+
+        showToast(
+            "Removed from wishlist",
+            "success"
+        );
 
     } else {
 
-        wishlist.push(id);
+        const product =
+            currentProducts.find(
+                item =>
+                    String(item.id) ===
+                    String(productId)
+            );
 
-        added = true;
-    }
+        if (!product) {
+            return;
+        }
 
-    saveWishlist(
-        wishlist
-    );
+        wishlist.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            category: product.category,
+            image: product.image,
+            seller: product.seller,
+            location: product.location
+        });
 
-    updateWishlistButtons(
-        id
-    );
+        saveWishlist(wishlist);
 
-    updateWishlistNavbar();
-
-    showToast(
-        added
-            ? "Added to wishlist ❤️"
-            : "Removed from wishlist",
-        "success"
-    );
-
-    if (button) {
-
-        button.setAttribute(
-            "aria-pressed",
-            added
-                ? "true"
-                : "false"
+        showToast(
+            "Added to wishlist",
+            "success"
         );
     }
+
+    renderWishlist();
 }
-
-
-/* =========================================================
-   RENDER WISHLIST
-   ========================================================= */
 
 function renderWishlist() {
 
@@ -725,233 +576,113 @@ function renderWishlist() {
         return;
     }
 
-    const wishlistIds =
-        getWishlist();
-
-
-    /* EMPTY */
-
-    if (!wishlistIds.length) {
-
-        container.innerHTML = `
-            <div class="wishlist-empty">
-
-                <i class="fa-regular fa-heart"></i>
-
-                <h3>
-                    Your wishlist is empty
-                </h3>
-
-                <p>
-                    Save products you like and find them here later.
-                </p>
-
-            </div>
-        `;
-
-        updateWishlistNavbar();
-
-        return;
-    }
-
-
-    /* GET PRODUCTS */
-
-    const wishlistProducts =
-        currentProducts.filter(
-            product =>
-                wishlistIds.includes(
-                    String(product.id)
-                )
-        );
-
-
-    /* CLEAN DELETED PRODUCTS */
-
-    const availableIds =
-        wishlistProducts.map(
-            product =>
-                String(product.id)
-        );
-
-    const cleanedIds =
-        wishlistIds.filter(
-            id =>
-                availableIds.includes(
-                    String(id)
-                )
-        );
-
-
-    if (
-        cleanedIds.length !==
-        wishlistIds.length
-    ) {
-
-        saveWishlist(
-            cleanedIds
-        );
-    }
-
-
-    /* NOTHING AVAILABLE */
-
-    if (!wishlistProducts.length) {
-
-        container.innerHTML = `
-            <div class="wishlist-empty">
-
-                <i class="fa-regular fa-heart"></i>
-
-                <h3>
-                    Your wishlist is empty
-                </h3>
-
-                <p>
-                    The products you saved are no longer available.
-                </p>
-
-            </div>
-        `;
-
-        updateWishlistNavbar();
-
-        return;
-    }
-
-
-    /* RENDER */
-
-    container.innerHTML =
-        wishlistProducts
-            .map(product => {
-
-                const image =
-                    product.image ||
-                    getPlaceholderImage(
-                        product.name
-                    );
-
-                return `
-
-                    <div
-                        class="wishlist-card"
-                        data-wishlist-card="${escapeHTML(product.id)}"
-                    >
-
-                        <div class="wishlist-card-image">
-
-                            <img
-                                src="${escapeHTML(image)}"
-                                alt="${escapeHTML(product.name)}"
-                                onerror="this.src='${getPlaceholderImage(product.name)}'"
-                            >
-
-                        </div>
-
-
-                        <div class="wishlist-card-info">
-
-                            <h3>
-                                ${escapeHTML(product.name)}
-                            </h3>
-
-
-                            <div class="wishlist-card-price">
-                                ${formatPrice(product.price)}
-                            </div>
-
-
-                            <div class="wishlist-card-location">
-
-                                <i class="fa-solid fa-location-dot"></i>
-
-                                ${escapeHTML(
-                                    product.location ||
-                                    "Location unavailable"
-                                )}
-
-                            </div>
-
-
-                            <div class="wishlist-card-actions">
-
-                                <button
-                                    type="button"
-                                    class="wishlist-view-button"
-                                    data-wishlist-view="${escapeHTML(product.id)}"
-                                >
-                                    <i class="fa-solid fa-eye"></i>
-                                    View
-                                </button>
-
-
-                                <button
-                                    type="button"
-                                    class="wishlist-remove-button"
-                                    data-wishlist-remove="${escapeHTML(product.id)}"
-                                >
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Remove
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                `;
-            })
-            .join("");
-
-    updateWishlistNavbar();
-}
-
-
-/* =========================================================
-   OPEN WISHLIST
-   ========================================================= */
-
-function openWishlist() {
-
-    renderWishlist();
-
-    openModal(
-        "wishlistModal"
-    );
-}
-
-
-/* =========================================================
-   REMOVE FROM WISHLIST
-   ========================================================= */
-
-function removeFromWishlist(
-    productId
-) {
-
-    const id =
-        String(productId);
-
     const wishlist =
         getWishlist();
 
-    const updatedWishlist =
-        wishlist.filter(
-            wishlistId =>
-                String(wishlistId) !== id
+    if (!wishlist.length) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="far fa-heart"></i>
+                <h3>Your wishlist is empty</h3>
+                <p>Save products you want to check later.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML =
+        wishlist.map(item => {
+
+            const image =
+                item.image ||
+                getPlaceholderImage(
+                    item.name
+                );
+
+            return `
+                <article class="product-card wishlist-product-card"
+                    data-wishlist-product-id="${escapeHTML(item.id)}">
+
+                    <div class="product-image-wrap">
+                        <img
+                            src="${escapeHTML(image)}"
+                            alt="${escapeHTML(item.name)}"
+                            class="product-image"
+                            onerror="this.src='${getPlaceholderImage("StudentKart")}'"
+                        >
+
+                        <button
+                            type="button"
+                            class="wishlist-btn active"
+                            data-wishlist-id="${escapeHTML(item.id)}"
+                            aria-label="Remove from wishlist">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+
+                    <div class="product-body">
+
+                        <div class="product-meta">
+                            <span>${escapeHTML(item.category || "Other")}</span>
+                        </div>
+
+                        <h3>${escapeHTML(item.name)}</h3>
+
+                        <div class="product-price">
+                            ${formatPrice(item.price)}
+                        </div>
+
+                        <div class="product-location">
+                            <i class="fas fa-location-dot"></i>
+                            ${escapeHTML(item.location || "Campus")}
+                        </div>
+
+                        <button
+                            type="button"
+                            class="btn btn-outline btn-full"
+                            data-wishlist-view="${escapeHTML(item.id)}">
+                            View Product
+                        </button>
+
+                    </div>
+                </article>
+            `;
+        }).join("");
+
+    updateWishlistButtons();
+}
+
+function openWishlist() {
+
+    if (!currentUser) {
+
+        openModal("loginModal");
+
+        showToast(
+            "Please login to use wishlist",
+            "warning"
         );
 
-    saveWishlist(
-        updatedWishlist
-    );
+        return;
+    }
 
-    updateWishlistButtons(
-        id
-    );
+    renderWishlist();
 
-    updateWishlistNavbar();
+    openModal("wishlistModal");
+}
+
+function removeFromWishlist(productId) {
+
+    const wishlist =
+        getWishlist().filter(
+            item =>
+                String(item.id) !==
+                String(productId)
+        );
+
+    saveWishlist(wishlist);
 
     renderWishlist();
 
@@ -963,18 +694,19 @@ function removeFromWishlist(
 
 
 /* =========================================================
-   NORMALIZE PRODUCT
+   PRODUCT HELPERS
    ========================================================= */
 
 function normalizeProduct(product) {
 
+    if (!product) {
+        return null;
+    }
+
     return {
+        ...product,
 
-        id:
-            product.id,
-
-        userId:
-            product.user_id,
+        id: product.id,
 
         name:
             product.name ||
@@ -985,15 +717,15 @@ function normalizeProduct(product) {
             "Other",
 
         price:
-            Number(product.price) || 0,
+            Number(product.price || 0),
 
         location:
             product.location ||
-            "Not specified",
+            "Campus",
 
         condition:
             product.condition ||
-            "Used",
+            "Good",
 
         description:
             product.description ||
@@ -1013,69 +745,78 @@ function normalizeProduct(product) {
             product.seller_email ||
             "",
 
+        userId:
+            product.user_id ||
+            null,
+
         createdAt:
-            product.created_at ||
-            null
+            product.created_at,
+
+        updatedAt:
+            product.updated_at
     };
 }
 
-
-/* =========================================================
-   CONDITION
-   ========================================================= */
-
-function getConditionClass(
-    condition
-) {
+function getConditionClass(condition) {
 
     const value =
         String(condition || "")
             .toLowerCase();
 
-    if (value === "new") {
+    if (value.includes("new")) {
         return "condition-new";
     }
 
     if (
-        value === "like new" ||
-        value === "good"
+        value.includes("excellent")
+    ) {
+        return "condition-excellent";
+    }
+
+    if (
+        value.includes("good")
     ) {
         return "condition-good";
     }
 
-    if (value === "fair") {
-        return "condition-fair";
-    }
-
-    return "condition-used";
+    return "condition-fair";
 }
 
-
-function getConditionIcon(
-    condition
-) {
+function getConditionIcon(condition) {
 
     const value =
         String(condition || "")
             .toLowerCase();
 
-    if (value === "new") {
-        return "✨";
+    if (value.includes("new")) {
+        return "fa-star";
     }
 
-    if (value === "like new") {
-        return "⭐";
+    if (
+        value.includes("excellent")
+    ) {
+        return "fa-circle-check";
     }
 
-    if (value === "good") {
-        return "👍";
+    if (
+        value.includes("good")
+    ) {
+        return "fa-thumbs-up";
     }
 
-    if (value === "fair") {
-        return "👌";
+    return "fa-circle-info";
+}
+
+function isMyProduct(product) {
+
+    if (!currentUser || !product) {
+        return false;
     }
 
-    return "📦";
+    return (
+        String(product.userId) ===
+        String(currentUser.id)
+    );
 }
 
 
@@ -1091,29 +832,22 @@ async function getCurrentUser() {
             data,
             error
         } =
-            await supabaseClient.auth.getUser();
+            await supabaseClient.auth.getSession();
 
         if (error) {
-
-            console.error(
-                "Get user error:",
-                error
-            );
-
-            currentUser = null;
-
-            return null;
+            throw error;
         }
 
         currentUser =
-            data?.user || null;
+            data?.session?.user ||
+            null;
 
         return currentUser;
 
     } catch (error) {
 
         console.error(
-            "Get current user error:",
+            "Session error:",
             error
         );
 
@@ -1122,11 +856,6 @@ async function getCurrentUser() {
         return null;
     }
 }
-
-
-/* =========================================================
-   NAVBAR
-   ========================================================= */
 
 function updateNavbar() {
 
@@ -1139,6 +868,9 @@ function updateNavbar() {
     const profileButton =
         $("profileButton");
 
+    const sellButton =
+        $("sellButton");
+
     if (currentUser) {
 
         loginButton?.classList.add(
@@ -1150,6 +882,10 @@ function updateNavbar() {
         );
 
         profileButton?.classList.remove(
+            "hidden"
+        );
+
+        sellButton?.classList.remove(
             "hidden"
         );
 
@@ -1166,9 +902,14 @@ function updateNavbar() {
         profileButton?.classList.add(
             "hidden"
         );
+
+        sellButton?.classList.remove(
+            "hidden"
+        );
     }
 
     updateWishlistNavbar();
+    updateNotificationNavbar();
 }
 
 
@@ -1181,94 +922,90 @@ async function loadProducts() {
     const container =
         $("productContainer");
 
-    if (container) {
+    try {
 
-        container.innerHTML = `
-            <div class="loading-state">
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                Loading listings...
-            </div>
-        `;
-    }
+        if (container) {
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("products")
-            .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
+            container.innerHTML = `
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading marketplace...</p>
+                </div>
+            `;
+        }
 
-    if (error) {
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("products")
+                .select("*")
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+        if (error) {
+            throw error;
+        }
+
+        currentProducts =
+            (data || [])
+                .map(normalizeProduct);
+
+        updateStats();
+
+        applyFilters();
+
+    } catch (error) {
 
         console.error(
-            "Products error:",
+            "Load products error:",
             error
         );
 
         if (container) {
 
             container.innerHTML = `
-                <div class="error-state">
-                    Unable to load listings.
+                <div class="empty-state">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <h3>Could not load products</h3>
+                    <p>Please refresh and try again.</p>
                 </div>
             `;
         }
 
         showToast(
-            "Unable to load marketplace",
+            "Could not load marketplace",
             "error"
         );
-
-        return;
     }
-
-    currentProducts =
-        (data || [])
-            .map(normalizeProduct);
-
-    updateStats();
-
-    applyFilters();
-
-    updateWishlistNavbar();
 }
-
-
-/* =========================================================
-   STATS
-   ========================================================= */
 
 function updateStats() {
 
     const total =
-        $("totalListings");
+        currentProducts.length;
 
-    if (total) {
+    const products =
+        document.querySelectorAll(
+            "[data-stat-products]"
+        );
 
-        total.textContent =
-            currentProducts.length;
-    }
+    products.forEach(
+        element => {
+            element.textContent = total;
+        }
+    );
 }
-
-
-/* =========================================================
-   FILTERS
-   ========================================================= */
 
 function applyFilters() {
 
-    let products =
-        [...currentProducts];
-
     const search =
-        (
+        String(
             $("marketplaceSearch")
                 ?.value || ""
         )
@@ -1277,160 +1014,133 @@ function applyFilters() {
 
     const category =
         $("categoryFilter")
-            ?.value ||
-        "all";
+            ?.value || "all";
 
-    const minPrice =
+    const min =
         Number(
-            $("minPrice")
-                ?.value || 0
+            $("minPrice")?.value || 0
         );
 
-    const maxPriceRaw =
-        $("maxPrice")
-            ?.value || "";
+    const maxRaw =
+        $("maxPrice")?.value;
 
-    const maxPrice =
-        maxPriceRaw === ""
+    const max =
+        maxRaw === ""
             ? Infinity
-            : Number(maxPriceRaw);
+            : Number(maxRaw);
 
     const condition =
         $("conditionFilter")
-            ?.value ||
-        "all";
+            ?.value || "all";
 
     const sort =
         $("sortFilter")
-            ?.value ||
-        "newest";
+            ?.value || "newest";
 
-
-    /* SEARCH */
+    let filtered =
+        [...currentProducts];
 
     if (search) {
 
-        products =
-            products.filter(
-                product => {
+        filtered =
+            filtered.filter(product => {
 
-                    const searchable =
-                        [
-                            product.name,
-                            product.category,
-                            product.location,
-                            product.condition,
-                            product.description,
-                            product.seller
-                        ]
-                            .join(" ")
-                            .toLowerCase();
+                const haystack =
+                    [
+                        product.name,
+                        product.category,
+                        product.location,
+                        product.condition,
+                        product.description,
+                        product.seller
+                    ]
+                        .join(" ")
+                        .toLowerCase();
 
-                    return searchable.includes(
-                        search
-                    );
-                }
-            );
+                return haystack.includes(
+                    search
+                );
+            });
     }
 
+    if (
+        category &&
+        category !== "all"
+    ) {
 
-    /* CATEGORY */
-
-    if (category !== "all") {
-
-        products =
-            products.filter(
+        filtered =
+            filtered.filter(
                 product =>
-                    product.category ===
-                    category
+                    String(
+                        product.category
+                    ).toLowerCase() ===
+                    String(
+                        category
+                    ).toLowerCase()
             );
     }
 
-
-    /* PRICE */
-
-    products =
-        products.filter(
+    filtered =
+        filtered.filter(
             product =>
-                product.price >=
-                    minPrice &&
-                product.price <=
-                    maxPrice
+                product.price >= min &&
+                product.price <= max
         );
 
+    if (
+        condition &&
+        condition !== "all"
+    ) {
 
-    /* CONDITION */
-
-    if (condition !== "all") {
-
-        products =
-            products.filter(
+        filtered =
+            filtered.filter(
                 product =>
-                    product.condition ===
-                    condition
+                    String(
+                        product.condition
+                    ).toLowerCase() ===
+                    String(
+                        condition
+                    ).toLowerCase()
             );
     }
-
-
-    /* SORT */
 
     if (sort === "price-low") {
 
-        products.sort(
+        filtered.sort(
             (a, b) =>
                 a.price - b.price
         );
 
-    } else if (
-        sort === "price-high"
-    ) {
+    } else if (sort === "price-high") {
 
-        products.sort(
+        filtered.sort(
             (a, b) =>
                 b.price - a.price
         );
 
-    } else if (
-        sort === "oldest"
-    ) {
+    } else if (sort === "oldest") {
 
-        products.sort(
+        filtered.sort(
             (a, b) =>
-                new Date(
-                    a.createdAt || 0
-                ) -
-                new Date(
-                    b.createdAt || 0
-                )
+                new Date(a.createdAt) -
+                new Date(b.createdAt)
         );
 
     } else {
 
-        products.sort(
+        filtered.sort(
             (a, b) =>
-                new Date(
-                    b.createdAt || 0
-                ) -
-                new Date(
-                    a.createdAt || 0
-                )
+                new Date(b.createdAt) -
+                new Date(a.createdAt)
         );
     }
 
-
-    renderProducts(
-        products
-    );
-
     updateFilterStatus(
-        products.length
+        filtered.length
     );
+
+    renderProducts(filtered);
 }
-
-
-/* =========================================================
-   FILTER STATUS
-   ========================================================= */
 
 function updateFilterStatus(count) {
 
@@ -1442,7 +1152,61 @@ function updateFilterStatus(count) {
     }
 
     status.textContent =
-        `${count} listing${count === 1 ? "" : "s"} found`;
+        `${count} ${
+            count === 1
+                ? "listing"
+                : "listings"
+        } found`;
+}
+
+
+/* =========================================================
+   SELLER TRIGGER
+   ========================================================= */
+
+function sellerTrigger(
+    product,
+    extraClass = ""
+) {
+
+    if (!product?.userId) {
+
+        return `
+            <span class="seller-name ${extraClass}">
+                ${escapeHTML(
+                    product?.seller ||
+                    "Student"
+                )}
+            </span>
+        `;
+    }
+
+    return `
+        <button
+            type="button"
+            class="seller-trigger ${extraClass}"
+            data-seller-id="${escapeHTML(
+                product.userId
+            )}">
+            <span class="seller-avatar-small">
+                ${
+                    product.avatarUrl
+                        ? `<img src="${escapeHTML(product.avatarUrl)}" alt="">`
+                        : escapeHTML(
+                            getInitials(
+                                product.seller
+                            )
+                        )
+                }
+            </span>
+            <span>
+                ${escapeHTML(
+                    product.seller ||
+                    "Student"
+                )}
+            </span>
+        </button>
+    `;
 }
 
 
@@ -1450,256 +1214,156 @@ function updateFilterStatus(count) {
    RENDER PRODUCTS
    ========================================================= */
 
-function renderProducts(
-    products
-) {
+function renderProducts(products) {
 
     const container =
         $("productContainer");
 
-    const emptyState =
+    const empty =
         $("emptyState");
 
     if (!container) {
         return;
     }
 
-
     if (!products.length) {
 
         container.innerHTML = "";
 
-        emptyState?.classList.remove(
-            "hidden"
-        );
+        if (empty) {
+            empty.classList.remove(
+                "hidden"
+            );
+        }
 
         return;
     }
 
-
-    emptyState?.classList.add(
-        "hidden"
-    );
-
-
-    container.innerHTML =
-        products
-            .map(product => {
-
-                const mine =
-                    isMyProduct(
-                        product
-                    );
-
-                const wishlisted =
-                    isWishlisted(
-                        product.id
-                    );
-
-                const conditionClass =
-                    getConditionClass(
-                        product.condition
-                    );
-
-                const conditionIcon =
-                    getConditionIcon(
-                        product.condition
-                    );
-
-                const sellerInitials =
-                    getInitials(
-                        product.seller
-                    );
-
-
-                return `
-
-                    <article
-                        class="product-card"
-                        data-product-id="${escapeHTML(product.id)}"
-                    >
-
-                        <div class="product-image-wrapper">
-
-                            <img
-                                class="product-image"
-                                src="${escapeHTML(product.image)}"
-                                alt="${escapeHTML(product.name)}"
-                                loading="lazy"
-                                onerror="this.src='${getPlaceholderImage(product.name)}'"
-                            >
-
-
-                            <div class="product-image-overlay">
-
-                                <span
-                                    class="product-condition-pill ${conditionClass}"
-                                >
-                                    ${conditionIcon}
-                                    ${escapeHTML(product.condition)}
-                                </span>
-
-                            </div>
-
-
-                            <button
-                                type="button"
-                                class="wishlist-button ${wishlisted ? "active" : ""}"
-                                data-action="wishlist"
-                                data-wishlist-id="${escapeHTML(product.id)}"
-                                aria-label="Add to wishlist"
-                                aria-pressed="${wishlisted}"
-                            >
-
-                                <span class="wishlist-icon">
-                                    ${wishlisted ? "♥" : "♡"}
-                                </span>
-
-                            </button>
-
-                        </div>
-
-
-                        <div class="product-card-content">
-
-                            <div class="product-card-top">
-
-                                <span class="product-badge product-category">
-                                    ${escapeHTML(product.category)}
-                                </span>
-
-                                <span class="product-date">
-                                    ${escapeHTML(
-                                        getRelativeDate(
-                                            product.createdAt
-                                        )
-                                    )}
-                                </span>
-
-                            </div>
-
-
-                            <h3>
-                                ${escapeHTML(
-                                    product.name
-                                )}
-                            </h3>
-
-
-                            <div class="product-price">
-                                ${formatPrice(
-                                    product.price
-                                )}
-                            </div>
-
-
-                            <div class="product-meta location">
-
-                                <i class="fa-solid fa-location-dot"></i>
-
-                                ${escapeHTML(
-                                    product.location
-                                )}
-
-                            </div>
-
-
-                            <div class="product-seller">
-
-                                <span class="seller-avatar">
-                                    ${escapeHTML(
-                                        sellerInitials
-                                    )}
-                                </span>
-
-                                <span class="seller-name">
-                                    ${escapeHTML(
-                                        product.seller
-                                    )}
-                                </span>
-
-                                ${
-                                    mine
-                                        ? `
-                                            <span class="seller-you-badge">
-                                                Your listing
-                                            </span>
-                                        `
-                                        : ""
-                                }
-
-                            </div>
-
-
-                            <button
-                                type="button"
-                                class="view-product-button view-product-btn"
-                                data-action="view"
-                                data-id="${escapeHTML(product.id)}"
-                            >
-                                View Details
-                            </button>
-
-
-                            ${
-                                mine
-                                    ? `
-                                        <div class="product-owner-actions">
-
-                                            <button
-                                                type="button"
-                                                class="btn btn-outline"
-                                                data-action="edit"
-                                                data-id="${escapeHTML(product.id)}"
-                                            >
-                                                <i class="fa-solid fa-pen"></i>
-                                                Edit
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                class="btn btn-danger"
-                                                data-action="delete"
-                                                data-id="${escapeHTML(product.id)}"
-                                            >
-                                                <i class="fa-solid fa-trash"></i>
-                                                Delete
-                                            </button>
-
-                                        </div>
-                                    `
-                                    : ""
-                            }
-
-                        </div>
-
-                    </article>
-
-                `;
-            })
-            .join("");
-}
-
-
-/* =========================================================
-   CHECK PRODUCT OWNERSHIP
-   ========================================================= */
-
-function isMyProduct(
-    product
-) {
-
-    if (
-        !currentUser ||
-        !product
-    ) {
-        return false;
+    if (empty) {
+        empty.classList.add(
+            "hidden"
+        );
     }
 
-    return (
-        String(product.userId) ===
-        String(currentUser.id)
-    );
+    container.innerHTML =
+        products.map(product => {
+
+            const image =
+                product.image ||
+                getPlaceholderImage(
+                    product.name
+                );
+
+            const wished =
+                isWishlisted(
+                    product.id
+                );
+
+            return `
+                <article
+                    class="product-card"
+                    data-product-id="${escapeHTML(
+                        product.id
+                    )}">
+
+                    <div class="product-image-wrap">
+
+                        <img
+                            class="product-image"
+                            src="${escapeHTML(image)}"
+                            alt="${escapeHTML(product.name)}"
+                            loading="lazy"
+                            onerror="this.src='${getPlaceholderImage("StudentKart")}'">
+
+                        <button
+                            type="button"
+                            class="wishlist-btn ${
+                                wished
+                                    ? "active"
+                                    : ""
+                            }"
+                            data-wishlist-id="${escapeHTML(
+                                product.id
+                            )}"
+                            aria-label="${
+                                wished
+                                    ? "Remove from wishlist"
+                                    : "Add to wishlist"
+                            }">
+
+                            <i class="${
+                                wished
+                                    ? "fas"
+                                    : "far"
+                            } fa-heart"></i>
+
+                        </button>
+
+                        <span
+                            class="condition-badge ${getConditionClass(
+                                product.condition
+                            )}">
+                            <i class="fas ${getConditionIcon(
+                                product.condition
+                            )}"></i>
+                            ${escapeHTML(
+                                product.condition
+                            )}
+                        </span>
+
+                    </div>
+
+                    <div class="product-body">
+
+                        <div class="product-meta">
+                            <span>
+                                ${escapeHTML(
+                                    product.category
+                                )}
+                            </span>
+                        </div>
+
+                        <h3>
+                            ${escapeHTML(
+                                product.name
+                            )}
+                        </h3>
+
+                        <div class="product-price">
+                            ${formatPrice(
+                                product.price
+                            )}
+                        </div>
+
+                        <div class="product-location">
+                            <i class="fas fa-location-dot"></i>
+                            ${escapeHTML(
+                                product.location
+                            )}
+                        </div>
+
+                        <div class="product-seller">
+                            ${sellerTrigger(
+                                product
+                            )}
+                        </div>
+
+                        <button
+                            type="button"
+                            class="btn btn-outline btn-full"
+                            data-view-product="${escapeHTML(
+                                product.id
+                            )}">
+                            View Details
+                        </button>
+
+                    </div>
+
+                </article>
+            `;
+        }).join("");
+
+    updateWishlistButtons();
 }
 
 
@@ -1707,11 +1371,9 @@ function isMyProduct(
    PRODUCT DETAILS
    ========================================================= */
 
-function openProductDetails(
-    productId
-) {
+async function openProductDetails(productId) {
 
-    const product =
+    let product =
         currentProducts.find(
             item =>
                 String(item.id) ===
@@ -1720,199 +1382,612 @@ function openProductDetails(
 
     if (!product) {
 
-        showToast(
-            "Product not found",
-            "error"
-        );
+        try {
 
-        return;
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from("products")
+                    .select("*")
+                    .eq(
+                        "id",
+                        productId
+                    )
+                    .maybeSingle();
+
+            if (error) {
+                throw error;
+            }
+
+            product =
+                normalizeProduct(data);
+
+        } catch (error) {
+
+            console.error(
+                "Product details error:",
+                error
+            );
+
+            showToast(
+                "Could not open product",
+                "error"
+            );
+
+            return;
+        }
     }
 
+    if (!product) {
+        return;
+    }
 
     currentProduct =
         product;
 
-
-    const detailsImage =
+    const image =
         $("detailsImage");
 
-    if (detailsImage) {
+    if (image) {
 
-        detailsImage.src =
+        image.src =
             product.image ||
             getPlaceholderImage(
                 product.name
             );
 
-        detailsImage.alt =
+        image.alt =
             product.name;
     }
 
-
     if ($("detailsCategory")) {
-        $("detailsCategory").textContent =
+        $("detailsCategory")
+            .textContent =
             product.category;
     }
 
+    if ($("detailsCondition")) {
+        $("detailsCondition")
+            .textContent =
+            product.condition;
+    }
+
     if ($("detailsName")) {
-        $("detailsName").textContent =
+        $("detailsName")
+            .textContent =
             product.name;
     }
 
     if ($("detailsPrice")) {
-        $("detailsPrice").textContent =
+        $("detailsPrice")
+            .textContent =
             formatPrice(
                 product.price
             );
     }
 
     if ($("detailsLocation")) {
-        $("detailsLocation").textContent =
+        $("detailsLocation")
+            .textContent =
             product.location;
     }
 
-    if ($("detailsCondition")) {
-        $("detailsCondition").textContent =
-            product.condition;
-    }
-
     if ($("detailsDescription")) {
-        $("detailsDescription").textContent =
+        $("detailsDescription")
+            .textContent =
             product.description ||
             "No description provided.";
     }
 
     if ($("detailsSeller")) {
-        $("detailsSeller").textContent =
-            product.seller;
-    }
-
-
-    const avatar =
-        $("detailsSellerAvatar");
-
-    if (avatar) {
-
-        avatar.textContent =
-            getInitials(
-                product.seller
+        $("detailsSeller")
+            .innerHTML =
+            sellerTrigger(
+                product
             );
     }
 
+    if ($("detailsSellerAvatar")) {
+
+        if (product.avatarUrl) {
+
+            $("detailsSellerAvatar").innerHTML =
+                `<img src="${escapeHTML(
+                    product.avatarUrl
+                )}" alt="">`;
+
+        } else {
+
+            $("detailsSellerAvatar")
+                .textContent =
+                getInitials(
+                    product.seller
+                );
+        }
+    }
+
+    const profileButton =
+        $("viewSellerProfileButton");
+
+    if (profileButton) {
+
+        if (product.userId) {
+
+            profileButton.classList.remove(
+                "hidden"
+            );
+
+            profileButton.disabled =
+                false;
+
+        } else {
+
+            profileButton.classList.add(
+                "hidden"
+            );
+
+            profileButton.disabled =
+                true;
+        }
+    }
 
     const contactButton =
         $("contactSellerButton");
 
-
     if (contactButton) {
 
-        if (
-            isMyProduct(
-                product
-            )
-        ) {
+        const own =
+            isMyProduct(product);
 
-            contactButton.disabled =
-                true;
+        const unavailable =
+            !product.userId;
 
-            contactButton.innerHTML =
-                `
-                    <i class="fa-solid fa-circle-check"></i>
-                    This is Your Listing
-                `;
+        contactButton.disabled =
+            own || unavailable;
 
-        } else if (
-            !product.userId
-        ) {
+        contactButton.classList.toggle(
+            "hidden",
+            own
+        );
 
-            contactButton.disabled =
-                true;
+        if (own) {
 
             contactButton.innerHTML =
-                `
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    Seller Unavailable
-                `;
+                `<i class="fas fa-user"></i> Your Listing`;
 
         } else {
 
-            contactButton.disabled =
-                false;
-
             contactButton.innerHTML =
-                `
-                    <i class="fa-solid fa-message"></i>
-                    Contact Seller
-                `;
+                `<i class="fas fa-message"></i> Contact Seller`;
         }
     }
 
-
-    openModal(
-        "productModal"
-    );
+    openModal("productModal");
 }
 
 
 /* =========================================================
-   CONTACT SELLER
+   SELLER PROFILE
+   ========================================================= */
+
+function ensureSellerProfileUI() {
+
+    if ($("sellerProfileModal")) {
+        return;
+    }
+
+    const modal =
+        document.createElement("div");
+
+    modal.id =
+        "sellerProfileModal";
+
+    modal.className =
+        "modal hidden";
+
+    modal.innerHTML = `
+        <div class="modal-overlay" data-close-modal></div>
+
+        <div class="modal-content wide-modal seller-profile-modal">
+
+            <button
+                type="button"
+                class="modal-close"
+                data-close-modal
+                aria-label="Close">
+                <i class="fas fa-xmark"></i>
+            </button>
+
+            <div class="seller-profile-header">
+
+                <div
+                    id="sellerProfileAvatar"
+                    class="seller-profile-avatar">
+                    S
+                </div>
+
+                <div class="seller-profile-main">
+
+                    <span class="section-label">
+                        SELLER PROFILE
+                    </span>
+
+                    <h2 id="sellerProfileName">
+                        Student
+                    </h2>
+
+                    <p id="sellerProfileCollege">
+                        College
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="seller-profile-stats">
+
+                <div>
+                    <strong
+                        id="sellerProfileListingCount">
+                        0
+                    </strong>
+                    <span>Listings</span>
+                </div>
+
+                <div>
+                    <strong
+                        id="sellerProfileMemberSince">
+                        Recently
+                    </strong>
+                    <span>Member since</span>
+                </div>
+
+            </div>
+
+            <div class="seller-profile-listings-header">
+                <h3>Listings by this seller</h3>
+            </div>
+
+            <div
+                id="sellerProfileListings"
+                class="seller-profile-listings">
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+async function getSellerProfileData(
+    sellerId,
+    fallbackProduct = null
+) {
+
+    if (!sellerId) {
+        return null;
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("profiles")
+                .select(
+                    "id,name,college,avatar_url,created_at"
+                )
+                .eq(
+                    "id",
+                    sellerId
+                )
+                .maybeSingle();
+
+        if (!error && data) {
+            return data;
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Seller profile error:",
+            error
+        );
+    }
+
+    if (
+        currentUser &&
+        String(currentUser.id) ===
+        String(sellerId)
+    ) {
+
+        const local =
+            await getUserProfile();
+
+        if (local) {
+            return local;
+        }
+    }
+
+    return {
+        id: sellerId,
+        name:
+            fallbackProduct?.seller ||
+            "Student",
+        college:
+            "",
+        avatar_url:
+            fallbackProduct?.avatarUrl ||
+            "",
+        created_at:
+            fallbackProduct?.createdAt ||
+            null
+    };
+}
+
+async function openSellerProfile(
+    sellerId
+) {
+
+    if (!sellerId) {
+        return;
+    }
+
+    ensureSellerProfileUI();
+
+    const fallback =
+        currentProducts.find(
+            product =>
+                String(product.userId) ===
+                String(sellerId)
+        );
+
+    currentSellerProfile =
+        sellerId;
+
+    closeModal("productModal");
+    closeModal("myListingsModal");
+
+    const avatar =
+        $("sellerProfileAvatar");
+
+    const name =
+        $("sellerProfileName");
+
+    const college =
+        $("sellerProfileCollege");
+
+    const count =
+        $("sellerProfileListingCount");
+
+    const member =
+        $("sellerProfileMemberSince");
+
+    const listings =
+        $("sellerProfileListings");
+
+    if (avatar) {
+        avatar.textContent = "S";
+    }
+
+    if (name) {
+        name.textContent =
+            "Loading...";
+    }
+
+    if (college) {
+        college.textContent =
+            "Loading profile...";
+    }
+
+    if (count) {
+        count.textContent =
+            "0";
+    }
+
+    if (member) {
+        member.textContent =
+            "Recently";
+    }
+
+    if (listings) {
+
+        listings.innerHTML = `
+            <div class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading seller...</p>
+            </div>
+        `;
+    }
+
+    openModal(
+        "sellerProfileModal"
+    );
+
+    const profile =
+        await getSellerProfileData(
+            sellerId,
+            fallback
+        );
+
+    if (
+        currentSellerProfile !==
+        sellerId
+    ) {
+        return;
+    }
+
+    const sellerProducts =
+        currentProducts.filter(
+            product =>
+                String(product.userId) ===
+                String(sellerId)
+        );
+
+    if (avatar) {
+
+        if (profile?.avatar_url) {
+
+            avatar.innerHTML =
+                `<img src="${escapeHTML(
+                    profile.avatar_url
+                )}" alt="">`;
+
+        } else {
+
+            avatar.textContent =
+                getInitials(
+                    profile?.name
+                );
+        }
+    }
+
+    if (name) {
+        name.textContent =
+            profile?.name ||
+            fallback?.seller ||
+            "Student";
+    }
+
+    if (college) {
+        college.textContent =
+            profile?.college ||
+            "College not added";
+    }
+
+    if (count) {
+        count.textContent =
+            String(
+                sellerProducts.length
+            );
+    }
+
+    if (member) {
+        member.textContent =
+            profile?.created_at
+                ? formatDate(
+                    profile.created_at
+                )
+                : "Recently";
+    }
+
+    if (!listings) {
+        return;
+    }
+
+    if (!sellerProducts.length) {
+
+        listings.innerHTML = `
+            <div class="notifications-empty">
+                <i class="fas fa-box-open"></i>
+                <h3>No listings yet</h3>
+                <p>This seller has no active listings.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    listings.innerHTML =
+        sellerProducts
+            .map(product => {
+
+                const image =
+                    product.image ||
+                    getPlaceholderImage(
+                        product.name
+                    );
+
+                return `
+                    <article
+                        class="product-card seller-listing-card"
+                        data-seller-listing-id="${escapeHTML(
+                            product.id
+                        )}">
+
+                        <div class="product-image-wrap">
+
+                            <img
+                                class="product-image"
+                                src="${escapeHTML(image)}"
+                                alt="${escapeHTML(product.name)}"
+                                onerror="this.src='${getPlaceholderImage("StudentKart")}'">
+
+                        </div>
+
+                        <div class="product-body">
+
+                            <div class="product-meta">
+                                <span>
+                                    ${escapeHTML(
+                                        product.category
+                                    )}
+                                </span>
+                            </div>
+
+                            <h3>
+                                ${escapeHTML(
+                                    product.name
+                                )}
+                            </h3>
+
+                            <div class="product-price">
+                                ${formatPrice(
+                                    product.price
+                                )}
+                            </div>
+
+                            <div class="product-location">
+                                <i class="fas fa-location-dot"></i>
+                                ${escapeHTML(
+                                    product.location
+                                )}
+                            </div>
+
+                        </div>
+
+                    </article>
+                `;
+            })
+            .join("");
+}
+
+
+/* =========================================================
+   INQUIRIES
    ========================================================= */
 
 function contactSeller() {
 
     if (!currentUser) {
 
-        closeModal(
-            "productModal"
-        );
+        openModal("loginModal");
 
         showToast(
-            "Please login to contact sellers",
+            "Please login to contact the seller",
             "warning"
-        );
-
-        openModal(
-            "loginModal"
         );
 
         return;
     }
-
 
     if (!currentProduct) {
         return;
     }
 
-
     if (
-        isMyProduct(
-            currentProduct
-        )
+        !currentProduct.userId ||
+        isMyProduct(currentProduct)
     ) {
-
-        showToast(
-            "You cannot contact yourself",
-            "warning"
-        );
-
         return;
     }
-
-
-    if (!currentProduct.userId) {
-
-        showToast(
-            "This seller is unavailable for contact",
-            "error"
-        );
-
-        return;
-    }
-
 
     selectedInquiryProduct =
         currentProduct;
-
 
     if ($("inquiryProductName")) {
 
@@ -1920,7 +1995,6 @@ function contactSeller() {
             .textContent =
             currentProduct.name;
     }
-
 
     if ($("inquiryProductPrice")) {
 
@@ -1931,35 +2005,20 @@ function contactSeller() {
             );
     }
 
-
     if ($("inquiryMessage")) {
 
         $("inquiryMessage")
-            .value =
-            `Hi, I'm interested in "${currentProduct.name}". Is it still available?`;
+            .value = "";
     }
 
+    closeModal("productModal");
 
-    closeModal(
-        "productModal"
-    );
-
-    openModal(
-        "inquiryModal"
-    );
+    openModal("inquiryModal");
 }
 
-
-/* =========================================================
-   SUBMIT INQUIRY
-   ========================================================= */
-
-async function submitInquiry(
-    event
-) {
+async function submitInquiry(event) {
 
     event.preventDefault();
-
 
     if (!currentUser) {
 
@@ -1971,50 +2030,33 @@ async function submitInquiry(
         return;
     }
 
-
-    if (!selectedInquiryProduct) {
+    if (
+        !selectedInquiryProduct ||
+        !selectedInquiryProduct.userId
+    ) {
 
         showToast(
-            "Product not selected",
+            "Seller information unavailable",
             "error"
         );
 
         return;
     }
 
-
     const message =
         $("inquiryMessage")
             ?.value
-            .trim() || "";
-
+            ?.trim();
 
     if (!message) {
 
         showToast(
-            "Please enter a message",
+            "Please write a message",
             "warning"
         );
 
         return;
     }
-
-
-    if (
-        String(
-            selectedInquiryProduct.userId
-        ) ===
-        String(currentUser.id)
-    ) {
-
-        showToast(
-            "You cannot contact yourself",
-            "warning"
-        );
-
-        return;
-    }
-
 
     const submitButton =
         $("inquiryForm")
@@ -2022,44 +2064,47 @@ async function submitInquiry(
                 'button[type="submit"]'
             );
 
-
     if (submitButton) {
-        submitButton.disabled =
-            true;
+        submitButton.disabled = true;
     }
 
+    try {
 
-    const {
-        error
-    } =
-        await supabaseClient
-            .from("inquiries")
-            .insert({
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("inquiries")
+                .insert({
+                    product_id:
+                        selectedInquiryProduct.id,
 
-                product_id:
-                    selectedInquiryProduct.id,
+                    buyer_id:
+                        currentUser.id,
 
-                buyer_id:
-                    currentUser.id,
+                    seller_id:
+                        selectedInquiryProduct.userId,
 
-                seller_id:
-                    selectedInquiryProduct.userId,
-
-                message:
                     message,
 
-                status:
-                    "new"
-            });
+                    status:
+                        "new"
+                });
 
+        if (error) {
+            throw error;
+        }
 
-    if (submitButton) {
-        submitButton.disabled =
-            false;
-    }
+        closeModal(
+            "inquiryModal"
+        );
 
+        showToast(
+            "Inquiry sent successfully",
+            "success"
+        );
 
-    if (error) {
+    } catch (error) {
 
         console.error(
             "Inquiry error:",
@@ -2071,39 +2116,19 @@ async function submitInquiry(
             "error"
         );
 
-        return;
+    } finally {
+
+        if (submitButton) {
+            submitButton.disabled = false;
+        }
     }
-
-
-    if ($("inquiryForm")) {
-        $("inquiryForm").reset();
-    }
-
-
-    closeModal(
-        "inquiryModal"
-    );
-
-    selectedInquiryProduct =
-        null;
-
-    showToast(
-        "Inquiry sent successfully! 🎉",
-        "success"
-    );
 }
-
-
-/* =========================================================
-   RECEIVED INQUIRIES
-   ========================================================= */
 
 async function loadReceivedInquiries() {
 
     if (!currentUser) {
         return;
     }
-
 
     const container =
         $("inquiriesContainer");
@@ -2112,221 +2137,182 @@ async function loadReceivedInquiries() {
         return;
     }
 
-
     container.innerHTML = `
         <div class="loading-state">
-            <i class="fa-solid fa-spinner fa-spin"></i>
-            Loading inquiries...
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading inquiries...</p>
         </div>
     `;
 
+    try {
 
-    const {
-        data: inquiries,
-        error
-    } =
-        await supabaseClient
-            .from("inquiries")
-            .select("*")
-            .eq(
-                "seller_id",
-                currentUser.id
-            )
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Inquiries error:",
+        const {
+            data,
             error
-        );
-
-        container.innerHTML = `
-            <div class="error-state">
-                Unable to load inquiries.
-            </div>
-        `;
-
-        return;
-    }
-
-
-    if (!inquiries?.length) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    <i class="fa-solid fa-message"></i>
-                </div>
-
-                <h3>
-                    No inquiries yet
-                </h3>
-
-                <p>
-                    Buyer messages will appear here.
-                </p>
-
-            </div>
-        `;
-
-        return;
-    }
-
-
-    const productIds =
-        [
-            ...new Set(
-                inquiries.map(
-                    inquiry =>
-                        inquiry.product_id
+        } =
+            await supabaseClient
+                .from("inquiries")
+                .select("*")
+                .eq(
+                    "seller_id",
+                    currentUser.id
                 )
-            )
-        ];
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
 
+        if (error) {
+            throw error;
+        }
 
-    const {
-        data: products
-    } =
-        await supabaseClient
-            .from("products")
-            .select("*")
-            .in(
-                "id",
-                productIds
-            );
+        const inquiries =
+            data || [];
 
+        if (!inquiries.length) {
 
-    const productMap =
-        new Map(
-            (products || [])
-                .map(product => [
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-message"></i>
+                    <h3>No inquiries yet</h3>
+                    <p>Buyer messages about your listings will appear here.</p>
+                </div>
+            `;
 
-                    String(product.id),
+            return;
+        }
 
-                    normalizeProduct(
-                        product
-                    )
-                ])
-        );
-
-
-    container.innerHTML =
-        inquiries
-            .map(inquiry => {
-
-                const product =
-                    productMap.get(
-                        String(
-                            inquiry.product_id
+        const productIds =
+            [
+                ...new Set(
+                    inquiries
+                        .map(
+                            inquiry =>
+                                inquiry.product_id
                         )
+                        .filter(Boolean)
+                )
+            ];
+
+        let productsMap = {};
+
+        if (productIds.length) {
+
+            const {
+                data: products
+            } =
+                await supabaseClient
+                    .from("products")
+                    .select("*")
+                    .in(
+                        "id",
+                        productIds
                     );
 
-                const status =
-                    inquiry.status ||
-                    "new";
+            (products || [])
+                .forEach(product => {
 
+                    productsMap[
+                        String(product.id)
+                    ] =
+                        normalizeProduct(
+                            product
+                        );
+                });
+        }
 
-                return `
+        container.innerHTML =
+            inquiries.map(
+                inquiry => {
 
-                    <div class="inquiry-card">
+                    const product =
+                        productsMap[
+                            String(
+                                inquiry.product_id
+                            )
+                        ];
 
-                        <div class="inquiry-card-header">
+                    const status =
+                        inquiry.status ||
+                        "new";
 
-                            <div>
+                    return `
+                        <div
+                            class="inquiry-card"
+                            data-inquiry-id="${escapeHTML(
+                                inquiry.id
+                            )}">
 
-                                <span class="section-label">
-                                    INQUIRY
-                                </span>
+                            <div class="inquiry-card-main">
 
-                                <h3>
-                                    ${
-                                        escapeHTML(
+                                <div class="inquiry-card-icon">
+                                    <i class="fas fa-message"></i>
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        ${escapeHTML(
                                             product?.name ||
                                             "Product"
-                                        )
-                                    }
-                                </h3>
+                                        )}
+                                    </strong>
+
+                                    <p>
+                                        ${escapeHTML(
+                                            inquiry.message
+                                        )}
+                                    </p>
+
+                                    <span>
+                                        ${getRelativeDate(
+                                            inquiry.created_at
+                                        )}
+                                    </span>
+
+                                </div>
 
                             </div>
 
-                            <span
-                                class="inquiry-status status-${escapeHTML(status)}"
-                            >
-                                ${escapeHTML(status)}
-                            </span>
-
-                        </div>
-
-
-                        <div class="inquiry-product-price">
-
-                            ${
-                                product
-                                    ? formatPrice(
-                                        product.price
-                                    )
-                                    : ""
-                            }
-
-                        </div>
-
-
-                        <p class="inquiry-message">
-                            ${escapeHTML(
-                                inquiry.message
-                            )}
-                        </p>
-
-
-                        <div class="inquiry-footer">
-
-                            <span>
-                                ${escapeHTML(
-                                    getRelativeDate(
-                                        inquiry.created_at
-                                    )
-                                )}
-                            </span>
-
-
                             <div class="inquiry-actions">
 
+                                <span class="status-badge">
+                                    ${escapeHTML(
+                                        status
+                                    )}
+                                </span>
+
                                 ${
-                                    status !== "read"
+                                    status === "new"
                                         ? `
                                             <button
                                                 type="button"
                                                 class="btn btn-outline"
                                                 data-inquiry-action="status"
-                                                data-inquiry-id="${escapeHTML(inquiry.id)}"
-                                                data-status="read"
-                                            >
-                                                Mark Read
+                                                data-inquiry-id="${escapeHTML(
+                                                    inquiry.id
+                                                )}"
+                                                data-status="read">
+                                                Mark read
                                             </button>
                                         `
                                         : ""
                                 }
-
 
                                 ${
                                     status !== "replied"
                                         ? `
                                             <button
                                                 type="button"
-                                                class="btn btn-primary"
+                                                class="btn btn-outline"
                                                 data-inquiry-action="status"
-                                                data-inquiry-id="${escapeHTML(inquiry.id)}"
-                                                data-status="replied"
-                                            >
-                                                Mark Replied
+                                                data-inquiry-id="${escapeHTML(
+                                                    inquiry.id
+                                                )}"
+                                                data-status="replied">
+                                                Mark replied
                                             </button>
                                         `
                                         : ""
@@ -2335,51 +2321,72 @@ async function loadReceivedInquiries() {
                             </div>
 
                         </div>
+                    `;
+                }
+            ).join("");
 
-                    </div>
+    } catch (error) {
 
-                `;
-            })
-            .join("");
+        console.error(
+            "Inquiry loading error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>Could not load inquiries</h3>
+                <p>Please try again.</p>
+            </div>
+        `;
+    }
 }
-
-
-/* =========================================================
-   UPDATE INQUIRY STATUS
-   ========================================================= */
 
 async function updateInquiryStatus(
     inquiryId,
     status
 ) {
 
-    if (!currentUser) {
+    if (!currentUser || !inquiryId) {
         return;
     }
 
+    try {
 
-    const {
-        error
-    } =
-        await supabaseClient
-            .from("inquiries")
-            .update({
-                status: status
-            })
-            .eq(
-                "id",
-                inquiryId
-            )
-            .eq(
-                "seller_id",
-                currentUser.id
-            );
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("inquiries")
+                .update({
+                    status
+                })
+                .eq(
+                    "id",
+                    inquiryId
+                )
+                .eq(
+                    "seller_id",
+                    currentUser.id
+                );
 
+        if (error) {
+            throw error;
+        }
 
-    if (error) {
+        await loadReceivedInquiries();
+
+        await loadNotifications();
+
+        showToast(
+            "Inquiry status updated",
+            "success"
+        );
+
+    } catch (error) {
 
         console.error(
-            "Status update error:",
+            "Inquiry status error:",
             error
         );
 
@@ -2387,18 +2394,7 @@ async function updateInquiryStatus(
             "Could not update inquiry",
             "error"
         );
-
-        return;
     }
-
-
-    showToast(
-        "Inquiry status updated",
-        "success"
-    );
-
-
-    await loadReceivedInquiries();
 }
 
 
@@ -2410,41 +2406,15 @@ async function uploadProductImage(
     file
 ) {
 
-    if (!currentUser) {
-
-        throw new Error(
-            "You must be logged in."
-        );
-    }
-
-
     if (!file) {
         return null;
     }
 
-
-    if (
-        !file.type.startsWith(
-            "image/"
-        )
-    ) {
-
+    if (!currentUser) {
         throw new Error(
-            "Please select an image file."
+            "You must be logged in."
         );
     }
-
-
-    if (
-        file.size >
-        5 * 1024 * 1024
-    ) {
-
-        throw new Error(
-            "Image must be smaller than 5MB."
-        );
-    }
-
 
     const extension =
         file.name
@@ -2452,297 +2422,176 @@ async function uploadProductImage(
             .pop()
             .toLowerCase();
 
-
-    const fileName =
-        `${Date.now()}-${crypto.randomUUID()}.${extension}`;
-
-
-    const filePath =
-        `${currentUser.id}/${fileName}`;
-
+    const path =
+        `${currentUser.id}/` +
+        `${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2)}.${extension}`;
 
     const {
         error
     } =
-        await supabaseClient
-            .storage
+        await supabaseClient.storage
             .from(STORAGE_BUCKET)
             .upload(
-                filePath,
+                path,
                 file,
                 {
-                    cacheControl: "3600",
-                    upsert: false
+                    upsert: false,
+                    contentType:
+                        file.type
                 }
             );
 
-
     if (error) {
-
-        console.error(
-            "Image upload error:",
-            error
-        );
-
         throw error;
     }
-
 
     const {
         data
     } =
-        supabaseClient
-            .storage
+        supabaseClient.storage
             .from(STORAGE_BUCKET)
-            .getPublicUrl(
-                filePath
-            );
+            .getPublicUrl(path);
 
-
-    return data.publicUrl;
+    return data?.publicUrl || null;
 }
-
-
-/* =========================================================
-   STORAGE PATH
-   ========================================================= */
 
 function getStoragePathFromPublicUrl(
-    url
+    publicUrl
 ) {
 
-    if (!url) {
+    if (!publicUrl) {
         return null;
     }
 
+    const marker =
+        `/storage/v1/object/public/${STORAGE_BUCKET}/`;
 
-    try {
+    const index =
+        publicUrl.indexOf(marker);
 
-        const marker =
-            `/storage/v1/object/public/${STORAGE_BUCKET}/`;
-
-
-        const index =
-            url.indexOf(marker);
-
-
-        if (index === -1) {
-            return null;
-        }
-
-
-        return decodeURIComponent(
-            url.slice(
-                index +
-                marker.length
-            )
-        );
-
-    } catch (error) {
-
+    if (index === -1) {
         return null;
     }
+
+    return decodeURIComponent(
+        publicUrl.slice(
+            index + marker.length
+        )
+    );
 }
 
-
-/* =========================================================
-   DELETE STORAGE IMAGE
-   ========================================================= */
-
 async function deleteStorageImage(
-    url
+    publicUrl
 ) {
 
     const path =
         getStoragePathFromPublicUrl(
-            url
+            publicUrl
         );
-
 
     if (!path) {
         return;
     }
 
+    try {
 
-    const {
-        error
-    } =
-        await supabaseClient
-            .storage
+        await supabaseClient.storage
             .from(STORAGE_BUCKET)
-            .remove([
-                path
-            ]);
+            .remove([path]);
 
+    } catch (error) {
 
-    if (error) {
-
-        console.warn(
-            "Could not delete image:",
+        console.error(
+            "Storage delete error:",
             error
         );
     }
 }
 
-
-/* =========================================================
-   IMAGE PREVIEW
-   ========================================================= */
-
-function handleImagePreview(
-    event
-) {
+function handleImagePreview(event) {
 
     const file =
         event.target.files?.[0];
 
-
     const preview =
         $("imagePreview");
-
 
     if (!preview) {
         return;
     }
 
-
     if (!file) {
 
-        preview.innerHTML =
-            "";
+        preview.innerHTML = "";
 
         return;
     }
 
+    const url =
+        URL.createObjectURL(file);
 
-    if (
-        !file.type.startsWith(
-            "image/"
-        )
-    ) {
-
-        showToast(
-            "Please select an image",
-            "error"
-        );
-
-        event.target.value =
-            "";
-
-        return;
-    }
-
-
-    if (
-        file.size >
-        5 * 1024 * 1024
-    ) {
-
-        showToast(
-            "Image must be smaller than 5MB",
-            "error"
-        );
-
-        event.target.value =
-            "";
-
-        return;
-    }
-
-
-    const reader =
-        new FileReader();
-
-
-    reader.onload =
-        function () {
-
-            preview.innerHTML = `
-                <img
-                    src="${reader.result}"
-                    alt="Preview"
-                >
-            `;
-        };
-
-
-    reader.readAsDataURL(file);
+    preview.innerHTML = `
+        <img
+            src="${url}"
+            alt="Image preview">
+    `;
 }
 
 
 /* =========================================================
-   OPEN SELL MODAL
+   SELL / EDIT PRODUCT
    ========================================================= */
 
 function openSellModal() {
 
     if (!currentUser) {
 
+        openModal("loginModal");
+
         showToast(
             "Please login to sell an item",
             "warning"
         );
 
-        openModal(
-            "loginModal"
-        );
-
         return;
     }
 
+    editingProductId = null;
 
-    editingProductId =
-        null;
+    const form =
+        $("sellForm");
 
+    form?.reset();
 
     if ($("sellModalTitle")) {
-
         $("sellModalTitle")
             .textContent =
             "Sell an Item";
     }
 
-
     if ($("sellSubmitText")) {
-
         $("sellSubmitText")
             .textContent =
             "Publish Listing";
     }
 
-
-    if ($("sellForm")) {
-
-        $("sellForm").reset();
-    }
-
-
     if ($("imagePreview")) {
-
         $("imagePreview")
-            .innerHTML =
-            "";
+            .innerHTML = "";
     }
 
-
-    openModal(
-        "sellModal"
-    );
+    openModal("sellModal");
 }
 
-
-/* =========================================================
-   OPEN EDIT PRODUCT
-   ========================================================= */
-
-function openEditProduct(
+async function openEditProduct(
     productId
 ) {
 
     if (!currentUser) {
         return;
     }
-
 
     const product =
         currentProducts.find(
@@ -2751,104 +2600,81 @@ function openEditProduct(
                 String(productId)
         );
 
-
     if (!product) {
-
-        showToast(
-            "Product not found",
-            "error"
-        );
-
         return;
     }
-
 
     if (!isMyProduct(product)) {
 
         showToast(
-            "You can only edit your own listing",
+            "You can only edit your own listings",
             "error"
         );
 
         return;
     }
 
-
     editingProductId =
         product.id;
 
-
     if ($("sellModalTitle")) {
-
         $("sellModalTitle")
             .textContent =
             "Edit Listing";
     }
 
-
     if ($("sellSubmitText")) {
-
         $("sellSubmitText")
             .textContent =
-            "Save Changes";
+            "Update Listing";
     }
 
+    if ($("productName")) {
+        $("productName").value =
+            product.name;
+    }
 
-    $("productName").value =
-        product.name;
+    if ($("productCategory")) {
+        $("productCategory").value =
+            product.category;
+    }
 
-    $("productCategory").value =
-        product.category;
+    if ($("productPrice")) {
+        $("productPrice").value =
+            product.price;
+    }
 
-    $("productPrice").value =
-        product.price;
+    if ($("productLocation")) {
+        $("productLocation").value =
+            product.location;
+    }
 
-    $("productLocation").value =
-        product.location;
+    if ($("productCondition")) {
+        $("productCondition").value =
+            product.condition;
+    }
 
-    $("productCondition").value =
-        product.condition;
+    if ($("productDescription")) {
+        $("productDescription").value =
+            product.description;
+    }
 
-    $("productDescription").value =
-        product.description;
-
-
-    $("productImage").value =
-        "";
-
-
-    if (product.image) {
-
-        $("imagePreview").innerHTML = `
-            <img
-                src="${escapeHTML(product.image)}"
-                alt="Current image"
-            >
-        `;
-
-    } else {
+    if ($("imagePreview")) {
 
         $("imagePreview").innerHTML =
-            "";
+            product.image
+                ? `<img src="${escapeHTML(
+                    product.image
+                )}" alt="">`
+                : "";
     }
 
-
-    openModal(
-        "sellModal"
-    );
+    openModal("sellModal");
 }
 
-
-/* =========================================================
-   SUBMIT PRODUCT
-   ========================================================= */
-
-async function submitProduct(
-    event
-) {
+async function submitProduct(event) {
 
     event.preventDefault();
-
 
     if (!currentUser) {
 
@@ -2860,54 +2686,45 @@ async function submitProduct(
         return;
     }
 
-
     const name =
         $("productName")
-            .value
-            .trim();
-
+            ?.value
+            ?.trim();
 
     const category =
         $("productCategory")
-            .value;
-
+            ?.value;
 
     const price =
         Number(
             $("productPrice")
-                .value
+                ?.value
         );
-
 
     const location =
         $("productLocation")
-            .value
-            .trim();
-
+            ?.value
+            ?.trim();
 
     const condition =
         $("productCondition")
-            .value;
-
+            ?.value;
 
     const description =
         $("productDescription")
-            .value
-            .trim();
+            ?.value
+            ?.trim();
 
-
-    const imageFile =
+    const file =
         $("productImage")
-            .files?.[0] ||
-        null;
-
+            ?.files?.[0];
 
     if (
         !name ||
         !category ||
+        !price ||
         !location ||
-        !condition ||
-        !description
+        !condition
     ) {
 
         showToast(
@@ -2918,93 +2735,69 @@ async function submitProduct(
         return;
     }
 
-
-    if (
-        Number.isNaN(price) ||
-        price < 0
-    ) {
-
-        showToast(
-            "Enter a valid price",
-            "warning"
-        );
-
-        return;
-    }
-
-
     const submitButton =
         $("sellForm")
             ?.querySelector(
                 'button[type="submit"]'
             );
 
-
     if (submitButton) {
-        submitButton.disabled =
-            true;
+        submitButton.disabled = true;
     }
 
+    let uploadedImage = null;
 
     try {
 
-        let imageUrl =
-            null;
+        const profile =
+            await getUserProfile();
 
+        if (file) {
 
-        if (imageFile) {
-
-            imageUrl =
+            uploadedImage =
                 await uploadProductImage(
-                    imageFile
+                    file
                 );
         }
 
-
-        /* ================= EDIT ================= */
-
         if (editingProductId) {
 
-            const existing =
+            const oldProduct =
                 currentProducts.find(
-                    product =>
-                        String(
-                            product.id
-                        ) ===
+                    item =>
+                        String(item.id) ===
                         String(
                             editingProductId
                         )
                 );
 
-
-            if (
-                !existing ||
-                !isMyProduct(existing)
-            ) {
-
-                throw new Error(
-                    "You are not allowed to edit this listing."
-                );
-            }
-
-
             const updateData = {
-
                 name,
                 category,
                 price,
                 location,
                 condition,
-                description
+                description,
+                seller:
+                    profile?.name ||
+                    currentUser
+                        .email
+                        ?.split("@")[0] ||
+                    "Student",
+                seller_email:
+                    currentUser.email ||
+                    "",
+                user_id:
+                    currentUser.id,
+                updated_at:
+                    new Date().toISOString()
             };
 
-
-            if (imageUrl) {
+            if (uploadedImage) {
 
                 updateData.image =
-                    imageUrl;
+                    uploadedImage;
             }
-
 
             const {
                 error
@@ -3023,44 +2816,26 @@ async function submitProduct(
                         currentUser.id
                     );
 
-
             if (error) {
-
-                if (imageUrl) {
-
-                    await deleteStorageImage(
-                        imageUrl
-                    );
-                }
-
                 throw error;
             }
 
-
             if (
-                imageUrl &&
-                existing.image
+                uploadedImage &&
+                oldProduct?.image
             ) {
 
                 await deleteStorageImage(
-                    existing.image
+                    oldProduct.image
                 );
             }
 
-
             showToast(
-                "Listing updated successfully!",
+                "Listing updated successfully",
                 "success"
             );
 
-
         } else {
-
-            /* ================= CREATE ================= */
-
-            const profile =
-                getUserProfile();
-
 
             const {
                 error
@@ -3068,93 +2843,63 @@ async function submitProduct(
                 await supabaseClient
                     .from("products")
                     .insert({
-
-                        user_id:
-                            currentUser.id,
-
                         name,
-
                         category,
-
                         price,
-
                         location,
-
                         condition,
-
                         description,
-
                         image:
-                            imageUrl ||
+                            uploadedImage ||
                             getPlaceholderImage(
                                 name
                             ),
-
                         seller:
-                            profile.name ||
-                            currentUser.email ||
+                            profile?.name ||
+                            currentUser
+                                .email
+                                ?.split("@")[0] ||
                             "Student",
-
                         seller_email:
                             currentUser.email ||
-                            ""
+                            "",
+                        user_id:
+                            currentUser.id
                     });
 
-
             if (error) {
-
-                if (imageUrl) {
-
-                    await deleteStorageImage(
-                        imageUrl
-                    );
-                }
-
                 throw error;
             }
 
-
             showToast(
-                "Listing published successfully! 🎉",
+                "Listing published successfully",
                 "success"
             );
         }
 
+        editingProductId = null;
 
         closeModal(
             "sellModal"
         );
 
-
-        editingProductId =
-            null;
-
-
-        if ($("sellForm")) {
-            $("sellForm").reset();
-        }
-
-
-        if ($("imagePreview")) {
-
-            $("imagePreview")
-                .innerHTML =
-                "";
-        }
-
-
         await loadProducts();
-
 
     } catch (error) {
 
         console.error(
-            "Submit product error:",
+            "Product submit error:",
             error
         );
 
+        if (uploadedImage) {
+            await deleteStorageImage(
+                uploadedImage
+            );
+        }
+
         showToast(
-            error.message ||
+            error?.message ||
             "Could not save listing",
             "error"
         );
@@ -3162,16 +2907,10 @@ async function submitProduct(
     } finally {
 
         if (submitButton) {
-            submitButton.disabled =
-                false;
+            submitButton.disabled = false;
         }
     }
 }
-
-
-/* =========================================================
-   DELETE PRODUCT
-   ========================================================= */
 
 async function deleteProduct(
     productId
@@ -3181,7 +2920,6 @@ async function deleteProduct(
         return;
     }
 
-
     const product =
         currentProducts.find(
             item =>
@@ -3189,17 +2927,9 @@ async function deleteProduct(
                 String(productId)
         );
 
-
     if (!product) {
-
-        showToast(
-            "Product not found",
-            "error"
-        );
-
         return;
     }
-
 
     if (!isMyProduct(product)) {
 
@@ -3211,38 +2941,55 @@ async function deleteProduct(
         return;
     }
 
-
     const confirmed =
         window.confirm(
-            `Delete "${product.name}"?`
+            "Delete this listing?"
         );
-
 
     if (!confirmed) {
         return;
     }
 
+    try {
 
-    const {
-        error
-    } =
-        await supabaseClient
-            .from("products")
-            .delete()
-            .eq(
-                "id",
-                product.id
-            )
-            .eq(
-                "user_id",
-                currentUser.id
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("products")
+                .delete()
+                .eq(
+                    "id",
+                    productId
+                )
+                .eq(
+                    "user_id",
+                    currentUser.id
+                );
+
+        if (error) {
+            throw error;
+        }
+
+        if (product.image) {
+            await deleteStorageImage(
+                product.image
             );
+        }
 
+        showToast(
+            "Listing deleted",
+            "success"
+        );
 
-    if (error) {
+        await loadProducts();
+
+        await loadMyListings();
+
+    } catch (error) {
 
         console.error(
-            "Delete error:",
+            "Delete product error:",
             error
         );
 
@@ -3250,85 +2997,28 @@ async function deleteProduct(
             "Could not delete listing",
             "error"
         );
-
-        return;
-    }
-
-
-    const wishlist =
-        getWishlist().filter(
-            id =>
-                String(id) !==
-                String(product.id)
-        );
-
-
-    saveWishlist(
-        wishlist
-    );
-
-    updateWishlistNavbar();
-
-
-    if (product.image) {
-
-        await deleteStorageImage(
-            product.image
-        );
-    }
-
-
-    showToast(
-        "Listing deleted",
-        "success"
-    );
-
-
-    await loadProducts();
-
-
-    const myListingsModal =
-        $("myListingsModal");
-
-
-    if (
-        myListingsModal &&
-        !myListingsModal
-            .classList
-            .contains("hidden")
-    ) {
-
-        await loadMyListings();
     }
 }
 
 
 /* =========================================================
-   LOGIN
+   LOGIN / SIGNUP / LOGOUT
    ========================================================= */
 
-async function loginUser(
-    event
-) {
+async function loginUser(event) {
 
     event.preventDefault();
 
-
     const email =
         $("loginEmail")
-            .value
-            .trim();
-
+            ?.value
+            ?.trim();
 
     const password =
         $("loginPassword")
-            .value;
+            ?.value;
 
-
-    if (
-        !email ||
-        !password
-    ) {
+    if (!email || !password) {
 
         showToast(
             "Enter email and password",
@@ -3338,39 +3028,39 @@ async function loginUser(
         return;
     }
 
-
     const button =
         $("loginForm")
             ?.querySelector(
                 'button[type="submit"]'
             );
 
-
     if (button) {
-        button.disabled =
-            true;
+        button.disabled = true;
     }
 
+    try {
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.auth
-            .signInWithPassword({
+        const {
+            error
+        } =
+            await supabaseClient.auth
+                .signInWithPassword({
+                    email,
+                    password
+                });
 
-                email,
-                password
-            });
+        if (error) {
+            throw error;
+        }
 
+        closeModal("loginModal");
 
-    if (button) {
-        button.disabled =
-            false;
-    }
+        showToast(
+            "Login successful",
+            "success"
+        );
 
-
-    if (error) {
+    } catch (error) {
 
         console.error(
             "Login error:",
@@ -3378,77 +3068,41 @@ async function loginUser(
         );
 
         showToast(
-            error.message ||
+            error?.message ||
             "Login failed",
             "error"
         );
 
-        return;
+    } finally {
+
+        if (button) {
+            button.disabled = false;
+        }
     }
-
-
-    currentUser =
-        data.user;
-
-
-    updateNavbar();
-
-    updateWishlistNavbar();
-
-
-    closeModal(
-        "loginModal"
-    );
-
-
-    if ($("loginForm")) {
-        $("loginForm").reset();
-    }
-
-
-    showToast(
-        "Welcome back! 👋",
-        "success"
-    );
-
-
-    await loadProducts();
 }
 
-
-/* =========================================================
-   SIGNUP
-   ========================================================= */
-
-async function signupUser(
-    event
-) {
+async function signupUser(event) {
 
     event.preventDefault();
 
-
     const name =
         $("signupName")
-            .value
-            .trim();
-
+            ?.value
+            ?.trim();
 
     const college =
         $("signupCollege")
-            .value
-            .trim();
-
+            ?.value
+            ?.trim();
 
     const email =
         $("signupEmail")
-            .value
-            .trim();
-
+            ?.value
+            ?.trim();
 
     const password =
         $("signupPassword")
-            .value;
-
+            ?.value;
 
     if (
         !name ||
@@ -3465,10 +3119,7 @@ async function signupUser(
         return;
     }
 
-
-    if (
-        password.length < 6
-    ) {
+    if (password.length < 6) {
 
         showToast(
             "Password must be at least 6 characters",
@@ -3478,52 +3129,61 @@ async function signupUser(
         return;
     }
 
-
     const button =
         $("signupForm")
             ?.querySelector(
                 'button[type="submit"]'
             );
 
-
     if (button) {
-        button.disabled =
-            true;
+        button.disabled = true;
     }
 
+    try {
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.auth
-            .signUp({
-
-                email,
-
-                password,
-
-                options: {
-
-                    data: {
-
-                        full_name:
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.auth
+                .signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
                             name,
-
-                        college:
                             college
+                        }
                     }
-                }
-            });
+                });
 
+        if (error) {
+            throw error;
+        }
 
-    if (button) {
-        button.disabled =
-            false;
-    }
+        if (data?.user) {
 
+            await supabaseClient
+                .from("profiles")
+                .upsert({
+                    id:
+                        data.user.id,
+                    name,
+                    college,
+                    email
+                });
+        }
 
-    if (error) {
+        closeModal(
+            "signupModal"
+        );
+
+        showToast(
+            "Account created successfully",
+            "success"
+        );
+
+    } catch (error) {
 
         console.error(
             "Signup error:",
@@ -3531,105 +3191,41 @@ async function signupUser(
         );
 
         showToast(
-            error.message ||
+            error?.message ||
             "Signup failed",
             "error"
         );
 
-        return;
-    }
+    } finally {
 
-
-    if (data.user) {
-
-        const oldUser =
-            currentUser;
-
-
-        currentUser =
-            data.session
-                ? data.user
-                : null;
-
-
-        if (currentUser) {
-
-            saveProfile({
-
-                name,
-
-                college,
-
-                avatar:
-                    ""
-            });
-
-
-            updateNavbar();
-
-            updateWishlistNavbar();
-
-
-            closeModal(
-                "signupModal"
-            );
-
-
-            if ($("signupForm")) {
-                $("signupForm").reset();
-            }
-
-
-            showToast(
-                "Account created successfully! 🎉",
-                "success"
-            );
-
-
-            await loadProducts();
-
-        } else {
-
-            showToast(
-                "Account created. Please verify your email before login.",
-                "success"
-            );
-
-
-            closeModal(
-                "signupModal"
-            );
-
-
-            if ($("signupForm")) {
-                $("signupForm").reset();
-            }
-
-
-            currentUser =
-                oldUser ||
-                null;
-
-            updateNavbar();
+        if (button) {
+            button.disabled = false;
         }
     }
 }
 
-
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
 async function logoutUser() {
 
-    const {
-        error
-    } =
-        await supabaseClient.auth
-            .signOut();
+    stopNotificationRefresh();
 
+    try {
 
-    if (error) {
+        await supabaseClient.auth.signOut();
+
+        currentUser = null;
+        currentNotifications = [];
+
+        updateNavbar();
+        updateNotificationNavbar();
+
+        closeAllModals();
+
+        showToast(
+            "Logged out successfully",
+            "success"
+        );
+
+    } catch (error) {
 
         console.error(
             "Logout error:",
@@ -3637,32 +3233,10 @@ async function logoutUser() {
         );
 
         showToast(
-            "Logout failed",
+            "Could not logout",
             "error"
         );
-
-        return;
     }
-
-
-    currentUser =
-        null;
-
-
-    closeAllModals();
-
-    updateNavbar();
-
-    updateWishlistNavbar();
-
-
-    showToast(
-        "Logged out successfully",
-        "success"
-    );
-
-
-    await loadProducts();
 }
 
 
@@ -3670,101 +3244,75 @@ async function logoutUser() {
    PROFILE
    ========================================================= */
 
-function openProfile() {
+async function openProfile() {
 
     if (!currentUser) {
 
-        openModal(
-            "loginModal"
-        );
+        openModal("loginModal");
 
         return;
     }
 
+    await updateProfileUI();
 
-    updateProfileUI();
-
-    openModal(
-        "profileModal"
-    );
+    openModal("profileModal");
 }
 
+async function updateProfileUI() {
 
-/* =========================================================
-   UPDATE PROFILE UI
-   ========================================================= */
+    const profile =
+        await getUserProfile();
 
-function updateProfileUI() {
-
-    if (!currentUser) {
+    if (!profile) {
         return;
     }
 
+    if ($("profileName")) {
 
-    const profile =
-        getUserProfile();
-
-
-    const profileName =
-        $("profileName");
-
-    const profileCollege =
-        $("profileCollege");
-
-    const profileCollegeInfo =
-        $("profileCollegeInfo");
-
-    const profileEmailInfo =
-        $("profileEmailInfo");
-
-    const avatar =
-        $("profileAvatar");
-
-
-    if (profileName) {
-
-        profileName.textContent =
-            profile.name;
+        $("profileName")
+            .textContent =
+            profile.name ||
+            "Student";
     }
 
+    if ($("profileCollege")) {
 
-    if (profileCollege) {
-
-        profileCollege.textContent =
-            profile.college;
-    }
-
-
-    if (profileCollegeInfo) {
-
-        profileCollegeInfo.textContent =
+        $("profileCollege")
+            .textContent =
             profile.college ||
-            "—";
+            "College not added";
     }
 
+    if ($("profileCollegeInfo")) {
 
-    if (profileEmailInfo) {
+        $("profileCollegeInfo")
+            .textContent =
+            profile.college ||
+            "Not added";
+    }
 
-        profileEmailInfo.textContent =
+    if ($("profileEmailInfo")) {
+
+        $("profileEmailInfo")
+            .textContent =
+            currentUser.email ||
             profile.email ||
-            "—";
+            "Not available";
     }
 
+    if ($("profileAvatar")) {
 
-    if (avatar) {
+        if (profile.avatar_url) {
 
-        if (profile.avatar) {
-
-            avatar.innerHTML = `
-                <img
-                    src="${escapeHTML(profile.avatar)}"
-                    alt="Profile"
-                >
-            `;
+            $("profileAvatar").innerHTML =
+                `<img src="${escapeHTML(
+                    profile.avatar_url
+                )}" alt="">`;
 
         } else {
 
-            avatar.textContent =
+            $("profileAvatar")
+                .textContent =
                 getInitials(
                     profile.name
                 );
@@ -3772,73 +3320,58 @@ function updateProfileUI() {
     }
 }
 
-
-/* =========================================================
-   EDIT PROFILE
-   ========================================================= */
-
 function openEditProfile() {
 
     if (!currentUser) {
         return;
     }
 
-
     const profile =
-        getUserProfile();
+        getSavedProfile();
 
+    if ($("editProfileName")) {
 
-    $("editProfileName").value =
-        profile.name;
-
-
-    $("editProfileCollege").value =
-        profile.college;
-
-
-    $("editProfileEmail").value =
-        profile.email;
-
-
-    const preview =
-        $("editAvatarPreview");
-
-
-    if (profile.avatar) {
-
-        preview.innerHTML = `
-            <img
-                src="${escapeHTML(profile.avatar)}"
-                alt="Profile"
-            >
-        `;
-
-    } else {
-
-        preview.textContent =
-            getInitials(
-                profile.name
-            );
-    }
-
-
-    if ($("editProfileImage")) {
-
-        $("editProfileImage")
-            .value =
+        $("editProfileName").value =
+            profile?.name ||
+            currentUser
+                .user_metadata
+                ?.name ||
             "";
     }
 
+    if ($("editProfileCollege")) {
+
+        $("editProfileCollege").value =
+            profile?.college ||
+            currentUser
+                .user_metadata
+                ?.college ||
+            "";
+    }
+
+    if ($("editProfileEmail")) {
+
+        $("editProfileEmail").value =
+            currentUser.email ||
+            "";
+    }
+
+    if ($("editAvatarPreview")) {
+
+        $("editAvatarPreview").innerHTML =
+            profile?.avatar_url
+                ? `<img src="${escapeHTML(
+                    profile.avatar_url
+                )}" alt="">`
+                : getInitials(
+                    profile?.name
+                );
+    }
 
     openModal(
         "editProfileModal"
     );
 }
-
-
-/* =========================================================
-   PROFILE IMAGE PREVIEW
-   ========================================================= */
 
 function handleProfileImagePreview(
     event
@@ -3847,79 +3380,23 @@ function handleProfileImagePreview(
     const file =
         event.target.files?.[0];
 
+    const preview =
+        $("editAvatarPreview");
+
+    if (!preview) {
+        return;
+    }
 
     if (!file) {
         return;
     }
 
+    const url =
+        URL.createObjectURL(file);
 
-    if (
-        !file.type.startsWith(
-            "image/"
-        )
-    ) {
-
-        showToast(
-            "Please select an image",
-            "error"
-        );
-
-        event.target.value =
-            "";
-
-        return;
-    }
-
-
-    if (
-        file.size >
-        2 * 1024 * 1024
-    ) {
-
-        showToast(
-            "Profile image must be smaller than 2MB",
-            "error"
-        );
-
-        event.target.value =
-            "";
-
-        return;
-    }
-
-
-    const reader =
-        new FileReader();
-
-
-    reader.onload =
-        function () {
-
-            const preview =
-                $("editAvatarPreview");
-
-            if (preview) {
-
-                preview.innerHTML =
-                    `
-                        <img
-                            src="${reader.result}"
-                            alt="Profile preview"
-                        >
-                    `;
-            }
-        };
-
-
-    reader.readAsDataURL(
-        file
-    );
+    preview.innerHTML =
+        `<img src="${url}" alt="">`;
 }
-
-
-/* =========================================================
-   SAVE PROFILE
-   ========================================================= */
 
 async function saveEditedProfile(
     event
@@ -3927,133 +3404,151 @@ async function saveEditedProfile(
 
     event.preventDefault();
 
-
     if (!currentUser) {
         return;
     }
 
-
     const name =
         $("editProfileName")
-            .value
-            .trim();
-
+            ?.value
+            ?.trim();
 
     const college =
         $("editProfileCollege")
-            .value
-            .trim();
+            ?.value
+            ?.trim();
 
-
-    const imageFile =
-        $("editProfileImage")
-            .files?.[0] ||
-        null;
-
-
-    if (!name || !college) {
+    if (!name) {
 
         showToast(
-            "Name and college are required",
+            "Name is required",
             "warning"
         );
 
         return;
     }
 
+    const file =
+        $("editProfileImage")
+            ?.files?.[0];
 
-    const oldProfile =
-        getUserProfile();
+    try {
 
+        const oldProfile =
+            await getUserProfile();
 
-    let avatar =
-        oldProfile.avatar ||
-        "";
+        let avatarUrl =
+            oldProfile?.avatar_url ||
+            "";
 
+        if (file) {
 
-    if (imageFile) {
+            const extension =
+                file.name
+                    .split(".")
+                    .pop()
+                    .toLowerCase();
 
-        if (
-            !imageFile.type.startsWith(
-                "image/"
-            )
-        ) {
+            const path =
+                `${currentUser.id}/avatar-${Date.now()}.${extension}`;
 
-            showToast(
-                "Please select a valid image",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (
-            imageFile.size >
-            2 * 1024 * 1024
-        ) {
-
-            showToast(
-                "Profile image must be smaller than 2MB",
-                "error"
-            );
-
-            return;
-        }
-
-
-        avatar =
-            await new Promise(
-                (
-                    resolve,
-                    reject
-                ) => {
-
-                    const reader =
-                        new FileReader();
-
-
-                    reader.onload =
-                        () =>
-                            resolve(
-                                reader.result
-                            );
-
-
-                    reader.onerror =
-                        reject;
-
-
-                    reader.readAsDataURL(
-                        imageFile
+            const {
+                error:
+                uploadError
+            } =
+                await supabaseClient
+                    .storage
+                    .from(STORAGE_BUCKET)
+                    .upload(
+                        path,
+                        file,
+                        {
+                            upsert: true,
+                            contentType:
+                                file.type
+                        }
                     );
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+            const {
+                data
+            } =
+                supabaseClient.storage
+                    .from(STORAGE_BUCKET)
+                    .getPublicUrl(
+                        path
+                    );
+
+            avatarUrl =
+                data?.publicUrl ||
+                avatarUrl;
+        }
+
+        const profile = {
+            id:
+                currentUser.id,
+            name,
+            college,
+            email:
+                currentUser.email ||
+                "",
+            avatar_url:
+                avatarUrl,
+            updated_at:
+                new Date().toISOString()
+        };
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("profiles")
+                .upsert(
+                    profile
+                );
+
+        if (error) {
+            throw error;
+        }
+
+        saveProfile(profile);
+
+        await supabaseClient.auth
+            .updateUser({
+                data: {
+                    name,
+                    college
                 }
-            );
+            });
+
+        closeModal(
+            "editProfileModal"
+        );
+
+        await updateProfileUI();
+
+        showToast(
+            "Profile updated successfully",
+            "success"
+        );
+
+        await loadProducts();
+
+    } catch (error) {
+
+        console.error(
+            "Profile update error:",
+            error
+        );
+
+        showToast(
+            "Could not update profile",
+            "error"
+        );
     }
-
-
-    saveProfile({
-
-        name,
-
-        college,
-
-        avatar
-    });
-
-
-    updateProfileUI();
-
-
-    closeModal(
-        "editProfileModal"
-    );
-
-
-    showToast(
-        "Profile updated successfully",
-        "success"
-    );
 }
 
 
@@ -4067,184 +3562,124 @@ async function loadMyListings() {
         return;
     }
 
-
     const container =
         $("myListingsContainer");
-
 
     if (!container) {
         return;
     }
 
-
     container.innerHTML = `
         <div class="loading-state">
-            <i class="fa-solid fa-spinner fa-spin"></i>
-            Loading your listings...
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading your listings...</p>
         </div>
     `;
 
+    try {
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("products")
-            .select("*")
-            .eq(
-                "user_id",
-                currentUser.id
-            )
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
-
-
-    if (error) {
-
-        console.error(
-            "My listings error:",
+        const {
+            data,
             error
-        );
+        } =
+            await supabaseClient
+                .from("products")
+                .select("*")
+                .eq(
+                    "user_id",
+                    currentUser.id
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
 
-        container.innerHTML = `
-            <div class="error-state">
-                Unable to load your listings.
-            </div>
-        `;
+        if (error) {
+            throw error;
+        }
 
-        return;
-    }
+        const products =
+            (data || [])
+                .map(normalizeProduct);
 
+        if (!products.length) {
 
-    const products =
-        (data || [])
-            .map(normalizeProduct);
-
-
-    if (!products.length) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    <i class="fa-solid fa-box-open"></i>
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h3>You have no listings</h3>
+                    <p>Create your first listing and start selling.</p>
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        data-my-listings-sell>
+                        Sell an Item
+                    </button>
                 </div>
+            `;
 
-                <h3>
-                    No listings yet
-                </h3>
+            return;
+        }
 
-                <p>
-                    Start selling something on StudentKart.
-                </p>
+        container.innerHTML =
+            products.map(product => {
 
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    data-my-action="sell"
-                >
-                    Sell an Item
-                </button>
-
-            </div>
-        `;
-
-        return;
-    }
-
-
-    container.innerHTML =
-        products
-            .map(product => {
-
-                const conditionClass =
-                    getConditionClass(
-                        product.condition
+                const image =
+                    product.image ||
+                    getPlaceholderImage(
+                        product.name
                     );
 
-                const wishlisted =
+                const wished =
                     isWishlisted(
                         product.id
                     );
 
-
                 return `
-
                     <article
                         class="product-card"
-                        data-product-id="${escapeHTML(product.id)}"
-                    >
+                        data-my-listing-id="${escapeHTML(
+                            product.id
+                        )}">
 
-                        <div class="product-image-wrapper">
+                        <div class="product-image-wrap">
 
                             <img
                                 class="product-image"
-                                src="${escapeHTML(product.image)}"
+                                src="${escapeHTML(image)}"
                                 alt="${escapeHTML(product.name)}"
-                                loading="lazy"
-                                onerror="this.src='${getPlaceholderImage(product.name)}'"
-                            >
-
-
-                            <div class="product-image-overlay">
-
-                                <span
-                                    class="product-condition-pill ${conditionClass}"
-                                >
-                                    ${getConditionIcon(
-                                        product.condition
-                                    )}
-                                    ${escapeHTML(
-                                        product.condition
-                                    )}
-                                </span>
-
-                            </div>
-
+                                onerror="this.src='${getPlaceholderImage("StudentKart")}'">
 
                             <button
                                 type="button"
-                                class="wishlist-button ${wishlisted ? "active" : ""}"
-                                data-action="wishlist"
-                                data-wishlist-id="${escapeHTML(product.id)}"
-                                aria-label="Add to wishlist"
-                                aria-pressed="${wishlisted}"
-                            >
-
-                                <span class="wishlist-icon">
-                                    ${wishlisted ? "♥" : "♡"}
-                                </span>
-
+                                class="wishlist-btn ${
+                                    wished
+                                        ? "active"
+                                        : ""
+                                }"
+                                data-wishlist-id="${escapeHTML(
+                                    product.id
+                                )}">
+                                <i class="${
+                                    wished
+                                        ? "fas"
+                                        : "far"
+                                } fa-heart"></i>
                             </button>
 
                         </div>
 
+                        <div class="product-body">
 
-                        <div class="product-card-content">
-
-                            <div class="product-card-top">
-
-                                <span class="product-badge product-category">
+                            <div class="product-meta">
+                                <span>
                                     ${escapeHTML(
                                         product.category
                                     )}
                                 </span>
-
-                                <span class="product-date">
-                                    ${escapeHTML(
-                                        getRelativeDate(
-                                            product.createdAt
-                                        )
-                                    )}
-                                </span>
-
                             </div>
-
 
                             <h3>
                                 ${escapeHTML(
@@ -4252,78 +3687,45 @@ async function loadMyListings() {
                                 )}
                             </h3>
 
-
                             <div class="product-price">
                                 ${formatPrice(
                                     product.price
                                 )}
                             </div>
 
-
-                            <div class="product-meta location">
-
-                                <i class="fa-solid fa-location-dot"></i>
-
+                            <div class="product-location">
+                                <i class="fas fa-location-dot"></i>
                                 ${escapeHTML(
                                     product.location
                                 )}
-
                             </div>
 
-
-                            <div class="product-seller">
-
-                                <span class="seller-avatar">
-                                    ${escapeHTML(
-                                        getInitials(
-                                            product.seller
-                                        )
-                                    )}
-                                </span>
-
-                                <span class="seller-name">
-                                    ${escapeHTML(
-                                        product.seller
-                                    )}
-                                </span>
-
-                                <span class="seller-you-badge">
-                                    Your listing
-                                </span>
-
-                            </div>
-
-
-                            <button
-                                type="button"
-                                class="view-product-button view-product-btn"
-                                data-my-action="view"
-                                data-id="${escapeHTML(product.id)}"
-                            >
-                                View Details
-                            </button>
-
-
-                            <div class="product-owner-actions">
+                            <div class="product-actions">
 
                                 <button
                                     type="button"
                                     class="btn btn-outline"
-                                    data-my-action="edit"
-                                    data-id="${escapeHTML(product.id)}"
-                                >
-                                    <i class="fa-solid fa-pen"></i>
-                                    Edit
+                                    data-my-view="${escapeHTML(
+                                        product.id
+                                    )}">
+                                    View
                                 </button>
 
+                                <button
+                                    type="button"
+                                    class="btn btn-outline"
+                                    data-my-edit="${escapeHTML(
+                                        product.id
+                                    )}">
+                                    Edit
+                                </button>
 
                                 <button
                                     type="button"
                                     class="btn btn-danger"
-                                    data-my-action="delete"
-                                    data-id="${escapeHTML(product.id)}"
-                                >
-                                    <i class="fa-solid fa-trash"></i>
+                                    data-my-delete="${escapeHTML(
+                                        product.id
+                                    )}">
                                     Delete
                                 </button>
 
@@ -4332,10 +3734,26 @@ async function loadMyListings() {
                         </div>
 
                     </article>
-
                 `;
-            })
-            .join("");
+            }).join("");
+
+        updateWishlistButtons();
+
+    } catch (error) {
+
+        console.error(
+            "My listings error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>Could not load your listings</h3>
+                <p>Please try again.</p>
+            </div>
+        `;
+    }
 }
 
 
@@ -4351,33 +3769,27 @@ function performSearch() {
     const marketplaceSearch =
         $("marketplaceSearch");
 
-    const value =
-        heroSearch
-            ?.value
-            .trim() ||
-        "";
-
-
-    if (marketplaceSearch) {
+    if (
+        heroSearch &&
+        marketplaceSearch
+    ) {
 
         marketplaceSearch.value =
-            value;
+            heroSearch.value;
     }
 
-
-    $("marketplace")
-        ?.scrollIntoView({
-            behavior: "smooth"
-        });
-
-
     applyFilters();
+
+    const marketplace =
+        document.querySelector(
+            "#marketplace"
+        );
+
+    marketplace?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
 }
-
-
-/* =========================================================
-   SELECT CATEGORY
-   ========================================================= */
 
 function selectCategory(
     category
@@ -4386,21 +3798,798 @@ function selectCategory(
     const filter =
         $("categoryFilter");
 
-
     if (filter) {
 
         filter.value =
             category;
     }
 
-
-    $("marketplace")
-        ?.scrollIntoView({
-            behavior: "smooth"
-        });
-
-
     applyFilters();
+
+    document
+        .querySelector(
+            "#marketplace"
+        )
+        ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+}
+
+
+/* =========================================================
+   NOTIFICATIONS UI
+   ========================================================= */
+
+function ensureNotificationsUI() {
+
+    if ($("notificationsModal")) {
+        return;
+    }
+
+    const button =
+        document.createElement("button");
+
+    button.type =
+        "button";
+
+    button.id =
+        "notificationButton";
+
+    button.className =
+        "btn btn-outline nav-notification-button";
+
+    button.setAttribute(
+        "aria-label",
+        "Open Notifications"
+    );
+
+    button.innerHTML = `
+        <i class="fa-regular fa-bell"></i>
+        <span
+            class="notification-count hidden"
+            id="notificationCount">
+            0
+        </span>
+    `;
+
+    const wishlistButton =
+        $("wishlistButton");
+
+    if (
+        wishlistButton?.parentElement
+    ) {
+
+        wishlistButton.parentElement
+            .insertBefore(
+                button,
+                wishlistButton
+            );
+
+    } else {
+
+        document
+            .querySelector(
+                ".nav-actions"
+            )
+            ?.appendChild(
+                button
+            );
+    }
+
+    const modal =
+        document.createElement("div");
+
+    modal.id =
+        "notificationsModal";
+
+    modal.className =
+        "modal hidden";
+
+    modal.innerHTML = `
+        <div
+            class="modal-overlay"
+            data-close-modal>
+        </div>
+
+        <div
+            class="modal-content wide-modal notifications-modal-content">
+
+            <button
+                type="button"
+                class="modal-close"
+                data-close-modal
+                aria-label="Close">
+                <i class="fas fa-xmark"></i>
+            </button>
+
+            <div class="notifications-header">
+
+                <div>
+                    <span class="section-label">
+                        ACTIVITY
+                    </span>
+
+                    <h2>
+                        Notifications
+                    </h2>
+
+                    <p>
+                        Stay updated on your marketplace activity.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    class="btn btn-outline"
+                    id="markAllNotificationsButton">
+                    <i class="fas fa-check-double"></i>
+                    Mark all as read
+                </button>
+
+            </div>
+
+            <div
+                id="notificationsContainer"
+                class="notifications-container">
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(
+        modal
+    );
+
+    injectNotificationStyles();
+}
+
+function injectNotificationStyles() {
+
+    if (
+        $("studentkartNotificationStyles")
+    ) {
+        return;
+    }
+
+    const style =
+        document.createElement("style");
+
+    style.id =
+        "studentkartNotificationStyles";
+
+    style.textContent = `
+
+        .nav-notification-button {
+            position: relative;
+            width: 40px;
+            min-width: 40px;
+            padding: 9px;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -4px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #dc3545;
+            color: #fff;
+            border: 2px solid var(--nav);
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .notifications-modal-content {
+            width: min(720px, 94vw);
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+
+        .notifications-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 24px 55px 18px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .notifications-header h2 {
+            color: var(--text);
+            font-size: 21px;
+            margin-bottom: 4px;
+        }
+
+        .notifications-header p {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .notifications-header .btn {
+            flex-shrink: 0;
+            font-size: 11px;
+        }
+
+        .notifications-container {
+            padding: 16px 24px 24px;
+        }
+
+        .notification-item {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 9px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            text-align: left;
+            cursor: pointer;
+            transition:
+                background .2s,
+                border-color .2s;
+        }
+
+        .notification-item:hover {
+            border-color: #bdd7c6;
+            background: #f9fcfa;
+        }
+
+        .notification-item.unread {
+            background: #f1f8f3;
+            border-color: #c6dfce;
+        }
+
+        .notification-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .notification-content {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .notification-content strong {
+            display: block;
+            color: var(--text);
+            font-size: 13px;
+            margin-bottom: 3px;
+        }
+
+        .notification-content p {
+            color: var(--text-soft);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .notification-time {
+            display: block;
+            color: var(--muted);
+            font-size: 9px;
+            margin-top: 5px;
+        }
+
+        .notification-unread-dot {
+            width: 7px;
+            height: 7px;
+            flex-shrink: 0;
+            margin-top: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .notifications-empty {
+            padding: 50px 20px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .notifications-empty i {
+            display: block;
+            margin-bottom: 12px;
+            color: #cbd5d1;
+            font-size: 38px;
+        }
+
+        .notifications-empty h3 {
+            color: var(--text);
+            font-size: 17px;
+            margin-bottom: 5px;
+        }
+
+        .notifications-empty p {
+            font-size: 12px;
+        }
+
+        @media(max-width:700px) {
+
+            .notifications-header {
+                flex-direction: column;
+                align-items: stretch;
+                padding-right: 50px;
+            }
+
+            .notifications-header .btn {
+                width: 100%;
+            }
+
+            .notifications-container {
+                padding: 14px 17px 20px;
+            }
+        }
+
+    `;
+
+    document.head.appendChild(
+        style
+    );
+}
+
+
+/* =========================================================
+   NOTIFICATION HELPERS
+   ========================================================= */
+
+function formatNotificationTime(
+    dateValue
+) {
+
+    return getRelativeDate(
+        dateValue
+    );
+}
+
+function getNotificationIcon(
+    type
+) {
+
+    switch (type) {
+
+        case "inquiry":
+            return "fa-message";
+
+        case "inquiry_status":
+            return "fa-arrows-rotate";
+
+        case "wishlist":
+            return "fa-heart";
+
+        case "listing":
+            return "fa-box";
+
+        default:
+            return "fa-bell";
+    }
+}
+
+function updateNotificationNavbar() {
+
+    const countElement =
+        $("notificationCount");
+
+    if (!countElement) {
+        return;
+    }
+
+    const unread =
+        currentNotifications.filter(
+            notification =>
+                !notification.is_read
+        ).length;
+
+    countElement.textContent =
+        unread > 99
+            ? "99+"
+            : String(unread);
+
+    countElement.classList.toggle(
+        "hidden",
+        unread === 0
+    );
+}
+
+async function loadNotifications() {
+
+    if (!currentUser) {
+
+        currentNotifications = [];
+
+        updateNotificationNavbar();
+
+        return;
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("notifications")
+                .select("*")
+                .eq(
+                    "user_id",
+                    currentUser.id
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                )
+                .limit(50);
+
+        if (error) {
+            throw error;
+        }
+
+        currentNotifications =
+            data || [];
+
+        updateNotificationNavbar();
+
+        if (
+            $("notificationsModal") &&
+            !$("notificationsModal")
+                .classList.contains("hidden")
+        ) {
+
+            renderNotifications();
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Notification loading error:",
+            error
+        );
+
+        currentNotifications = [];
+
+        updateNotificationNavbar();
+    }
+}
+
+function renderNotifications() {
+
+    const container =
+        $("notificationsContainer");
+
+    if (!container) {
+        return;
+    }
+
+    if (!currentUser) {
+
+        container.innerHTML = `
+            <div class="notifications-empty">
+                <i class="far fa-bell"></i>
+                <h3>Please login</h3>
+                <p>Login to see your marketplace notifications.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    if (!currentNotifications.length) {
+
+        container.innerHTML = `
+            <div class="notifications-empty">
+                <i class="far fa-bell"></i>
+                <h3>You're all caught up</h3>
+                <p>New marketplace activity will appear here.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML =
+        currentNotifications
+            .map(notification => {
+
+                const unread =
+                    !notification.is_read;
+
+                return `
+                    <div
+                        class="notification-item ${
+                            unread
+                                ? "unread"
+                                : ""
+                        }"
+                        data-notification-id="${escapeHTML(
+                            notification.id
+                        )}">
+
+                        <div class="notification-icon">
+                            <i class="fas ${getNotificationIcon(
+                                notification.type
+                            )}"></i>
+                        </div>
+
+                        <div class="notification-content">
+
+                            <strong>
+                                ${escapeHTML(
+                                    notification.title
+                                )}
+                            </strong>
+
+                            <p>
+                                ${escapeHTML(
+                                    notification.message
+                                )}
+                            </p>
+
+                            <span class="notification-time">
+                                ${formatNotificationTime(
+                                    notification.created_at
+                                )}
+                            </span>
+
+                        </div>
+
+                        ${
+                            unread
+                                ? `
+                                    <span
+                                        class="notification-unread-dot"
+                                        title="Unread">
+                                    </span>
+                                `
+                                : ""
+                        }
+
+                    </div>
+                `;
+            })
+            .join("");
+}
+
+async function markNotificationAsRead(
+    notificationId
+) {
+
+    if (
+        !currentUser ||
+        !notificationId
+    ) {
+        return;
+    }
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("notifications")
+                .update({
+                    is_read: true
+                })
+                .eq(
+                    "id",
+                    notificationId
+                )
+                .eq(
+                    "user_id",
+                    currentUser.id
+                );
+
+        if (error) {
+            throw error;
+        }
+
+        const notification =
+            currentNotifications.find(
+                item =>
+                    String(item.id) ===
+                    String(
+                        notificationId
+                    )
+            );
+
+        if (notification) {
+            notification.is_read = true;
+        }
+
+        updateNotificationNavbar();
+        renderNotifications();
+
+        return notification;
+
+    } catch (error) {
+
+        console.error(
+            "Mark notification error:",
+            error
+        );
+
+        return null;
+    }
+}
+
+async function markAllNotificationsAsRead() {
+
+    if (!currentUser) {
+        return;
+    }
+
+    const unread =
+        currentNotifications.filter(
+            notification =>
+                !notification.is_read
+        );
+
+    if (!unread.length) {
+
+        showToast(
+            "No unread notifications",
+            "success"
+        );
+
+        return;
+    }
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("notifications")
+                .update({
+                    is_read: true
+                })
+                .eq(
+                    "user_id",
+                    currentUser.id
+                )
+                .eq(
+                    "is_read",
+                    false
+                );
+
+        if (error) {
+            throw error;
+        }
+
+        currentNotifications =
+            currentNotifications.map(
+                notification => ({
+                    ...notification,
+                    is_read: true
+                })
+            );
+
+        updateNotificationNavbar();
+        renderNotifications();
+
+        showToast(
+            "All notifications marked as read",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Mark all notifications error:",
+            error
+        );
+
+        showToast(
+            "Could not update notifications",
+            "error"
+        );
+    }
+}
+
+async function openNotification(
+    notificationId
+) {
+
+    const notification =
+        currentNotifications.find(
+            item =>
+                String(item.id) ===
+                String(notificationId)
+        );
+
+    if (!notification) {
+        return;
+    }
+
+    await markNotificationAsRead(
+        notificationId
+    );
+
+    closeModal(
+        "notificationsModal"
+    );
+
+    if (
+        notification.product_id
+    ) {
+
+        await openProductDetails(
+            notification.product_id
+        );
+
+        return;
+    }
+
+    if (
+        notification.inquiry_id
+    ) {
+
+        if (currentUser) {
+
+            await loadReceivedInquiries();
+
+            openModal(
+                "inquiriesModal"
+            );
+        }
+
+        return;
+    }
+}
+
+function startNotificationRefresh() {
+
+    stopNotificationRefresh();
+
+    if (!currentUser) {
+        return;
+    }
+
+    loadNotifications();
+
+    notificationRefreshTimer =
+        setInterval(
+            () => {
+
+                if (currentUser) {
+                    loadNotifications();
+                }
+
+            },
+            30000
+        );
+}
+
+function stopNotificationRefresh() {
+
+    if (
+        notificationRefreshTimer
+    ) {
+
+        clearInterval(
+            notificationRefreshTimer
+        );
+
+        notificationRefreshTimer =
+            null;
+    }
 }
 
 
@@ -4410,63 +4599,56 @@ function selectCategory(
 
 function setupEventListeners() {
 
+    ensureSellerProfileUI();
+    ensureNotificationsUI();
 
-    /* =====================================================
-       MODAL CLOSE
-       ===================================================== */
+
+    /* -----------------------------------------
+       GENERAL MODAL CLOSE
+       ----------------------------------------- */
 
     document.addEventListener(
         "click",
         event => {
 
-            const closeElement =
+            const closeButton =
                 event.target.closest(
                     "[data-close-modal]"
                 );
 
+            if (closeButton) {
 
-            if (!closeElement) {
-                return;
-            }
+                const modal =
+                    closeButton.closest(
+                        ".modal"
+                    );
 
-
-            const modal =
-                closeElement.closest(
-                    ".modal"
-                );
-
-
-            if (modal) {
-
-                closeModal(
-                    modal.id
-                );
+                if (modal) {
+                    closeModal(
+                        modal.id
+                    );
+                }
             }
         }
     );
-
-
-    /* =====================================================
-       ESCAPE KEY
-       ===================================================== */
 
     document.addEventListener(
         "keydown",
         event => {
 
             if (
-                event.key === "Escape"
+                event.key ===
+                "Escape"
             ) {
-
                 closeAllModals();
             }
         }
     );
 
 
-    /* =====================================================
-       NAVBAR
-       ===================================================== */
+    /* -----------------------------------------
+       LOGIN
+       ----------------------------------------- */
 
     $("loginButton")
         ?.addEventListener(
@@ -4480,6 +4662,10 @@ function setupEventListeners() {
         );
 
 
+    /* -----------------------------------------
+       SIGNUP
+       ----------------------------------------- */
+
     $("signupButton")
         ?.addEventListener(
             "click",
@@ -4492,12 +4678,81 @@ function setupEventListeners() {
         );
 
 
+    /* -----------------------------------------
+       WISHLIST
+       ----------------------------------------- */
+
     $("wishlistButton")
         ?.addEventListener(
             "click",
             openWishlist
         );
 
+
+    /* -----------------------------------------
+       NOTIFICATIONS
+       ----------------------------------------- */
+
+    $("notificationButton")
+        ?.addEventListener(
+            "click",
+            async () => {
+
+                if (!currentUser) {
+
+                    openModal(
+                        "loginModal"
+                    );
+
+                    showToast(
+                        "Please login to see notifications",
+                        "warning"
+                    );
+
+                    return;
+                }
+
+                await loadNotifications();
+
+                renderNotifications();
+
+                openModal(
+                    "notificationsModal"
+                );
+            }
+        );
+
+    $("markAllNotificationsButton")
+        ?.addEventListener(
+            "click",
+            markAllNotificationsAsRead
+        );
+
+    $("notificationsContainer")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                const item =
+                    event.target.closest(
+                        "[data-notification-id]"
+                    );
+
+                if (!item) {
+                    return;
+                }
+
+                openNotification(
+                    item.dataset
+                        .notificationId
+                );
+            }
+        );
+
+
+    /* -----------------------------------------
+       PROFILE
+       ----------------------------------------- */
 
     $("profileButton")
         ?.addEventListener(
@@ -4506,40 +4761,15 @@ function setupEventListeners() {
         );
 
 
+    /* -----------------------------------------
+       SELL
+       ----------------------------------------- */
+
     $("sellButton")
         ?.addEventListener(
             "click",
             openSellModal
         );
-
-
-    /* =====================================================
-       HERO
-       ===================================================== */
-
-    $("heroSearchButton")
-        ?.addEventListener(
-            "click",
-            performSearch
-        );
-
-
-    $("heroSearch")
-        ?.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key === "Enter"
-                ) {
-
-                    event.preventDefault();
-
-                    performSearch();
-                }
-            }
-        );
-
 
     $("heroSellButton")
         ?.addEventListener(
@@ -4547,13 +4777,11 @@ function setupEventListeners() {
             openSellModal
         );
 
-
     $("ctaSellButton")
         ?.addEventListener(
             "click",
             openSellModal
         );
-
 
     $("emptySellButton")
         ?.addEventListener(
@@ -4562,70 +4790,66 @@ function setupEventListeners() {
         );
 
 
-    /* =====================================================
-       MARKETPLACE FILTERS
-       ===================================================== */
+    /* -----------------------------------------
+       HERO SEARCH
+       ----------------------------------------- */
 
-    $("marketplaceSearch")
-        ?.addEventListener(
-            "input",
-            applyFilters
-        );
-
-
-    $("categoryFilter")
-        ?.addEventListener(
-            "change",
-            applyFilters
-        );
-
-
-    $("minPrice")
-        ?.addEventListener(
-            "input",
-            applyFilters
-        );
-
-
-    $("maxPrice")
-        ?.addEventListener(
-            "input",
-            applyFilters
-        );
-
-
-    $("conditionFilter")
-        ?.addEventListener(
-            "change",
-            applyFilters
-        );
-
-
-    $("sortFilter")
-        ?.addEventListener(
-            "change",
-            applyFilters
-        );
-
-
-    $("refreshProducts")
+    $("heroSearchButton")
         ?.addEventListener(
             "click",
-            async () => {
+            performSearch
+        );
 
-                await loadProducts();
+    $("heroSearch")
+        ?.addEventListener(
+            "keydown",
+            event => {
 
-                showToast(
-                    "Marketplace refreshed",
-                    "success"
-                );
+                if (
+                    event.key ===
+                    "Enter"
+                ) {
+                    performSearch();
+                }
             }
         );
 
 
-    /* =====================================================
-       CATEGORIES
-       ===================================================== */
+    /* -----------------------------------------
+       MARKETPLACE FILTERS
+       ----------------------------------------- */
+
+    [
+        "marketplaceSearch",
+        "categoryFilter",
+        "minPrice",
+        "maxPrice",
+        "conditionFilter",
+        "sortFilter"
+    ]
+        .forEach(id => {
+
+            $(id)?.addEventListener(
+                "input",
+                applyFilters
+            );
+
+            $(id)?.addEventListener(
+                "change",
+                applyFilters
+            );
+        });
+
+    $("refreshProducts")
+        ?.addEventListener(
+            "click",
+            loadProducts
+        );
+
+
+    /* -----------------------------------------
+       CATEGORY CARDS
+       ----------------------------------------- */
 
     document
         .querySelectorAll(
@@ -4638,16 +4862,17 @@ function setupEventListeners() {
                 () => {
 
                     selectCategory(
-                        card.dataset.category
+                        card.dataset
+                            .category
                     );
                 }
             );
         });
 
 
-    /* =====================================================
-       AUTH
-       ===================================================== */
+    /* -----------------------------------------
+       AUTH FORMS
+       ----------------------------------------- */
 
     $("loginForm")
         ?.addEventListener(
@@ -4655,18 +4880,18 @@ function setupEventListeners() {
             loginUser
         );
 
-
     $("signupForm")
         ?.addEventListener(
             "submit",
             signupUser
         );
 
-
     $("switchToSignup")
         ?.addEventListener(
             "click",
-            () => {
+            event => {
+
+                event.preventDefault();
 
                 closeModal(
                     "loginModal"
@@ -4677,12 +4902,13 @@ function setupEventListeners() {
                 );
             }
         );
-
 
     $("switchToLogin")
         ?.addEventListener(
             "click",
-            () => {
+            event => {
+
+                event.preventDefault();
 
                 closeModal(
                     "signupModal"
@@ -4695,16 +4921,15 @@ function setupEventListeners() {
         );
 
 
-    /* =====================================================
-       SELL
-       ===================================================== */
+    /* -----------------------------------------
+       SELL FORM
+       ----------------------------------------- */
 
     $("sellForm")
         ?.addEventListener(
             "submit",
             submitProduct
         );
-
 
     $("productImage")
         ?.addEventListener(
@@ -4713,9 +4938,9 @@ function setupEventListeners() {
         );
 
 
-    /* =====================================================
+    /* -----------------------------------------
        PRODUCT DETAILS
-       ===================================================== */
+       ----------------------------------------- */
 
     $("contactSellerButton")
         ?.addEventListener(
@@ -4723,10 +4948,26 @@ function setupEventListeners() {
             contactSeller
         );
 
+    $("viewSellerProfileButton")
+        ?.addEventListener(
+            "click",
+            () => {
 
-    /* =====================================================
+                if (
+                    currentProduct?.userId
+                ) {
+
+                    openSellerProfile(
+                        currentProduct.userId
+                    );
+                }
+            }
+        );
+
+
+    /* -----------------------------------------
        INQUIRY
-       ===================================================== */
+       ----------------------------------------- */
 
     $("inquiryForm")
         ?.addEventListener(
@@ -4735,9 +4976,9 @@ function setupEventListeners() {
         );
 
 
-    /* =====================================================
-       PROFILE
-       ===================================================== */
+    /* -----------------------------------------
+       PROFILE ACTIONS
+       ----------------------------------------- */
 
     $("editProfileButton")
         ?.addEventListener(
@@ -4751,7 +4992,6 @@ function setupEventListeners() {
                 openEditProfile();
             }
         );
-
 
     $("myListingsButton")
         ?.addEventListener(
@@ -4770,7 +5010,6 @@ function setupEventListeners() {
             }
         );
 
-
     $("myInquiriesButton")
         ?.addEventListener(
             "click",
@@ -4788,7 +5027,6 @@ function setupEventListeners() {
             }
         );
 
-
     $("logoutButton")
         ?.addEventListener(
             "click",
@@ -4796,12 +5034,15 @@ function setupEventListeners() {
         );
 
 
+    /* -----------------------------------------
+       EDIT PROFILE
+       ----------------------------------------- */
+
     $("editProfileForm")
         ?.addEventListener(
             "submit",
             saveEditedProfile
         );
-
 
     $("editProfileImage")
         ?.addEventListener(
@@ -4810,322 +5051,256 @@ function setupEventListeners() {
         );
 
 
-    /* =====================================================
-       FOOTER
-       ===================================================== */
+    /* -----------------------------------------
+       FOOTER AUTH
+       ----------------------------------------- */
 
     $("footerLoginButton")
         ?.addEventListener(
             "click",
-            () => {
-
-                openModal(
-                    "loginModal"
-                );
-            }
+            () => openModal("loginModal")
         );
-
 
     $("footerSignupButton")
         ?.addEventListener(
             "click",
-            () => {
-
-                openModal(
-                    "signupModal"
-                );
-            }
+            () => openModal("signupModal")
         );
 
 
-    /* =====================================================
-       WISHLIST MODAL ACTIONS
-       ===================================================== */
+    /* -----------------------------------------
+       WISHLIST CONTAINER
+       ----------------------------------------- */
 
     $("wishlistContainer")
         ?.addEventListener(
             "click",
             event => {
 
+                const removeButton =
+                    event.target.closest(
+                        "[data-wishlist-id]"
+                    );
+
+                if (removeButton) {
+
+                    event.stopPropagation();
+
+                    removeFromWishlist(
+                        removeButton.dataset
+                            .wishlistId
+                    );
+
+                    return;
+                }
+
                 const viewButton =
                     event.target.closest(
                         "[data-wishlist-view]"
                     );
 
-
-                const removeButton =
-                    event.target.closest(
-                        "[data-wishlist-remove]"
-                    );
-
-
-                /* VIEW */
-
                 if (viewButton) {
-
-                    const id =
-                        viewButton.dataset
-                            .wishlistView;
-
 
                     closeModal(
                         "wishlistModal"
                     );
 
-
                     openProductDetails(
-                        id
+                        viewButton.dataset
+                            .wishlistView
                     );
-
-                    return;
-                }
-
-
-                /* REMOVE */
-
-                if (removeButton) {
-
-                    const id =
-                        removeButton.dataset
-                            .wishlistRemove;
-
-
-                    removeFromWishlist(
-                        id
-                    );
-
-                    return;
                 }
             }
         );
 
 
-    /* =====================================================
-       PRODUCT CARD ACTIONS
-       ===================================================== */
+    /* -----------------------------------------
+       MARKETPLACE PRODUCTS
+       ----------------------------------------- */
 
     $("productContainer")
         ?.addEventListener(
             "click",
             event => {
 
-                const actionButton =
+                const sellerButton =
                     event.target.closest(
-                        "[data-action]"
+                        "[data-seller-id]"
                     );
 
+                if (sellerButton) {
 
-                if (!actionButton) {
+                    event.stopPropagation();
+
+                    openSellerProfile(
+                        sellerButton.dataset
+                            .sellerId
+                    );
+
                     return;
                 }
 
+                const wishlistButton =
+                    event.target.closest(
+                        "[data-wishlist-id]"
+                    );
 
-                const action =
-                    actionButton.dataset.action;
-
-
-                const id =
-                    actionButton.dataset.id ||
-                    actionButton.dataset.wishlistId;
-
-
-                if (!id) {
-                    return;
-                }
-
-
-                if (
-                    action ===
-                    "wishlist"
-                ) {
-
-                    event.preventDefault();
+                if (wishlistButton) {
 
                     event.stopPropagation();
 
                     toggleWishlist(
-                        id,
-                        actionButton
+                        wishlistButton.dataset
+                            .wishlistId
                     );
 
                     return;
                 }
 
+                const viewButton =
+                    event.target.closest(
+                        "[data-view-product]"
+                    );
 
-                if (
-                    action ===
-                    "view"
-                ) {
-
-                    event.preventDefault();
+                if (viewButton) {
 
                     openProductDetails(
-                        id
+                        viewButton.dataset
+                            .viewProduct
                     );
-
-                    return;
-                }
-
-
-                if (
-                    action ===
-                    "edit"
-                ) {
-
-                    event.preventDefault();
-
-                    openEditProduct(
-                        id
-                    );
-
-                    return;
-                }
-
-
-                if (
-                    action ===
-                    "delete"
-                ) {
-
-                    event.preventDefault();
-
-                    deleteProduct(
-                        id
-                    );
-
-                    return;
                 }
             }
         );
 
 
-    /* =====================================================
-       MY LISTINGS ACTIONS
-       ===================================================== */
+    /* -----------------------------------------
+       MY LISTINGS
+       ----------------------------------------- */
 
     $("myListingsContainer")
         ?.addEventListener(
             "click",
-            async event => {
+            event => {
 
-                /* WISHLIST */
-
-                const wishlistButton =
+                const sellButton =
                     event.target.closest(
-                        '[data-action="wishlist"]'
+                        "[data-my-listings-sell]"
                     );
 
-
-                if (wishlistButton) {
-
-                    event.preventDefault();
-
-                    event.stopPropagation();
-
-                    const wishlistId =
-                        wishlistButton
-                            .dataset
-                            .wishlistId;
-
-
-                    if (wishlistId) {
-
-                        toggleWishlist(
-                            wishlistId,
-                            wishlistButton
-                        );
-                    }
-
-                    return;
-                }
-
-
-                /* OTHER ACTIONS */
-
-                const button =
-                    event.target.closest(
-                        "[data-my-action]"
-                    );
-
-
-                if (!button) {
-                    return;
-                }
-
-
-                const action =
-                    button.dataset.myAction;
-
-
-                const id =
-                    button.dataset.id;
-
-
-                if (
-                    action ===
-                    "view"
-                ) {
-
-                    closeModal(
-                        "myListingsModal"
-                    );
-
-                    openProductDetails(
-                        id
-                    );
-
-                    return;
-                }
-
-
-                if (
-                    action ===
-                    "edit"
-                ) {
-
-                    closeModal(
-                        "myListingsModal"
-                    );
-
-                    openEditProduct(
-                        id
-                    );
-
-                    return;
-                }
-
-
-                if (
-                    action ===
-                    "delete"
-                ) {
-
-                    await deleteProduct(
-                        id
-                    );
-
-                    return;
-                }
-
-
-                if (
-                    action ===
-                    "sell"
-                ) {
+                if (sellButton) {
 
                     closeModal(
                         "myListingsModal"
                     );
 
                     openSellModal();
+
+                    return;
+                }
+
+                const wishlist =
+                    event.target.closest(
+                        "[data-wishlist-id]"
+                    );
+
+                if (wishlist) {
+
+                    toggleWishlist(
+                        wishlist.dataset
+                            .wishlistId
+                    );
+
+                    return;
+                }
+
+                const view =
+                    event.target.closest(
+                        "[data-my-view]"
+                    );
+
+                if (view) {
+
+                    closeModal(
+                        "myListingsModal"
+                    );
+
+                    openProductDetails(
+                        view.dataset
+                            .myView
+                    );
+
+                    return;
+                }
+
+                const edit =
+                    event.target.closest(
+                        "[data-my-edit]"
+                    );
+
+                if (edit) {
+
+                    closeModal(
+                        "myListingsModal"
+                    );
+
+                    openEditProduct(
+                        edit.dataset
+                            .myEdit
+                    );
+
+                    return;
+                }
+
+                const deleteButton =
+                    event.target.closest(
+                        "[data-my-delete]"
+                    );
+
+                if (deleteButton) {
+
+                    deleteProduct(
+                        deleteButton.dataset
+                            .myDelete
+                    );
                 }
             }
         );
 
 
-    /* =====================================================
-       INQUIRY ACTIONS
-       ===================================================== */
+    /* -----------------------------------------
+       SELLER PROFILE LISTINGS
+       ----------------------------------------- */
+
+    $("sellerProfileListings")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                const card =
+                    event.target.closest(
+                        "[data-seller-listing-id]"
+                    );
+
+                if (!card) {
+                    return;
+                }
+
+                const id =
+                    card.dataset
+                        .sellerListingId;
+
+                closeModal(
+                    "sellerProfileModal"
+                );
+
+                openProductDetails(id);
+            }
+        );
+
+
+    /* -----------------------------------------
+       INQUIRIES
+       ----------------------------------------- */
 
     $("inquiriesContainer")
         ?.addEventListener(
@@ -5137,20 +5312,14 @@ function setupEventListeners() {
                         "[data-inquiry-action]"
                     );
 
-
-                if (!button) {
-                    return;
-                }
-
-
                 if (
+                    button &&
                     button.dataset
                         .inquiryAction ===
                     "status"
                 ) {
 
                     await updateInquiryStatus(
-
                         button.dataset
                             .inquiryId,
 
@@ -5164,51 +5333,43 @@ function setupEventListeners() {
 
 
 /* =========================================================
-   AUTH STATE LISTENER
+   AUTH LISTENER
    ========================================================= */
 
 function setupAuthListener() {
 
     supabaseClient.auth
         .onAuthStateChange(
-            (
-                event,
-                session
-            ) => {
+            (event, session) => {
 
                 currentUser =
                     session?.user ||
                     null;
 
-
                 updateNavbar();
 
-                updateWishlistNavbar();
+                if (currentUser) {
 
+                    startNotificationRefresh();
 
-                if (
-                    event ===
-                    "SIGNED_IN"
-                ) {
+                } else {
 
-                    setTimeout(
-                        () => {
-                            loadProducts();
-                        },
-                        0
-                    );
+                    stopNotificationRefresh();
+
+                    currentNotifications = [];
+
+                    updateNotificationNavbar();
                 }
 
-
                 if (
                     event ===
-                    "SIGNED_OUT"
+                        "SIGNED_IN" ||
+                    event ===
+                        "SIGNED_OUT"
                 ) {
 
                     setTimeout(
-                        () => {
-                            loadProducts();
-                        },
+                        loadProducts,
                         0
                     );
                 }
@@ -5225,11 +5386,13 @@ async function initializeStudentKart() {
 
     try {
 
+        ensureSellerProfileUI();
+
+        ensureNotificationsUI();
+
         await getCurrentUser();
 
         updateNavbar();
-
-        updateWishlistNavbar();
 
         setupEventListeners();
 
@@ -5237,10 +5400,16 @@ async function initializeStudentKart() {
 
         await loadProducts();
 
+        if (currentUser) {
+
+            await loadNotifications();
+
+            startNotificationRefresh();
+        }
+
     } catch (error) {
 
         console.error(
-            "StudentKart initialization error:",
             error
         );
 
@@ -5277,6 +5446,9 @@ window.removeFromWishlist =
 window.openProductDetails =
     openProductDetails;
 
+window.openSellerProfile =
+    openSellerProfile;
+
 window.openSellModal =
     openSellModal;
 
@@ -5289,9 +5461,21 @@ window.selectCategory =
 window.performSearch =
     performSearch;
 
+window.loadNotifications =
+    loadNotifications;
+
+window.markNotificationAsRead =
+    markNotificationAsRead;
+
+window.markAllNotificationsAsRead =
+    markAllNotificationsAsRead;
+
+window.openNotification =
+    openNotification;
+
 
 /* =========================================================
-   START APP
+   START
    ========================================================= */
 
 if (
