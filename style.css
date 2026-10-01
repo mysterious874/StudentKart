@@ -4494,3 +4494,28 @@ body { font-weight: 400; }
         margin-left: 0;
     }
 }
+
+
+/* WISHLIST BUTTON — MATCH OTHER NAV ACTION BOXES */
+.nav-wishlist-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 37px;
+    padding: 8px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9px;
+    background: transparent;
+    color: #d7e3e8;
+}
+
+.nav-wishlist-button:hover {
+    color: #fff;
+    background: rgba(15, 139, 141, 0.10);
+    border-color: rgba(15, 139, 141, 0.35);
+}
+
+.nav-wishlist-button .wishlist-count {
+    margin-left: 1px;
+}
