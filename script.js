@@ -356,6 +356,7 @@ function closeAllModals(options = {}) {
         });
 
     document.body.classList.remove("modal-open");
+    document.body.classList.remove("studentkart-modal-navigation-hidden");
 
     if (!options.fromPopState && window.history.state?.studentKart && window.history.state?.modalId) {
         studentKartSkipNextPopState = true;
@@ -390,6 +391,7 @@ window.addEventListener("popstate", event => {
             });
 
         if (state.modalId) {
+            document.body.classList.add("studentkart-modal-navigation-hidden");
             const targetModal = $(state.modalId);
 
             if (targetModal) {
@@ -401,6 +403,7 @@ window.addEventListener("popstate", event => {
         } else {
             modalHistory = [];
             document.body.classList.remove("modal-open");
+            document.body.classList.remove("studentkart-modal-navigation-hidden");
         }
 
         studentKartHandlingPopState = false;
