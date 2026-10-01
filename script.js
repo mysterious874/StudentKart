@@ -6076,6 +6076,24 @@ function setupEventListeners() {
         );
 
 
+    $("bottomCategoriesButton")?.addEventListener("click", () => {
+        const modal = $("categoryPickerModal");
+        if (!modal) return;
+        modal.classList.remove("hidden");
+        document.body.classList.add("modal-open");
+        document.body.classList.add("studentkart-modal-navigation-hidden");
+    });
+
+    document.querySelectorAll(".category-picker-card").forEach(card => {
+        card.addEventListener("click", () => {
+            selectCategory(card.dataset.category);
+            const modal = $("categoryPickerModal");
+            modal?.classList.add("hidden");
+            document.body.classList.remove("modal-open");
+            document.body.classList.remove("studentkart-modal-navigation-hidden");
+        });
+    });
+
     /* -----------------------------------------
        CATEGORY CARDS
        ----------------------------------------- */
