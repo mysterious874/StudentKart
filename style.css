@@ -8417,3 +8417,68 @@ body #profileModal:not(.hidden) .profile-header {
 .chat-person h2 {
     color: #111827 !important;
 }
+
+
+/* =========================================================
+   FINAL NAVBAR + CHAT HEADING VISIBILITY FIX
+   Keep Wishlist visible in the header and force Chat heading dark.
+   ========================================================= */
+
+body .nav-wishlist-button,
+body #wishlistButton {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body .nav-wishlist-button .wishlist-button-text {
+    display: inline !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+body #chatModal .chat-person h2,
+body #chatModal .chat-head .chat-person h2,
+body .chat-person h2 {
+    color: #111827 !important;
+}
+
+@media (max-width: 700px) {
+    body #wishlistButton {
+        width: auto !important;
+        min-width: 74px !important;
+        flex: 0 0 auto !important;
+        padding: 7px 9px !important;
+        font-size: 11px !important;
+        gap: 5px !important;
+    }
+
+    body #wishlistButton .wishlist-button-text {
+        display: inline !important;
+        font-size: 11px !important;
+        line-height: 1 !important;
+    }
+
+    body #wishlistButton i {
+        font-size: 13px !important;
+    }
+}
+
+@media (max-width: 430px) {
+    body #wishlistButton {
+        min-width: 35px !important;
+        width: 35px !important;
+        padding: 6px !important;
+        font-size: 0 !important;
+    }
+
+    body #wishlistButton .wishlist-button-text {
+        display: none !important;
+    }
+
+    body #wishlistButton i {
+        font-size: 13px !important;
+    }
+}
