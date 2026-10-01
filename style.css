@@ -6607,3 +6607,76 @@ body #chatModal #chatForm .btn {
         left: 10px !important;
     }
 }
+
+
+/* =========================================================
+   CHATS INBOX - SAME APP-LIKE LAYOUT AS NOTIFICATIONS
+   ========================================================= */
+body #inquiriesModal.modal {
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding: 10px 12px !important;
+}
+
+body #inquiriesModal .modal-content {
+    width: min(400px, calc(100vw - 28px)) !important;
+    max-width: 400px !important;
+    height: min(560px, calc(100vh - 28px)) !important;
+    max-height: min(560px, calc(100vh - 28px)) !important;
+    margin: 0 auto !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+body #inquiriesModal .inquiries-whatsapp-header {
+    position: relative !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 18px 12px 14px 54px !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--border) !important;
+}
+
+body #inquiriesModal .inquiries-modal-back-button {
+    position: absolute !important;
+    top: 14px !important;
+    left: 14px !important;
+    right: auto !important;
+    z-index: 300 !important;
+    margin: 0 !important;
+}
+
+body #inquiriesModal #inquiriesContainer {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+}
+
+@media (max-width: 700px) {
+    body #inquiriesModal.modal {
+        padding: 12px 10px !important;
+    }
+
+    body #inquiriesModal .modal-content {
+        width: min(340px, calc(100vw - 24px)) !important;
+        max-width: 340px !important;
+        height: calc(100vh - 24px) !important;
+        max-height: calc(100vh - 24px) !important;
+        border-radius: 14px !important;
+    }
+
+    body #inquiriesModal .inquiries-whatsapp-header {
+        padding: 16px 10px 12px 50px !important;
+    }
+
+    body #inquiriesModal .inquiries-modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+}
