@@ -10342,3 +10342,209 @@ button:active,
         padding: 7px 22px 21px !important;
     }
 }
+
+
+/* =========================================================
+   STUDENTKART AUTH + BUTTON TOUCH POLISH
+   ========================================================= */
+
+.auth-modal {
+    width: min(430px, 94vw);
+    overflow: hidden;
+    border: 1px solid #cfe1e4;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 28px 80px rgba(16, 42, 67, .20);
+}
+
+.auth-modal .auth-header {
+    position: relative;
+    overflow: hidden;
+    padding: 24px 24px 20px !important;
+    background:
+        radial-gradient(circle at 88% 12%, rgba(15,139,141,.28), transparent 34%),
+        linear-gradient(135deg, #102a43 0%, #143b4a 62%, #0f6f71 100%) !important;
+    border-bottom: 1px solid rgba(255,255,255,.10) !important;
+}
+
+.auth-modal .auth-header::after {
+    content: "";
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    right: -55px;
+    bottom: -85px;
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 50%;
+}
+
+.auth-modal .auth-icon {
+    position: relative;
+    z-index: 1;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background: rgba(15,139,141,.18);
+    border: 1px solid rgba(115,232,229,.32);
+    color: #73e8e5;
+    font-size: 17px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.12);
+}
+
+.auth-modal .auth-header h2,
+.auth-modal .auth-header p {
+    position: relative;
+    z-index: 1;
+}
+
+.auth-modal .auth-header h2 {
+    color: #ffffff !important;
+    font-size: 22px !important;
+    line-height: 1.2;
+    letter-spacing: -.45px;
+    margin: 0 0 5px !important;
+}
+
+.auth-modal .auth-header p {
+    color: rgba(255,255,255,.70) !important;
+    font-size: 12px !important;
+    line-height: 1.5;
+}
+
+.auth-modal form {
+    padding: 22px 24px 8px !important;
+}
+
+.auth-modal .form-group {
+    margin-bottom: 15px;
+}
+
+.auth-modal .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #24465b;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.auth-modal .form-group input {
+    width: 100%;
+    height: 43px;
+    padding: 0 12px;
+    border: 1px solid #d4e1e4;
+    border-radius: 9px;
+    background: #f8fbfc;
+    color: #102a43;
+    outline: none;
+    font-size: 13px;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.auth-modal .form-group input::placeholder {
+    color: #9aaeb8;
+}
+
+.auth-modal .form-group input:focus {
+    border-color: #0f8b8d;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(15,139,141,.11);
+}
+
+.auth-modal .form-help {
+    display: block;
+    margin-top: 5px;
+    color: #829ab1;
+    font-size: 10px;
+}
+
+.auth-modal .btn-primary {
+    min-height: 43px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #0f8b8d, #0b6f71);
+    box-shadow: 0 7px 18px rgba(15,139,141,.18);
+}
+
+.auth-modal .btn-primary:hover {
+    background: linear-gradient(135deg, #0b7b7d, #095f61);
+    box-shadow: 0 9px 22px rgba(15,139,141,.25);
+}
+
+.auth-modal .auth-switch {
+    padding: 13px 24px 21px;
+    color: #829ab1;
+    text-align: center;
+    font-size: 11px;
+}
+
+.auth-modal .auth-switch button {
+    margin-left: 5px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #0f8b8d;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-modal .auth-switch button:hover {
+    color: #0b6f71;
+    text-decoration: underline;
+}
+
+/* Remove browser's default blue touch flash and add a clean StudentKart ripple. */
+button,
+.btn,
+a,
+.category-card {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn,
+button {
+    position: relative;
+    overflow: hidden;
+}
+
+.sk-ripple {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(115, 232, 229, .38);
+    box-shadow: 0 0 0 1px rgba(15,139,141,.08), 0 0 18px rgba(15,139,141,.24);
+    animation: skRipple .48s ease-out forwards;
+    z-index: 20;
+}
+
+@keyframes skRipple {
+    0% {
+        opacity: .85;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    70% {
+        opacity: .32;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(7);
+    }
+}
+
+@media (max-width: 600px) {
+    .auth-modal .auth-header {
+        padding: 20px 18px 17px !important;
+    }
+
+    .auth-modal form {
+        padding: 19px 18px 6px !important;
+    }
+
+    .auth-modal .auth-switch {
+        padding: 11px 18px 18px;
+    }
+}
