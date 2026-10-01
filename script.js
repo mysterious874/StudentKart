@@ -226,6 +226,8 @@ function showToast(message, type = "success") {
    MODALS
    ========================================================= */
 
+let modalHistory = [];
+
 function openModal(id) {
 
     const modal = $(id);
@@ -234,6 +236,24 @@ function openModal(id) {
         return;
     }
 
+    const currentModal =
+        document.querySelector(
+            ".modal:not(.hidden):not(.modal-closing)"
+        );
+
+    if (
+        currentModal &&
+        currentModal.id !== id
+    ) {
+        modalHistory = modalHistory.filter(
+            historyId => historyId !== id
+        );
+        modalHistory.push(currentModal.id);
+        currentModal.classList.add("hidden");
+        currentModal.classList.remove("modal-closing");
+    }
+
+    modal.classList.remove("modal-closing");
     modal.classList.remove("hidden");
 
     document.body.classList.add("modal-open");
@@ -257,6 +277,20 @@ function closeModal(id) {
         modal.classList.remove("modal-closing");
         modal.classList.add("hidden");
 
+        const parentId =
+            modalHistory.pop();
+
+        if (parentId) {
+            const parentModal = $(parentId);
+
+            if (parentModal) {
+                parentModal.classList.remove("modal-closing");
+                parentModal.classList.remove("hidden");
+                document.body.classList.add("modal-open");
+                return;
+            }
+        }
+
         const anyOpen =
             document.querySelector(
                 ".modal:not(.hidden)"
@@ -270,9 +304,12 @@ function closeModal(id) {
 
 function closeAllModals() {
 
+    modalHistory = [];
+
     document
         .querySelectorAll(".modal")
         .forEach(modal => {
+            modal.classList.remove("modal-closing");
             modal.classList.add("hidden");
         });
 
