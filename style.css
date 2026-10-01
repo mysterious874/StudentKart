@@ -9171,7 +9171,7 @@ body.studentkart-modal-navigation-hidden .mobile-bottom-nav { display: none !imp
 }
 
 
-/* Unified page headers - compact navbar-style */
+/* Unified page headers - navbar-attached style */
 body .modal-header,
 body .auth-header,
 body .profile-header,
@@ -9179,13 +9179,16 @@ body .seller-profile-header,
 body .seller-profile-listings-header,
 body .inquiries-whatsapp-header,
 body .wishlist-page-header{
-  margin:12px 12px 0!important;
-  padding:12px 16px!important;
+  margin:0!important;
+  padding:13px 18px!important;
+  width:100%!important;
   min-height:0!important;
-  border:1px solid rgba(255,255,255,.08)!important;
-  border-radius:10px!important;
+  box-sizing:border-box!important;
+  border:0!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  border-radius:0!important;
   background:var(--nav)!important;
-  box-shadow:0 5px 16px rgba(0,0,0,.12)!important;
+  box-shadow:none!important;
   text-align:left!important;
 }
 body .modal-header h2,
@@ -9215,12 +9218,9 @@ body .wishlist-page-header p{
   line-height:1.35!important;
   font-weight:400!important;
 }
-body .wishlist-page-header > div{
-  width:100%!important;
-}
-body .wishlist-page-header .section-label{
-  display:none!important;
-}
+body .wishlist-page-header > div{width:100%!important}
+body .wishlist-page-header .section-label{display:none!important}
+
 @media(max-width:600px){
   body .modal-header,
   body .auth-header,
@@ -9229,9 +9229,8 @@ body .wishlist-page-header .section-label{
   body .seller-profile-listings-header,
   body .inquiries-whatsapp-header,
   body .wishlist-page-header{
-    margin:9px 9px 0!important;
-    padding:11px 13px!important;
-    border-radius:9px!important;
+    margin:0!important;
+    padding:11px 14px!important;
   }
   body .modal-header h2,
   body .auth-header h2,
