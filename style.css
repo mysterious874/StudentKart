@@ -10566,7 +10566,7 @@ button {
 .auth-modal .auth-header {
     position: relative !important;
     min-height: 118px !important;
-    padding: 20px 22px 18px 82px !important;
+    padding: 20px 22px 18px !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
