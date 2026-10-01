@@ -6509,3 +6509,101 @@ body #notificationsModal #notificationSelectionToolbar {
 body #notificationsModal #notificationsContainer [data-notification-id] {
     -webkit-touch-callout: none;
 }
+
+
+/* =========================================================
+   CHAT PAGE - SAME APP-LIKE LAYOUT AS NOTIFICATIONS
+   ========================================================= */
+body #chatModal.modal {
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding: 10px 12px !important;
+}
+
+body #chatModal .chat-modal-content {
+    width: min(400px, calc(100vw - 28px)) !important;
+    max-width: 400px !important;
+    height: min(560px, calc(100vh - 28px)) !important;
+    max-height: min(560px, calc(100vh - 28px)) !important;
+    margin: 0 auto !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    background: #ffffff !important;
+}
+
+body #chatModal .chat-head {
+    flex: 0 0 auto !important;
+    position: relative !important;
+    min-height: 68px !important;
+    padding: 10px 12px 10px 54px !important;
+    box-sizing: border-box !important;
+}
+
+body #chatModal .chat-head > .chat-modal-back-button {
+    position: absolute !important;
+    top: 50% !important;
+    left: 10px !important;
+    right: auto !important;
+    transform: translateY(-50%) !important;
+    z-index: 30 !important;
+}
+
+body #chatModal #chatMessages {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    border-radius: 0 !important;
+    padding: 12px 10px !important;
+    background: #f5f8f9 !important;
+}
+
+body #chatModal #chatForm {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    padding: 8px !important;
+    gap: 6px !important;
+    background: #ffffff !important;
+    border-top: 1px solid var(--border) !important;
+}
+
+body #chatModal #chatForm input {
+    height: 42px !important;
+    padding: 10px 12px !important;
+    background: #f5f8f9 !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+}
+
+body #chatModal #chatForm .btn {
+    height: 42px !important;
+    padding: 0 12px !important;
+}
+
+@media (max-width: 700px) {
+    body #chatModal.modal {
+        padding: 12px 10px !important;
+    }
+
+    body #chatModal .chat-modal-content {
+        width: min(340px, calc(100vw - 24px)) !important;
+        max-width: 340px !important;
+        height: calc(100vh - 24px) !important;
+        max-height: calc(100vh - 24px) !important;
+        border-radius: 14px !important;
+    }
+
+    body #chatModal .chat-head {
+        padding-left: 50px !important;
+    }
+
+    body #chatModal .chat-head > .chat-modal-back-button {
+        left: 10px !important;
+    }
+}
