@@ -7125,3 +7125,80 @@ body #chatModal .chat-head .modal-home-button {
         min-width: 38px !important;
     }
 }
+
+
+/* =========================================================
+   MODAL HEADER CLEARANCE FOR BACK + HOME BUTTONS
+   ========================================================= */
+body .modal > .modal-content > .modal-header {
+    padding-left: 112px !important;
+    padding-right: 58px !important;
+}
+
+body .modal > .modal-content > .auth-header {
+    padding-left: 112px !important;
+    padding-right: 58px !important;
+}
+
+body #productModal .product-details-content {
+    padding-left: 76px !important;
+    padding-right: 26px !important;
+}
+
+body #profileModal .profile-header,
+body #sellerProfileModal .seller-profile-header {
+    padding-left: 112px !important;
+    padding-right: 58px !important;
+}
+
+body #myListingsModal .modal-header,
+body #editProfileModal .modal-header,
+body #sellModal .modal-header,
+body #inquiryModal .modal-header {
+    padding-left: 112px !important;
+    padding-right: 58px !important;
+}
+
+@media (max-width: 600px) {
+    body .modal > .modal-content > .modal-header {
+        padding-left: 96px !important;
+        padding-right: 50px !important;
+    }
+
+    body .modal > .modal-content > .auth-header {
+        padding-left: 96px !important;
+        padding-right: 50px !important;
+    }
+
+    body #productModal .product-details-content {
+        padding-left: 66px !important;
+        padding-right: 18px !important;
+    }
+
+    body #profileModal .profile-header,
+    body #sellerProfileModal .seller-profile-header {
+        padding-left: 96px !important;
+        padding-right: 50px !important;
+    }
+}
+
+/* Full-screen chat/inquiries keep their own header alignment. */
+body #inquiriesModal .modal-header {
+    padding-left: 112px !important;
+    padding-right: 26px !important;
+}
+
+body #chatModal .chat-person {
+    padding-left: 96px !important;
+}
+
+@media (max-width: 600px) {
+    body #inquiriesModal .modal-header {
+        padding-left: 96px !important;
+        padding-right: 18px !important;
+    }
+
+    body #chatModal .chat-person {
+        padding-left: 82px !important;
+    }
+}
