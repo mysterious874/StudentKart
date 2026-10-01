@@ -6755,3 +6755,35 @@ body #inquiriesModal #inquiriesContainer {
         left: 10px !important;
     }
 }
+
+
+/* =========================================================
+   WISHLIST - CLEAN CENTERED POPUP HEADER
+   ========================================================= */
+body #wishlistModal .wishlist-page-header {
+    text-align: center !important;
+    padding: 22px 26px 18px !important;
+}
+
+body #wishlistModal .wishlist-page-header > div {
+    width: 100% !important;
+}
+
+body #wishlistModal .wishlist-page-header .section-label {
+    display: block !important;
+    font-size: 18px !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    margin: 0 !important;
+}
+
+@media (max-width: 600px) {
+    body #wishlistModal .wishlist-page-header {
+        padding: 18px 18px 14px !important;
+    }
+
+    body #wishlistModal .wishlist-page-header .section-label {
+        font-size: 17px !important;
+    }
+}
