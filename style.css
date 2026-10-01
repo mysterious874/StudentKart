@@ -6713,6 +6713,20 @@ body #inquiriesModal .modal-header {
     border-bottom: 1px solid var(--border) !important;
 }
 
+body #inquiriesModal .inquiries-whatsapp-header > div:first-child {
+    width: 100% !important;
+    text-align: center !important;
+}
+
+body #inquiriesModal .inquiries-whatsapp-header .section-label {
+    display: block !important;
+    font-size: 18px !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    margin: 0 !important;
+}
+
 body #inquiriesModal .inquiries-modal-back-button {
     position: absolute !important;
     top: 18px !important;
