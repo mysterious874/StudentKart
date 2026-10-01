@@ -3634,38 +3634,27 @@ async function deleteProduct(
    LOGIN / SIGNUP / LOGOUT
    ========================================================= */
 
-async function normalizeAuthContact(raw) {
+function normalizeAuthEmail(raw) {
 
-    const value = String(raw || "").trim();
+    const value = String(raw || "").trim().toLowerCase();
 
-    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        return { type: "email", value: value.toLowerCase(), display: value.toLowerCase() };
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return null;
     }
 
-    const digits = value.replace(/\D/g, "");
-
-    if (/^[6-9]\d{9}$/.test(digits)) {
-        return { type: "phone", value: "+91" + digits, display: "+91 " + digits };
-    }
-
-    return null;
+    return value;
 }
 
-async function sendOtpForContact(contact, shouldCreateUser, metadata = {}) {
-
-    const credentials =
-        contact.type === "email"
-            ? {
-                email: contact.value,
-                options: { shouldCreateUser, data: metadata }
-            }
-            : {
-                phone: contact.value,
-                options: { shouldCreateUser, data: metadata }
-            };
+async function sendMagicLink(email, shouldCreateUser, metadata = {}) {
 
     const { error } =
-        await supabaseClient.auth.signInWithOtp(credentials);
+        await supabaseClient.auth.signInWithOtp({
+            email,
+            options: {
+                shouldCreateUser,
+                data: metadata
+            }
+        });
 
     if (error) throw error;
 }
@@ -3674,35 +3663,40 @@ async function loginUser(event) {
 
     event.preventDefault();
 
-    const contact = await normalizeAuthContact($("loginIdentifier")?.value);
+    const email = normalizeAuthEmail($("loginIdentifier")?.value);
 
-    if (!contact) {
-        showToast("Enter a valid email or 10-digit mobile number", "warning");
+    if (!email) {
+        showToast("Enter a valid email address", "warning");
         return;
     }
 
-    const button = $("loginForm")?.querySelector('button[type="submit"]');
+    const button =
+        $("loginForm")?.querySelector('button[type="submit"]');
+
     if (button) button.disabled = true;
 
     try {
-        await sendOtpForContact(contact, false);
 
-        window.pendingOtpContact = contact.value;
-        window.pendingOtpContactType = contact.type;
-        window.pendingOtpMode = "login";
-        window.pendingOtpProfile = null;
+        await sendMagicLink(email, false);
 
         closeModal("loginModal");
-        $("otpDescription").textContent = "Enter the 6-digit OTP sent to " + contact.display;
-        $("otpCode").value = "";
-        openModal("otpModal");
 
-        showToast("OTP sent successfully", "success");
+        showToast(
+            "Sign-in link sent. Check your email.",
+            "success"
+        );
 
     } catch (error) {
-        console.error("Login OTP error:", error);
-        showToast(error?.message || "Could not send OTP", "error");
+
+        console.error("Login magic link error:", error);
+
+        showToast(
+            error?.message || "Could not send sign-in link",
+            "error"
+        );
+
     } finally {
+
         if (button) button.disabled = false;
     }
 }
@@ -3711,132 +3705,131 @@ async function signupUser(event) {
 
     event.preventDefault();
 
-    const name = $("signupName")?.value?.trim();
-    const college = $("signupCollege")?.value?.trim();
-    const contact = await normalizeAuthContact($("signupIdentifier")?.value);
+    const name =
+        $("signupName")?.value?.trim();
 
-    if (!name || !college || !contact) {
-        showToast("Please fill all fields correctly", "warning");
+    const college =
+        $("signupCollege")?.value?.trim();
+
+    const email =
+        normalizeAuthEmail(
+            $("signupIdentifier")?.value
+        );
+
+    if (!name || !college || !email) {
+
+        showToast(
+            "Please enter your name, college and a valid email",
+            "warning"
+        );
+
         return;
     }
 
-    const profile = {
+    const metadata = {
         name,
-        college,
-        email: contact.type === "email" ? contact.value : "",
-        mobile: contact.type === "phone" ? contact.value.replace("+91", "") : "",
-        mobile_verified: contact.type === "phone"
+        college
     };
 
-    const button = $("signupForm")?.querySelector('button[type="submit"]');
+    const button =
+        $("signupForm")?.querySelector('button[type="submit"]');
+
     if (button) button.disabled = true;
 
     try {
-        await sendOtpForContact(contact, true, profile);
 
-        window.pendingOtpContact = contact.value;
-        window.pendingOtpContactType = contact.type;
-        window.pendingOtpMode = "signup";
-        window.pendingOtpProfile = profile;
+        await sendMagicLink(
+            email,
+            true,
+            metadata
+        );
 
         closeModal("signupModal");
-        $("otpDescription").textContent = "Enter the 6-digit OTP sent to " + contact.display;
-        $("otpCode").value = "";
-        openModal("otpModal");
 
-        showToast("OTP sent successfully", "success");
+        showToast(
+            "Sign-up link sent. Check your email.",
+            "success"
+        );
 
     } catch (error) {
-        console.error("Signup OTP error:", error);
-        showToast(error?.message || "Could not send OTP", "error");
+
+        console.error("Signup magic link error:", error);
+
+        showToast(
+            error?.message || "Could not send sign-up link",
+            "error"
+        );
+
     } finally {
+
         if (button) button.disabled = false;
     }
 }
 
-async function verifyOtp(event) {
+async function ensureProfileAfterMagicLink(user) {
 
-    event.preventDefault();
-
-    const contact = window.pendingOtpContact;
-    const type = window.pendingOtpContactType;
-    const token = $("otpCode")?.value?.trim();
-
-    if (!contact || !type || !/^\d{6}$/.test(token)) {
-        showToast("Enter the 6-digit OTP", "warning");
-        return;
-    }
-
-    const button = $("otpForm")?.querySelector('button[type="submit"]');
-    if (button) button.disabled = true;
+    if (!user) return;
 
     try {
-        const { data, error } =
-            await supabaseClient.auth.verifyOtp({
-                [type === "email" ? "email" : "phone"]: contact,
-                token,
-                type: type === "email" ? "email" : "sms"
-            });
 
-        if (error) throw error;
+        const { data: existingProfile, error: fetchError } =
+            await supabaseClient
+                .from("profiles")
+                .select("id")
+                .eq("id", user.id)
+                .maybeSingle();
 
-        if (data?.user && window.pendingOtpMode === "signup") {
-            const p = window.pendingOtpProfile || {};
-            const { error: profileError } =
-                await supabaseClient.from("profiles").upsert({
-                    id: data.user.id,
-                    name: p.name || data.user.user_metadata?.name || "Student",
-                    college: p.college || data.user.user_metadata?.college || "",
-                    email: p.email || data.user.email || "",
-                    mobile: p.mobile || "",
-                    mobile_verified: type === "phone"
-                });
-
-            if (profileError) console.error("Profile create error:", profileError);
+        if (fetchError) {
+            console.error(
+                "Profile lookup after magic link error:",
+                fetchError
+            );
+            return;
         }
 
-        window.pendingOtpContact = "";
-        window.pendingOtpContactType = "";
-        window.pendingOtpMode = "";
-        window.pendingOtpProfile = null;
+        if (existingProfile) {
+            return;
+        }
 
-        closeModal("otpModal");
-        showToast("OTP verified. Welcome to StudentKart!", "success");
+        const metadata =
+            user.user_metadata || {};
+
+        const profile = {
+            id: user.id,
+            name:
+                metadata.name ||
+                user.email?.split("@")[0] ||
+                "Student",
+            college:
+                metadata.college ||
+                "",
+            email:
+                user.email ||
+                "",
+            avatar_url: ""
+        };
+
+        const { error: profileError } =
+            await supabaseClient
+                .from("profiles")
+                .insert(profile);
+
+        if (profileError) {
+            console.error(
+                "Profile creation after magic link error:",
+                profileError
+            );
+            return;
+        }
+
+        saveProfile(profile);
 
     } catch (error) {
-        console.error("OTP verification error:", error);
-        showToast(error?.message || "Invalid or expired OTP", "error");
-    } finally {
-        if (button) button.disabled = false;
-    }
-}
 
-async function resendOtp() {
-
-    const contact = window.pendingOtpContact;
-    const type = window.pendingOtpContactType;
-
-    if (!contact || !type) {
-        showToast("Please start again", "warning");
-        return;
-    }
-
-    const button = $("resendOtpButton");
-    if (button) button.disabled = true;
-
-    try {
-        await sendOtpForContact(
-            { type, value: contact },
-            window.pendingOtpMode === "signup",
-            window.pendingOtpProfile || {}
+        console.error(
+            "Ensure profile after magic link error:",
+            error
         );
-        showToast("A new OTP has been sent", "success");
-
-    } catch (error) {
-        console.error("Resend OTP error:", error);
-        showToast(error?.message || "Could not resend OTP", "error");
-    } finally {
-        if (button) button.disabled = false;
     }
 }
 
