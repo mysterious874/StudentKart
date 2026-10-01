@@ -143,87 +143,61 @@ a {
     display: flex;
     align-items: center;
     gap: 10px;
-
     color: #ffffff;
     text-decoration: none;
-
     white-space: nowrap;
 }
 
 .logo-mark {
     position: relative;
-
     width: 40px;
     height: 40px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     flex-shrink: 0;
-
     background: #0f8b8d;
-
     border-radius: 9px;
-
     overflow: hidden;
 }
 
-.logo-s {
-    position: relative;
+.logo-graduation {
+    position: absolute;
+    top: 5px;
+    left: 6px;
     z-index: 1;
-
     color: #ffffff;
-
-    font-size: 27px;
-    font-weight: 600;
-
+    font-size: 20px;
     line-height: 1;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+    transform: rotate(-4deg);
 }
 
-.logo-cap {
+.logo-cart {
     position: absolute;
-
-    top: 4px;
-    right: 3px;
-
+    right: 5px;
+    bottom: 5px;
     z-index: 2;
-
-    width: 19px;
+    width: 18px;
     height: 17px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     color: #102a43;
-
     background: #ffffff;
-
-    border-radius: 3px;
-
-    transform: rotate(-5deg);
-
+    border-radius: 4px;
     font-size: 10px;
+    transform: rotate(-4deg);
 }
 
-.logo-cap i {
-    transform: rotate(5deg);
+.logo-cart i {
+    transform: rotate(4deg);
 }
 
 .logo-text {
     color: #ffffff;
-
     font-size: 20px;
     font-weight: 600;
-
     letter-spacing: -0.4px;
-
     line-height: 1;
 }
 
@@ -234,7 +208,6 @@ a {
 .logo:hover .logo-text {
     color: #e5f7f7;
 }
-
 
 /* =========================================================
    NAV LINKS
@@ -2896,18 +2869,18 @@ input[type="file"] {
         border-radius: 8px;
     }
 
-    .logo-s {
-        font-size: 24px;
+    .logo-graduation {
+        font-size: 18px;
+        top: 5px;
+        left: 5px;
     }
 
-    .logo-cap {
-        width: 17px;
+    .logo-cart {
+        width: 16px;
         height: 15px;
-
         font-size: 9px;
-
-        top: 3px;
-        right: 2px;
+        right: 4px;
+        bottom: 4px;
     }
 
     .logo-text {
