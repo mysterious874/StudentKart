@@ -9123,3 +9123,7 @@ body.studentkart-modal-navigation-hidden {
     padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
+
+/* Force floating nav hidden whenever a modal is active */
+body.studentkart-modal-navigation-hidden .navbar,
+body.studentkart-modal-navigation-hidden .mobile-bottom-nav { display: none !important; }
