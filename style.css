@@ -9825,11 +9825,11 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
 
 /* Move category boxes slightly downward without moving the header */
 .category-picker-grid {
-    transform: translateY(28px) !important;
+    transform: translateY(100px) !important;
 }
 
 @media (max-width: 700px) {
     .category-picker-grid {
-        transform: translateY(22px) !important;
+        transform: translateY(100px) !important;
     }
 }
