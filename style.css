@@ -10094,3 +10094,251 @@ body #myListingsModal:not(.hidden) #myListingsContainer {
         grid-template-columns: 1fr !important;
     }
 }
+
+
+/* =========================================================
+   STUDENTKART AUTH + BUTTON TOUCH POLISH
+   ========================================================= */
+
+/* Remove the browser's default blue tap flash. */
+button,
+a,
+.btn,
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Restore Login / Sign Up as a focused StudentKart card. */
+body #loginModal:not(.hidden),
+body #signupModal:not(.hidden) {
+    padding: 18px !important;
+}
+
+body #loginModal:not(.hidden) .auth-modal,
+body #signupModal:not(.hidden) .auth-modal {
+    width: min(440px, calc(100% - 20px)) !important;
+    max-width: 440px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 36px) !important;
+    margin: auto !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    border: 1px solid #cfe2e4 !important;
+    box-shadow:
+        0 30px 80px rgba(16, 42, 67, 0.22),
+        0 0 0 1px rgba(15, 139, 141, 0.04),
+        0 12px 30px rgba(15, 139, 141, 0.10) !important;
+    animation: authCardIn .24s cubic-bezier(.2,.8,.2,1) !important;
+}
+
+body #loginModal:not(.hidden) .auth-header,
+body #signupModal:not(.hidden) .auth-header {
+    position: relative !important;
+    top: auto !important;
+    padding: 30px 28px 22px !important;
+    background:
+        radial-gradient(circle at 88% 8%, rgba(72, 205, 202, 0.18), transparent 27%),
+        linear-gradient(145deg, #102a43 0%, #143b4a 62%, #0f7779 100%) !important;
+    border-bottom: 1px solid rgba(255,255,255,.08) !important;
+}
+
+body #loginModal:not(.hidden) .auth-header::before,
+body #signupModal:not(.hidden) .auth-header::before {
+    content: "";
+    position: absolute;
+    left: 28px;
+    right: 28px;
+    bottom: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #45d5d1, transparent);
+    opacity: .65;
+}
+
+body #loginModal:not(.hidden) .auth-icon,
+body #signupModal:not(.hidden) .auth-icon {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 13px;
+    border-radius: 15px;
+    background: rgba(15, 139, 141, .20);
+    border: 1px solid rgba(117, 225, 223, .30);
+    color: #79e5e1;
+    box-shadow:
+        0 8px 22px rgba(0,0,0,.16),
+        0 0 22px rgba(15,139,141,.16);
+}
+
+body #loginModal:not(.hidden) .auth-header h2,
+body #signupModal:not(.hidden) .auth-header h2 {
+    font-size: 24px;
+    letter-spacing: -.6px;
+}
+
+body #loginModal:not(.hidden) .auth-modal form,
+body #signupModal:not(.hidden) .auth-modal form {
+    padding: 25px 28px 16px !important;
+}
+
+body #loginModal:not(.hidden) .auth-modal .form-group,
+body #signupModal:not(.hidden) .auth-modal .form-group {
+    margin-bottom: 17px;
+}
+
+body #loginModal:not(.hidden) .auth-modal .form-group input,
+body #signupModal:not(.hidden) .auth-modal .form-group input {
+    height: 47px;
+    border-radius: 10px;
+    background: #f8fbfc;
+    border-color: #d3e2e5;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease,
+        transform .15s ease;
+}
+
+body #loginModal:not(.hidden) .auth-modal .form-group input:hover,
+body #signupModal:not(.hidden) .auth-modal .form-group input:hover {
+    background: #ffffff;
+    border-color: #afd0d2;
+}
+
+body #loginModal:not(.hidden) .auth-modal .form-group input:focus,
+body #signupModal:not(.hidden) .auth-modal .form-group input:focus {
+    background: #ffffff;
+    border-color: #0f8b8d;
+    box-shadow:
+        0 0 0 3px rgba(15,139,141,.10),
+        0 5px 16px rgba(15,139,141,.07);
+    transform: translateY(-1px);
+}
+
+body #loginModal:not(.hidden) .auth-modal .btn-primary,
+body #signupModal:not(.hidden) .auth-modal .btn-primary {
+    position: relative;
+    overflow: hidden;
+    min-height: 46px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #0f8b8d 0%, #0b6f71 100%);
+    box-shadow:
+        0 8px 18px rgba(15,139,141,.18),
+        inset 0 1px 0 rgba(255,255,255,.14);
+}
+
+body #loginModal:not(.hidden) .auth-modal .btn-primary:hover,
+body #signupModal:not(.hidden) .auth-modal .btn-primary:hover {
+    background: linear-gradient(135deg, #11999b 0%, #0b686a 100%);
+    box-shadow:
+        0 10px 24px rgba(15,139,141,.24),
+        inset 0 1px 0 rgba(255,255,255,.16);
+}
+
+body #loginModal:not(.hidden) .auth-switch,
+body #signupModal:not(.hidden) .auth-switch {
+    padding: 8px 28px 25px !important;
+}
+
+/* Teal touch response for all interactive controls. */
+button,
+.btn,
+.nav-links a,
+.category-card,
+.product-card,
+.wishlist-button,
+.wishlist-btn,
+.seller-trigger {
+    touch-action: manipulation;
+}
+
+button:active,
+.btn:active,
+.nav-links a:active,
+.category-card:active,
+.product-card:active,
+.wishlist-button:active,
+.wishlist-btn:active,
+.seller-trigger:active {
+    transform: scale(.975);
+}
+
+.btn:active {
+    box-shadow:
+        0 0 0 4px rgba(15,139,141,.13),
+        0 5px 14px rgba(15,139,141,.16) !important;
+}
+
+/* Soft teal "spark" instead of the browser blue flash. */
+.btn::after {
+    content: "";
+    position: absolute;
+    inset: 50%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(112, 240, 235, .75);
+    box-shadow: 0 0 0 0 rgba(112,240,235,.45);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(.2);
+}
+
+.btn:active::after {
+    animation: buttonSpark .42s ease-out;
+}
+
+@keyframes buttonSpark {
+    0% {
+        opacity: .9;
+        transform: translate(-50%, -50%) scale(.2);
+        box-shadow: 0 0 0 0 rgba(112,240,235,.45);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(9);
+        box-shadow: 0 0 0 18px rgba(112,240,235,0);
+    }
+}
+
+@keyframes authCardIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(.985);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 600px) {
+    body #loginModal:not(.hidden),
+    body #signupModal:not(.hidden) {
+        padding: 10px !important;
+    }
+
+    body #loginModal:not(.hidden) .auth-modal,
+    body #signupModal:not(.hidden) .auth-modal {
+        width: 100% !important;
+        max-height: calc(100dvh - 20px) !important;
+        border-radius: 16px !important;
+    }
+
+    body #loginModal:not(.hidden) .auth-header,
+    body #signupModal:not(.hidden) .auth-header {
+        padding: 25px 22px 19px !important;
+    }
+
+    body #loginModal:not(.hidden) .auth-modal form,
+    body #signupModal:not(.hidden) .auth-modal form {
+        padding: 21px 22px 13px !important;
+    }
+
+    body #loginModal:not(.hidden) .auth-switch,
+    body #signupModal:not(.hidden) .auth-switch {
+        padding: 7px 22px 21px !important;
+    }
+}
