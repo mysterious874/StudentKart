@@ -8343,3 +8343,71 @@ body #profileModal:not(.hidden) .profile-header {
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14) !important;
     transform: translateY(-2px);
 }
+
+
+/* =========================================================
+   PRODUCT DETAILS - SELLER AREA
+   Cleaner seller identity card and stacked actions.
+   ========================================================= */
+.product-details-modal .seller-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #f8fafb;
+}
+
+.product-details-modal .seller-box .seller-avatar {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary2);
+    font-weight: 700;
+}
+
+.product-details-modal .seller-box div:last-child {
+    min-width: 0;
+    gap: 3px;
+}
+
+.product-details-modal .seller-box small {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--muted);
+}
+
+.product-details-modal .seller-box strong {
+    display: block;
+    max-width: 100%;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.product-details-modal #viewSellerProfileButton,
+.product-details-modal #contactSellerButton {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.product-details-modal #contactSellerButton {
+    margin-top: 8px;
+}
+
+@media (max-width: 700px) {
+    .product-details-modal .seller-box {
+        margin-top: 16px;
+        padding: 12px;
+    }
+}
