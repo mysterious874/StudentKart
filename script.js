@@ -4390,6 +4390,37 @@ function injectNotificationStyles() {
             border-radius: 50%;
         }
 
+        .notification-selection-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 10px;
+        }
+
+        .notification-selection-toolbar.hidden { display: none; }
+        .notification-selection-toolbar span { color: var(--muted); font-size: 11px; margin-right: 3px; }
+        .notification-selection-toolbar .btn { font-size: 10px; padding: 7px 10px; }
+        .btn-danger { border: 1px solid #dc3545; background: #dc3545; color: #fff; }
+        .btn-danger:disabled { opacity: .55; cursor: not-allowed; }
+        .notification-select-check {
+            width: 24px;
+            height: 24px;
+            flex: 0 0 24px;
+            display: none;
+            place-items: center;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: #fff;
+            background: #fff;
+            font-size: 10px;
+            margin-top: 7px;
+        }
+        .notification-item.notification-selected { border-color: var(--primary); background: var(--primary-light); }
+        .notification-item.notification-selected .notification-select-check { display: grid; background: var(--primary); border-color: var(--primary); }
+        .notification-item { touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+
         .notification-delete-btn {
             width: 30px;
             height: 30px;
