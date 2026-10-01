@@ -6825,3 +6825,23 @@ body:has(#wishlistModal:not(.hidden)) #wishlistModal .wishlist-modal-content {
     overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch !important;
 }
+
+
+/* Wishlist mobile scroll-chain lock */
+html:has(#wishlistModal:not(.hidden)),
+body:has(#wishlistModal:not(.hidden)) {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+}
+
+body:has(#wishlistModal:not(.hidden)) #wishlistModal {
+    overscroll-behavior: none !important;
+    touch-action: none !important;
+}
+
+body:has(#wishlistModal:not(.hidden)) #wishlistModal .wishlist-modal-content {
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch !important;
+}
