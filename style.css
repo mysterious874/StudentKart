@@ -7979,3 +7979,114 @@ body #chatModal:not(.hidden) .chat-head > .modal-home-button {
         left: 57px !important;
     }
 }
+
+
+/* =========================================================
+   UNIVERSAL NAVIGATION VISIBILITY - LAST OVERRIDE
+   ========================================================= */
+body .modal:not(.hidden) button.modal-back-button {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: var(--primary) !important;
+    background: #ffffff !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,.12) !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+    text-indent: 0 !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+}
+
+body .modal:not(.hidden) button.modal-back-button i,
+body .modal:not(.hidden) button.modal-back-button .fa-arrow-left {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: var(--primary) !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+}
+
+body .modal:not(.hidden) button.modal-home-button {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: var(--primary) !important;
+    background: #ffffff !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,.12) !important;
+    font-size: 17px !important;
+    line-height: 1 !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body .modal:not(.hidden) button.modal-home-button i {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: var(--primary) !important;
+}
+
+/* Static page buttons are always positioned relative to the viewport. */
+body #sellModal:not(.hidden) .modal-back-button,
+body #productModal:not(.hidden) .modal-back-button,
+body #wishlistModal:not(.hidden) .modal-back-button,
+body #inquiryModal:not(.hidden) .modal-back-button,
+body #loginModal:not(.hidden) .modal-back-button,
+body #signupModal:not(.hidden) .modal-back-button,
+body #sellerProfileModal:not(.hidden) .modal-back-button,
+body #editProfileModal:not(.hidden) .modal-back-button,
+body #myListingsModal:not(.hidden) .modal-back-button {
+    position: fixed !important;
+    top: 14px !important;
+    left: 14px !important;
+    z-index: 50000 !important;
+}
+
+/* Make sure the generated Home button follows every static Back button. */
+body #sellModal:not(.hidden) .modal-home-button,
+body #productModal:not(.hidden) .modal-home-button,
+body #wishlistModal:not(.hidden) .modal-home-button,
+body #inquiryModal:not(.hidden) .modal-home-button,
+body #loginModal:not(.hidden) .modal-home-button,
+body #signupModal:not(.hidden) .modal-home-button,
+body #sellerProfileModal:not(.hidden) .modal-home-button,
+body #editProfileModal:not(.hidden) .modal-home-button,
+body #myListingsModal:not(.hidden) .modal-home-button {
+    position: fixed !important;
+    top: 14px !important;
+    left: 61px !important;
+    z-index: 50000 !important;
+}
+
+@media (max-width: 600px) {
+    body #sellModal:not(.hidden) .modal-back-button,
+    body #productModal:not(.hidden) .modal-back-button,
+    body #wishlistModal:not(.hidden) .modal-back-button,
+    body #inquiryModal:not(.hidden) .modal-back-button,
+    body #loginModal:not(.hidden) .modal-back-button,
+    body #signupModal:not(.hidden) .modal-back-button,
+    body #sellerProfileModal:not(.hidden) .modal-back-button,
+    body #editProfileModal:not(.hidden) .modal-back-button,
+    body #myListingsModal:not(.hidden) .modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+
+    body #sellModal:not(.hidden) .modal-home-button,
+    body #productModal:not(.hidden) .modal-home-button,
+    body #wishlistModal:not(.hidden) .modal-home-button,
+    body #inquiryModal:not(.hidden) .modal-home-button,
+    body #loginModal:not(.hidden) .modal-home-button,
+    body #signupModal:not(.hidden) .modal-home-button,
+    body #sellerProfileModal:not(.hidden) .modal-home-button,
+    body #editProfileModal:not(.hidden) .modal-home-button,
+    body #sellerProfileModal:not(.hidden) .modal-home-button,
+    body #myListingsModal:not(.hidden) .modal-home-button {
+        top: 10px !important;
+        left: 57px !important;
+    }
+}
