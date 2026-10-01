@@ -2473,6 +2473,32 @@ input[type="file"] {
     gap: 6px;
 }
 
+/* INQUIRY ACTIONS FIX */
+.inquiry-card {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.inquiry-actions {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: 100%;
+    flex: 0 0 auto !important;
+}
+
+.inquiry-actions .btn,
+.inquiry-actions .inquiry-chat-button {
+    display: inline-flex !important;
+    width: auto !important;
+    min-width: max-content !important;
+    flex: 0 0 auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 
 /* =========================================================
    PROFILE
