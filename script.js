@@ -6698,6 +6698,10 @@ function setupAuthListener() {
                     session?.user ||
                     null;
 
+                if (currentUser) {
+                    await ensureProfileAfterMagicLink(currentUser);
+                }
+
                 updateNavbar();
 
                 if (currentUser) {
