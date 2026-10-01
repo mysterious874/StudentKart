@@ -5702,14 +5702,15 @@ function setupEventListeners() {
         notificationLongPressTriggered = false;
         clearTimeout(notificationLongPressTimer);
 
+        // Require a deliberate 2-second hold before selecting.
         notificationLongPressTimer = setTimeout(() => {
             notificationLongPressTriggered = true;
             toggleNotificationSelection(item.dataset.notificationId);
 
             if (navigator.vibrate) {
-                navigator.vibrate(30);
+                navigator.vibrate([40, 40, 40]);
             }
-        }, 800);
+        }, 2000);
     }
 
     function endNotificationLongPress() {
