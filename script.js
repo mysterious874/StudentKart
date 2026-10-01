@@ -5296,7 +5296,7 @@ function setupEventListeners() {
     $("notificationsContainer")
         ?.addEventListener(
             "click",
-            event => {
+            async event => {
 
                 const deleteButton =
                     event.target.closest(
