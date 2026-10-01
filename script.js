@@ -6786,6 +6786,34 @@ async function startChatUnreadRealtime() {
         .on(
             "postgres_changes",
             {
+                event: "UPDATE",
+                schema: "public",
+                table: "messages",
+                filter: "receiver_id=eq." + currentUser.id
+            },
+            async payload => {
+                const message = payload?.new;
+
+                if (!message) {
+                    return;
+                }
+
+                // Keep unread badges/inbox previews synchronized when a
+                // message is marked read from another tab or device.
+                if (
+                    message.receiver_id === currentUser.id &&
+                    payload?.old?.is_read !== message.is_read
+                ) {
+                    console.log("🔄 Chat read status synced:", message);
+
+                    await updateChatUnreadCount();
+                    await loadReceivedInquiries();
+                }
+            }
+        )
+        .on(
+            "postgres_changes",
+            {
                 event: "DELETE",
                 schema: "public",
                 table: "messages"
