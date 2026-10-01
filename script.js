@@ -3163,28 +3163,84 @@ async function openEditProduct(
 ) {
 
     if (!currentUser) {
+        openModal("loginModal");
         return;
     }
 
-    const product =
+    let product =
         currentProducts.find(
             item =>
                 String(item.id) ===
                 String(productId)
         );
 
+    // My Listings can contain a freshly loaded product that is not
+    // present in the marketplace's currentProducts array. Fetch it
+    // directly so Edit always opens the correct listing.
     if (!product) {
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("products")
+                .select("*")
+                .eq("id", productId)
+                .eq("user_id", currentUser.id)
+                .maybeSingle();
+
+        if (error) {
+            console.error(
+                "Edit listing fetch error:",
+                error
+            );
+
+            showToast(
+                "Could not open listing",
+                "error"
+            );
+
+            return;
+        }
+
+        product =
+            data
+                ? normalizeProduct(data)
+                : null;
+    }
+
+    if (!product) {
+        showToast(
+            "Listing not found",
+            "error"
+        );
         return;
     }
 
     if (!isMyProduct(product)) {
 
         showToast(
-            "You can only edit your own listings",
+            "You can only edit your own listing",
             "error"
         );
 
         return;
+    }
+
+    // Keep the locally loaded product in sync for image cleanup
+    // and the rest of the listing flow.
+    const existingIndex =
+        currentProducts.findIndex(
+            item =>
+                String(item.id) ===
+                String(product.id)
+        );
+
+    if (existingIndex >= 0) {
+        currentProducts[existingIndex] =
+            product;
+    } else {
+        currentProducts.push(product);
     }
 
     editingProductId =
