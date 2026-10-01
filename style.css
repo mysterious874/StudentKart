@@ -10898,3 +10898,92 @@ body #signupModal:not(.hidden) .auth-modal .auth-header p {
     margin-left: 0 !important;
     margin-right: 0 !important;
 }
+
+
+/* =========================================================
+   FINAL: CENTER ALL PAGE HEADERS + SUBTITLES
+   ========================================================= */
+
+body .modal > .modal-content > .modal-header,
+body .modal > .modal-content > .auth-header,
+body .modal > .modal-content > .profile-header,
+body .modal > .modal-content > .seller-profile-header,
+body .modal > .modal-content > .seller-profile-listings-header,
+body .modal > .modal-content > .inquiries-whatsapp-header,
+body #wishlistModal .wishlist-page-header,
+body #myListingsModal .modal-header {
+    text-align: center !important;
+}
+
+body .modal > .modal-content > .modal-header h2,
+body .modal > .modal-content > .auth-header h2,
+body .modal > .modal-content > .profile-header h2,
+body .modal > .modal-content > .seller-profile-header h2,
+body .modal > .modal-content > .seller-profile-listings-header h2,
+body .modal > .modal-content > .inquiries-whatsapp-header h2,
+body #wishlistModal .wishlist-page-header h2,
+body #myListingsModal .modal-header h2 {
+    width: 100% !important;
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+body .modal > .modal-content > .modal-header p,
+body .modal > .modal-content > .auth-header p,
+body .modal > .modal-content > .profile-header p,
+body .modal > .modal-content > .seller-profile-header p,
+body .modal > .modal-content > .seller-profile-listings-header p,
+body .modal > .modal-content > .inquiries-whatsapp-header p,
+body #wishlistModal .wishlist-page-header p,
+body #myListingsModal .modal-header p {
+    width: 100% !important;
+    max-width: none !important;
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Wishlist and inquiry headers keep their supporting content centered. */
+body #wishlistModal .wishlist-page-header > div,
+body #inquiriesModal .inquiries-whatsapp-header > div:first-child {
+    width: 100% !important;
+    text-align: center !important;
+}
+
+/* Auth icon stays decorative while the heading/subtitle remain truly centered. */
+body #loginModal .auth-header,
+body #signupModal .auth-header {
+    text-align: center !important;
+}
+
+body #loginModal .auth-header h2,
+body #signupModal .auth-header h2,
+body #loginModal .auth-header p,
+body #signupModal .auth-header p {
+    text-align: center !important;
+}
+
+@media (max-width: 600px) {
+    body .modal > .modal-content > .modal-header h2,
+    body .modal > .modal-content > .auth-header h2,
+    body .modal > .modal-content > .profile-header h2,
+    body .modal > .modal-content > .seller-profile-header h2,
+    body .modal > .modal-content > .seller-profile-listings-header h2,
+    body .modal > .modal-content > .inquiries-whatsapp-header h2,
+    body #wishlistModal .wishlist-page-header h2,
+    body #myListingsModal .modal-header h2 {
+        text-align: center !important;
+    }
+
+    body .modal > .modal-content > .modal-header p,
+    body .modal > .modal-content > .auth-header p,
+    body .modal > .modal-content > .profile-header p,
+    body .modal > .modal-content > .seller-profile-header p,
+    body .modal > .modal-content > .seller-profile-listings-header p,
+    body .modal > .modal-content > .inquiries-whatsapp-header p,
+    body #wishlistModal .wishlist-page-header p,
+    body #myListingsModal .modal-header p {
+        text-align: center !important;
+    }
+}
