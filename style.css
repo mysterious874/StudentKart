@@ -9843,3 +9843,13 @@ body .modal#categoryPickerModal .modal-overlay {
     backdrop-filter: blur(18px) saturate(135%) !important;
     -webkit-backdrop-filter: blur(18px) saturate(135%) !important;
 }
+
+
+/* CATEGORY PICKER - VISIBLE GLASS BACKDROP OVERRIDE */
+html body #categoryPickerModal:not(.hidden) > .modal-overlay {
+    background: rgba(255, 255, 255, 0.16) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    backdrop-filter: blur(24px) saturate(145%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(145%) !important;
+}
