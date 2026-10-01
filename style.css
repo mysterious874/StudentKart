@@ -8482,3 +8482,54 @@ body .chat-person h2 {
         font-size: 13px !important;
     }
 }
+
+
+/* =========================================================
+   WISHLIST HEADER - FINAL MOBILE VISIBILITY
+   ========================================================= */
+.navbar .nav-container,
+.navbar .nav-actions {
+    overflow: visible !important;
+}
+
+.navbar .nav-wishlist-button {
+    position: relative !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+@media (max-width: 850px) {
+    .navbar .nav-wishlist-button {
+        width: auto !important;
+        min-width: 76px !important;
+        height: 38px !important;
+        padding: 8px 10px !important;
+        font-size: 11px !important;
+        gap: 5px !important;
+    }
+
+    .navbar .nav-wishlist-button .wishlist-button-text {
+        display: inline !important;
+        visibility: visible !important;
+    }
+
+    .navbar .nav-wishlist-button i {
+        font-size: 13px !important;
+        margin: 0 !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar .nav-wishlist-button {
+        min-width: 38px !important;
+        width: 38px !important;
+        padding: 7px !important;
+        font-size: 0 !important;
+    }
+
+    .navbar .nav-wishlist-button .wishlist-button-text {
+        display: none !important;
+    }
+}
