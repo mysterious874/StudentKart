@@ -6787,3 +6787,25 @@ body #wishlistModal .wishlist-page-header .section-label {
         font-size: 17px !important;
     }
 }
+
+
+/* Wishlist popup back arrow */
+body #wishlistModal .wishlist-modal-content {
+    position: relative !important;
+}
+
+body #wishlistModal .wishlist-modal-back-button {
+    position: absolute !important;
+    top: 14px !important;
+    left: 14px !important;
+    right: auto !important;
+    z-index: 30 !important;
+    margin: 0 !important;
+}
+
+@media (max-width: 600px) {
+    body #wishlistModal .wishlist-modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+}
