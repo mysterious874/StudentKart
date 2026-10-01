@@ -34,6 +34,9 @@ let currentNotifications = [];
 let notificationRefreshTimer = null;
 let notificationRealtimeChannel = null;
 let toastTimer = null;
+let selectedNotificationIds = new Set();
+let notificationLongPressTimer = null;
+let notificationLongPressTriggered = false;
 
 
 /* =========================================================
@@ -4215,6 +4218,25 @@ function ensureNotificationsUI() {
                     </p>
                 </div>
 
+                <div
+                    id="notificationSelectionToolbar"
+                    class="notification-selection-toolbar hidden">
+                    <span>
+                        <strong id="notificationSelectionCount">0</strong> selected
+                    </span>
+                    <button type="button" class="btn btn-outline" id="selectAllNotificationsButton">
+                        <i class="fas fa-check-double"></i>
+                        Select all
+                    </button>
+                    <button type="button" class="btn btn-danger" id="deleteSelectedNotificationsButton" disabled>
+                        <i class="fas fa-trash"></i>
+                        Delete selected
+                    </button>
+                    <button type="button" class="btn btn-outline" id="cancelNotificationSelectionButton">
+                        Cancel
+                    </button>
+                </div>
+
                 <button
                     type="button"
                     class="btn btn-outline"
@@ -4670,697 +4692,75 @@ async function loadNotifications() {
 function renderNotifications() {
 
     const container =
-        $("notificationsContainer");
-
-    if (!container) {
-        return;
-    }
-
-    if (!currentUser) {
-
-        container.innerHTML = `
-            <div class="notifications-empty">
-                <i class="far fa-bell"></i>
-                <h3>Please login</h3>
-                <p>Login to see your marketplace notifications.</p>
-            </div>
-        `;
-
-        return;
-    }
-
-    if (!currentNotifications.length) {
-
-        container.innerHTML = `
-            <div class="notifications-empty">
-                <i class="far fa-bell"></i>
-                <h3>You're all caught up</h3>
-                <p>New marketplace activity will appear here.</p>
-            </div>
-        `;
-
-        return;
-    }
-
-    container.innerHTML =
-        currentNotifications
-            .map(notification => {
-
-                const unread =
-                    !notification.is_read;
-
-                return `
-                    <div
-                        class="notification-item ${unread
-                        ? "unread"
-                        : ""
-                    }"
-                        data-notification-id="${escapeHTML(
-                        notification.id
-                    )}">
-
-                        <div class="notification-icon">
-                            <i class="fas ${getNotificationIcon(
-                        notification.type
-                    )}"></i>
-                        </div>
-
-                        <div class="notification-content">
-
-                            <strong>
-                                ${escapeHTML(
-                        notification.title
-                    )}
-                            </strong>
-
-                            <p>
-                                ${escapeHTML(
-                        notification.message
-                    )}
-                            </p>
-
-                            <span class="notification-time">
-                                ${formatNotificationTime(
-                        notification.created_at
-                    )}
-                            </span>
-
-                        </div>
-
-                        <button
-                            type="button"
-                            class="notification-delete-btn"
-                            data-delete-notification-id="${escapeHTML(
-                        notification.id
-                    )}"
-                            aria-label="Delete notification"
-                            title="Delete notification">
-                            <i class="fas fa-trash"></i>
-                        </button>
-
-                        ${unread
-                        ? `
-                                    <span
-                                        class="notification-unread-dot"
-                                        title="Unread">
-                                    </span>
-                                `
-                        : ""
-                    }
-
-                    </div>
-                `;
-            })
-            .join("");
-}
-
-async function deleteNotification(notificationId) {
-
-    if (!currentUser || !notificationId) {
-        return false;
-    }
-
-    try {
-
-        const { error } =
-            await supabaseClient
-                .from("notifications")
-                .delete()
-                .eq("id", notificationId)
-                .eq("user_id", currentUser.id);
-
-        if (error) {
-            throw error;
-        }
-
-        currentNotifications =
-            currentNotifications.filter(
-                notification =>
-                    String(notification.id) !==
-                    String(notificationId)
-            );
-
-        updateNotificationNavbar();
-        renderNotifications();
-
-        showToast(
-            "Notification deleted",
-            "success"
-        );
-
-        return true;
-
-    } catch (error) {
-
-        console.error(
-            "Delete notification error:",
-            error
-        );
-
-        showToast(
-            "Could not delete notification",
-            "error"
-        );
-
-        return false;
-    }
-}
-
-
-async function markNotificationAsRead(
-    notificationId
-) {
-
-    if (
-        !currentUser ||
-        !notificationId
-    ) {
-        return;
-    }
-
-    try {
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from("notifications")
-                .update({
-                    is_read: true
-                })
-                .eq(
-                    "id",
-                    notificationId
-                )
-                .eq(
-                    "user_id",
-                    currentUser.id
-                );
-
-        if (error) {
-            throw error;
-        }
-
-        const notification =
-            currentNotifications.find(
-                item =>
-                    String(item.id) ===
-                    String(
-                        notificationId
-                    )
-            );
-
-        if (notification) {
-            notification.is_read = true;
-        }
-
-        updateNotificationNavbar();
-        renderNotifications();
-
-        return notification;
-
-    } catch (error) {
-
-        console.error(
-            "Mark notification error:",
-            error
-        );
-
-        return null;
-    }
-}
-
-async function markAllNotificationsAsRead() {
-
-    if (!currentUser) {
-        return;
-    }
-
-    const unread =
-        currentNotifications.filter(
-            notification =>
-                !notification.is_read
-        );
-
-    if (!unread.length) {
-
-        showToast(
-            "No unread notifications",
-            "success"
-        );
-
-        return;
-    }
-
-    try {
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from("notifications")
-                .update({
-                    is_read: true
-                })
-                .eq(
-                    "user_id",
-                    currentUser.id
-                )
-                .eq(
-                    "is_read",
-                    false
-                );
-
-        if (error) {
-            throw error;
-        }
-
-        currentNotifications =
-            currentNotifications.map(
-                notification => ({
-                    ...notification,
-                    is_read: true
-                })
-            );
-
-        updateNotificationNavbar();
-        renderNotifications();
-
-        showToast(
-            "All notifications marked as read",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Mark all notifications error:",
-            error
-        );
-
-        showToast(
-            "Could not update notifications",
-            "error"
-        );
-    }
-}
-
-async function openNotification(
-    notificationId
-) {
-
-    const notification =
-        currentNotifications.find(
-            item =>
-                String(item.id) ===
-                String(notificationId)
-        );
-
-    if (!notification) {
-        return;
-    }
-
-    await markNotificationAsRead(
-        notificationId
+        $("selectAllNotificationsButton")?.addEventListener(
+        "click",
+        selectAllNotifications
     );
 
-    closeModal(
-        "notificationsModal"
+    $("deleteSelectedNotificationsButton")?.addEventListener(
+        "click",
+        deleteSelectedNotifications
     );
 
-    if (
-        notification.product_id
-    ) {
+    $("cancelNotificationSelectionButton")?.addEventListener(
+        "click",
+        clearNotificationSelection
+    );
 
-        await openProductDetails(
-            notification.product_id
-        );
+    $("notificationsContainer")?.addEventListener(
+        "pointerdown",
+        event => {
+            const item = event.target.closest("[data-notification-id]");
+            if (!item) return;
 
-        return;
-    }
+            notificationLongPressTriggered = false;
+            clearTimeout(notificationLongPressTimer);
 
-    if (
-        notification.inquiry_id
-    ) {
+            notificationLongPressTimer = setTimeout(() => {
+                notificationLongPressTriggered = true;
+                toggleNotificationSelection(item.dataset.notificationId);
 
-        if (currentUser) {
-
-            await loadReceivedInquiries();
-
-            openModal(
-                "inquiriesModal"
-            );
-        }
-
-        return;
-    }
-}
-
-
-
-function startNotificationRefresh() {
-
-    stopNotificationRefresh();
-
-    if (!currentUser) {
-        return;
-    }
-
-    loadNotifications();
-
-    notificationRealtimeChannel =
-        supabaseClient
-            .channel(
-                `notifications-${currentUser.id}`
-            )
-            .on(
-                "postgres_changes",
-                {
-                    event: "INSERT",
-                    schema: "public",
-                    table: "notifications",
-                    filter: `user_id=eq.${currentUser.id}`
-                },
-                payload => {
-
-                    console.log(
-                        "🔔 New notification:",
-                        payload
-                    );
-
-                    if (
-                        payload.new
-                    ) {
-
-                        showNotificationPopup(
-                            payload.new.title,
-                            payload.new.message
-                        );
-
-                        loadNotifications();
-                    }
+                if (navigator.vibrate) {
+                    navigator.vibrate(30);
                 }
-            )
-            .subscribe(status => {
-
-                console.log(
-                    "Notification realtime status:",
-                    status
-                );
-            });
-}
-
-
-function stopNotificationRefresh() {
-
-    if (
-        notificationRefreshTimer
-    ) {
-
-        clearInterval(
-            notificationRefreshTimer
-        );
-
-        notificationRefreshTimer =
-            null;
-    }
-
-    if (
-        notificationRealtimeChannel
-    ) {
-
-        supabaseClient.removeChannel(
-            notificationRealtimeChannel
-        );
-
-        notificationRealtimeChannel =
-            null;
-    }
-}
-
-
-function showNotificationPopup(
-    title,
-    message
-) {
-
-    let popup =
-        document.getElementById(
-            "notificationPopup"
-        );
-
-    if (!popup) {
-
-        popup =
-            document.createElement("div");
-
-        popup.id =
-            "notificationPopup";
-
-        popup.innerHTML = `
-            <div class="notification-popup-icon">
-                <i class="fas fa-bell"></i>
-            </div>
-
-            <div class="notification-popup-content">
-                <strong></strong>
-                <p></p>
-            </div>
-
-            <button
-                type="button"
-                class="notification-popup-close"
-                aria-label="Close"
-            >
-                ×
-            </button>
-        `;
-
-        document.body.appendChild(
-            popup
-        );
-
-        popup
-            .querySelector(
-                ".notification-popup-close"
-            )
-            .addEventListener(
-                "click",
-                () => {
-
-                    popup.classList.remove(
-                        "show"
-                    );
-
-                }
-            );
-    }
-
-    popup.querySelector(
-        ".notification-popup-content strong"
-    ).textContent =
-        title ||
-        "New Notification";
-
-    popup.querySelector(
-        ".notification-popup-content p"
-    ).textContent =
-        message ||
-        "You have a new notification.";
-
-    popup.classList.add(
-        "show"
+            }, 600);
+        }
     );
 
-    clearTimeout(
-        popup.notificationTimer
+    $("notificationsContainer")?.addEventListener(
+        "pointerup",
+        () => clearTimeout(notificationLongPressTimer)
     );
 
-    popup.notificationTimer =
-        setTimeout(
-            () => {
+    $("notificationsContainer")?.addEventListener(
+        "pointercancel",
+        () => clearTimeout(notificationLongPressTimer)
+    );
 
-                popup.classList.remove(
-                    "show"
-                );
-
-            },
-            5000
-        );
-}
-
-/* =========================================================
-   EVENT LISTENERS
-   ========================================================= */
-
-function setupEventListeners() {
-
-    ensureSellerProfileUI();
-    ensureNotificationsUI();
-
-
-    /* -----------------------------------------
-       GENERAL MODAL CLOSE
-       ----------------------------------------- */
-
-    document.addEventListener(
+    $("notificationsContainer")?.addEventListener(
         "click",
         event => {
+            const item = event.target.closest("[data-notification-id]");
+            if (!item) return;
 
-            const closeButton =
-                event.target.closest(
-                    "[data-close-modal]"
-                );
+            event.preventDefault();
+            event.stopPropagation();
 
-            if (closeButton) {
+            const id = item.dataset.notificationId;
 
-                const modal =
-                    closeButton.closest(
-                        ".modal"
-                    );
-
-                if (modal) {
-                    closeModal(
-                        modal.id
-                    );
-                }
+            if (notificationLongPressTriggered) {
+                notificationLongPressTriggered = false;
+                return;
             }
+
+            if (selectedNotificationIds.size > 0) {
+                toggleNotificationSelection(id);
+                return;
+            }
+
+            openNotification(id);
         }
     );
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key ===
-                "Escape"
-            ) {
-                closeAllModals();
-            }
-        }
-    );
-
-
-    /* -----------------------------------------
-       LOGIN
-       ----------------------------------------- */
-
-    $("loginButton")
-        ?.addEventListener(
-            "click",
-            () => {
-
-                openModal(
-                    "loginModal"
-                );
-            }
-        );
-
-
-    /* -----------------------------------------
-       SIGNUP
-       ----------------------------------------- */
-
-    $("signupButton")
-        ?.addEventListener(
-            "click",
-            () => {
-
-                openModal(
-                    "signupModal"
-                );
-            }
-        );
-
-
-    /* -----------------------------------------
-       WISHLIST
-       ----------------------------------------- */
-
-    $("wishlistButton")
-        ?.addEventListener(
-            "click",
-            openWishlist
-        );
-
-
-    /* -----------------------------------------
-       NOTIFICATIONS
-       ----------------------------------------- */
-
-    $("notificationButton")
-        ?.addEventListener(
-            "click",
-            async () => {
-
-                if (!currentUser) {
-
-                    openModal(
-                        "loginModal"
-                    );
-
-                    showToast(
-                        "Please login to see notifications",
-                        "warning"
-                    );
-
-                    return;
-                }
-
-                await loadNotifications();
-
-                renderNotifications();
-
-                openModal(
-                    "notificationsModal"
-                );
-            }
-        );
-
-    $("markAllNotificationsButton")
-        ?.addEventListener(
-            "click",
-            markAllNotificationsAsRead
-        );
-
-    $("notificationsContainer")
-        ?.addEventListener(
-            "click",
-            async event => {
-
-                const deleteButton =
-                    event.target.closest(
-                        "[data-delete-notification-id]"
-                    );
-
-                if (deleteButton) {
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    await deleteNotification(
-                        deleteButton.dataset
-                            .deleteNotificationId
-                    );
-
-                    return;
-                }
-
-                const item =
-                    event.target.closest(
-                        "[data-notification-id]"
-                    );
-
-                if (!item) {
-                    return;
-                }
-
-                openNotification(
-                    item.dataset
-                        .notificationId
-                );
-            }
-        );
 
 
     /* -----------------------------------------
