@@ -6104,3 +6104,49 @@ textarea {
         overflow-y: auto;
     }
 }
+
+.filter-panel-actions {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.filter-panel-actions button {
+    height: 38px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.filter-cancel-btn {
+    border: 1px solid var(--border);
+    background: #f7fafb;
+    color: var(--text);
+}
+
+.filter-cancel-btn:hover {
+    border-color: var(--primary);
+}
+
+.filter-apply-btn {
+    border: 1px solid var(--primary);
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.filter-apply-btn:hover {
+    opacity: 0.92;
+}
+
+@media (max-width: 600px) {
+    .filter-panel-actions {
+        position: sticky;
+        bottom: 0;
+        background: #ffffff;
+        padding-bottom: 2px;
+    }
+}
