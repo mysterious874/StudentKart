@@ -6621,6 +6621,45 @@ if (
     initializeStudentKart();
 }
 // ===============================
+// AUTO DATA REFRESH
+// ===============================
+let studentKartAutoRefreshTimer = null;
+let studentKartAutoRefreshBusy = false;
+
+async function refreshStudentKartData() {
+    if (studentKartAutoRefreshBusy || document.hidden) return;
+    studentKartAutoRefreshBusy = true;
+
+    try {
+        // Keep live activity synchronized without reloading the whole page.
+        await loadNotifications();
+
+        if (currentUser) {
+            await updateChatUnreadCount();
+            await loadReceivedInquiries();
+        }
+    } catch (error) {
+        console.error("Auto refresh error:", error);
+    } finally {
+        studentKartAutoRefreshBusy = false;
+    }
+}
+
+function startStudentKartAutoRefresh() {
+    if (studentKartAutoRefreshTimer) {
+        clearInterval(studentKartAutoRefreshTimer);
+    }
+
+    // Default: refresh live data every 2 seconds.
+    studentKartAutoRefreshTimer = setInterval(
+        refreshStudentKartData,
+        2000
+    );
+}
+
+startStudentKartAutoRefresh();
+
+// ===============================
 // CHAT SYSTEM FUNCTIONS
 // ===============================
 
