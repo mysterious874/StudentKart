@@ -9332,3 +9332,89 @@ body .modal > .modal-content > .auth-header .modal-close{
   body .modal > .modal-content > .inquiries-whatsapp-header p,
   body #wishlistModal .wishlist-page-header p{font-size:9px!important}
 }
+
+/* DEFINITIVE PAGE HEADER: same bar treatment as the main navbar */
+body .modal:not(.hidden) > .modal-content > .modal-header,
+body .modal:not(.hidden) > .modal-content > .auth-header,
+body #profileModal:not(.hidden) .profile-header,
+body #sellerProfileModal:not(.hidden) .seller-profile-header,
+body #wishlistModal:not(.hidden) .wishlist-page-header,
+body #inquiriesModal:not(.hidden) .inquiries-whatsapp-header{
+  position:sticky!important;
+  top:0!important;
+  z-index:3000!important;
+  width:100%!important;
+  min-height:70px!important;
+  height:auto!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  padding:13px 20px!important;
+  border:0!important;
+  border-bottom:1px solid rgba(255,255,255,.07)!important;
+  border-radius:0!important;
+  background:var(--nav)!important;
+  box-shadow:0 3px 14px rgba(0,0,0,.12)!important;
+  text-align:left!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:flex-start!important;
+}
+body .modal:not(.hidden) > .modal-content > .modal-header h2,
+body .modal:not(.hidden) > .modal-content > .auth-header h2,
+body #profileModal:not(.hidden) .profile-header h2,
+body #sellerProfileModal:not(.hidden) .seller-profile-header h2,
+body #wishlistModal:not(.hidden) .wishlist-page-header h2,
+body #inquiriesModal:not(.hidden) .inquiries-whatsapp-header h2{
+  margin:0 0 2px!important;
+  padding:0!important;
+  text-align:left!important;
+  color:#fff!important;
+  font-size:18px!important;
+  line-height:1.2!important;
+  font-weight:700!important;
+}
+body .modal:not(.hidden) > .modal-content > .modal-header p,
+body .modal:not(.hidden) > .modal-content > .auth-header p,
+body #profileModal:not(.hidden) .profile-header p,
+body #sellerProfileModal:not(.hidden) .seller-profile-header p,
+body #wishlistModal:not(.hidden) .wishlist-page-header p,
+body #inquiriesModal:not(.hidden) .inquiries-whatsapp-header p{
+  margin:0!important;
+  padding:0!important;
+  text-align:left!important;
+  color:rgba(255,255,255,.68)!important;
+  font-size:11px!important;
+  line-height:1.3!important;
+}
+body .modal:not(.hidden) > .modal-content > .modal-header,
+body .modal:not(.hidden) > .modal-content > .auth-header,
+body #wishlistModal:not(.hidden) .wishlist-page-header{
+  padding-top:13px!important;
+}
+body #wishlistModal:not(.hidden) .wishlist-page-header .section-label{
+  display:none!important;
+}
+@media(max-width:600px){
+  body .modal:not(.hidden) > .modal-content > .modal-header,
+  body .modal:not(.hidden) > .modal-content > .auth-header,
+  body #profileModal:not(.hidden) .profile-header,
+  body #sellerProfileModal:not(.hidden) .seller-profile-header,
+  body #wishlistModal:not(.hidden) .wishlist-page-header,
+  body #inquiriesModal:not(.hidden) .inquiries-whatsapp-header{
+    min-height:60px!important;
+    padding:11px 14px!important;
+  }
+  body .modal:not(.hidden) > .modal-content > .modal-header h2,
+  body .modal:not(.hidden) > .modal-content > .auth-header h2,
+  body #profileModal:not(.hidden) .profile-header h2,
+  body #sellerProfileModal:not(.hidden) .seller-profile-header h2,
+  body #wishlistModal:not(.hidden) .wishlist-page-header h2,
+  body #inquiriesModal:not(.hidden) .inquiries-whatsapp-header h2{font-size:16px!important}
+  body .modal:not(.hidden) > .modal-content > .modal-header p,
+  body .modal:not(.hidden) > .modal-content > .auth-header p,
+  body #profileModal:not(.hidden) .profile-header p,
+  body #sellerProfileModal:not(.hidden) .seller-profile-header p,
+  body #wishlistModal:not(.hidden) .wishlist-page-header p,
+  body #inquiriesModal:not(.hidden) .inquiries-whatsapp-header p{font-size:10px!important}
+}
