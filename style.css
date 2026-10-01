@@ -4887,3 +4887,29 @@ body { font-weight: 400; }
         flex: 1;
     }
 }
+
+
+/* CHAT UNREAD BADGE */
+.nav-chat-button {
+    position: relative;
+}
+
+.chat-unread-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    margin-left: 2px;
+    border-radius: 999px;
+    background: #e05252;
+    color: #ffffff;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 700;
+}
+
+.chat-unread-count.hidden {
+    display: none !important;
+}
