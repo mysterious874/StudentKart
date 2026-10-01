@@ -2047,8 +2047,7 @@ async function openSellerProfile(
     currentSellerProfile =
         sellerId;
 
-    closeModal("productModal");
-    closeModal("myListingsModal");
+
 
     const avatar =
         $("sellerProfileAvatar");
@@ -2099,7 +2098,6 @@ async function openSellerProfile(
                 return;
             }
 
-            closeModal("sellerProfileModal");
             await openChat(inquiry);
         };
     }
@@ -2344,8 +2342,6 @@ function contactSeller() {
         $("inquiryMessage")
             .value = "";
     }
-
-    closeModal("productModal");
 
     openModal("inquiryModal");
 }
@@ -5396,10 +5392,6 @@ async function openNotification(
         notificationId
     );
 
-    closeModal(
-        "notificationsModal"
-    );
-
     if (
         notification.product_id
     ) {
@@ -6093,10 +6085,6 @@ function setupEventListeners() {
             "click",
             async () => {
 
-                closeModal(
-                    "profileModal"
-                );
-
                 await loadMyListings();
 
                 openModal(
@@ -6109,10 +6097,6 @@ function setupEventListeners() {
         ?.addEventListener(
             "click",
             async () => {
-
-                closeModal(
-                    "profileModal"
-                );
 
                 await loadReceivedInquiries();
 
@@ -6211,10 +6195,6 @@ function setupEventListeners() {
                     );
 
                 if (viewButton) {
-
-                    closeModal(
-                        "wishlistModal"
-                    );
 
                     openProductDetails(
                         viewButton.dataset
@@ -6331,10 +6311,6 @@ function setupEventListeners() {
 
                 if (view) {
 
-                    closeModal(
-                        "myListingsModal"
-                    );
-
                     openProductDetails(
                         view.dataset
                             .myView
@@ -6399,10 +6375,6 @@ function setupEventListeners() {
                 const id =
                     card.dataset
                         .sellerListingId;
-
-                closeModal(
-                    "sellerProfileModal"
-                );
 
                 openProductDetails(id);
             }
