@@ -1239,6 +1239,13 @@ function applyFilters() {
         $("conditionFilter")
             ?.value || "all";
 
+    const location =
+        String(
+            $("locationFilter")?.value || ""
+        )
+            .trim()
+            .toLowerCase();
+
     const sort =
         $("sortFilter")
             ?.value || "newest";
@@ -1307,6 +1314,15 @@ function applyFilters() {
                     String(
                         condition
                     ).toLowerCase()
+            );
+    }
+
+    if (location) {
+        filtered =
+            filtered.filter(product =>
+                String(product.location || "")
+                    .toLowerCase()
+                    .includes(location)
             );
     }
 
