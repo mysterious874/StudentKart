@@ -536,7 +536,23 @@
           <p id="chatUserName">Conversation</p>
         </div>
       </div>
-      <button type="button" class="modal-close" data-close-modal aria-label="Close chat"><i class="fas fa-xmark"></i></button>
+      <div class="chat-actions">
+        <button type="button" class="chat-delete-button" id="chatDeleteButton" title="Delete options">
+          <i class="fas fa-trash-can"></i>
+          <span>Delete</span>
+        </button>
+        <button type="button" class="modal-close" data-close-modal aria-label="Close chat"><i class="fas fa-xmark"></i></button>
+      </div>
+    </div>
+    <div id="chatDeleteMenu" class="chat-delete-menu hidden">
+      <button type="button" id="deleteChatForMeButton">
+        <i class="fas fa-eye-slash"></i>
+        <span>Delete for Me</span>
+      </button>
+      <button type="button" id="deleteChatForEveryoneButton" class="danger">
+        <i class="fas fa-trash-can"></i>
+        <span>Delete for Everyone</span>
+      </button>
     </div>
     <div id="chatMessages" class="chat-messages">
       <div class="chat-empty"><i class="fas fa-comment-dots"></i><p>No messages yet.</p><span>Start the conversation below.</span></div>
