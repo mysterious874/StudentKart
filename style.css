@@ -10759,3 +10759,22 @@ button,
         padding: 13px 17px 17px !important;
     }
 }
+
+
+/* FINAL AUTH HEADER CENTERING */
+body #loginModal:not(.hidden) .auth-modal .auth-header h2,
+body #signupModal:not(.hidden) .auth-modal .auth-header h2 {
+    width: 100% !important;
+    text-align: center !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+body #loginModal:not(.hidden) .auth-modal .auth-header p,
+body #signupModal:not(.hidden) .auth-modal .auth-header p {
+    width: 100% !important;
+    max-width: none !important;
+    text-align: center !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
