@@ -5277,3 +5277,67 @@ body { font-weight: 400; }
         padding: 7px;
     }
 }
+
+
+/* FULL-PAGE RECEIVED CHATS */
+#inquiriesModal {
+    padding: 0;
+    background: #f7fafa;
+    backdrop-filter: none;
+}
+
+#inquiriesModal .modal-overlay {
+    display: none;
+}
+
+#inquiriesModal .modal-content {
+    width: 100%;
+    max-width: none;
+    height: 100vh;
+    max-height: 100vh;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: none;
+}
+
+#inquiriesModal .modal-close {
+    position: fixed;
+    top: 18px;
+    right: 22px;
+    z-index: 20;
+}
+
+#inquiriesModal .modal-header {
+    flex: 0 0 auto;
+    padding: 24px 70px 18px 28px;
+    background: #ffffff;
+}
+
+#inquiriesContainer {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    overflow-y: auto;
+}
+
+@media (max-width: 700px) {
+    #inquiriesModal .modal-header {
+        padding: 18px 58px 15px 16px;
+    }
+
+    #inquiriesModal .modal-close {
+        top: 14px;
+        right: 14px;
+    }
+
+    #inquiriesContainer {
+        max-width: none;
+    }
+}
