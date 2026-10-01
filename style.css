@@ -8411,3 +8411,9 @@ body #profileModal:not(.hidden) .profile-header {
         padding: 12px;
     }
 }
+
+
+/* Chat heading matches Notifications heading */
+.chat-person h2 {
+    color: #111827 !important;
+}
