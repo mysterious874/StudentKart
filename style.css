@@ -7381,3 +7381,95 @@ body #notificationsModal .notifications-modal-content > .modal-home-button {
         left: 50px !important;
     }
 }
+
+
+/* =========================================================
+   FINAL: KEEP MODAL HEADERS + PAGE TITLES VISIBLE ON SCROLL
+   ========================================================= */
+
+/* Headers stay pinned at the top of their scroll container. */
+body .modal > .modal-content > .modal-header,
+body .modal > .modal-content > .auth-header,
+body #profileModal .profile-header,
+body #sellerProfileModal .seller-profile-header,
+body #wishlistModal .wishlist-page-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 800 !important;
+    flex-shrink: 0 !important;
+}
+
+/* Wishlist is a single scrolling popup, so its title/header stays
+   visible while the saved products underneath move. */
+body #wishlistModal .wishlist-modal-content {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+}
+
+body #wishlistModal .wishlist-page-header {
+    background: #ffffff !important;
+    margin: 0 !important;
+}
+
+/* Keep the navigation controls above the sticky header. */
+body #wishlistModal .wishlist-modal-back-button,
+body #wishlistModal .modal-home-button {
+    position: fixed !important;
+    z-index: 1200 !important;
+}
+
+body #wishlistModal .wishlist-modal-back-button {
+    top: 14px !important;
+    left: 14px !important;
+}
+
+body #wishlistModal .modal-home-button {
+    top: 14px !important;
+    left: 61px !important;
+}
+
+@media (max-width: 600px) {
+    body #wishlistModal .wishlist-modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+
+    body #wishlistModal .modal-home-button {
+        top: 10px !important;
+        left: 50px !important;
+    }
+
+    body #wishlistModal .wishlist-page-header {
+        padding-top: 64px !important;
+    }
+}
+
+/* Other scrollable modal pages keep their headings pinned too. */
+body #sellModal .modal-header,
+body #productModal .modal-header,
+body #inquiryModal .modal-header,
+body #loginModal .auth-header,
+body #signupModal .auth-header,
+body #editProfileModal .modal-header,
+body #myListingsModal .modal-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 800 !important;
+    background: #ffffff !important;
+}
+
+/* Product details uses a heading outside .modal-header. */
+body #productModal .product-details-content > h2 {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 800 !important;
+    background: #ffffff !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
+
+/* Seller profile title area stays pinned during listing scroll. */
+body #sellerProfileModal .seller-profile-header {
+    background: #ffffff !important;
+}
