@@ -31,6 +31,9 @@ let selectedInquiryProduct = null;
 let currentSellerProfile = null;
 
 let currentNotifications = [];
+let selectedNotificationIds = new Set();
+let notificationLongPressTimer = null;
+let notificationLongPressTriggered = false;
 let notificationRefreshTimer = null;
 let notificationRealtimeChannel = null;
 let toastTimer = null;
@@ -4215,6 +4218,13 @@ function ensureNotificationsUI() {
                     </p>
                 </div>
 
+                <div id="notificationSelectionToolbar" class="notification-selection-toolbar hidden">
+                    <strong><span id="notificationSelectionCount">0</span> selected</strong>
+                    <button type="button" class="btn btn-outline" id="selectAllNotificationsButton">Select all</button>
+                    <button type="button" class="btn btn-danger" id="deleteSelectedNotificationsButton" disabled>Delete selected</button>
+                    <button type="button" class="btn btn-outline" id="cancelNotificationSelectionButton">Cancel</button>
+                </div>
+
                 <button
                     type="button"
                     class="btn btn-outline"
@@ -4715,19 +4725,8 @@ function renderNotifications() {
                             </span>
 
                         </div>
-
-                        <button
-                            type="button"
-                            class="notification-delete-btn"
-                            data-delete-notification-id="${escapeHTML(
-                        notification.id
-                    )}"
-                            aria-label="Delete notification"
-                            title="Delete notification">
-                            <i class="fas fa-trash"></i>
-                        </button>
-
-                        ${unread
+                        <span class="notification-select-check" aria-hidden="true"><i class="fas fa-check"></i></span>
+${unread
                         ? `
                                     <span
                                         class="notification-unread-dot"
@@ -4741,6 +4740,61 @@ function renderNotifications() {
                 `;
             })
             .join("");
+}
+
+function updateNotificationSelectionUI() {
+    const toolbar = $("notificationSelectionToolbar");
+    const count = $("notificationSelectionCount");
+    const deleteButton = $("deleteSelectedNotificationsButton");
+
+    document.querySelectorAll("[data-notification-id]").forEach(item => {
+        item.classList.toggle("notification-selected", selectedNotificationIds.has(String(item.dataset.notificationId)));
+    });
+
+    const selectedCount = selectedNotificationIds.size;
+    if (toolbar) toolbar.classList.toggle("hidden", selectedCount === 0);
+    if (count) count.textContent = String(selectedCount);
+    if (deleteButton) deleteButton.disabled = selectedCount === 0;
+}
+
+function toggleNotificationSelection(notificationId) {
+    const id = String(notificationId || "");
+    if (!id) return;
+    if (selectedNotificationIds.has(id)) selectedNotificationIds.delete(id);
+    else selectedNotificationIds.add(id);
+    updateNotificationSelectionUI();
+}
+
+function clearNotificationSelection() {
+    selectedNotificationIds.clear();
+    updateNotificationSelectionUI();
+}
+
+function selectAllNotifications() {
+    currentNotifications.forEach(notification => selectedNotificationIds.add(String(notification.id)));
+    updateNotificationSelectionUI();
+}
+
+async function deleteSelectedNotifications() {
+    if (!currentUser || !selectedNotificationIds.size) return;
+    const ids = Array.from(selectedNotificationIds);
+
+    if (!window.confirm("Delete " + ids.length + " selected notification" + (ids.length === 1 ? "" : "s") + "?")) return;
+
+    try {
+        const { error } = await supabaseClient.from("notifications").delete().eq("user_id", currentUser.id).in("id", ids);
+        if (error) throw error;
+
+        currentNotifications = currentNotifications.filter(notification => !selectedNotificationIds.has(String(notification.id)));
+        selectedNotificationIds.clear();
+        updateNotificationNavbar();
+        renderNotifications();
+        updateNotificationSelectionUI();
+        showToast(ids.length + " notification" + (ids.length === 1 ? "" : "s") + " deleted", "success");
+    } catch (error) {
+        console.error("Delete selected notifications error:", error);
+        showToast("Could not delete selected notifications", "error");
+    }
 }
 
 async function deleteNotification(notificationId) {
@@ -5293,43 +5347,46 @@ function setupEventListeners() {
             markAllNotificationsAsRead
         );
 
-    $("notificationsContainer")
-        ?.addEventListener(
-            "click",
-            async event => {
+    $("selectAllNotificationsButton")?.addEventListener("click", selectAllNotifications);
+    $("deleteSelectedNotificationsButton")?.addEventListener("click", deleteSelectedNotifications);
+    $("cancelNotificationSelectionButton")?.addEventListener("click", clearNotificationSelection);
 
-                const deleteButton =
-                    event.target.closest(
-                        "[data-delete-notification-id]"
-                    );
+    $("notificationsContainer")?.addEventListener("pointerdown", event => {
+        const item = event.target.closest("[data-notification-id]");
+        if (!item) return;
+        notificationLongPressTriggered = false;
+        clearTimeout(notificationLongPressTimer);
+        notificationLongPressTimer = setTimeout(() => {
+            notificationLongPressTriggered = true;
+            toggleNotificationSelection(item.dataset.notificationId);
+            if (navigator.vibrate) navigator.vibrate(30);
+        }, 600);
+    });
 
-                if (deleteButton) {
-                    event.preventDefault();
-                    event.stopPropagation();
+    $("notificationsContainer")?.addEventListener("pointerup", () => clearTimeout(notificationLongPressTimer));
+    $("notificationsContainer")?.addEventListener("pointercancel", () => clearTimeout(notificationLongPressTimer));
+    $("notificationsContainer")?.addEventListener("pointermove", () => clearTimeout(notificationLongPressTimer));
+    $("notificationsContainer")?.addEventListener("contextmenu", event => event.preventDefault());
 
-                    await deleteNotification(
-                        deleteButton.dataset
-                            .deleteNotificationId
-                    );
+    $("notificationsContainer")?.addEventListener("click", event => {
+        const item = event.target.closest("[data-notification-id]");
+        if (!item) return;
+        event.preventDefault();
+        event.stopPropagation();
 
-                    return;
-                }
+        const id = item.dataset.notificationId;
+        if (notificationLongPressTriggered) {
+            notificationLongPressTriggered = false;
+            return;
+        }
 
-                const item =
-                    event.target.closest(
-                        "[data-notification-id]"
-                    );
+        if (selectedNotificationIds.size > 0) {
+            toggleNotificationSelection(id);
+            return;
+        }
 
-                if (!item) {
-                    return;
-                }
-
-                openNotification(
-                    item.dataset
-                        .notificationId
-                );
-            }
-        );
+        openNotification(id);
+    });
 
 
     /* -----------------------------------------
