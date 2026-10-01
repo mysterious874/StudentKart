@@ -8996,3 +8996,41 @@ body {
         min-width: 40px !important;
     }
 }
+
+
+/* =========================================================
+   NAVBAR BACKGROUND - ACTUAL HEIGHT
+   Increase the dark/blur navbar surface itself.
+   ========================================================= */
+.navbar {
+    min-height: 88px !important;
+    height: 88px !important;
+    background: rgba(6, 8, 22, 0.94) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+}
+
+.navbar .nav-container {
+    min-height: 88px !important;
+    height: 88px !important;
+}
+
+body {
+    padding-top: 94px !important;
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        min-height: 76px !important;
+        height: 76px !important;
+    }
+
+    .navbar .nav-container {
+        min-height: 76px !important;
+        height: 76px !important;
+    }
+
+    body {
+        padding-top: 82px !important;
+    }
+}
