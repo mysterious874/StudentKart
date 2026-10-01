@@ -1208,6 +1208,36 @@ function updateStats() {
     }
 }
 
+let marketplaceFilterSnapshot = null;
+
+function captureMarketplaceFilterSnapshot() {
+    marketplaceFilterSnapshot = {};
+    [
+        "categoryFilter",
+        "minPrice",
+        "maxPrice",
+        "locationFilter",
+        "conditionFilter",
+        "sortFilter"
+    ].forEach(id => {
+        const element = $(id);
+        if (element) {
+            marketplaceFilterSnapshot[id] = element.value;
+        }
+    });
+}
+
+function restoreMarketplaceFilterSnapshot() {
+    if (!marketplaceFilterSnapshot) return;
+
+    Object.entries(marketplaceFilterSnapshot).forEach(([id, value]) => {
+        const element = $(id);
+        if (element) {
+            element.value = value;
+        }
+    });
+}
+
 function applyFilters() {
 
     const search =
@@ -5811,26 +5841,55 @@ function setupEventListeners() {
        MARKETPLACE FILTERS
        ----------------------------------------- */
 
+    $("marketplaceSearch")
+        ?.addEventListener(
+            "input",
+            applyFilters
+        );
+
     [
-        "marketplaceSearch",
         "categoryFilter",
         "minPrice",
         "maxPrice",
+        "locationFilter",
         "conditionFilter",
         "sortFilter"
     ]
         .forEach(id => {
-
             $(id)?.addEventListener(
                 "input",
-                applyFilters
-            );
-
-            $(id)?.addEventListener(
-                "change",
-                applyFilters
+                () => {}
             );
         });
+
+    const filterMenu =
+        document.querySelector(".marketplace-filter-menu");
+
+    filterMenu?.addEventListener("toggle", () => {
+        if (filterMenu.open) {
+            captureMarketplaceFilterSnapshot();
+        }
+    });
+
+    $("applyMarketplaceFilters")
+        ?.addEventListener(
+            "click",
+            () => {
+                applyFilters();
+                filterMenu?.removeAttribute("open");
+                showToast("Filters applied", "success");
+            }
+        );
+
+    $("cancelMarketplaceFilters")
+        ?.addEventListener(
+            "click",
+            () => {
+                restoreMarketplaceFilterSnapshot();
+                applyFilters();
+                filterMenu?.removeAttribute("open");
+            }
+        );
 
     $("refreshProducts")
         ?.addEventListener(
