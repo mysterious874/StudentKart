@@ -11037,3 +11037,59 @@ body .inquiries-whatsapp-header .inquiry-bulk-tools {
     width: 100% !important;
     justify-content: center !important;
 }
+
+
+/* FINAL OVERRIDE: CENTER EVERY PAGE/SECTION HEADER */
+body .section-heading,
+body .section-heading > div,
+body .section-heading .section-label,
+body .section-heading h2,
+body .section-heading p,
+body .marketplace-heading,
+body .marketplace-heading > div {
+    text-align: center !important;
+}
+
+body .section-heading .section-label,
+body .section-heading h2,
+body .section-heading p {
+    display: block !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+body .category-picker-header,
+body .category-picker-header h2,
+body .category-picker-header p,
+body .inquiries-whatsapp-header,
+body .inquiries-whatsapp-header h2,
+body .inquiries-whatsapp-header p,
+body .inquiries-whatsapp-header .section-label,
+body .page-popup-header,
+body .page-popup-header h2,
+body .page-popup-header p,
+body .wishlist-page-header,
+body .wishlist-page-header h2,
+body .wishlist-page-header p,
+body .auth-header,
+body .auth-header h2,
+body .auth-header p {
+    text-align: center !important;
+}
+
+body .category-picker-header,
+body .inquiries-whatsapp-header {
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body .inquiries-whatsapp-header > div:first-child {
+    width: 100% !important;
+    text-align: center !important;
+}
+
+body .inquiries-whatsapp-header .inquiry-bulk-tools {
+    width: 100% !important;
+    justify-content: center !important;
+}
