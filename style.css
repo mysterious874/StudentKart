@@ -5341,3 +5341,71 @@ body { font-weight: 400; }
         max-width: none;
     }
 }
+
+
+/* FULL-PAGE CHAT BULK ACTION BAR */
+#inquiriesModal .inquiry-bulk-tools {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+    padding: 8px 48px 8px 12px;
+    background: #ffffff;
+}
+
+#inquiriesModal .inquiry-select-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#inquiriesModal .selected-inquiry-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #edf6f5;
+    color: #0f7476;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+#inquiriesModal .bulk-action-button {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+#inquiriesModal .bulk-action-button.hidden,
+#inquiriesModal .selected-inquiry-count.hidden {
+    display: none !important;
+}
+
+@media (max-width: 700px) {
+    #inquiriesModal .inquiry-bulk-tools {
+        width: 100%;
+        justify-content: flex-start;
+        margin-left: 0;
+        padding: 8px 0 0;
+    }
+
+    #inquiriesModal .modal-header {
+        padding-bottom: 12px;
+    }
+
+    #inquiriesModal .bulk-action-button {
+        flex: 0 0 auto;
+    }
+}
