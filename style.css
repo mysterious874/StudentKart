@@ -6683,22 +6683,22 @@ body #inquiriesModal #inquiriesContainer {
 
 
 /* =========================================================
-   CHATS / INBOX PAGE - SAME APP-LIKE LAYOUT AS NOTIFICATIONS
+   CHATS / INBOX PAGE - FULL SCREEN APP LAYOUT
    ========================================================= */
 body #inquiriesModal.modal {
-    align-items: flex-start !important;
-    justify-content: center !important;
-    padding: 10px 12px !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    padding: 0 !important;
 }
 
 body #inquiriesModal .modal-content {
-    width: min(400px, calc(100vw - 28px)) !important;
-    max-width: 400px !important;
-    height: min(560px, calc(100vh - 28px)) !important;
-    max-height: min(560px, calc(100vh - 28px)) !important;
-    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    margin: 0 !important;
     padding: 0 !important;
-    border-radius: 14px !important;
+    border-radius: 0 !important;
     overflow: hidden !important;
     position: relative !important;
 }
@@ -6708,22 +6708,18 @@ body #inquiriesModal .modal-header {
     position: relative !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    padding: 18px 14px 14px 54px !important;
+    padding: 18px 26px 18px 66px !important;
     background: #ffffff !important;
     border-bottom: 1px solid var(--border) !important;
 }
 
 body #inquiriesModal .inquiries-modal-back-button {
     position: absolute !important;
-    top: 14px !important;
-    left: 14px !important;
+    top: 18px !important;
+    left: 18px !important;
     right: auto !important;
     z-index: 30 !important;
     margin: 0 !important;
-}
-
-body #inquiriesModal .inquiry-bulk-tools {
-    flex: 0 0 auto !important;
 }
 
 body #inquiriesModal #inquiriesContainer {
@@ -6736,20 +6732,8 @@ body #inquiriesModal #inquiriesContainer {
 }
 
 @media (max-width: 700px) {
-    body #inquiriesModal.modal {
-        padding: 12px 10px !important;
-    }
-
-    body #inquiriesModal .modal-content {
-        width: min(340px, calc(100vw - 24px)) !important;
-        max-width: 340px !important;
-        height: calc(100vh - 24px) !important;
-        max-height: calc(100vh - 24px) !important;
-        border-radius: 14px !important;
-    }
-
     body #inquiriesModal .modal-header {
-        padding: 16px 10px 12px 50px !important;
+        padding: 16px 12px 14px 54px !important;
     }
 
     body #inquiriesModal .inquiries-modal-back-button {
