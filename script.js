@@ -5945,6 +5945,41 @@ if (
 // CHAT SYSTEM FUNCTIONS
 // ===============================
 
+async function openInquiryChat(inquiryId) {
+    if (!currentUser) {
+        openModal("loginModal");
+        showToast("Please login to chat", "warning");
+        return;
+    }
+
+    try {
+        const inquiry = await getInquiryForChat(inquiryId);
+
+        if (!inquiry) {
+            showToast("Conversation not found", "error");
+            return;
+        }
+
+        let productName = "Product Chat";
+
+        const { data: product } = await supabaseClient
+            .from("products")
+            .select("name")
+            .eq("id", inquiry.product_id)
+            .maybeSingle();
+
+        if (product?.name) {
+            productName = product.name;
+        }
+
+        inquiry.product_name = productName;
+        await openChat(inquiry);
+    } catch (error) {
+        console.error("Open chat error:", error);
+        showToast("Could not open chat", "error");
+    }
+}
+
 async function openChat(inquiry) {
 
     if (!currentUser) {
