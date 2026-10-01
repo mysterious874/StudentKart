@@ -6265,3 +6265,16 @@ textarea {
         left: 8px;
     }
 }
+
+/* FORCE CHAT BACK ARROW */
+.chat-head .chat-modal-back-button i {
+    display: block !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+}
+
+@media (max-width: 700px) {
+    .chat-head > .chat-modal-back-button {
+        left: 9px;
+    }
+}
