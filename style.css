@@ -9784,3 +9784,43 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
         align-content: center;
     }
 }
+
+
+/* CATEGORY PICKER - FORCE TRUE VIEWPORT CENTER */
+body .modal#categoryPickerModal:not(.hidden) {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 24px !important;
+    box-sizing: border-box !important;
+    z-index: 5000 !important;
+}
+
+body .modal#categoryPickerModal:not(.hidden) .category-picker-modal {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    align-self: center !important;
+    width: min(94vw, 980px) !important;
+    max-height: min(78vh, 620px) !important;
+    overflow-y: auto !important;
+}
+
+@media (max-width: 700px) {
+    body .modal#categoryPickerModal:not(.hidden) {
+        padding: 16px !important;
+    }
+
+    body .modal#categoryPickerModal:not(.hidden) .category-picker-modal {
+        width: calc(100vw - 32px) !important;
+        max-height: 78vh !important;
+    }
+}
