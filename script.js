@@ -4327,11 +4327,35 @@ function injectNotificationStyles() {
             font-weight: 700;
         }
 
-        .notification-confirm-modal {
+        #notificationDeleteConfirmModal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        #notificationDeleteConfirmModal.hidden {
+            display: none;
+        }
+
+        #notificationDeleteConfirmModal .modal-overlay {
+            position: absolute;
+            inset: 0;
+        }
+
+        #notificationDeleteConfirmModal .notification-confirm-modal {
+            position: relative;
+            z-index: 1;
             width: min(390px, 90vw);
+            max-height: 90vh;
+            margin: auto;
             padding: 28px;
             text-align: center;
             border-radius: 14px;
+            transform: none;
         }
 
         .notification-confirm-icon {
