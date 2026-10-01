@@ -7473,3 +7473,120 @@ body #productModal .product-details-content > h2 {
 body #sellerProfileModal .seller-profile-header {
     background: #ffffff !important;
 }
+
+
+/* =========================================================
+   STUDENTKART - CONVERT ALL MODALS INTO FULL PAGE SCREENS
+   ========================================================= */
+
+/* Every existing modal now behaves like a real app page.
+   IDs and JavaScript are intentionally unchanged. */
+body .modal:not(.hidden) {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    z-index: 2000 !important;
+}
+
+body .modal:not(.hidden) > .modal-overlay {
+    display: none !important;
+}
+
+body .modal:not(.hidden) > .modal-content {
+    position: relative !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    min-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    background: #ffffff !important;
+    transform: none !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* Full-page headers remain visible while page content scrolls. */
+body .modal:not(.hidden) > .modal-content > .modal-header,
+body .modal:not(.hidden) > .modal-content > .auth-header,
+body #profileModal:not(.hidden) .profile-header,
+body #sellerProfileModal:not(.hidden) .seller-profile-header,
+body #wishlistModal:not(.hidden) .wishlist-page-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 800 !important;
+    background: #ffffff !important;
+}
+
+/* Product page has its own content wrapper. */
+body #productModal:not(.hidden) .product-details-content {
+    min-height: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Full-page profile layout. */
+body #profileModal:not(.hidden) .profile-modal {
+    width: 100% !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    min-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+/* Navigation buttons are page chrome, never page content. */
+body .modal:not(.hidden) > .modal-content > .modal-back-button,
+body .modal:not(.hidden) > .modal-content > .modal-home-button {
+    position: fixed !important;
+    z-index: 2500 !important;
+}
+
+/* Keep all full-page content clear of the navigation controls. */
+body .modal:not(.hidden) > .modal-content > .modal-header,
+body .modal:not(.hidden) > .modal-content > .auth-header {
+    padding-top: 76px !important;
+}
+
+/* Wishlist gets a proper page header with navigation clearance. */
+body #wishlistModal:not(.hidden) .wishlist-page-header {
+    padding-top: 76px !important;
+}
+
+/* Chat and notification screens already have custom headers;
+   keep their internal layouts while making them true pages. */
+body #chatModal:not(.hidden) > .modal-content,
+body #inquiriesModal:not(.hidden) > .modal-content,
+body #notificationsModal:not(.hidden) > .modal-content {
+    width: 100% !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    min-height: 100dvh !important;
+    border-radius: 0 !important;
+}
+
+/* Mobile page spacing. */
+@media (max-width: 600px) {
+    body .modal:not(.hidden) > .modal-content > .modal-header,
+    body .modal:not(.hidden) > .modal-content > .auth-header {
+        padding-top: 64px !important;
+    }
+
+    body #wishlistModal:not(.hidden) .wishlist-page-header {
+        padding-top: 64px !important;
+    }
+}
