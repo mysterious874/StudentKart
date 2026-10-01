@@ -9099,3 +9099,15 @@ body {
         border-radius: 9px 9px 18px 18px !important;
     }
 }
+
+
+/* Top floating navbar - even flatter top corners */
+.navbar {
+    border-radius: 4px 4px 20px 20px !important;
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        border-radius: 4px 4px 18px 18px !important;
+    }
+}
