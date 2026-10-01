@@ -4327,35 +4327,48 @@ function injectNotificationStyles() {
             font-weight: 700;
         }
 
-        #notificationDeleteConfirmModal {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: fixed;
-            inset: 0;
-            z-index: 10000;
-            padding: 20px;
+        body #notificationDeleteConfirmModal {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: fixed !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            min-height: 100vh !important;
+            margin: 0 !important;
+            padding: 20px !important;
+            z-index: 999999 !important;
+            box-sizing: border-box !important;
         }
 
-        #notificationDeleteConfirmModal.hidden {
-            display: none;
+        body #notificationDeleteConfirmModal.hidden {
+            display: none !important;
         }
 
-        #notificationDeleteConfirmModal .modal-overlay {
-            position: absolute;
-            inset: 0;
+        body #notificationDeleteConfirmModal > .modal-overlay {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
         }
 
-        #notificationDeleteConfirmModal .notification-confirm-modal {
-            position: relative;
-            z-index: 1;
-            width: min(390px, 90vw);
-            max-height: 90vh;
-            margin: auto;
-            padding: 28px;
-            text-align: center;
-            border-radius: 14px;
-            transform: none;
+        body #notificationDeleteConfirmModal > .notification-confirm-modal {
+            position: relative !important;
+            top: auto !important;
+            right: auto !important;
+            bottom: auto !important;
+            left: auto !important;
+            width: min(390px, 90vw) !important;
+            max-width: 390px !important;
+            max-height: 90vh !important;
+            margin: 0 !important;
+            transform: none !important;
+            z-index: 1000000 !important;
+            box-sizing: border-box !important;
         }
 
         .notification-confirm-icon {
