@@ -7590,3 +7590,243 @@ body #notificationsModal:not(.hidden) > .modal-content {
         padding-top: 64px !important;
     }
 }
+
+
+/* =========================================================
+   STUDENTKART - FINAL FULL-PAGE SCREEN OVERRIDE
+   ========================================================= */
+
+/* Every modal screen fills the entire viewport. */
+body .modal:not(.hidden) {
+    position: fixed !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 2000 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+}
+
+/* No popup overlay on page-style screens. */
+body .modal:not(.hidden) > .modal-overlay {
+    display: none !important;
+}
+
+/* All modal content variants become the page itself. */
+body .modal:not(.hidden) .modal-content,
+body .modal:not(.hidden) .profile-modal,
+body .modal:not(.hidden) .wide-modal,
+body .modal:not(.hidden) .auth-modal,
+body .modal:not(.hidden) .product-details-modal,
+body .modal:not(.hidden) .wishlist-modal-content,
+body .modal:not(.hidden) .seller-profile-modal,
+body .modal:not(.hidden) .chat-modal-content {
+    position: relative !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    transform: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* Back arrow: always visible, fixed to the viewport. */
+body .modal:not(.hidden) .modal-back-button {
+    position: fixed !important;
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    top: 14px !important;
+    left: 14px !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: 10000 !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+}
+
+/* Home icon: always visible beside Back. */
+body .modal:not(.hidden) .modal-home-button {
+    position: fixed !important;
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    top: 14px !important;
+    left: 61px !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: 10000 !important;
+}
+
+/* Chat / inquiries / notifications have custom header layouts. */
+body #inquiriesModal:not(.hidden) .modal-back-button,
+body #chatModal:not(.hidden) .modal-back-button,
+body #notificationsModal:not(.hidden) .modal-back-button {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+body #inquiriesModal:not(.hidden) .modal-back-button {
+    top: 18px !important;
+    left: 18px !important;
+}
+
+body #inquiriesModal:not(.hidden) .modal-home-button {
+    top: 18px !important;
+    left: 65px !important;
+}
+
+body #notificationsModal:not(.hidden) .modal-back-button {
+    top: 14px !important;
+    left: 14px !important;
+}
+
+body #notificationsModal:not(.hidden) .modal-home-button {
+    top: 14px !important;
+    left: 61px !important;
+}
+
+/* Chat header controls stay fixed above the chat page. */
+body #chatModal:not(.hidden) .chat-head .modal-back-button {
+    position: fixed !important;
+    top: 14px !important;
+    left: 14px !important;
+    z-index: 10000 !important;
+}
+
+body #chatModal:not(.hidden) .chat-head .modal-home-button {
+    position: fixed !important;
+    top: 14px !important;
+    left: 61px !important;
+    z-index: 10000 !important;
+}
+
+/* Page headers leave room for the fixed controls. */
+body .modal:not(.hidden) .modal-header,
+body .modal:not(.hidden) .auth-header,
+body .modal:not(.hidden) .profile-header,
+body .modal:not(.hidden) .seller-profile-header,
+body .modal:not(.hidden) .wishlist-page-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 800 !important;
+    background: #ffffff !important;
+    flex-shrink: 0 !important;
+    padding-top: 76px !important;
+}
+
+/* Product page heading/content also uses full-page width. */
+body #productModal:not(.hidden) .product-details-content {
+    width: 100% !important;
+    min-height: 100dvh !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Keep the page title clear of Back + Home. */
+body .modal:not(.hidden) .modal-header,
+body .modal:not(.hidden) .auth-header,
+body .modal:not(.hidden) .profile-header,
+body .modal:not(.hidden) .seller-profile-header {
+    padding-left: 112px !important;
+    padding-right: 58px !important;
+}
+
+/* Do not let any old popup width/max-height rule win. */
+body #sellModal:not(.hidden) .modal-content,
+body #productModal:not(.hidden) .modal-content,
+body #wishlistModal:not(.hidden) .modal-content,
+body #inquiryModal:not(.hidden) .modal-content,
+body #inquiriesModal:not(.hidden) .modal-content,
+body #loginModal:not(.hidden) .modal-content,
+body #signupModal:not(.hidden) .modal-content,
+body #profileModal:not(.hidden) .modal-content,
+body #sellerProfileModal:not(.hidden) .modal-content,
+body #editProfileModal:not(.hidden) .modal-content,
+body #myListingsModal:not(.hidden) .modal-content,
+body #chatModal:not(.hidden) .modal-content,
+body #notificationsModal:not(.hidden) .modal-content {
+    width: 100% !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    min-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+/* Mobile spacing. */
+@media (max-width: 600px) {
+    body .modal:not(.hidden) .modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+    }
+
+    body .modal:not(.hidden) .modal-home-button {
+        top: 10px !important;
+        left: 50px !important;
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+    }
+
+    body .modal:not(.hidden) .modal-header,
+    body .modal:not(.hidden) .auth-header,
+    body .modal:not(.hidden) .profile-header,
+    body .modal:not(.hidden) .seller-profile-header,
+    body .modal:not(.hidden) .wishlist-page-header {
+        padding-top: 64px !important;
+        padding-left: 96px !important;
+        padding-right: 50px !important;
+    }
+
+    body #inquiriesModal:not(.hidden) .modal-back-button {
+        top: 18px !important;
+        left: 18px !important;
+    }
+
+    body #inquiriesModal:not(.hidden) .modal-home-button {
+        top: 18px !important;
+        left: 65px !important;
+    }
+
+    body #notificationsModal:not(.hidden) .modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+
+    body #notificationsModal:not(.hidden) .modal-home-button {
+        top: 10px !important;
+        left: 50px !important;
+    }
+}
