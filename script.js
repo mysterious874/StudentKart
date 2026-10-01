@@ -2536,6 +2536,13 @@ async function loadReceivedInquiries() {
                             class="whatsapp-inquiry-card"
                             data-inquiry-id="${escapeHTML(inquiry.id)}"
                         >
+                            <label class="inquiry-select-box" onclick="event.stopPropagation()">
+                                <input
+                                    type="checkbox"
+                                    class="inquiry-select-checkbox"
+                                    data-inquiry-select="${escapeHTML(inquiry.id)}"
+                                >
+                            </label>
                             <div class="whatsapp-inquiry-avatar">
                                 ${profile?.avatar_url
                                     ? `<img src="${escapeHTML(profile.avatar_url)}" alt="">`
@@ -6144,6 +6151,90 @@ async function deleteChatForEveryone() {
     showToast("Chat deleted for everyone", "success");
 }
 
+function getSelectedInquiryIds() {
+    return Array.from(
+        document.querySelectorAll(".inquiry-select-checkbox:checked")
+    ).map(input => input.dataset.inquirySelect).filter(Boolean);
+}
+
+function updateBulkInquiryToolbar() {
+    const ids = getSelectedInquiryIds();
+    const count = ids.length;
+
+    const countEl = $("selectedInquiryCount");
+    const markButton = $("bulkMarkRepliedButton");
+    const deleteButton = $("bulkDeleteForMeButton");
+    const selectAll = $("selectAllInquiries");
+
+    if (countEl) {
+        countEl.textContent = count + (count === 1 ? " selected" : " selected");
+        countEl.classList.toggle("hidden", count === 0);
+    }
+
+    if (markButton) markButton.classList.toggle("hidden", count === 0);
+    if (deleteButton) deleteButton.classList.toggle("hidden", count === 0);
+
+    if (selectAll) {
+        const boxes = Array.from(document.querySelectorAll(".inquiry-select-checkbox"));
+        selectAll.checked = boxes.length > 0 && boxes.every(box => box.checked);
+        selectAll.indeterminate = count > 0 && count < boxes.length;
+    }
+
+    document.querySelectorAll(".whatsapp-inquiry-card").forEach(card => {
+        const box = card.querySelector(".inquiry-select-checkbox");
+        card.classList.toggle("is-selected", !!box?.checked);
+    });
+}
+
+async function bulkMarkInquiriesReplied() {
+    const ids = getSelectedInquiryIds();
+    if (!ids.length || !currentUser) return;
+
+    const { error } = await supabaseClient
+        .from("inquiries")
+        .update({ status: "replied" })
+        .in("id", ids)
+        .eq("seller_id", currentUser.id);
+
+    if (error) {
+        console.error("Bulk mark replied error:", error);
+        showToast("Could not update selected chats", "error");
+        return;
+    }
+
+    showToast(ids.length + " chat" + (ids.length === 1 ? "" : "s") + " marked replied", "success");
+    await loadReceivedInquiries();
+}
+
+async function bulkDeleteInquiriesForMe() {
+    const ids = getSelectedInquiryIds();
+    if (!ids.length || !currentUser) return;
+
+    const confirmed = window.confirm(
+        "Delete " + ids.length + " selected chat" + (ids.length === 1 ? "" : "s") + " for you?"
+    );
+
+    if (!confirmed) return;
+
+    const rows = ids.map(inquiryId => ({
+        user_id: currentUser.id,
+        inquiry_id: inquiryId
+    }));
+
+    const { error } = await supabaseClient
+        .from("hidden_chats")
+        .upsert(rows, { onConflict: "user_id,inquiry_id" });
+
+    if (error) {
+        console.error("Bulk delete for me error:", error);
+        showToast("Could not delete selected chats", "error");
+        return;
+    }
+
+    showToast(ids.length + " chat" + (ids.length === 1 ? "" : "s") + " deleted for you", "success");
+    await loadReceivedInquiries();
+}
+
 function closeChatDeleteMenu() {
     const menu = $("chatDeleteMenu");
     if (menu) {
@@ -6485,6 +6576,32 @@ function escapeHtml(value) {
 $("chatForm")?.addEventListener(
     "submit",
     sendChatMessage
+);
+
+$("selectAllInquiries")?.addEventListener(
+    "change",
+    event => {
+        document.querySelectorAll(".inquiry-select-checkbox").forEach(box => {
+            box.checked = event.target.checked;
+        });
+        updateBulkInquiryToolbar();
+    }
+);
+
+document.addEventListener("change", event => {
+    if (event.target.matches(".inquiry-select-checkbox")) {
+        updateBulkInquiryToolbar();
+    }
+});
+
+$("bulkMarkRepliedButton")?.addEventListener(
+    "click",
+    bulkMarkInquiriesReplied
+);
+
+$("bulkDeleteForMeButton")?.addEventListener(
+    "click",
+    bulkDeleteInquiriesForMe
 );
 
 $("chatDeleteButton")?.addEventListener(
