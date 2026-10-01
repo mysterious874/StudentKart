@@ -4390,6 +4390,29 @@ function injectNotificationStyles() {
             border-radius: 50%;
         }
 
+        .notification-delete-btn {
+            width: 30px;
+            height: 30px;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 2px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: #fff;
+            color: #94a3b8;
+            font-size: 11px;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .notification-delete-btn:hover {
+            color: #dc3545;
+            border-color: #f1b8bf;
+            background: #fff5f6;
+        }
+
         .notifications-empty {
             padding: 50px 20px;
             text-align: center;
@@ -4427,6 +4450,11 @@ function injectNotificationStyles() {
 
             .notifications-container {
                 padding: 14px 17px 20px;
+            }
+
+            .notification-delete-btn {
+                width: 32px;
+                height: 32px;
             }
         }
 
@@ -4688,6 +4716,17 @@ function renderNotifications() {
 
                         </div>
 
+                        <button
+                            type="button"
+                            class="notification-delete-btn"
+                            data-delete-notification-id="${escapeHTML(
+                        notification.id
+                    )}"
+                            aria-label="Delete notification"
+                            title="Delete notification">
+                            <i class="fas fa-trash"></i>
+                        </button>
+
                         ${unread
                         ? `
                                     <span
@@ -4703,6 +4742,59 @@ function renderNotifications() {
             })
             .join("");
 }
+
+async function deleteNotification(notificationId) {
+
+    if (!currentUser || !notificationId) {
+        return false;
+    }
+
+    try {
+
+        const { error } =
+            await supabaseClient
+                .from("notifications")
+                .delete()
+                .eq("id", notificationId)
+                .eq("user_id", currentUser.id);
+
+        if (error) {
+            throw error;
+        }
+
+        currentNotifications =
+            currentNotifications.filter(
+                notification =>
+                    String(notification.id) !==
+                    String(notificationId)
+            );
+
+        updateNotificationNavbar();
+        renderNotifications();
+
+        showToast(
+            "Notification deleted",
+            "success"
+        );
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Delete notification error:",
+            error
+        );
+
+        showToast(
+            "Could not delete notification",
+            "error"
+        );
+
+        return false;
+    }
+}
+
 
 async function markNotificationAsRead(
     notificationId
@@ -5205,6 +5297,23 @@ function setupEventListeners() {
         ?.addEventListener(
             "click",
             event => {
+
+                const deleteButton =
+                    event.target.closest(
+                        "[data-delete-notification-id]"
+                    );
+
+                if (deleteButton) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    await deleteNotification(
+                        deleteButton.dataset
+                            .deleteNotificationId
+                    );
+
+                    return;
+                }
 
                 const item =
                     event.target.closest(
