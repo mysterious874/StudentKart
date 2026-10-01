@@ -1224,6 +1224,18 @@ function updateNavbar() {
     const profileButton =
         $("profileButton");
 
+    const footerLoginButton =
+        $("footerLoginButton");
+
+    const footerSignupButton =
+        $("footerSignupButton");
+
+    const footerProfileButton =
+        $("footerProfileButton");
+
+    const footerLogoutButton =
+        $("footerLogoutButton");
+
     const sellButton =
         $("sellButton");
 
@@ -1240,6 +1252,11 @@ function updateNavbar() {
         profileButton?.classList.remove(
             "hidden"
         );
+
+        footerLoginButton?.classList.add("hidden");
+        footerSignupButton?.classList.add("hidden");
+        footerProfileButton?.classList.remove("hidden");
+        footerLogoutButton?.classList.remove("hidden");
 
         sellButton?.classList.remove(
             "hidden"
@@ -1258,6 +1275,11 @@ function updateNavbar() {
         profileButton?.classList.add(
             "hidden"
         );
+
+        footerLoginButton?.classList.remove("hidden");
+        footerSignupButton?.classList.remove("hidden");
+        footerProfileButton?.classList.add("hidden");
+        footerLogoutButton?.classList.add("hidden");
 
         sellButton?.classList.remove(
             "hidden"
@@ -6267,6 +6289,18 @@ function setupEventListeners() {
         ?.addEventListener(
             "click",
             () => openModal("signupModal")
+        );
+
+    $("footerProfileButton")
+        ?.addEventListener(
+            "click",
+            () => openModal("profileModal")
+        );
+
+    $("footerLogoutButton")
+        ?.addEventListener(
+            "click",
+            () => $("logoutButton")?.click()
         );
 
 
