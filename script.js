@@ -4294,11 +4294,7 @@ function ensureNotificationsUI() {
             <div class="notifications-header">
 
                 <div>
-                    <span class="section-label">
-                        ACTIVITY
-                    </span>
-
-                    <h2>
+<h2>
                         Notifications
                     </h2>
 
