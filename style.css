@@ -6448,3 +6448,64 @@ body #notificationsModal .notifications-header {
         left: 10px !important;
     }
 }
+
+/* NOTIFICATIONS PAGE - FINAL APP-LIKE LAYOUT */
+body #notificationsModal .notifications-modal-content {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+body #notificationsModal .notifications-header {
+    position: relative !important;
+    top: auto !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--border) !important;
+    padding: 18px 14px 14px 54px !important;
+}
+
+body #notificationsModal .notifications-modal-content > .modal-back-button {
+    position: absolute !important;
+    top: 14px !important;
+    left: 14px !important;
+    z-index: 300 !important;
+    margin: 0 !important;
+}
+
+body #notificationsModal #notificationsContainer {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain;
+    padding: 8px 10px 14px !important;
+}
+
+body #notificationsModal #notificationSelectionToolbar {
+    flex: 0 0 auto !important;
+}
+
+@media (max-width: 700px) {
+    body #notificationsModal .notifications-header {
+        padding: 16px 10px 12px 50px !important;
+    }
+
+    body #notificationsModal .notifications-modal-content > .modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+
+    body #notificationsModal #notificationsContainer {
+        padding: 6px 8px 12px !important;
+    }
+}
+
+/* Make long-press selection feel deliberate on touch devices */
+body #notificationsModal #notificationsContainer [data-notification-id] {
+    -webkit-touch-callout: none;
+}
