@@ -18,6 +18,12 @@ const supabaseClient =
 const STORAGE_BUCKET = "product-images";
 
 let currentUser = null;
+// ===============================
+// CHAT SYSTEM
+// ===============================
+
+let currentChatInquiry = null;
+let chatRealtimeChannel = null;
 let currentProducts = [];
 let currentProduct = null;
 let editingProductId = null;
@@ -392,58 +398,79 @@ async function getUserProfile() {
 
 
 /* =========================================================
-   WISHLIST
+   WISHLIST — SUPABASE
    ========================================================= */
 
-function getWishlistStorageKey() {
+let currentWishlist = [];
 
-    return currentUser
-        ? `studentkart_wishlist_${currentUser.id}`
-        : "studentkart_wishlist_guest";
-}
 
-function getWishlist() {
+/* -----------------------------------------
+   LOAD WISHLIST
+   ----------------------------------------- */
+
+async function getWishlist() {
+
+    if (!currentUser) {
+        currentWishlist = [];
+        return [];
+    }
 
     try {
 
-        const raw =
-            localStorage.getItem(
-                getWishlistStorageKey()
-            );
+        const { data, error } =
+            await supabaseClient
+                .from("wishlists")
+                .select("id, product_id, created_at")
+                .eq(
+                    "user_id",
+                    currentUser.id
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
 
-        const parsed =
-            raw ? JSON.parse(raw) : [];
+        if (error) {
+            throw error;
+        }
 
-        return Array.isArray(parsed)
-            ? parsed
-            : [];
+        currentWishlist = data || [];
+
+        return currentWishlist;
 
     } catch (error) {
+
+        console.error(
+            "Wishlist load error:",
+            error
+        );
+
+        currentWishlist = [];
 
         return [];
     }
 }
 
-function saveWishlist(items) {
 
-    localStorage.setItem(
-        getWishlistStorageKey(),
-        JSON.stringify(items)
-    );
-
-    updateWishlistNavbar();
-    updateWishlistButtons();
-}
+/* -----------------------------------------
+   CHECK WISHLIST
+   ----------------------------------------- */
 
 function isWishlisted(productId) {
 
-    return getWishlist()
-        .some(
-            item =>
-                String(item.id) ===
-                String(productId)
-        );
+    return currentWishlist.some(
+        item =>
+            String(item.product_id) ===
+            String(productId)
+    );
 }
+
+
+/* -----------------------------------------
+   NAVBAR COUNT
+   ----------------------------------------- */
 
 function updateWishlistNavbar() {
 
@@ -455,7 +482,7 @@ function updateWishlistNavbar() {
     }
 
     const count =
-        getWishlist().length;
+        currentWishlist.length;
 
     countElement.textContent =
         count > 99
@@ -468,6 +495,11 @@ function updateWishlistNavbar() {
     );
 }
 
+
+/* -----------------------------------------
+   UPDATE HEART BUTTONS
+   ----------------------------------------- */
+
 function updateWishlistButtons() {
 
     document
@@ -476,11 +508,11 @@ function updateWishlistButtons() {
         )
         .forEach(button => {
 
-            const id =
+            const productId =
                 button.dataset.wishlistId;
 
             const active =
-                isWishlisted(id);
+                isWishlisted(productId);
 
             button.classList.toggle(
                 "active",
@@ -505,157 +537,94 @@ function updateWishlistButtons() {
                     : "Add to wishlist"
             );
         });
+
+    updateWishlistNavbar();
 }
 
-function toggleWishlist(productId) {
+
+/* -----------------------------------------
+   ADD TO WISHLIST
+   ----------------------------------------- */
+
+async function addToWishlist(productId) {
+
+    if (!currentUser) {
+
+        openModal("loginModal");
+
+        showToast(
+            "Please login to use wishlist",
+            "warning"
+        );
+
+        return false;
+    }
+
+    try {
+
+        const { data, error } =
+            await supabaseClient
+                .from("wishlists")
+                .insert({
+                    user_id:
+                        currentUser.id,
+
+                    product_id:
+                        String(productId)
+                })
+                .select()
+                .single();
+
+        if (error) {
+
+            if (
+                error.code ===
+                "23505"
+            ) {
+
+                await getWishlist();
+
+                return true;
+            }
+
+            throw error;
+        }
+
+        currentWishlist.unshift(data);
+
+        showToast(
+            "Added to wishlist ❤️",
+            "success"
+        );
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Add wishlist error:",
+            error
+        );
+
+        showToast(
+            "Could not add to wishlist",
+            "error"
+        );
+
+        return false;
+    }
+}
+
+
+/* -----------------------------------------
+   TOGGLE WISHLIST
+   ----------------------------------------- */
+
+async function toggleWishlist(productId) {
 
     if (!productId) {
         return;
     }
-
-    const wishlist =
-        getWishlist();
-
-    const index =
-        wishlist.findIndex(
-            item =>
-                String(item.id) ===
-                String(productId)
-        );
-
-    if (index >= 0) {
-
-        wishlist.splice(index, 1);
-
-        saveWishlist(wishlist);
-
-        showToast(
-            "Removed from wishlist",
-            "success"
-        );
-
-    } else {
-
-        const product =
-            currentProducts.find(
-                item =>
-                    String(item.id) ===
-                    String(productId)
-            );
-
-        if (!product) {
-            return;
-        }
-
-        wishlist.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            category: product.category,
-            image: product.image,
-            seller: product.seller,
-            location: product.location
-        });
-
-        saveWishlist(wishlist);
-
-        showToast(
-            "Added to wishlist",
-            "success"
-        );
-    }
-
-    renderWishlist();
-}
-
-function renderWishlist() {
-
-    const container =
-        $("wishlistContainer");
-
-    if (!container) {
-        return;
-    }
-
-    const wishlist =
-        getWishlist();
-
-    if (!wishlist.length) {
-
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="far fa-heart"></i>
-                <h3>Your wishlist is empty</h3>
-                <p>Save products you want to check later.</p>
-            </div>
-        `;
-
-        return;
-    }
-
-    container.innerHTML =
-        wishlist.map(item => {
-
-            const image =
-                item.image ||
-                getPlaceholderImage(
-                    item.name
-                );
-
-            return `
-                <article class="product-card wishlist-product-card"
-                    data-wishlist-product-id="${escapeHTML(item.id)}">
-
-                    <div class="product-image-wrap">
-                        <img
-                            src="${escapeHTML(image)}"
-                            alt="${escapeHTML(item.name)}"
-                            class="product-image"
-                            onerror="this.src='${getPlaceholderImage("StudentKart")}'"
-                        >
-
-                        <button
-                            type="button"
-                            class="wishlist-btn active"
-                            data-wishlist-id="${escapeHTML(item.id)}"
-                            aria-label="Remove from wishlist">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                    </div>
-
-                    <div class="product-body">
-
-                        <div class="product-meta">
-                            <span>${escapeHTML(item.category || "Other")}</span>
-                        </div>
-
-                        <h3>${escapeHTML(item.name)}</h3>
-
-                        <div class="product-price">
-                            ${formatPrice(item.price)}
-                        </div>
-
-                        <div class="product-location">
-                            <i class="fas fa-location-dot"></i>
-                            ${escapeHTML(item.location || "Campus")}
-                        </div>
-
-                        <button
-                            type="button"
-                            class="btn btn-outline btn-full"
-                            data-wishlist-view="${escapeHTML(item.id)}">
-                            View Product
-                        </button>
-
-                    </div>
-                </article>
-            `;
-        }).join("");
-
-    updateWishlistButtons();
-}
-
-function openWishlist() {
 
     if (!currentUser) {
 
@@ -669,28 +638,258 @@ function openWishlist() {
         return;
     }
 
+    const active =
+        isWishlisted(productId);
+
+    if (active) {
+
+        await removeFromWishlist(
+            productId
+        );
+
+    } else {
+
+        await addToWishlist(
+            productId
+        );
+    }
+
+    await getWishlist();
+
+    updateWishlistButtons();
+
     renderWishlist();
+}
+
+async function renderWishlist() {
+
+    const container =
+        $("wishlistContainer");
+
+    if (!container) {
+        return;
+    }
+
+    if (!currentUser) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="far fa-heart"></i>
+                <h3>Your wishlist is empty</h3>
+                <p>Please login to use your wishlist.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    await getWishlist();
+
+    if (!currentWishlist.length) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="far fa-heart"></i>
+                <h3>Your wishlist is empty</h3>
+                <p>Save products you want to check later.</p>
+            </div>
+        `;
+
+        updateWishlistNavbar();
+
+        return;
+    }
+
+    const wishlistProducts =
+        currentWishlist
+            .map(item => {
+
+                return currentProducts.find(
+                    product =>
+                        String(product.id) ===
+                        String(item.product_id)
+                );
+
+            })
+            .filter(Boolean);
+
+    if (!wishlistProducts.length) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="far fa-heart"></i>
+                <h3>Your wishlist is empty</h3>
+                <p>Saved products are no longer available.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML =
+        wishlistProducts
+            .map(item => {
+
+                const image =
+                    item.image ||
+                    getPlaceholderImage(
+                        item.name
+                    );
+
+                return `
+                    <article
+                        class="product-card wishlist-product-card"
+                        data-wishlist-product-id="${escapeHTML(item.id)}"
+                    >
+
+                        <div class="product-image-wrap">
+
+                            <img
+                                src="${escapeHTML(image)}"
+                                alt="${escapeHTML(item.name)}"
+                                class="product-image"
+                                onerror="this.src='${getPlaceholderImage("StudentKart")}'"
+                            >
+
+                            <button
+                                type="button"
+                                class="wishlist-btn active"
+                                data-wishlist-id="${escapeHTML(item.id)}"
+                                aria-label="Remove from wishlist"
+                            >
+                                <i class="fas fa-heart"></i>
+                            </button>
+
+                        </div>
+
+                        <div class="product-body">
+
+                            <div class="product-meta">
+                                <span>
+                                    ${escapeHTML(
+                    item.category ||
+                    "Other"
+                )}
+                                </span>
+                            </div>
+
+                            <h3>
+                                ${escapeHTML(
+                    item.name
+                )}
+                            </h3>
+
+                            <div class="product-price">
+                                ${formatPrice(
+                    item.price
+                )}
+                            </div>
+
+                            <div class="product-location">
+                                <i class="fas fa-location-dot"></i>
+                                ${escapeHTML(
+                    item.location ||
+                    "Campus"
+                )}
+                            </div>
+
+                            <button
+                                type="button"
+                                class="btn btn-outline btn-full"
+                                data-wishlist-view="${escapeHTML(item.id)}"
+                            >
+                                View Product
+                            </button>
+
+                        </div>
+
+                    </article>
+                `;
+            })
+            .join("");
+
+    updateWishlistButtons();
+}
+async function openWishlist() {
+
+    if (!currentUser) {
+
+        openModal("loginModal");
+
+        showToast(
+            "Please login to use wishlist",
+            "warning"
+        );
+
+        return;
+    }
+
+    await renderWishlist();
 
     openModal("wishlistModal");
 }
 
-function removeFromWishlist(productId) {
+async function removeFromWishlist(productId) {
 
-    const wishlist =
-        getWishlist().filter(
-            item =>
-                String(item.id) !==
-                String(productId)
+    if (!currentUser) {
+        showToast(
+            "Please login to manage your wishlist",
+            "warning"
+        );
+        return false;
+    }
+
+    try {
+
+        const { error } =
+            await supabaseClient
+                .from("wishlists")
+                .delete()
+                .eq(
+                    "user_id",
+                    currentUser.id
+                )
+                .eq(
+                    "product_id",
+                    String(productId)
+                );
+
+        if (error) {
+            throw error;
+        }
+
+        currentWishlist =
+            currentWishlist.filter(
+                item =>
+                    String(item.product_id) !==
+                    String(productId)
+            );
+
+        renderWishlist();
+
+        updateWishlistButtons();
+
+        showToast(
+            "Removed from wishlist",
+            "success"
         );
 
-    saveWishlist(wishlist);
+        return true;
 
-    renderWishlist();
+    } catch (error) {
 
-    showToast(
-        "Removed from wishlist",
-        "success"
-    );
+        console.error(
+            "Remove wishlist error:",
+            error
+        );
+
+        showToast(
+            "Could not remove from wishlist",
+            "error"
+        );
+
+        return false;
+    }
 }
 
 
@@ -986,21 +1185,24 @@ async function loadProducts() {
     }
 }
 
+
+
 function updateStats() {
+    const total = currentProducts.length;
 
-    const total =
-        currentProducts.length;
-
-    const products =
-        document.querySelectorAll(
-            "[data-stat-products]"
-        );
-
-    products.forEach(
-        element => {
-            element.textContent = total;
-        }
+    const products = document.querySelectorAll(
+        "[data-stat-products]"
     );
+
+    products.forEach(element => {
+        element.textContent = total;
+    });
+
+    const totalListings = $("totalListings");
+
+    if (totalListings) {
+        totalListings.textContent = total;
+    }
 }
 
 function applyFilters() {
@@ -1206,14 +1408,6 @@ function sellerTrigger(
             </span>
         </button>
     `;
-}
-
-function updateStats() {
-    const totalListings = $("totalListings");
-
-    if (totalListings) {
-        totalListings.textContent = currentProducts.length;
-    }
 }
 /* =========================================================
    RENDER PRODUCTS
@@ -2280,11 +2474,22 @@ async function loadReceivedInquiries() {
 
                             <div class="inquiry-actions">
 
-                                <span class="status-badge">
-                                    ${escapeHTML(
-                        status
-                    )}
-                                </span>
+                               
+                            <span class="status-badge">
+    ${escapeHTML(
+        status
+    )}
+</span>
+
+<button
+    type="button"
+    class="btn btn-primary"
+    data-inquiry-action="chat"
+    data-inquiry-id="${escapeHTML(inquiry.id)}"
+>
+    <i class="fas fa-message"></i>
+    Chat
+</button>
 
                                 ${status === "new"
                             ? `
@@ -4597,7 +4802,7 @@ async function openNotification(
 
 
 
-   function startNotificationRefresh() {
+function startNotificationRefresh() {
 
     stopNotificationRefresh();
 
@@ -5515,7 +5720,7 @@ function setupAuthListener() {
 
     supabaseClient.auth
         .onAuthStateChange(
-            (event, session) => {
+            async (event, session) => {
 
                 currentUser =
                     session?.user ||
@@ -5526,6 +5731,8 @@ function setupAuthListener() {
                 if (currentUser) {
 
                     startNotificationRefresh();
+                    await getWishlist();
+                    updateWishlistButtons();
 
                 } else {
 
@@ -5534,6 +5741,9 @@ function setupAuthListener() {
                     currentNotifications = [];
 
                     updateNotificationNavbar();
+                    currentWishlist = [];
+                    updateWishlistNavbar();
+                    updateWishlistButtons();
                 }
 
                 if (
@@ -5576,6 +5786,8 @@ async function initializeStudentKart() {
         await loadProducts();
 
         if (currentUser) {
+            await getWishlist();
+            updateWishlistButtons();
 
             await loadNotifications();
 
@@ -5666,4 +5878,341 @@ if (
 } else {
 
     initializeStudentKart();
+}
+// ===============================
+// CHAT SYSTEM FUNCTIONS
+// ===============================
+
+async function openChat(inquiry) {
+
+    if (!currentUser) {
+        openModal("loginModal");
+        showToast("Please login first", "warning");
+        return;
+    }
+
+    if (!inquiry || !inquiry.id) {
+        showToast("Chat information unavailable", "error");
+        return;
+    }
+
+    currentChatInquiry = inquiry;
+
+    if ($("chatProductName")) {
+        $("chatProductName").textContent =
+            inquiry.product_name || "Product Chat";
+    }
+
+    if ($("chatUserName")) {
+        const otherUser =
+            inquiry.seller_id === currentUser.id
+                ? "Buyer"
+                : "Seller";
+
+        $("chatUserName").textContent = otherUser;
+    }
+
+    openModal("chatModal");
+
+    await loadChatMessages();
+
+    startChatRealtime();
+}
+
+
+async function loadChatMessages() {
+
+    if (!currentChatInquiry || !currentUser) {
+        return;
+    }
+
+    const container = $("chatMessages");
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="chat-empty">
+            Loading messages...
+        </div>
+    `;
+
+    try {
+
+        const { data, error } =
+            await supabaseClient
+                .from("messages")
+                .select("*")
+                .eq("inquiry_id", currentChatInquiry.id)
+                .order("created_at", {
+                    ascending: true
+                });
+
+        if (error) {
+            throw error;
+        }
+
+        if (!data || data.length === 0) {
+
+            container.innerHTML = `
+                <div class="chat-empty">
+                    No messages yet. Start the conversation.
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML = data
+            .map(message => {
+
+                const isMine =
+                    message.sender_id === currentUser.id;
+
+                return `
+                    <div class="chat-message ${isMine
+                        ? "chat-message-own"
+                        : "chat-message-other"
+                    }">
+
+                        <div class="chat-message-bubble">
+                            ${escapeHtml(message.message)}
+                        </div>
+
+                        <small>
+                            ${formatChatTime(message.created_at)}
+                        </small>
+
+                    </div>
+                `;
+
+            })
+            .join("");
+
+        scrollChatToBottom();
+
+    } catch (error) {
+
+        console.error(
+            "Load chat messages error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="chat-empty">
+                Could not load messages.
+            </div>
+        `;
+    }
+}
+
+
+async function sendChatMessage(event) {
+
+    event.preventDefault();
+
+    if (!currentUser || !currentChatInquiry) {
+        return;
+    }
+
+    const input = $("chatInput");
+
+    if (!input) {
+        return;
+    }
+
+    const message = input.value.trim();
+
+    if (!message) {
+        return;
+    }
+
+    const isSeller =
+        currentChatInquiry.seller_id === currentUser.id;
+
+    const receiverId =
+        isSeller
+            ? currentChatInquiry.buyer_id
+            : currentChatInquiry.seller_id;
+
+    if (!receiverId) {
+        showToast(
+            "Receiver information unavailable",
+            "error"
+        );
+        return;
+    }
+
+    const sendButton =
+        $("chatForm")?.querySelector(
+            'button[type="submit"]'
+        );
+
+    if (sendButton) {
+        sendButton.disabled = true;
+    }
+
+    try {
+
+        const { error } =
+            await supabaseClient
+                .from("messages")
+                .insert({
+                    inquiry_id: currentChatInquiry.id,
+                    sender_id: currentUser.id,
+                    receiver_id: receiverId,
+                    message
+                });
+
+        if (error) {
+            throw error;
+        }
+
+        input.value = "";
+
+        await loadChatMessages();
+
+    } catch (error) {
+
+        console.error(
+            "Send chat message error:",
+            error
+        );
+
+        showToast(
+            "Could not send message",
+            "error"
+        );
+
+    } finally {
+
+        if (sendButton) {
+            sendButton.disabled = false;
+        }
+
+        input.focus();
+    }
+}
+
+
+function startChatRealtime() {
+
+    stopChatRealtime();
+
+    if (!currentUser || !currentChatInquiry) {
+        return;
+    }
+
+    chatRealtimeChannel =
+        supabaseClient
+            .channel(
+                `chat-${currentChatInquiry.id}`
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "messages",
+                    filter:
+                        `inquiry_id=eq.${currentChatInquiry.id}`
+                },
+                payload => {
+
+                    console.log(
+                        "💬 New chat message:",
+                        payload
+                    );
+
+                    loadChatMessages();
+                }
+            )
+            .subscribe(status => {
+
+                console.log(
+                    "Chat realtime status:",
+                    status
+                );
+            });
+}
+
+
+function stopChatRealtime() {
+
+    if (chatRealtimeChannel) {
+
+        supabaseClient.removeChannel(
+            chatRealtimeChannel
+        );
+
+        chatRealtimeChannel = null;
+    }
+}
+
+
+function scrollChatToBottom() {
+
+    const container = $("chatMessages");
+
+    if (!container) {
+        return;
+    }
+
+    container.scrollTop =
+        container.scrollHeight;
+}
+
+
+function formatChatTime(dateString) {
+
+    if (!dateString) {
+        return "";
+    }
+
+    return new Date(dateString).toLocaleTimeString(
+        [],
+        {
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+}
+
+
+function escapeHtml(value) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        value ?? "";
+
+    return div.innerHTML;
+}
+
+
+// Chat form
+$("chatForm")?.addEventListener(
+    "submit",
+    sendChatMessage
+);
+
+
+// Stop realtime when chat closes
+const originalCloseModal =
+    window.closeModal;
+
+if (typeof originalCloseModal === "function") {
+
+    window.closeModal =
+        function (modalId) {
+
+            if (modalId === "chatModal") {
+                stopChatRealtime();
+                currentChatInquiry = null;
+            }
+
+            return originalCloseModal(modalId);
+        };
 }

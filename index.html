@@ -522,7 +522,48 @@
         <div id="toastIcon" class="toast-icon"><i class="fas fa-check"></i></div>
         <div id="toastMessage">Done</div>
     </div>
+<!-- CHAT MODAL -->
+<div id="chatModal" class="modal hidden">
+    <div class="modal-content chat-modal-content">
 
+        <div class="modal-header">
+            <div>
+                <h3 id="chatProductName">Chat</h3>
+                <p id="chatUserName">Conversation</p>
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeModal('chatModal')"
+            >
+                &times;
+            </button>
+        </div>
+
+        <div id="chatMessages" class="chat-messages">
+            <div class="chat-empty">
+                No messages yet.
+            </div>
+        </div>
+
+        <form id="chatForm" class="chat-form">
+            <input
+                type="text"
+                id="chatInput"
+                placeholder="Type your message..."
+                autocomplete="off"
+                required
+            />
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i>
+                Send
+            </button>
+        </form>
+
+    </div>
+</div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>
