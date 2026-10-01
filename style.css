@@ -4190,3 +4190,279 @@ body { font-weight: 400; }
         padding-right: 7px;
     }
 }
+
+
+/* =========================================================
+   MODERN STUDENT APP NAVBAR
+   ========================================================= */
+
+.navbar {
+    height: 68px;
+    background: var(--nav);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12);
+}
+
+.nav-container {
+    width: min(1200px, calc(100% - 32px));
+    gap: 18px;
+}
+
+.logo {
+    gap: 9px;
+    padding: 4px 7px 4px 0;
+    border-radius: 9px;
+}
+
+.logo:hover {
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.logo-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(15, 139, 141, 0.16);
+}
+
+.logo-text {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.45px;
+}
+
+.nav-links {
+    margin-left: 10px;
+    gap: 4px;
+}
+
+.nav-links a {
+    padding: 8px 11px;
+    color: #c3d0db;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: 0.2s ease;
+}
+
+.nav-links a:hover {
+    color: #ffffff;
+    background: rgba(15, 139, 141, 0.11);
+}
+
+.nav-actions {
+    gap: 6px;
+}
+
+.nav-actions .btn {
+    min-height: 37px;
+    padding: 8px 11px;
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.navbar .btn-outline {
+    color: #d7e3e8;
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.navbar .btn-outline:hover {
+    color: #ffffff;
+    background: rgba(15, 139, 141, 0.1);
+    border-color: rgba(15, 139, 141, 0.35);
+}
+
+#loginButton {
+    border-color: transparent;
+}
+
+#signupButton {
+    color: #dff7f7;
+    background: rgba(15, 139, 141, 0.12);
+    border-color: rgba(15, 139, 141, 0.28);
+}
+
+#signupButton:hover {
+    background: rgba(15, 139, 141, 0.2);
+}
+
+#chatButton {
+    border-color: rgba(255, 255, 255, 0.11);
+}
+
+#chatButton i,
+#wishlistButton i {
+    font-size: 13px;
+}
+
+.nav-wishlist-button {
+    position: relative;
+}
+
+.wishlist-count {
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    margin-left: 1px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    line-height: 1;
+}
+
+#sellButton {
+    min-width: 78px;
+    background: #0f8b8d;
+    border-color: #0f8b8d;
+    box-shadow: 0 4px 11px rgba(15, 139, 141, 0.18);
+}
+
+#sellButton:hover {
+    background: #0c7779;
+    border-color: #0c7779;
+    box-shadow: 0 6px 14px rgba(15, 139, 141, 0.24);
+}
+
+@media (max-width: 1050px) {
+    .nav-container {
+        width: calc(100% - 24px);
+        gap: 10px;
+    }
+
+    .nav-links {
+        margin-left: 2px;
+    }
+
+    .nav-links a {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .nav-actions {
+        gap: 4px;
+    }
+
+    .nav-actions .btn {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+@media (max-width: 850px) {
+    .nav-container {
+        gap: 8px;
+    }
+
+    .logo {
+        margin-right: auto;
+    }
+
+    #chatButton,
+    #wishlistButton,
+    #profileButton {
+        width: 37px;
+        min-width: 37px;
+        padding: 7px;
+    }
+
+    #chatButton,
+    #wishlistButton {
+        font-size: 0;
+    }
+
+    #chatButton i,
+    #wishlistButton i {
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .wishlist-count {
+        position: absolute;
+        top: -4px;
+        right: -3px;
+        margin: 0;
+    }
+
+    #signupButton {
+        display: none;
+    }
+
+    #sellButton {
+        min-width: 70px;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        height: 64px;
+    }
+
+    .nav-container {
+        width: calc(100% - 16px);
+        gap: 6px;
+    }
+
+    .logo {
+        padding-right: 4px;
+    }
+
+    .logo-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+    }
+
+    .logo-graduation {
+        font-size: 18px;
+        top: 5px;
+        left: 5px;
+    }
+
+    .logo-cart {
+        width: 16px;
+        height: 15px;
+        font-size: 9px;
+        right: 4px;
+        bottom: 4px;
+    }
+
+    .logo-text {
+        font-size: 17px;
+    }
+
+    .nav-actions .btn {
+        min-height: 34px;
+        padding: 7px 8px;
+        border-radius: 8px;
+    }
+
+    #sellButton {
+        min-width: 64px;
+    }
+}
+
+@media (max-width: 380px) {
+    .nav-container {
+        width: calc(100% - 10px);
+    }
+
+    .nav-actions {
+        gap: 3px;
+    }
+
+    #chatButton,
+    #wishlistButton {
+        width: 33px;
+        min-width: 33px;
+        padding: 6px;
+    }
+
+    #sellButton {
+        min-width: 57px;
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+}
