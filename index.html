@@ -457,6 +457,31 @@
         </div>
     </div>
 
+    <!-- MOBILE OTP VERIFICATION -->
+    <div id="mobileOtpModal" class="modal hidden">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content auth-modal">
+            <div class="auth-header">
+                <div class="auth-icon"><i class="fas fa-mobile-screen-button"></i></div>
+                <h2>Verify Mobile</h2>
+                <p id="mobileOtpDescription">Enter the 6-digit OTP sent to your mobile.</p>
+            </div>
+            <form id="mobileOtpForm">
+                <div class="form-group">
+                    <label for="mobileOtpCode">Mobile OTP</label>
+                    <input type="text" id="mobileOtpCode" placeholder="Enter 6-digit OTP"
+                        inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-check"></i> Verify Mobile
+                </button>
+            </form>
+            <button type="button" class="btn btn-outline btn-full" id="resendMobileOtpButton">
+                <i class="fas fa-rotate-right"></i> Resend Mobile OTP
+            </button>
+        </div>
+    </div>
+
     <!-- PROFILE -->
     <div id="profileModal" class="modal hidden">
         <div class="modal-overlay" data-close-modal></div>
