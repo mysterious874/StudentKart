@@ -4219,10 +4219,19 @@ function ensureNotificationsUI() {
                 </div>
 
                 <div id="notificationSelectionToolbar" class="notification-selection-toolbar hidden">
-                    <strong><span id="notificationSelectionCount">0</span> selected</strong>
-                    <button type="button" class="btn btn-outline" id="selectAllNotificationsButton">Select all</button>
-                    <button type="button" class="btn btn-danger" id="deleteSelectedNotificationsButton" disabled>Delete selected</button>
-                    <button type="button" class="btn btn-outline" id="cancelNotificationSelectionButton">Cancel</button>
+                    <span class="notification-selection-count"><span id="notificationSelectionCount">0</span> selected</span>
+                    <button type="button" class="notification-action-box" id="selectAllNotificationsButton" title="Select all">
+                        <i class="fas fa-check-double"></i><span>Select All</span>
+                    </button>
+                    <button type="button" class="notification-action-box" id="markSelectedNotificationsReadButton" title="Mark as read">
+                        <i class="fas fa-envelope-open"></i><span>Mark Read</span>
+                    </button>
+                    <button type="button" class="notification-action-box notification-action-danger" id="deleteSelectedNotificationsButton" disabled title="Delete selected">
+                        <i class="fas fa-trash"></i><span>Delete</span>
+                    </button>
+                    <button type="button" class="notification-action-box" id="cancelNotificationSelectionButton" title="Cancel selection">
+                        <i class="fas fa-xmark"></i><span>Cancel</span>
+                    </button>
                 </div>
 
                 <button
@@ -4295,6 +4304,100 @@ function injectNotificationStyles() {
             width: min(720px, 94vw);
             max-height: 88vh;
             overflow-y: auto;
+        }
+
+        .notification-selection-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            padding: 8px 24px;
+            border-bottom: 1px solid var(--border);
+            background: #fbfdfc;
+        }
+
+        .notification-selection-toolbar.hidden {
+            display: none;
+        }
+
+        .notification-selection-count {
+            margin-right: auto;
+            color: var(--text);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .notification-action-box {
+            height: 32px;
+            min-width: 34px;
+            padding: 5px 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: #fff;
+            color: var(--text);
+            font-size: 9px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .notification-action-box i {
+            font-size: 11px;
+        }
+
+        .notification-action-box:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .notification-action-danger {
+            color: #c62828;
+        }
+
+        .notification-action-danger:hover {
+            border-color: #c62828;
+            color: #c62828;
+        }
+
+        .notification-action-box:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .notification-item {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .notification-select-check {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            background: #fff;
+            color: #fff;
+            font-size: 10px;
+        }
+
+        .notification-item.notification-selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .notification-item.notification-selected .notification-select-check {
+            display: inline-flex;
+            background: var(--primary);
+            border-color: var(--primary);
         }
 
         .notifications-header {
@@ -4773,6 +4876,38 @@ function clearNotificationSelection() {
 function selectAllNotifications() {
     currentNotifications.forEach(notification => selectedNotificationIds.add(String(notification.id)));
     updateNotificationSelectionUI();
+}
+
+async function markSelectedNotificationsRead() {
+    if (!currentUser || !selectedNotificationIds.size) return;
+
+    const ids = Array.from(selectedNotificationIds);
+
+    try {
+        const { error } = await supabaseClient
+            .from("notifications")
+            .update({ is_read: true })
+            .eq("user_id", currentUser.id)
+            .in("id", ids);
+
+        if (error) throw error;
+
+        currentNotifications = currentNotifications.map(notification => {
+            if (selectedNotificationIds.has(String(notification.id))) {
+                return { ...notification, is_read: true };
+            }
+            return notification;
+        });
+
+        selectedNotificationIds.clear();
+        updateNotificationNavbar();
+        renderNotifications();
+        updateNotificationSelectionUI();
+        showToast(ids.length + " notification" + (ids.length === 1 ? "" : "s") + " marked as read", "success");
+    } catch (error) {
+        console.error("Mark selected notifications error:", error);
+        showToast("Could not mark selected notifications as read", "error");
+    }
 }
 
 async function deleteSelectedNotifications() {
@@ -5348,6 +5483,7 @@ function setupEventListeners() {
         );
 
     $("selectAllNotificationsButton")?.addEventListener("click", selectAllNotifications);
+    $("markSelectedNotificationsReadButton")?.addEventListener("click", markSelectedNotificationsRead);
     $("deleteSelectedNotificationsButton")?.addEventListener("click", deleteSelectedNotifications);
     $("cancelNotificationSelectionButton")?.addEventListener("click", clearNotificationSelection);
 
