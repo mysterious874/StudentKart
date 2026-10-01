@@ -7048,8 +7048,9 @@ body:has(.modal:not(.hidden)) .modal-overlay {
 }
 
 
+
 /* =========================================================
-   MODAL HOME BUTTON - NEXT TO BACK ARROW
+   MODAL HOME BUTTON - MATCH BACK ARROW STYLE
    ========================================================= */
 body .modal > .modal-content > .modal-home-button {
     position: absolute !important;
@@ -7058,13 +7059,32 @@ body .modal > .modal-content > .modal-home-button {
     right: auto !important;
     z-index: 50 !important;
     margin: 0 !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    color: var(--text) !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    line-height: 1 !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
 }
 
-body .modal > .modal-content > .modal-back-button + .modal-home-button {
+body .modal > .modal-content > .modal-home-button:hover {
     color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    transform: translateY(-1px) !important;
+}
+
+body .modal > .modal-content > .modal-home-button:active {
+    transform: translateY(0) scale(0.97) !important;
 }
 
 body .modal > .modal-content > .modal-home-button i {
@@ -7077,6 +7097,11 @@ body .modal > .modal-content > .modal-home-button i {
     body .modal > .modal-content > .modal-home-button {
         top: 10px !important;
         left: 50px !important;
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        border-radius: 9px !important;
+        font-size: 15px !important;
     }
 }
 
@@ -7086,11 +7111,17 @@ body #chatModal .chat-head .modal-home-button {
     top: 13px !important;
     left: 55px !important;
     right: auto !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
 }
 
 @media (max-width: 600px) {
     body #chatModal .chat-head .modal-home-button {
         top: 10px !important;
         left: 50px !important;
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
     }
 }
