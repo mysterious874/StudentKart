@@ -26,7 +26,7 @@ let currentSellerProfile = null;
 
 let currentNotifications = [];
 let notificationRefreshTimer = null;
-
+let notificationRealtimeChannel = null;
 let toastTimer = null;
 
 
@@ -76,6 +76,7 @@ function formatDate(dateValue) {
     }
 
     return date.toLocaleDateString("en-IN", {
+        timeZone: "Asia/Kolkata",
         day: "2-digit",
         month: "short",
         year: "numeric"
@@ -1152,10 +1153,9 @@ function updateFilterStatus(count) {
     }
 
     status.textContent =
-        `${count} ${
-            count === 1
-                ? "listing"
-                : "listings"
+        `${count} ${count === 1
+            ? "listing"
+            : "listings"
         } found`;
 }
 
@@ -1174,9 +1174,9 @@ function sellerTrigger(
         return `
             <span class="seller-name ${extraClass}">
                 ${escapeHTML(
-                    product?.seller ||
-                    "Student"
-                )}
+            product?.seller ||
+            "Student"
+        )}
             </span>
         `;
     }
@@ -1186,30 +1186,35 @@ function sellerTrigger(
             type="button"
             class="seller-trigger ${extraClass}"
             data-seller-id="${escapeHTML(
-                product.userId
-            )}">
+        product.userId
+    )}">
             <span class="seller-avatar-small">
-                ${
-                    product.avatarUrl
-                        ? `<img src="${escapeHTML(product.avatarUrl)}" alt="">`
-                        : escapeHTML(
-                            getInitials(
-                                product.seller
-                            )
-                        )
-                }
+                ${product.avatarUrl
+            ? `<img src="${escapeHTML(product.avatarUrl)}" alt="">`
+            : escapeHTML(
+                getInitials(
+                    product.seller
+                )
+            )
+        }
             </span>
             <span>
                 ${escapeHTML(
-                    product.seller ||
-                    "Student"
-                )}
+            product.seller ||
+            "Student"
+        )}
             </span>
         </button>
     `;
 }
 
+function updateStats() {
+    const totalListings = $("totalListings");
 
+    if (totalListings) {
+        totalListings.textContent = currentProducts.length;
+    }
+}
 /* =========================================================
    RENDER PRODUCTS
    ========================================================= */
@@ -1263,8 +1268,8 @@ function renderProducts(products) {
                 <article
                     class="product-card"
                     data-product-id="${escapeHTML(
-                        product.id
-                    )}">
+                product.id
+            )}">
 
                     <div class="product-image-wrap">
 
@@ -1277,38 +1282,35 @@ function renderProducts(products) {
 
                         <button
                             type="button"
-                            class="wishlist-btn ${
-                                wished
-                                    ? "active"
-                                    : ""
-                            }"
+                            class="wishlist-btn ${wished
+                    ? "active"
+                    : ""
+                }"
                             data-wishlist-id="${escapeHTML(
-                                product.id
-                            )}"
-                            aria-label="${
-                                wished
-                                    ? "Remove from wishlist"
-                                    : "Add to wishlist"
-                            }">
+                    product.id
+                )}"
+                            aria-label="${wished
+                    ? "Remove from wishlist"
+                    : "Add to wishlist"
+                }">
 
-                            <i class="${
-                                wished
-                                    ? "fas"
-                                    : "far"
-                            } fa-heart"></i>
+                            <i class="${wished
+                    ? "fas"
+                    : "far"
+                } fa-heart"></i>
 
                         </button>
 
                         <span
                             class="condition-badge ${getConditionClass(
-                                product.condition
-                            )}">
+                    product.condition
+                )}">
                             <i class="fas ${getConditionIcon(
-                                product.condition
-                            )}"></i>
+                    product.condition
+                )}"></i>
                             ${escapeHTML(
-                                product.condition
-                            )}
+                    product.condition
+                )}
                         </span>
 
                     </div>
@@ -1318,42 +1320,42 @@ function renderProducts(products) {
                         <div class="product-meta">
                             <span>
                                 ${escapeHTML(
-                                    product.category
-                                )}
+                    product.category
+                )}
                             </span>
                         </div>
 
                         <h3>
                             ${escapeHTML(
-                                product.name
-                            )}
+                    product.name
+                )}
                         </h3>
 
                         <div class="product-price">
                             ${formatPrice(
-                                product.price
-                            )}
+                    product.price
+                )}
                         </div>
 
                         <div class="product-location">
                             <i class="fas fa-location-dot"></i>
                             ${escapeHTML(
-                                product.location
-                            )}
+                    product.location
+                )}
                         </div>
 
                         <div class="product-seller">
                             ${sellerTrigger(
-                                product
-                            )}
+                    product
+                )}
                         </div>
 
                         <button
                             type="button"
                             class="btn btn-outline btn-full"
                             data-view-product="${escapeHTML(
-                                product.id
-                            )}">
+                    product.id
+                )}">
                             View Details
                         </button>
 
@@ -1906,8 +1908,8 @@ async function openSellerProfile(
                     <article
                         class="product-card seller-listing-card"
                         data-seller-listing-id="${escapeHTML(
-                            product.id
-                        )}">
+                    product.id
+                )}">
 
                         <div class="product-image-wrap">
 
@@ -1924,28 +1926,28 @@ async function openSellerProfile(
                             <div class="product-meta">
                                 <span>
                                     ${escapeHTML(
-                                        product.category
-                                    )}
+                    product.category
+                )}
                                 </span>
                             </div>
 
                             <h3>
                                 ${escapeHTML(
-                                    product.name
-                                )}
+                    product.name
+                )}
                             </h3>
 
                             <div class="product-price">
                                 ${formatPrice(
-                                    product.price
-                                )}
+                    product.price
+                )}
                             </div>
 
                             <div class="product-location">
                                 <i class="fas fa-location-dot"></i>
                                 ${escapeHTML(
-                                    product.location
-                                )}
+                    product.location
+                )}
                             </div>
 
                         </div>
@@ -2229,9 +2231,9 @@ async function loadReceivedInquiries() {
 
                     const product =
                         productsMap[
-                            String(
-                                inquiry.product_id
-                            )
+                        String(
+                            inquiry.product_id
+                        )
                         ];
 
                     const status =
@@ -2242,8 +2244,8 @@ async function loadReceivedInquiries() {
                         <div
                             class="inquiry-card"
                             data-inquiry-id="${escapeHTML(
-                                inquiry.id
-                            )}">
+                        inquiry.id
+                    )}">
 
                             <div class="inquiry-card-main">
 
@@ -2255,21 +2257,21 @@ async function loadReceivedInquiries() {
 
                                     <strong>
                                         ${escapeHTML(
-                                            product?.name ||
-                                            "Product"
-                                        )}
+                        product?.name ||
+                        "Product"
+                    )}
                                     </strong>
 
                                     <p>
                                         ${escapeHTML(
-                                            inquiry.message
-                                        )}
+                        inquiry.message
+                    )}
                                     </p>
 
                                     <span>
                                         ${getRelativeDate(
-                                            inquiry.created_at
-                                        )}
+                        inquiry.created_at
+                    )}
                                     </span>
 
                                 </div>
@@ -2280,43 +2282,41 @@ async function loadReceivedInquiries() {
 
                                 <span class="status-badge">
                                     ${escapeHTML(
-                                        status
-                                    )}
+                        status
+                    )}
                                 </span>
 
-                                ${
-                                    status === "new"
-                                        ? `
+                                ${status === "new"
+                            ? `
                                             <button
                                                 type="button"
                                                 class="btn btn-outline"
                                                 data-inquiry-action="status"
                                                 data-inquiry-id="${escapeHTML(
-                                                    inquiry.id
-                                                )}"
+                                inquiry.id
+                            )}"
                                                 data-status="read">
                                                 Mark read
                                             </button>
                                         `
-                                        : ""
-                                }
+                            : ""
+                        }
 
-                                ${
-                                    status !== "replied"
-                                        ? `
+                                ${status !== "replied"
+                            ? `
                                             <button
                                                 type="button"
                                                 class="btn btn-outline"
                                                 data-inquiry-action="status"
                                                 data-inquiry-id="${escapeHTML(
-                                                    inquiry.id
-                                                )}"
+                                inquiry.id
+                            )}"
                                                 data-status="replied">
                                                 Mark replied
                                             </button>
                                         `
-                                        : ""
-                                }
+                            : ""
+                        }
 
                             </div>
 
@@ -3641,8 +3641,8 @@ async function loadMyListings() {
                     <article
                         class="product-card"
                         data-my-listing-id="${escapeHTML(
-                            product.id
-                        )}">
+                    product.id
+                )}">
 
                         <div class="product-image-wrap">
 
@@ -3654,19 +3654,17 @@ async function loadMyListings() {
 
                             <button
                                 type="button"
-                                class="wishlist-btn ${
-                                    wished
-                                        ? "active"
-                                        : ""
-                                }"
+                                class="wishlist-btn ${wished
+                        ? "active"
+                        : ""
+                    }"
                                 data-wishlist-id="${escapeHTML(
-                                    product.id
-                                )}">
-                                <i class="${
-                                    wished
-                                        ? "fas"
-                                        : "far"
-                                } fa-heart"></i>
+                        product.id
+                    )}">
+                                <i class="${wished
+                        ? "fas"
+                        : "far"
+                    } fa-heart"></i>
                             </button>
 
                         </div>
@@ -3676,28 +3674,28 @@ async function loadMyListings() {
                             <div class="product-meta">
                                 <span>
                                     ${escapeHTML(
-                                        product.category
-                                    )}
+                        product.category
+                    )}
                                 </span>
                             </div>
 
                             <h3>
                                 ${escapeHTML(
-                                    product.name
-                                )}
+                        product.name
+                    )}
                             </h3>
 
                             <div class="product-price">
                                 ${formatPrice(
-                                    product.price
-                                )}
+                        product.price
+                    )}
                             </div>
 
                             <div class="product-location">
                                 <i class="fas fa-location-dot"></i>
                                 ${escapeHTML(
-                                    product.location
-                                )}
+                        product.location
+                    )}
                             </div>
 
                             <div class="product-actions">
@@ -3706,8 +3704,8 @@ async function loadMyListings() {
                                     type="button"
                                     class="btn btn-outline"
                                     data-my-view="${escapeHTML(
-                                        product.id
-                                    )}">
+                        product.id
+                    )}">
                                     View
                                 </button>
 
@@ -3715,8 +3713,8 @@ async function loadMyListings() {
                                     type="button"
                                     class="btn btn-outline"
                                     data-my-edit="${escapeHTML(
-                                        product.id
-                                    )}">
+                        product.id
+                    )}">
                                     Edit
                                 </button>
 
@@ -3724,8 +3722,8 @@ async function loadMyListings() {
                                     type="button"
                                     class="btn btn-danger"
                                     data-my-delete="${escapeHTML(
-                                        product.id
-                                    )}">
+                        product.id
+                    )}">
                                     Delete
                                 </button>
 
@@ -4146,13 +4144,58 @@ function injectNotificationStyles() {
    NOTIFICATION HELPERS
    ========================================================= */
 
-function formatNotificationTime(
-    dateValue
-) {
+function formatNotificationTime(dateValue) {
 
-    return getRelativeDate(
-        dateValue
-    );
+    if (!dateValue) {
+        return "Recently";
+    }
+
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return "Recently";
+    }
+
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+
+    if (diff < 0) {
+        return "Just now";
+    }
+
+    const seconds = Math.floor(diff / 1000);
+
+    if (seconds < 60) {
+        return "Just now";
+    }
+
+    const minutes = Math.floor(seconds / 60);
+
+    if (minutes < 60) {
+        return `${minutes}m ago`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+
+    if (hours < 24) {
+        return `${hours}h ago`;
+    }
+
+    const days = Math.floor(hours / 24);
+
+    if (days < 7) {
+        return `${days}d ago`;
+    }
+
+    return date.toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+    });
 }
 
 function getNotificationIcon(
@@ -4311,53 +4354,51 @@ function renderNotifications() {
 
                 return `
                     <div
-                        class="notification-item ${
-                            unread
-                                ? "unread"
-                                : ""
-                        }"
+                        class="notification-item ${unread
+                        ? "unread"
+                        : ""
+                    }"
                         data-notification-id="${escapeHTML(
-                            notification.id
-                        )}">
+                        notification.id
+                    )}">
 
                         <div class="notification-icon">
                             <i class="fas ${getNotificationIcon(
-                                notification.type
-                            )}"></i>
+                        notification.type
+                    )}"></i>
                         </div>
 
                         <div class="notification-content">
 
                             <strong>
                                 ${escapeHTML(
-                                    notification.title
-                                )}
+                        notification.title
+                    )}
                             </strong>
 
                             <p>
                                 ${escapeHTML(
-                                    notification.message
-                                )}
+                        notification.message
+                    )}
                             </p>
 
                             <span class="notification-time">
                                 ${formatNotificationTime(
-                                    notification.created_at
-                                )}
+                        notification.created_at
+                    )}
                             </span>
 
                         </div>
 
-                        ${
-                            unread
-                                ? `
+                        ${unread
+                        ? `
                                     <span
                                         class="notification-unread-dot"
                                         title="Unread">
                                     </span>
                                 `
-                                : ""
-                        }
+                        : ""
+                    }
 
                     </div>
                 `;
@@ -4554,7 +4595,9 @@ async function openNotification(
     }
 }
 
-function startNotificationRefresh() {
+
+
+   function startNotificationRefresh() {
 
     stopNotificationRefresh();
 
@@ -4564,18 +4607,48 @@ function startNotificationRefresh() {
 
     loadNotifications();
 
-    notificationRefreshTimer =
-        setInterval(
-            () => {
+    notificationRealtimeChannel =
+        supabaseClient
+            .channel(
+                `notifications-${currentUser.id}`
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "notifications",
+                    filter: `user_id=eq.${currentUser.id}`
+                },
+                payload => {
 
-                if (currentUser) {
-                    loadNotifications();
+                    console.log(
+                        "🔔 New notification:",
+                        payload
+                    );
+
+                    if (
+                        payload.new
+                    ) {
+
+                        showNotificationPopup(
+                            payload.new.title,
+                            payload.new.message
+                        );
+
+                        loadNotifications();
+                    }
                 }
+            )
+            .subscribe(status => {
 
-            },
-            30000
-        );
+                console.log(
+                    "Notification realtime status:",
+                    status
+                );
+            });
 }
+
 
 function stopNotificationRefresh() {
 
@@ -4590,8 +4663,110 @@ function stopNotificationRefresh() {
         notificationRefreshTimer =
             null;
     }
+
+    if (
+        notificationRealtimeChannel
+    ) {
+
+        supabaseClient.removeChannel(
+            notificationRealtimeChannel
+        );
+
+        notificationRealtimeChannel =
+            null;
+    }
 }
 
+
+function showNotificationPopup(
+    title,
+    message
+) {
+
+    let popup =
+        document.getElementById(
+            "notificationPopup"
+        );
+
+    if (!popup) {
+
+        popup =
+            document.createElement("div");
+
+        popup.id =
+            "notificationPopup";
+
+        popup.innerHTML = `
+            <div class="notification-popup-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+
+            <div class="notification-popup-content">
+                <strong></strong>
+                <p></p>
+            </div>
+
+            <button
+                type="button"
+                class="notification-popup-close"
+                aria-label="Close"
+            >
+                ×
+            </button>
+        `;
+
+        document.body.appendChild(
+            popup
+        );
+
+        popup
+            .querySelector(
+                ".notification-popup-close"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    popup.classList.remove(
+                        "show"
+                    );
+
+                }
+            );
+    }
+
+    popup.querySelector(
+        ".notification-popup-content strong"
+    ).textContent =
+        title ||
+        "New Notification";
+
+    popup.querySelector(
+        ".notification-popup-content p"
+    ).textContent =
+        message ||
+        "You have a new notification.";
+
+    popup.classList.add(
+        "show"
+    );
+
+    clearTimeout(
+        popup.notificationTimer
+    );
+
+    popup.notificationTimer =
+        setTimeout(
+            () => {
+
+                popup.classList.remove(
+                    "show"
+                );
+
+            },
+            5000
+        );
+}
 
 /* =========================================================
    EVENT LISTENERS
@@ -5363,9 +5538,9 @@ function setupAuthListener() {
 
                 if (
                     event ===
-                        "SIGNED_IN" ||
+                    "SIGNED_IN" ||
                     event ===
-                        "SIGNED_OUT"
+                    "SIGNED_OUT"
                 ) {
 
                     setTimeout(
