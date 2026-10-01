@@ -6989,3 +6989,31 @@ body .modal-content .modal-header {
         padding-right: 50px !important;
     }
 }
+
+
+/* =========================================================
+   SMOOTH MODAL CLOSE TRANSITION
+   ========================================================= */
+
+.modal {
+    opacity: 1;
+    transition: opacity 0.22s ease;
+}
+
+.modal .modal-content {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition:
+        opacity 0.22s ease,
+        transform 0.22s ease;
+}
+
+.modal.modal-closing {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal.modal-closing .modal-content {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+}
