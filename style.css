@@ -6150,3 +6150,56 @@ textarea {
         padding-bottom: 2px;
     }
 }
+
+
+/* MARKETPLACE SEARCH ACTION */
+.marketplace-search-button {
+    flex: 0 0 auto;
+    height: 40px;
+    min-width: 92px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid var(--primary);
+    border-radius: 7px;
+    background: var(--primary);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .2s ease, transform .15s ease;
+}
+
+.marketplace-search-button:hover {
+    opacity: .92;
+}
+
+.marketplace-search-button:active {
+    transform: translateY(1px);
+}
+
+@media (max-width: 600px) {
+    .marketplace-search-button {
+        min-width: 92px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .marketplace-filters {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+    }
+
+    .marketplace-filters .filter-search {
+        grid-column: 1 / -1;
+    }
+
+    .marketplace-filter-menu,
+    .marketplace-search-button {
+        width: 100%;
+    }
+}
