@@ -6809,3 +6809,19 @@ body #wishlistModal .wishlist-modal-back-button {
         left: 10px !important;
     }
 }
+
+
+/* Wishlist popup - prevent background page scrolling while open */
+body:has(#wishlistModal:not(.hidden)) {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+}
+
+body:has(#wishlistModal:not(.hidden)) #wishlistModal {
+    overscroll-behavior: contain !important;
+}
+
+body:has(#wishlistModal:not(.hidden)) #wishlistModal .wishlist-modal-content {
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+}
