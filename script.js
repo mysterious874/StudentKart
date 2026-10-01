@@ -4327,6 +4327,51 @@ function injectNotificationStyles() {
             font-weight: 700;
         }
 
+        .notification-confirm-modal {
+            width: min(390px, 90vw);
+            padding: 28px;
+            text-align: center;
+            border-radius: 14px;
+        }
+
+        .notification-confirm-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #fff0f0;
+            color: #d32f2f;
+            font-size: 18px;
+        }
+
+        .notification-confirm-modal h3 {
+            margin: 0 0 7px;
+            color: var(--text);
+            font-size: 18px;
+        }
+
+        .notification-confirm-modal p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .notification-confirm-actions {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .notification-confirm-actions .btn {
+            min-width: 95px;
+            height: 36px;
+            font-size: 11px;
+        }
+
         .notification-action-box {
             height: 32px;
             min-width: 34px;
@@ -4910,11 +4955,60 @@ async function markSelectedNotificationsRead() {
     }
 }
 
+function showNotificationDeleteConfirm(count) {
+    return new Promise(resolve => {
+        const existing = $("notificationDeleteConfirmModal");
+        if (existing) {
+            existing.remove();
+        }
+
+        const modal = document.createElement("div");
+        modal.id = "notificationDeleteConfirmModal";
+        modal.className = "modal hidden";
+        modal.innerHTML = `
+            <div class="modal-overlay" data-notification-confirm-cancel></div>
+            <div class="modal-content notification-confirm-modal">
+                <div class="notification-confirm-icon">
+                    <i class="fas fa-trash"></i>
+                </div>
+                <h3>Delete notifications?</h3>
+                <p>Are you sure you want to delete <strong>${count}</strong> selected notification${count === 1 ? "" : "s"}?</p>
+                <div class="notification-confirm-actions">
+                    <button type="button" class="btn btn-outline" data-notification-confirm-cancel>Cancel</button>
+                    <button type="button" class="btn btn-danger" data-notification-confirm-delete>
+                        <i class="fas fa-trash"></i>
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        const finish = value => {
+            modal.remove();
+            resolve(value);
+        };
+
+        modal.querySelectorAll("[data-notification-confirm-cancel]").forEach(button => {
+            button.addEventListener("click", () => finish(false));
+        });
+
+        modal.querySelector("[data-notification-confirm-delete]")?.addEventListener("click", () => finish(true));
+
+        modal.classList.remove("hidden");
+    });
+}
+
 async function deleteSelectedNotifications() {
     if (!currentUser || !selectedNotificationIds.size) return;
     const ids = Array.from(selectedNotificationIds);
 
-    if (!window.confirm("Delete " + ids.length + " selected notification" + (ids.length === 1 ? "" : "s") + "?")) return;
+    const confirmed = await showNotificationDeleteConfirm(ids.length);
+
+    if (!confirmed) {
+        return;
+    }
 
     try {
         const { error } = await supabaseClient.from("notifications").delete().eq("user_id", currentUser.id).in("id", ids);
