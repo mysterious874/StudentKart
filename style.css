@@ -3679,6 +3679,32 @@ input[type="file"] {
     }
 }
 
+
+/* Seller profile actions */
+.seller-profile-actions {
+    display: flex;
+    justify-content: center;
+    padding: 18px 28px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+}
+
+.seller-profile-actions .btn {
+    min-width: 190px;
+    justify-content: center;
+}
+
+@media (max-width: 600px) {
+    .seller-profile-actions {
+        padding: 14px 18px;
+    }
+
+    .seller-profile-actions .btn {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
 /* =========================================================
    SELLER PROFILE
    Dedicated styles for the View Seller Profile modal.
