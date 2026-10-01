@@ -3638,79 +3638,225 @@ async function loginUser(event) {
 
     event.preventDefault();
 
-    const email =
-        $("loginEmail")
-            ?.value
-            ?.trim();
+    const email = $("loginEmail")?.value?.trim();
 
-    const password =
-        $("loginPassword")
-            ?.value;
-
-    if (!email || !password) {
-
-        showToast(
-            "Enter email and password",
-            "warning"
-        );
-
+    if (!email) {
+        showToast("Enter your email", "warning");
         return;
     }
 
-    const button =
-        $("loginForm")
-            ?.querySelector(
-                'button[type="submit"]'
-            );
-
-    if (button) {
-        button.disabled = true;
-    }
+    const button = $("loginForm")?.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
 
     try {
+        const { error } = await supabaseClient.auth.signInWithOtp({
+            email,
+            options: { shouldCreateUser: false }
+        });
 
-        const {
-            error
-        } =
-            await supabaseClient.auth
-                .signInWithPassword({
-                    email,
-                    password
-                });
+        if (error) throw error;
 
-        if (error) {
-            throw error;
-        }
+        window.pendingOtpEmail = email;
+        window.pendingOtpMode = "login";
+        window.pendingOtpProfile = null;
 
         closeModal("loginModal");
-
-        showToast(
-            "Login successful",
-            "success"
-        );
+        $("otpDescription").textContent = "Enter the 6-digit OTP sent to " + email;
+        $("otpCode").value = "";
+        openModal("otpModal");
+        showToast("Login OTP sent to your email", "success");
 
     } catch (error) {
-
-        console.error(
-            "Login error:",
-            error
-        );
-
-        showToast(
-            error?.message ||
-            "Login failed",
-            "error"
-        );
-
+        console.error("Login OTP error:", error);
+        showToast(error?.message || "Could not send login OTP", "error");
     } finally {
+        if (button) button.disabled = false;
+    }
+}
 
-        if (button) {
-            button.disabled = false;
-        }
+async function loginUser(event) {
+
+    event.preventDefault();
+
+    const email = $("loginEmail")?.value?.trim();
+
+    if (!email) {
+        showToast("Enter your email", "warning");
+        return;
+    }
+
+    const button = $("loginForm")?.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+
+    try {
+        const { error } = await supabaseClient.auth.signInWithOtp({
+            email,
+            options: { shouldCreateUser: false }
+        });
+
+        if (error) throw error;
+
+        window.pendingOtpEmail = email;
+        window.pendingOtpMode = "login";
+        window.pendingOtpProfile = null;
+
+        closeModal("loginModal");
+        $("otpDescription").textContent = "Enter the 6-digit OTP sent to " + email;
+        $("otpCode").value = "";
+        openModal("otpModal");
+        showToast("Login OTP sent to your email", "success");
+
+    } catch (error) {
+        console.error("Login OTP error:", error);
+        showToast(error?.message || "Could not send login OTP", "error");
+    } finally {
+        if (button) button.disabled = false;
     }
 }
 
 async function signupUser(event) {
+
+    event.preventDefault();
+
+    const name = $("signupName")?.value?.trim();
+    const college = $("signupCollege")?.value?.trim();
+    const email = $("signupEmail")?.value?.trim();
+    const mobile = $("signupMobile")?.value?.replace(/\D/g, "").trim();
+
+    if (!name || !college || !email || !mobile) {
+        showToast("Please fill all fields", "warning");
+        return;
+    }
+
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
+        showToast("Please enter a valid 10-digit Indian mobile number", "warning");
+        return;
+    }
+
+    const button = $("signupForm")?.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+
+    try {
+        const { error } = await supabaseClient.auth.signInWithOtp({
+            email,
+            options: {
+                shouldCreateUser: true,
+                data: { name, college, mobile }
+            }
+        });
+
+        if (error) throw error;
+
+        window.pendingOtpEmail = email;
+        window.pendingOtpMode = "signup";
+        window.pendingOtpProfile = { name, college, mobile };
+
+        closeModal("signupModal");
+        $("otpDescription").textContent = "Enter the 6-digit OTP sent to " + email;
+        $("otpCode").value = "";
+        openModal("otpModal");
+        showToast("Signup OTP sent to your email", "success");
+
+    } catch (error) {
+        console.error("Signup OTP error:", error);
+        showToast(error?.message || "Could not send signup OTP", "error");
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
+
+async function verifyOtp(event) {
+
+    event.preventDefault();
+
+    const email = window.pendingOtpEmail;
+    const token = $("otpCode")?.value?.trim();
+
+    if (!email || !/^\d{6}$/.test(token)) {
+        showToast("Enter the 6-digit OTP", "warning");
+        return;
+    }
+
+    const button = $("otpForm")?.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+
+    try {
+        const { data, error } = await supabaseClient.auth.verifyOtp({
+            email,
+            token,
+            type: "email"
+        });
+
+        if (error) throw error;
+
+        if (data?.user) {
+            const metadata = data.user.user_metadata || {};
+            const profileData = window.pendingOtpProfile || {};
+
+            const { error: profileError } = await supabaseClient
+                .from("profiles")
+                .upsert({
+                    id: data.user.id,
+                    name: metadata.name || profileData.name || data.user.email?.split("@")[0] || "Student",
+                    college: metadata.college || profileData.college || "",
+                    email: data.user.email || email
+                });
+
+            if (profileError) console.error("Profile create error:", profileError);
+        }
+
+        window.pendingOtpEmail = "";
+        window.pendingOtpMode = "";
+        window.pendingOtpProfile = null;
+
+        closeModal("otpModal");
+        showToast("OTP verified. Welcome to StudentKart!", "success");
+
+    } catch (error) {
+        console.error("OTP verification error:", error);
+        showToast(error?.message || "Invalid or expired OTP", "error");
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
+
+async function resendOtp() {
+
+    const email = window.pendingOtpEmail;
+    if (!email) {
+        showToast("Please start login/signup again", "warning");
+        return;
+    }
+
+    const options = {
+        shouldCreateUser: window.pendingOtpMode === "signup"
+    };
+
+    if (window.pendingOtpMode === "signup" && window.pendingOtpProfile) {
+        options.data = window.pendingOtpProfile;
+    }
+
+    const button = $("resendOtpButton");
+    if (button) button.disabled = true;
+
+    try {
+        const { error } = await supabaseClient.auth.signInWithOtp({
+            email,
+            options
+        });
+
+        if (error) throw error;
+        showToast("A new OTP has been sent", "success");
+
+    } catch (error) {
+        console.error("Resend OTP error:", error);
+        showToast(error?.message || "Could not resend OTP", "error");
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
+
+async function logoutUser(event) {
 
     event.preventDefault();
 
@@ -5814,6 +5960,9 @@ function showNotificationPopup(
    ========================================================= */
 
 function setupEventListeners() {
+
+    $("otpForm")?.addEventListener("submit", verifyOtp);
+    $("resendOtpButton")?.addEventListener("click", resendOtp);
 
     ensureSellerProfileUI();
     ensureNotificationsUI();
