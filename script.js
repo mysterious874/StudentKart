@@ -2462,7 +2462,7 @@ async function loadReceivedInquiries() {
             const { data: messages } =
                 await supabaseClient
                     .from("messages")
-                    .select("inquiry_id,sender_id,message,created_at,is_read")
+                    .select("inquiry_id,sender_id,receiver_id,message,created_at,is_read")
                     .in("inquiry_id", inquiryIds)
                     .order("created_at", { ascending: false });
 
@@ -6468,39 +6468,56 @@ function startChatRealtime() {
         return;
     }
 
+    const channelName =
+        `chat-user-${currentUser.id}-${currentChatInquiry.id}`;
+
     chatRealtimeChannel =
         supabaseClient
-            .channel(
-                `chat-${currentChatInquiry.id}`
-            )
+            .channel(channelName)
             .on(
                 "postgres_changes",
                 {
                     event: "INSERT",
                     schema: "public",
-                    table: "messages",
-                    filter:
-                        `inquiry_id=eq.${currentChatInquiry.id}`
+                    table: "messages"
                 },
                 async payload => {
 
-                    console.log(
-                        "💬 New chat message:",
-                        payload
-                    );
+                    const message = payload?.new;
+
+                    if (!message) {
+                        return;
+                    }
+
+                    // RLS already limits which message rows this user can receive.
+                    // Keep a client-side guard so unrelated accessible rows never
+                    // affect the currently open conversation.
+                    const isMyMessage =
+                        message.sender_id === currentUser.id ||
+                        message.receiver_id === currentUser.id;
+
+                    const isCurrentChat =
+                        String(message.inquiry_id) ===
+                        String(currentChatInquiry?.id);
+
+                    if (!isMyMessage || !isCurrentChat) {
+                        return;
+                    }
+
+                    console.log("💬 Realtime chat message received:", message);
 
                     await loadChatMessages();
 
-                    // If this message was received while this chat is open,
-                    // mark it read immediately.
                     if (
-                        payload?.new?.receiver_id === currentUser.id &&
-                        payload?.new?.is_read === false
+                        message.receiver_id === currentUser.id &&
+                        message.is_read === false
                     ) {
                         await markChatMessagesRead(
                             currentChatInquiry.id
                         );
                     }
+
+                    await updateChatUnreadCount();
                 }
             )
             .subscribe(status => {
@@ -6511,8 +6528,16 @@ function startChatRealtime() {
                 );
 
                 if (status === "SUBSCRIBED") {
-                    // Catch anything that arrived just before the subscription.
+                    console.log("✅ Chat realtime connected");
+                    // Catch messages that arrived immediately before subscription.
                     loadChatMessages();
+                }
+
+                if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+                    console.error(
+                        "❌ Chat realtime connection failed:",
+                        status
+                    );
                 }
             });
 }
