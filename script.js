@@ -1440,7 +1440,7 @@ function applyFilters() {
         );
 
     const maxRaw =
-        $("maxPrice")?.value;
+        $("maxPrice")?.value ?? "";
 
     const max =
         maxRaw === ""
