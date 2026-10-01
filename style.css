@@ -6402,3 +6402,15 @@ body #notificationsModal .notifications-header {
         max-height: calc(100vh - 24px) !important;
     }
 }
+
+/* KEEP NOTIFICATIONS HEADER VISIBLE WHILE SCROLLING */
+#notificationsModal .notifications-modal-content {
+    position: relative !important;
+}
+
+#notificationsModal .notifications-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 25 !important;
+    background: #ffffff !important;
+}
