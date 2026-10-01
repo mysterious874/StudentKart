@@ -3907,3 +3907,286 @@ body { font-weight: 400; }
 .seller-profile-stats span {
     font-weight: 600;
 }
+
+
+/* =========================================================
+   PREMIUM MARKETPLACE NAVBAR
+   ========================================================= */
+
+.navbar {
+    height: 74px;
+    background: rgba(7, 25, 36, 0.97);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
+    backdrop-filter: blur(12px);
+}
+
+.nav-container {
+    width: min(1240px, calc(100% - 40px));
+    gap: 20px;
+}
+
+.logo {
+    gap: 11px;
+    padding: 5px 7px 5px 0;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.logo:hover {
+    background: rgba(255, 255, 255, 0.045);
+}
+
+.logo-mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(15, 139, 141, 0.18);
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.nav-links {
+    margin-left: 18px;
+    gap: 2px;
+}
+
+.nav-links a {
+    padding: 9px 13px;
+    color: #b9c9d2;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    border-radius: 8px;
+}
+
+.nav-links a:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.065);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+.nav-actions {
+    gap: 7px;
+}
+
+.nav-actions .btn {
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.navbar .btn-outline {
+    color: #d8e4e9;
+    background: rgba(255, 255, 255, 0.025);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.navbar .btn-outline:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.075);
+    border-color: rgba(255, 255, 255, 0.24);
+    transform: translateY(-1px);
+}
+
+#signupButton {
+    color: #dcebed;
+    background: rgba(15, 139, 141, 0.12);
+    border-color: rgba(15, 139, 141, 0.38);
+}
+
+#signupButton:hover {
+    background: rgba(15, 139, 141, 0.2);
+    border-color: rgba(15, 139, 141, 0.58);
+}
+
+#chatButton i,
+#wishlistButton i {
+    font-size: 13px;
+}
+
+.nav-wishlist-button {
+    position: relative;
+}
+
+.wishlist-count {
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    margin-left: 1px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    line-height: 1;
+}
+
+#sellButton {
+    min-width: 88px;
+    background: #0f8b8d;
+    border-color: #0f8b8d;
+    box-shadow: 0 5px 14px rgba(15, 139, 141, 0.2);
+}
+
+#sellButton:hover {
+    background: #0c7779;
+    border-color: #0c7779;
+    box-shadow: 0 7px 17px rgba(15, 139, 141, 0.28);
+}
+
+@media (max-width: 1050px) {
+    .nav-container {
+        width: min(100% - 28px, 1240px);
+        gap: 12px;
+    }
+
+    .nav-links {
+        margin-left: 6px;
+    }
+
+    .nav-links a {
+        padding-left: 9px;
+        padding-right: 9px;
+    }
+
+    .nav-actions {
+        gap: 5px;
+    }
+
+    .nav-actions .btn {
+        padding-left: 9px;
+        padding-right: 9px;
+    }
+}
+
+@media (max-width: 850px) {
+    .nav-container {
+        gap: 10px;
+    }
+
+    .logo {
+        margin-right: auto;
+    }
+
+    .nav-actions {
+        margin-left: 0;
+    }
+
+    #chatButton,
+    #wishlistButton,
+    #profileButton {
+        width: 38px;
+        min-width: 38px;
+        padding: 8px;
+    }
+
+    #chatButton,
+    #wishlistButton {
+        font-size: 0;
+    }
+
+    #chatButton i,
+    #wishlistButton i {
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .wishlist-count {
+        position: absolute;
+        top: -4px;
+        right: -3px;
+        margin: 0;
+    }
+
+    #signupButton {
+        display: none;
+    }
+
+    #sellButton {
+        min-width: 78px;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        height: 64px;
+    }
+
+    .nav-container {
+        width: calc(100% - 20px);
+        gap: 7px;
+    }
+
+    .logo {
+        padding: 3px 5px 3px 0;
+    }
+
+    .logo-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+    }
+
+    .logo-graduation {
+        font-size: 18px;
+        top: 5px;
+        left: 5px;
+    }
+
+    .logo-cart {
+        width: 16px;
+        height: 15px;
+        font-size: 9px;
+        right: 4px;
+        bottom: 4px;
+    }
+
+    .logo-text {
+        font-size: 17px;
+    }
+
+    .nav-actions .btn {
+        min-height: 34px;
+        padding: 7px 8px;
+        border-radius: 8px;
+    }
+
+    #sellButton {
+        min-width: 66px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    #sellButton i {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 380px) {
+    .nav-container {
+        width: calc(100% - 14px);
+    }
+
+    .nav-actions {
+        gap: 4px;
+    }
+
+    #chatButton,
+    #wishlistButton {
+        width: 34px;
+        min-width: 34px;
+        padding: 6px;
+    }
+
+    #sellButton {
+        min-width: 58px;
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+}
