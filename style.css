@@ -10186,13 +10186,13 @@ body #myListingsModal:not(.hidden) > .modal-content > .modal-header p {
 
 body #myListingsModal:not(.hidden) #myListingsContainer {
     display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     align-items: start !important;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 700px) {
     body #myListingsModal:not(.hidden) #myListingsContainer {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        grid-template-columns: 1fr !important;
     }
 }
 
@@ -10210,12 +10210,6 @@ body #myListingsModal:not(.hidden) #myListingsContainer {
         font-size: 10px !important;
     }
 
-    body #myListingsModal:not(.hidden) #myListingsContainer {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-}
-
-@media (max-width: 480px) {
     body #myListingsModal:not(.hidden) #myListingsContainer {
         grid-template-columns: 1fr !important;
     }
