@@ -6930,3 +6930,27 @@ body #profileModal .profile-modal-back-button {
         left: 10px !important;
     }
 }
+
+
+/* Global modal back-arrow style */
+body .modal > .modal-content > .modal-back-button {
+    position: absolute !important;
+    top: 13px !important;
+    left: 13px !important;
+    right: auto !important;
+    z-index: 50 !important;
+    margin: 0 !important;
+}
+
+body .modal > .modal-content > .modal-back-button i {
+    display: block !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+}
+
+@media (max-width: 600px) {
+    body .modal > .modal-content > .modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+}
