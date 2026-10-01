@@ -4535,28 +4535,26 @@ function injectNotificationStyles() {
         .notification-select-check {
             position: absolute;
             top: 8px;
-            right: 8px;
+            left: 8px;
             width: 20px;
             height: 20px;
             display: none;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--border);
+            border: 1px solid var(--primary);
             border-radius: 50%;
-            background: #fff;
+            background: var(--primary);
             color: #fff;
             font-size: 10px;
         }
 
         .notification-item.notification-selected {
-            border-color: var(--primary);
-            background: var(--primary-light);
+            border-color: inherit;
+            background: inherit;
         }
 
         .notification-item.notification-selected .notification-select-check {
             display: inline-flex;
-            background: var(--primary);
-            border-color: var(--primary);
         }
 
         .notifications-header {
