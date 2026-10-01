@@ -5183,3 +5183,89 @@ body { font-weight: 400; }
         max-width: 95px;
     }
 }
+
+
+/* BULK CHAT SELECTION */
+.inquiries-whatsapp-header {
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.inquiry-bulk-tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.inquiry-select-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #52666d;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+}
+
+.inquiry-select-all input,
+.inquiry-select-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: #0f8b8d;
+    cursor: pointer;
+}
+
+.selected-inquiry-count {
+    color: #0f8b8d;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.selected-inquiry-count.hidden,
+.bulk-action-button.hidden {
+    display: none !important;
+}
+
+.bulk-action-button {
+    min-height: 32px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+}
+
+.inquiry-select-box {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.whatsapp-inquiry-card.is-selected {
+    background: #e9f6f5;
+}
+
+@media (max-width: 560px) {
+    .inquiries-whatsapp-header {
+        align-items: flex-start;
+    }
+
+    .inquiry-bulk-tools {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .bulk-action-button span {
+        display: none;
+    }
+
+    .bulk-action-button {
+        width: 34px;
+        justify-content: center;
+        padding: 7px;
+    }
+}
