@@ -6414,3 +6414,14 @@ body #notificationsModal .notifications-header {
     z-index: 25 !important;
     background: #ffffff !important;
 }
+
+/* NOTIFICATION BACK ARROW MUST STAY ABOVE STICKY HEADER */
+#notificationsModal .notifications-modal-content > .modal-back-button {
+    z-index: 100 !important;
+}
+
+#notificationsModal .notifications-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 25 !important;
+}
