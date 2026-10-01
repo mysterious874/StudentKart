@@ -9127,3 +9127,45 @@ body.studentkart-modal-navigation-hidden {
 /* Force floating nav hidden whenever a modal is active */
 body.studentkart-modal-navigation-hidden .navbar,
 body.studentkart-modal-navigation-hidden .mobile-bottom-nav { display: none !important; }
+
+
+/* =========================================================
+   POPUP-STYLE PAGE HEADERS
+   ========================================================= */
+.page-popup-header {
+    margin: 14px 14px 0 !important;
+    padding: 15px 18px !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 12px !important;
+    background: var(--nav) !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12) !important;
+}
+
+.page-popup-header h2 {
+    margin: 0 0 3px !important;
+    color: #ffffff !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+}
+
+.page-popup-header p {
+    margin: 0 !important;
+    color: rgba(255,255,255,0.68) !important;
+    font-size: 11px !important;
+}
+
+.page-popup-header + form {
+    padding-top: 18px !important;
+}
+
+@media (max-width: 600px) {
+    .page-popup-header {
+        margin: 10px 10px 0 !important;
+        padding: 13px 15px !important;
+        border-radius: 11px !important;
+    }
+
+    .page-popup-header h2 {
+        font-size: 17px !important;
+    }
+}
