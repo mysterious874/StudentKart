@@ -6241,12 +6241,17 @@ textarea {
     z-index: 20;
 }
 
-.chat-head > .chat-actions > .modal-back-button {
+.chat-head > .chat-modal-back-button {
     position: absolute;
     top: 50%;
-    left: 12px;
+    left: 14px;
     right: auto;
     transform: translateY(-50%);
+    z-index: 30;
+}
+
+.chat-head {
+    padding-left: 62px;
 }
 
 .chat-head > .chat-actions {
@@ -6261,8 +6266,8 @@ textarea {
         left: 12px;
     }
 
-    .chat-head > .chat-actions > .modal-back-button {
-        left: 8px;
+    .chat-head > .chat-modal-back-button {
+        left: 9px;
     }
 }
 
