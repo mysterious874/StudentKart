@@ -6283,3 +6283,14 @@ textarea {
         left: 9px;
     }
 }
+
+/* NOTIFICATIONS HEADER CLEARANCE FOR BACK ARROW */
+.notifications-modal-content .notifications-header {
+    padding-left: 54px;
+}
+
+@media (max-width: 700px) {
+    .notifications-modal-content .notifications-header {
+        padding-left: 50px;
+    }
+}
