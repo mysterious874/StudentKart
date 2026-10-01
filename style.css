@@ -4913,3 +4913,91 @@ body { font-weight: 400; }
 .chat-unread-count.hidden {
     display: none !important;
 }
+
+
+/* CHAT DELETE ACTIONS */
+.chat-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-delete-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 7px 11px;
+    border: 1px solid #e3ebee;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #52666d;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.chat-delete-button:hover {
+    border-color: #d99a9a;
+    color: #b64040;
+}
+
+.chat-delete-menu {
+    position: absolute;
+    top: 70px;
+    right: 18px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    min-width: 190px;
+    padding: 6px;
+    border: 1px solid #e3ebee;
+    border-radius: 11px;
+    background: #ffffff;
+    box-shadow: 0 10px 28px rgba(16, 42, 67, .14);
+}
+
+.chat-delete-menu.hidden {
+    display: none !important;
+}
+
+.chat-delete-menu button {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 10px 11px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #344e55;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.chat-delete-menu button:hover {
+    background: #f3f7f7;
+}
+
+.chat-delete-menu button.danger {
+    color: #b64040;
+}
+
+.chat-delete-menu button.danger:hover {
+    background: #fff2f2;
+}
+
+@media (max-width: 560px) {
+    .chat-delete-button span {
+        display: none;
+    }
+
+    .chat-delete-button {
+        width: 34px;
+        justify-content: center;
+        padding: 7px;
+    }
+}
