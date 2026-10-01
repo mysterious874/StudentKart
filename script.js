@@ -247,16 +247,25 @@ function closeModal(id) {
         return;
     }
 
-    modal.classList.add("hidden");
-
-    const anyOpen =
-        document.querySelector(
-            ".modal:not(.hidden)"
-        );
-
-    if (!anyOpen) {
-        document.body.classList.remove("modal-open");
+    if (modal.classList.contains("hidden")) {
+        return;
     }
+
+    modal.classList.add("modal-closing");
+
+    window.setTimeout(() => {
+        modal.classList.remove("modal-closing");
+        modal.classList.add("hidden");
+
+        const anyOpen =
+            document.querySelector(
+                ".modal:not(.hidden)"
+            );
+
+        if (!anyOpen) {
+            document.body.classList.remove("modal-open");
+        }
+    }, 220);
 }
 
 function closeAllModals() {
