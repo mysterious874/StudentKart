@@ -3634,54 +3634,50 @@ async function deleteProduct(
    LOGIN / SIGNUP / LOGOUT
    ========================================================= */
 
-async function loginUser(event) {
+async function normalizeAuthContact(raw) {
 
-    event.preventDefault();
+    const value = String(raw || "").trim();
 
-    const email = $("loginEmail")?.value?.trim();
-
-    if (!email) {
-        showToast("Enter your email", "warning");
-        return;
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return { type: "email", value: value.toLowerCase(), display: value.toLowerCase() };
     }
 
-    const button = $("loginForm")?.querySelector('button[type="submit"]');
-    if (button) button.disabled = true;
+    const digits = value.replace(/\D/g, "");
 
-    try {
-        const { error } = await supabaseClient.auth.signInWithOtp({
-            email,
-            options: { shouldCreateUser: false }
-        });
-
-        if (error) throw error;
-
-        window.pendingOtpEmail = email;
-        window.pendingOtpMode = "login";
-        window.pendingOtpProfile = null;
-
-        closeModal("loginModal");
-        $("otpDescription").textContent = "Enter the 6-digit OTP sent to " + email;
-        $("otpCode").value = "";
-        openModal("otpModal");
-        showToast("Login OTP sent to your email", "success");
-
-    } catch (error) {
-        console.error("Login OTP error:", error);
-        showToast(error?.message || "Could not send login OTP", "error");
-    } finally {
-        if (button) button.disabled = false;
+    if (/^[6-9]\d{9}$/.test(digits)) {
+        return { type: "phone", value: "+91" + digits, display: "+91 " + digits };
     }
+
+    return null;
+}
+
+async function sendOtpForContact(contact, shouldCreateUser, metadata = {}) {
+
+    const credentials =
+        contact.type === "email"
+            ? {
+                email: contact.value,
+                options: { shouldCreateUser, data: metadata }
+            }
+            : {
+                phone: contact.value,
+                options: { shouldCreateUser, data: metadata }
+            };
+
+    const { error } =
+        await supabaseClient.auth.signInWithOtp(credentials);
+
+    if (error) throw error;
 }
 
 async function loginUser(event) {
 
     event.preventDefault();
 
-    const email = $("loginEmail")?.value?.trim();
+    const contact = await normalizeAuthContact($("loginIdentifier")?.value);
 
-    if (!email) {
-        showToast("Enter your email", "warning");
+    if (!contact) {
+        showToast("Enter a valid email or 10-digit mobile number", "warning");
         return;
     }
 
@@ -3689,26 +3685,23 @@ async function loginUser(event) {
     if (button) button.disabled = true;
 
     try {
-        const { error } = await supabaseClient.auth.signInWithOtp({
-            email,
-            options: { shouldCreateUser: false }
-        });
+        await sendOtpForContact(contact, false);
 
-        if (error) throw error;
-
-        window.pendingOtpEmail = email;
+        window.pendingOtpContact = contact.value;
+        window.pendingOtpContactType = contact.type;
         window.pendingOtpMode = "login";
         window.pendingOtpProfile = null;
 
         closeModal("loginModal");
-        $("otpDescription").textContent = "Enter the 6-digit OTP sent to " + email;
+        $("otpDescription").textContent = "Enter the 6-digit OTP sent to " + contact.display;
         $("otpCode").value = "";
         openModal("otpModal");
-        showToast("Login OTP sent to your email", "success");
+
+        showToast("OTP sent successfully", "success");
 
     } catch (error) {
         console.error("Login OTP error:", error);
-        showToast(error?.message || "Could not send login OTP", "error");
+        showToast(error?.message || "Could not send OTP", "error");
     } finally {
         if (button) button.disabled = false;
     }
@@ -3720,46 +3713,42 @@ async function signupUser(event) {
 
     const name = $("signupName")?.value?.trim();
     const college = $("signupCollege")?.value?.trim();
-    const email = $("signupEmail")?.value?.trim();
-    const mobile = $("signupMobile")?.value?.replace(/\D/g, "").trim();
+    const contact = await normalizeAuthContact($("signupIdentifier")?.value);
 
-    if (!name || !college || !email || !mobile) {
-        showToast("Please fill all fields", "warning");
+    if (!name || !college || !contact) {
+        showToast("Please fill all fields correctly", "warning");
         return;
     }
 
-    if (!/^[6-9]\d{9}$/.test(mobile)) {
-        showToast("Please enter a valid 10-digit Indian mobile number", "warning");
-        return;
-    }
+    const profile = {
+        name,
+        college,
+        email: contact.type === "email" ? contact.value : "",
+        mobile: contact.type === "phone" ? contact.value.replace("+91", "") : "",
+        mobile_verified: contact.type === "phone"
+    };
 
     const button = $("signupForm")?.querySelector('button[type="submit"]');
     if (button) button.disabled = true;
 
     try {
-        const { error } = await supabaseClient.auth.signInWithOtp({
-            email,
-            options: {
-                shouldCreateUser: true,
-                data: { name, college, mobile }
-            }
-        });
+        await sendOtpForContact(contact, true, profile);
 
-        if (error) throw error;
-
-        window.pendingOtpEmail = email;
+        window.pendingOtpContact = contact.value;
+        window.pendingOtpContactType = contact.type;
         window.pendingOtpMode = "signup";
-        window.pendingOtpProfile = { name, college, mobile };
+        window.pendingOtpProfile = profile;
 
         closeModal("signupModal");
-        $("otpDescription").textContent = "Enter the 6-digit OTP sent to " + email;
+        $("otpDescription").textContent = "Enter the 6-digit OTP sent to " + contact.display;
         $("otpCode").value = "";
         openModal("otpModal");
-        showToast("Signup OTP sent to your email", "success");
+
+        showToast("OTP sent successfully", "success");
 
     } catch (error) {
         console.error("Signup OTP error:", error);
-        showToast(error?.message || "Could not send signup OTP", "error");
+        showToast(error?.message || "Could not send OTP", "error");
     } finally {
         if (button) button.disabled = false;
     }
@@ -3769,10 +3758,11 @@ async function verifyOtp(event) {
 
     event.preventDefault();
 
-    const email = window.pendingOtpEmail;
+    const contact = window.pendingOtpContact;
+    const type = window.pendingOtpContactType;
     const token = $("otpCode")?.value?.trim();
 
-    if (!email || !/^\d{6}$/.test(token)) {
+    if (!contact || !type || !/^\d{6}$/.test(token)) {
         showToast("Enter the 6-digit OTP", "warning");
         return;
     }
@@ -3781,76 +3771,32 @@ async function verifyOtp(event) {
     if (button) button.disabled = true;
 
     try {
-        const { data, error } = await supabaseClient.auth.verifyOtp({
-            email,
-            token,
-            type: "email"
-        });
+        const { data, error } =
+            await supabaseClient.auth.verifyOtp({
+                [type === "email" ? "email" : "phone"]: contact,
+                token,
+                type: type === "email" ? "email" : "sms"
+            });
 
         if (error) throw error;
 
-        if (data?.user) {
-            const metadata = data.user.user_metadata || {};
-            const profileData = window.pendingOtpProfile || {};
-
-            const name =
-                metadata.name ||
-                profileData.name ||
-                data.user.email?.split("@")[0] ||
-                "Student";
-
-            const college =
-                metadata.college ||
-                profileData.college ||
-                "";
-
-            const mobile =
-                profileData.mobile ||
-                metadata.mobile ||
-                "";
-
-            const { error: profileError } = await supabaseClient
-                .from("profiles")
-                .upsert({
+        if (data?.user && window.pendingOtpMode === "signup") {
+            const p = window.pendingOtpProfile || {};
+            const { error: profileError } =
+                await supabaseClient.from("profiles").upsert({
                     id: data.user.id,
-                    name,
-                    college,
-                    email: data.user.email || email,
-                    mobile,
-                    mobile_verified: false
+                    name: p.name || data.user.user_metadata?.name || "Student",
+                    college: p.college || data.user.user_metadata?.college || "",
+                    email: p.email || data.user.email || "",
+                    mobile: p.mobile || "",
+                    mobile_verified: type === "phone"
                 });
 
-            if (profileError) {
-                console.error("Profile create error:", profileError);
-            }
-
-            if (window.pendingOtpMode === "signup" && mobile) {
-                const formattedMobile = "+91" + mobile;
-
-                const { error: phoneError } =
-                    await supabaseClient.auth.updateUser({
-                        phone: formattedMobile
-                    });
-
-                if (phoneError) throw phoneError;
-
-                window.pendingMobile = formattedMobile;
-                window.pendingMobileUserId = data.user.id;
-
-                closeModal("otpModal");
-
-                $("mobileOtpDescription").textContent =
-                    "Enter the 6-digit OTP sent to " + formattedMobile;
-
-                $("mobileOtpCode").value = "";
-                openModal("mobileOtpModal");
-
-                showToast("Email verified. Mobile OTP sent!", "success");
-                return;
-            }
+            if (profileError) console.error("Profile create error:", profileError);
         }
 
-        window.pendingOtpEmail = "";
+        window.pendingOtpContact = "";
+        window.pendingOtpContactType = "";
         window.pendingOtpMode = "";
         window.pendingOtpProfile = null;
 
@@ -3867,30 +3813,23 @@ async function verifyOtp(event) {
 
 async function resendOtp() {
 
-    const email = window.pendingOtpEmail;
-    if (!email) {
-        showToast("Please start login/signup again", "warning");
+    const contact = window.pendingOtpContact;
+    const type = window.pendingOtpContactType;
+
+    if (!contact || !type) {
+        showToast("Please start again", "warning");
         return;
-    }
-
-    const options = {
-        shouldCreateUser: window.pendingOtpMode === "signup"
-    };
-
-    if (window.pendingOtpMode === "signup" && window.pendingOtpProfile) {
-        options.data = window.pendingOtpProfile;
     }
 
     const button = $("resendOtpButton");
     if (button) button.disabled = true;
 
     try {
-        const { error } = await supabaseClient.auth.signInWithOtp({
-            email,
-            options
-        });
-
-        if (error) throw error;
+        await sendOtpForContact(
+            { type, value: contact },
+            window.pendingOtpMode === "signup",
+            window.pendingOtpProfile || {}
+        );
         showToast("A new OTP has been sent", "success");
 
     } catch (error) {
@@ -3898,245 +3837,6 @@ async function resendOtp() {
         showToast(error?.message || "Could not resend OTP", "error");
     } finally {
         if (button) button.disabled = false;
-    }
-}
-
-async function verifyMobileOtp(event) {
-
-    event.preventDefault();
-
-    const phone = window.pendingMobile;
-    const token = $("mobileOtpCode")?.value?.trim();
-
-    if (!phone || !/^\d{6}$/.test(token)) {
-        showToast("Enter the 6-digit mobile OTP", "warning");
-        return;
-    }
-
-    const button =
-        $("mobileOtpForm")?.querySelector('button[type="submit"]');
-
-    if (button) button.disabled = true;
-
-    try {
-        const { data, error } =
-            await supabaseClient.auth.verifyOtp({
-                phone,
-                token,
-                type: "phone_change"
-            });
-
-        if (error) throw error;
-
-        if (data?.user) {
-            const { error: profileError } =
-                await supabaseClient
-                    .from("profiles")
-                    .update({
-                        mobile: phone.replace("+91", ""),
-                        mobile_verified: true
-                    })
-                    .eq("id", data.user.id);
-
-            if (profileError) {
-                console.error("Mobile profile update error:", profileError);
-            }
-        }
-
-        window.pendingMobile = "";
-        window.pendingMobileUserId = "";
-        window.pendingOtpEmail = "";
-        window.pendingOtpMode = "";
-        window.pendingOtpProfile = null;
-
-        closeModal("mobileOtpModal");
-        showToast(
-            "Email and mobile verified. Welcome to StudentKart!",
-            "success"
-        );
-
-    } catch (error) {
-        console.error("Mobile OTP verification error:", error);
-        showToast(
-            error?.message || "Invalid or expired mobile OTP",
-            "error"
-        );
-    } finally {
-        if (button) button.disabled = false;
-    }
-}
-
-async function resendMobileOtp() {
-
-    const phone = window.pendingMobile;
-
-    if (!phone || !currentUser) {
-        showToast("Please start signup again", "warning");
-        return;
-    }
-
-    const button = $("resendMobileOtpButton");
-    if (button) button.disabled = true;
-
-    try {
-        const { error } =
-            await supabaseClient.auth.updateUser({
-                phone
-            });
-
-        if (error) throw error;
-
-        showToast("A new mobile OTP has been sent", "success");
-
-    } catch (error) {
-        console.error("Resend mobile OTP error:", error);
-        showToast(
-            error?.message || "Could not resend mobile OTP",
-            "error"
-        );
-    } finally {
-        if (button) button.disabled = false;
-    }
-}
-
-async function logoutUser(event) {
-
-    event.preventDefault();
-
-    const name =
-        $("signupName")
-            ?.value
-            ?.trim();
-
-    const college =
-        $("signupCollege")
-            ?.value
-            ?.trim();
-
-    const email =
-        $("signupEmail")
-            ?.value
-            ?.trim();
-
-    const mobile =
-        $("signupMobile")
-            ?.value
-            ?.replace(/\\D/g, "")
-            ?.trim();
-
-    const password =
-        $("signupPassword")
-            ?.value;
-
-    if (
-        !name ||
-        !college ||
-        !email ||
-        !mobile ||
-        !password
-    ) {
-
-        showToast(
-            "Please fill all fields",
-            "warning"
-        );
-
-        return;
-    }
-
-    if (!/^[6-9]\\d{9}$/.test(mobile)) {
-
-        showToast(
-            "Please enter a valid 10-digit Indian mobile number",
-            "warning"
-        );
-
-        return;
-    }
-
-    if (password.length < 6) {
-
-        showToast(
-            "Password must be at least 6 characters",
-            "warning"
-        );
-
-        return;
-    }
-
-    const button =
-        $("signupForm")
-            ?.querySelector(
-                'button[type="submit"]'
-            );
-
-    if (button) {
-        button.disabled = true;
-    }
-
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth
-                .signUp({
-                    email,
-                    password,
-                    options: {
-                        data: {
-                            name,
-                            college,
-                            mobile
-                        }
-                    }
-                });
-
-        if (error) {
-            throw error;
-        }
-
-        if (data?.user) {
-
-            await supabaseClient
-                .from("profiles")
-                .upsert({
-                    id:
-                        data.user.id,
-                    name,
-                    college,
-                    email
-                });
-        }
-
-        closeModal(
-            "signupModal"
-        );
-
-        showToast(
-            "Account created successfully",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Signup error:",
-            error
-        );
-
-        showToast(
-            error?.message ||
-            "Signup failed",
-            "error"
-        );
-
-    } finally {
-
-        if (button) {
-            button.disabled = false;
-        }
     }
 }
 
