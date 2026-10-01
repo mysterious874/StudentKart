@@ -6845,3 +6845,45 @@ body:has(#wishlistModal:not(.hidden)) #wishlistModal .wishlist-modal-content {
     touch-action: pan-y !important;
     -webkit-overflow-scrolling: touch !important;
 }
+
+
+/* Profile popup - centered layout with back arrow */
+body #profileModal {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+}
+
+body #profileModal .profile-modal {
+    width: min(470px, calc(100vw - 40px)) !important;
+    max-width: 470px !important;
+    max-height: calc(100vh - 40px) !important;
+    margin: 0 auto !important;
+    position: relative !important;
+    overflow-y: auto !important;
+}
+
+body #profileModal .profile-modal-back-button {
+    position: absolute !important;
+    top: 13px !important;
+    left: 13px !important;
+    right: auto !important;
+    z-index: 30 !important;
+    margin: 0 !important;
+}
+
+@media (max-width: 600px) {
+    body #profileModal {
+        padding: 14px !important;
+    }
+
+    body #profileModal .profile-modal {
+        width: min(470px, calc(100vw - 28px)) !important;
+        max-height: calc(100vh - 28px) !important;
+    }
+
+    body #profileModal .profile-modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+}
