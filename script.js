@@ -7768,3 +7768,16 @@ document.addEventListener("DOMContentLoaded", () => {
         subtree: true
     });
 });
+
+
+/* Navbar search shortcut */
+document.addEventListener("DOMContentLoaded", () => {
+    const navSearchButton = document.getElementById("navSearchButton");
+    const heroSearch = document.getElementById("heroSearch");
+    if (navSearchButton && heroSearch) {
+        navSearchButton.addEventListener("click", () => {
+            heroSearch.scrollIntoView({ behavior: "smooth", block: "center" });
+            setTimeout(() => heroSearch.focus(), 350);
+        });
+    }
+});
