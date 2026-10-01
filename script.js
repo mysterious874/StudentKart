@@ -6749,9 +6749,51 @@ async function markChatMessagesRead(inquiryId) {
             .eq("is_read", false);
 
         if (error) throw error;
+
+        // Verify that Supabase actually persisted the read state.
+        // This prevents a stale unread badge when an UPDATE policy blocks
+        // the write or when another realtime refresh races with this one.
+        const { data: remainingUnread, error: verifyError } =
+            await supabaseClient
+                .from("messages")
+                .select("id")
+                .eq("inquiry_id", inquiryId)
+                .eq("receiver_id", currentUser.id)
+                .eq("is_read", false);
+
+        if (verifyError) {
+            throw verifyError;
+        }
+
+        const unreadRemaining = remainingUnread?.length || 0;
+
+        if (unreadRemaining > 0) {
+            console.warn(
+                "⚠️ Some chat messages are still unread after mark-read:",
+                unreadRemaining
+            );
+        }
+
         await updateChatUnreadCount();
+
+        // Force the visible chat badge/list state to match the verified
+        // database state immediately.
+        const badge = $("chatUnreadCount");
+        if (badge && unreadRemaining === 0) {
+            badge.textContent = "0";
+            badge.classList.add("hidden");
+        }
+
+        document
+            .querySelectorAll(".whatsapp-unread")
+            .forEach(element => {
+                element.remove();
+            });
+
+        await loadReceivedInquiries();
     } catch (error) {
         console.error("Mark chat messages read error:", error);
+        showToast("Could not sync chat read status", "error");
     }
 }
 
