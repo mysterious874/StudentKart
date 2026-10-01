@@ -5487,30 +5487,57 @@ function setupEventListeners() {
     $("deleteSelectedNotificationsButton")?.addEventListener("click", deleteSelectedNotifications);
     $("cancelNotificationSelectionButton")?.addEventListener("click", clearNotificationSelection);
 
-    $("notificationsContainer")?.addEventListener("pointerdown", event => {
+    function beginNotificationLongPress(event) {
         const item = event.target.closest("[data-notification-id]");
         if (!item) return;
+
         notificationLongPressTriggered = false;
         clearTimeout(notificationLongPressTimer);
+
         notificationLongPressTimer = setTimeout(() => {
             notificationLongPressTriggered = true;
             toggleNotificationSelection(item.dataset.notificationId);
-            if (navigator.vibrate) navigator.vibrate(30);
+
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
         }, 600);
+    }
+
+    function endNotificationLongPress() {
+        clearTimeout(notificationLongPressTimer);
+    }
+
+    $("notificationsContainer")?.addEventListener("touchstart", beginNotificationLongPress, { passive: true });
+    $("notificationsContainer")?.addEventListener("touchend", endNotificationLongPress);
+    $("notificationsContainer")?.addEventListener("touchcancel", endNotificationLongPress);
+
+    $("notificationsContainer")?.addEventListener("pointerdown", event => {
+        if (event.pointerType === "touch") return;
+        beginNotificationLongPress(event);
     });
 
-    $("notificationsContainer")?.addEventListener("pointerup", () => clearTimeout(notificationLongPressTimer));
-    $("notificationsContainer")?.addEventListener("pointercancel", () => clearTimeout(notificationLongPressTimer));
-    $("notificationsContainer")?.addEventListener("pointermove", () => clearTimeout(notificationLongPressTimer));
+    $("notificationsContainer")?.addEventListener("pointerup", event => {
+        if (event.pointerType === "touch") return;
+        endNotificationLongPress();
+    });
+
+    $("notificationsContainer")?.addEventListener("pointercancel", event => {
+        if (event.pointerType === "touch") return;
+        endNotificationLongPress();
+    });
+
     $("notificationsContainer")?.addEventListener("contextmenu", event => event.preventDefault());
 
     $("notificationsContainer")?.addEventListener("click", event => {
         const item = event.target.closest("[data-notification-id]");
         if (!item) return;
+
         event.preventDefault();
         event.stopPropagation();
 
         const id = item.dataset.notificationId;
+
         if (notificationLongPressTriggered) {
             notificationLongPressTriggered = false;
             return;
