@@ -9789,30 +9789,35 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
 /* CATEGORY PICKER - CENTER THE SIX BOXES ONLY */
 .category-picker-grid {
     display: grid !important;
-    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(6, 135px) !important;
     justify-content: center !important;
     justify-items: center !important;
     align-items: center !important;
     align-content: center !important;
-    width: 100% !important;
-    max-width: 900px !important;
+    width: max-content !important;
+    max-width: 100% !important;
     margin: 0 auto !important;
     gap: 16px !important;
+    padding: 22px !important;
+    box-sizing: border-box !important;
 }
 
 .category-picker-card {
-    width: 100% !important;
+    width: 135px !important;
     max-width: 135px !important;
 }
 
 @media (max-width: 700px) {
     .category-picker-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        max-width: 420px !important;
+        grid-template-columns: repeat(2, 145px) !important;
+        width: max-content !important;
+        max-width: 100% !important;
         gap: 14px !important;
+        padding: 14px !important;
     }
 
     .category-picker-card {
-        max-width: 160px !important;
+        width: 145px !important;
+        max-width: 145px !important;
     }
 }
