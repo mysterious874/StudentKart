@@ -3793,16 +3793,61 @@ async function verifyOtp(event) {
             const metadata = data.user.user_metadata || {};
             const profileData = window.pendingOtpProfile || {};
 
+            const name =
+                metadata.name ||
+                profileData.name ||
+                data.user.email?.split("@")[0] ||
+                "Student";
+
+            const college =
+                metadata.college ||
+                profileData.college ||
+                "";
+
+            const mobile =
+                profileData.mobile ||
+                metadata.mobile ||
+                "";
+
             const { error: profileError } = await supabaseClient
                 .from("profiles")
                 .upsert({
                     id: data.user.id,
-                    name: metadata.name || profileData.name || data.user.email?.split("@")[0] || "Student",
-                    college: metadata.college || profileData.college || "",
-                    email: data.user.email || email
+                    name,
+                    college,
+                    email: data.user.email || email,
+                    mobile,
+                    mobile_verified: false
                 });
 
-            if (profileError) console.error("Profile create error:", profileError);
+            if (profileError) {
+                console.error("Profile create error:", profileError);
+            }
+
+            if (window.pendingOtpMode === "signup" && mobile) {
+                const formattedMobile = "+91" + mobile;
+
+                const { error: phoneError } =
+                    await supabaseClient.auth.updateUser({
+                        phone: formattedMobile
+                    });
+
+                if (phoneError) throw phoneError;
+
+                window.pendingMobile = formattedMobile;
+                window.pendingMobileUserId = data.user.id;
+
+                closeModal("otpModal");
+
+                $("mobileOtpDescription").textContent =
+                    "Enter the 6-digit OTP sent to " + formattedMobile;
+
+                $("mobileOtpCode").value = "";
+                openModal("mobileOtpModal");
+
+                showToast("Email verified. Mobile OTP sent!", "success");
+                return;
+            }
         }
 
         window.pendingOtpEmail = "";
@@ -3851,6 +3896,104 @@ async function resendOtp() {
     } catch (error) {
         console.error("Resend OTP error:", error);
         showToast(error?.message || "Could not resend OTP", "error");
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
+
+async function verifyMobileOtp(event) {
+
+    event.preventDefault();
+
+    const phone = window.pendingMobile;
+    const token = $("mobileOtpCode")?.value?.trim();
+
+    if (!phone || !/^\d{6}$/.test(token)) {
+        showToast("Enter the 6-digit mobile OTP", "warning");
+        return;
+    }
+
+    const button =
+        $("mobileOtpForm")?.querySelector('button[type="submit"]');
+
+    if (button) button.disabled = true;
+
+    try {
+        const { data, error } =
+            await supabaseClient.auth.verifyOtp({
+                phone,
+                token,
+                type: "phone_change"
+            });
+
+        if (error) throw error;
+
+        if (data?.user) {
+            const { error: profileError } =
+                await supabaseClient
+                    .from("profiles")
+                    .update({
+                        mobile: phone.replace("+91", ""),
+                        mobile_verified: true
+                    })
+                    .eq("id", data.user.id);
+
+            if (profileError) {
+                console.error("Mobile profile update error:", profileError);
+            }
+        }
+
+        window.pendingMobile = "";
+        window.pendingMobileUserId = "";
+        window.pendingOtpEmail = "";
+        window.pendingOtpMode = "";
+        window.pendingOtpProfile = null;
+
+        closeModal("mobileOtpModal");
+        showToast(
+            "Email and mobile verified. Welcome to StudentKart!",
+            "success"
+        );
+
+    } catch (error) {
+        console.error("Mobile OTP verification error:", error);
+        showToast(
+            error?.message || "Invalid or expired mobile OTP",
+            "error"
+        );
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
+
+async function resendMobileOtp() {
+
+    const phone = window.pendingMobile;
+
+    if (!phone || !currentUser) {
+        showToast("Please start signup again", "warning");
+        return;
+    }
+
+    const button = $("resendMobileOtpButton");
+    if (button) button.disabled = true;
+
+    try {
+        const { error } =
+            await supabaseClient.auth.updateUser({
+                phone
+            });
+
+        if (error) throw error;
+
+        showToast("A new mobile OTP has been sent", "success");
+
+    } catch (error) {
+        console.error("Resend mobile OTP error:", error);
+        showToast(
+            error?.message || "Could not resend mobile OTP",
+            "error"
+        );
     } finally {
         if (button) button.disabled = false;
     }
@@ -5960,6 +6103,10 @@ function showNotificationPopup(
    ========================================================= */
 
 function setupEventListeners() {
+
+    $("mobileOtpForm")?.addEventListener("submit", verifyMobileOtp);
+    $("resendMobileOtpButton")?.addEventListener("click", resendMobileOtp);
+
 
     $("otpForm")?.addEventListener("submit", verifyOtp);
     $("resendOtpButton")?.addEventListener("click", resendOtp);
