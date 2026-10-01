@@ -5001,3 +5001,185 @@ body { font-weight: 400; }
         padding: 7px;
     }
 }
+
+
+/* WHATSAPP-STYLE RECEIVED CHATS */
+.inquiries-whatsapp-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+#inquiriesModal .modal-content {
+    max-width: 720px;
+    padding: 0;
+    overflow: hidden;
+}
+
+#inquiriesModal .modal-header {
+    padding: 24px 26px 18px;
+    margin-bottom: 0;
+    border-bottom: 1px solid #e7eeee;
+}
+
+#inquiriesContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    background: #f7fafa;
+}
+
+.whatsapp-inquiry-card {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-height: 76px;
+    padding: 10px 18px;
+    background: #ffffff;
+    border-bottom: 1px solid #e8eeee;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+
+.whatsapp-inquiry-card:hover {
+    background: #f2f7f7;
+}
+
+.whatsapp-inquiry-avatar {
+    flex: 0 0 50px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #dcefee;
+    color: #087577;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.whatsapp-inquiry-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.whatsapp-inquiry-main {
+    min-width: 0;
+    flex: 1;
+}
+
+.whatsapp-inquiry-top,
+.whatsapp-inquiry-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.whatsapp-inquiry-top strong {
+    min-width: 0;
+    overflow: hidden;
+    color: #1f3338;
+    font-size: 15px;
+    font-weight: 650;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.whatsapp-inquiry-top time {
+    flex: 0 0 auto;
+    color: #7c8f94;
+    font-size: 11px;
+}
+
+.whatsapp-inquiry-preview {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+}
+
+.whatsapp-product-name {
+    flex: 0 0 auto;
+    max-width: 145px;
+    overflow: hidden;
+    color: #587076;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.whatsapp-message-preview {
+    min-width: 0;
+    overflow: hidden;
+    color: #7b8d91;
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.whatsapp-inquiry-meta {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.whatsapp-unread {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #0f8b8d;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.whatsapp-chat-button {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: #e8f5f4;
+    color: #0f8b8d;
+    cursor: pointer;
+    transition: transform .15s ease, background .15s ease;
+}
+
+.whatsapp-chat-button:hover {
+    transform: scale(1.06);
+    background: #d8efed;
+}
+
+@media (max-width: 560px) {
+    #inquiriesModal .modal-header {
+        padding: 20px 16px 14px;
+    }
+
+    .whatsapp-inquiry-card {
+        padding: 9px 12px;
+    }
+
+    .whatsapp-inquiry-avatar {
+        flex-basis: 46px;
+        width: 46px;
+        height: 46px;
+    }
+
+    .whatsapp-product-name {
+        max-width: 95px;
+    }
+}
