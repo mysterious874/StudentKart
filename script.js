@@ -5709,7 +5709,7 @@ function setupEventListeners() {
             if (navigator.vibrate) {
                 navigator.vibrate(30);
             }
-        }, 600);
+        }, 800);
     }
 
     function endNotificationLongPress() {
