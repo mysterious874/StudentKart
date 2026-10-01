@@ -6115,6 +6115,7 @@ async function deleteChatForMe() {
     stopChatRealtime();
     currentChatInquiry = null;
     closeModal("chatModal");
+    await updateChatUnreadCount();
     await loadReceivedInquiries();
     showToast("Chat deleted for you", "success");
 }
@@ -6782,11 +6783,48 @@ async function startChatUnreadRealtime() {
                 }
             }
         )
+        .on(
+            "postgres_changes",
+            {
+                event: "DELETE",
+                schema: "public",
+                table: "messages"
+            },
+            async payload => {
+                const oldMessage = payload?.old;
+
+                if (!oldMessage) {
+                    return;
+                }
+
+                const affectsCurrentUser =
+                    oldMessage.sender_id === currentUser.id ||
+                    oldMessage.receiver_id === currentUser.id;
+
+                if (!affectsCurrentUser) {
+                    return;
+                }
+
+                console.log("🗑️ Chat message deleted:", oldMessage);
+
+                if (
+                    currentChatInquiry &&
+                    String(oldMessage.inquiry_id) ===
+                        String(currentChatInquiry.id)
+                ) {
+                    await loadChatMessages();
+                }
+
+                await updateChatUnreadCount();
+                await loadReceivedInquiries();
+            }
+        )
         .subscribe(status => {
             console.log("Chat unread realtime status:", status);
 
             if (status === "SUBSCRIBED") {
                 updateChatUnreadCount();
+                loadReceivedInquiries();
             }
         });
 }
