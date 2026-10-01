@@ -2590,9 +2590,11 @@ async function submitInquiry(event) {
     }
 }
 
+let inquiriesLoading = false;
+
 async function loadReceivedInquiries() {
 
-    if (!currentUser) {
+    if (!currentUser || inquiriesLoading) {
         return;
     }
 
@@ -2603,12 +2605,8 @@ async function loadReceivedInquiries() {
         return;
     }
 
-    container.innerHTML = `
-        <div class="loading-state">
-            <i class="fas fa-spinner fa-spin"></i>
-            <p>Loading inquiries...</p>
-        </div>
-    `;
+    // Keep the existing chat list visible while inquiry data refreshes in the background.
+    inquiriesLoading = true;
 
     try {
 
@@ -2864,13 +2862,18 @@ async function loadReceivedInquiries() {
             error
         );
 
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-triangle-exclamation"></i>
-                <h3>Could not load inquiries</h3>
-                <p>Please try again.</p>
-            </div>
-        `;
+        // Only show an error state when there is no existing chat list to preserve.
+        if (!container.children.length) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <h3>Could not load inquiries</h3>
+                    <p>Please try again.</p>
+                </div>
+            `;
+        }
+    } finally {
+        inquiriesLoading = false;
     }
 }
 
