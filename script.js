@@ -7872,11 +7872,50 @@ document.addEventListener("DOMContentLoaded", () => {
    Replaces the browser's default blue tap flash with a
    small teal ripple exactly where the user touches/clicks.
    ========================================================= */
-document.addEventListener("pointerdown", event => {
-    const target = event.target.closest(
-        ".btn, button, .category-card"
-    );
+/* =========================================================
+   STUDENTKART TOUCH FEEDBACK + SOFT CLICK SOUND
+   ========================================================= */
+let studentKartAudioContext = null;
 
+function playStudentKartClickSound() {
+    try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+
+        if (!studentKartAudioContext) {
+            studentKartAudioContext = new AudioContextClass();
+        }
+
+        if (studentKartAudioContext.state === "suspended") {
+            studentKartAudioContext.resume();
+        }
+
+        const ctx = studentKartAudioContext;
+        const now = ctx.currentTime;
+
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(520, now);
+        oscillator.frequency.exponentialRampToValueAtTime(760, now + 0.055);
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.045, now + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.075);
+
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+
+        oscillator.start(now);
+        oscillator.stop(now + 0.08);
+    } catch (error) {
+        console.debug("StudentKart click sound unavailable:", error);
+    }
+}
+
+document.addEventListener("pointerdown", event => {
+    const target = event.target.closest(".btn, button, .category-card, a");
     if (!target || target.disabled) return;
 
     const rect = target.getBoundingClientRect();
@@ -7888,7 +7927,7 @@ document.addEventListener("pointerdown", event => {
 
     target.appendChild(ripple);
 
-    window.setTimeout(() => {
-        ripple.remove();
-    }, 520);
+    window.setTimeout(() => ripple.remove(), 540);
+
+    playStudentKartClickSound();
 });
