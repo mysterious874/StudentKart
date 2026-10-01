@@ -7865,3 +7865,30 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => filterMenu?.querySelector(".marketplace-filter-panel")?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 250);
     });
 });
+
+
+/* =========================================================
+   STUDENTKART TOUCH RIPPLE
+   Replaces the browser's default blue tap flash with a
+   small teal ripple exactly where the user touches/clicks.
+   ========================================================= */
+document.addEventListener("pointerdown", event => {
+    const target = event.target.closest(
+        ".btn, button, .category-card"
+    );
+
+    if (!target || target.disabled) return;
+
+    const rect = target.getBoundingClientRect();
+    const ripple = document.createElement("span");
+    ripple.className = "sk-ripple";
+
+    ripple.style.left = (event.clientX - rect.left) + "px";
+    ripple.style.top = (event.clientY - rect.top) + "px";
+
+    target.appendChild(ripple);
+
+    window.setTimeout(() => {
+        ripple.remove();
+    }, 520);
+});
