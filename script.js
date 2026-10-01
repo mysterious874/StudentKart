@@ -1845,6 +1845,13 @@ function ensureSellerProfileUI() {
 
             </div>
 
+            <div class="seller-profile-actions">
+                <button type="button" class="btn btn-primary" id="sellerProfileChatButton">
+                    <i class="fas fa-message"></i>
+                    Chat with Seller
+                </button>
+            </div>
+
             <div class="seller-profile-listings-header">
                 <h3>Listings by this seller</h3>
             </div>
@@ -1968,6 +1975,42 @@ async function openSellerProfile(
 
     const listings =
         $("sellerProfileListings");
+
+    const chatButton =
+        $("sellerProfileChatButton");
+
+    if (chatButton) {
+        chatButton.onclick = async () => {
+            if (!currentUser) {
+                closeModal("sellerProfileModal");
+                openModal("loginModal");
+                showToast("Please login to chat with the seller", "warning");
+                return;
+            }
+
+            if (String(currentUser.id) === String(sellerId)) {
+                showToast("You cannot chat with yourself", "warning");
+                return;
+            }
+
+            const { data: inquiry } = await supabaseClient
+                .from("inquiries")
+                .select("*")
+                .eq("buyer_id", currentUser.id)
+                .eq("seller_id", sellerId)
+                .order("created_at", { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            if (!inquiry) {
+                showToast("Open a product and send an inquiry to start chatting with this seller.", "warning");
+                return;
+            }
+
+            closeModal("sellerProfileModal");
+            await openChat(inquiry);
+        };
+    }
 
     if (avatar) {
         avatar.textContent = "S";
