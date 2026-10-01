@@ -6329,3 +6329,37 @@ if (typeof originalCloseModal === "function") {
             return originalCloseModal(modalId);
         };
 }
+
+/* RECEIVED INQUIRIES ACTION HANDLER */
+document.addEventListener("click", async (event) => {
+    const actionButton = event.target.closest("[data-inquiry-action]");
+
+    if (!actionButton) {
+        return;
+    }
+
+    const action = actionButton.dataset.inquiryAction;
+    const inquiryId = actionButton.dataset.inquiryId;
+
+    if (!inquiryId) {
+        return;
+    }
+
+    if (action === "chat") {
+        event.preventDefault();
+        event.stopPropagation();
+        await openInquiryChat(inquiryId);
+        return;
+    }
+
+    if (action === "status") {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const status = actionButton.dataset.status;
+
+        if (status) {
+            await updateInquiryStatus(inquiryId, status);
+        }
+    }
+});
