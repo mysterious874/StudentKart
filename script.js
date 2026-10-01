@@ -6027,6 +6027,7 @@ async function openChat(inquiry) {
 
     openModal("chatModal");
 
+    await markChatMessagesRead(inquiry.id);
     await loadChatMessages();
 
     startChatRealtime();
@@ -6363,3 +6364,78 @@ document.addEventListener("click", async (event) => {
         }
     }
 });
+
+
+/* =========================================================
+   CHAT UNREAD NOTIFICATIONS
+   ========================================================= */
+
+async function updateChatUnreadCount() {
+    if (!currentUser) return;
+
+    const badge = $("chatUnreadCount");
+    if (!badge) return;
+
+    try {
+        const { count, error } = await supabaseClient
+            .from("messages")
+            .select("id", { count: "exact", head: true })
+            .eq("receiver_id", currentUser.id)
+            .eq("is_read", false);
+
+        if (error) throw error;
+
+        const unread = count || 0;
+        badge.textContent = unread > 99 ? "99+" : String(unread);
+        badge.classList.toggle("hidden", unread === 0);
+    } catch (error) {
+        console.error("Chat unread count error:", error);
+    }
+}
+
+async function markChatMessagesRead(inquiryId) {
+    if (!currentUser || !inquiryId) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from("messages")
+            .update({ is_read: true })
+            .eq("inquiry_id", inquiryId)
+            .eq("receiver_id", currentUser.id)
+            .eq("is_read", false);
+
+        if (error) throw error;
+        await updateChatUnreadCount();
+    } catch (error) {
+        console.error("Mark chat messages read error:", error);
+    }
+}
+
+async function startChatUnreadRealtime() {
+    if (!currentUser) return;
+
+    if (window.chatUnreadChannel) {
+        await supabaseClient.removeChannel(window.chatUnreadChannel);
+    }
+
+    window.chatUnreadChannel = supabaseClient
+        .channel("chat-unread-" + currentUser.id)
+        .on(
+            "postgres_changes",
+            {
+                event: "INSERT",
+                schema: "public",
+                table: "messages",
+                filter: "receiver_id=eq." + currentUser.id
+            },
+            async () => {
+                await updateChatUnreadCount();
+
+                if (!currentChatInquiry) {
+                    showToast("💬 New chat message received", "success");
+                }
+            }
+        )
+        .subscribe();
+}
+
