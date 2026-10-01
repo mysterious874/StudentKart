@@ -5012,7 +5012,10 @@ body { font-weight: 400; }
 
 #inquiriesModal .modal-content {
     max-width: 720px;
+    max-height: calc(100vh - 40px);
     padding: 0;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
 }
 
@@ -5024,10 +5027,15 @@ body { font-weight: 400; }
 
 #inquiriesContainer {
     display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
     flex-direction: column;
     gap: 0;
     padding: 0;
     background: #f7fafa;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
 }
 
 .whatsapp-inquiry-card {
