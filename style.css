@@ -8933,3 +8933,66 @@ body {
         bottom: 8px !important;
     }
 }
+
+
+/* =========================================================
+   LARGER FIXED TOP NAVBAR
+   ========================================================= */
+.navbar .nav-container {
+    min-height: 72px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+.navbar .logo-mark {
+    transform: scale(1.08);
+    transform-origin: left center;
+}
+
+.navbar .logo-text {
+    font-size: 19px !important;
+}
+
+.navbar .nav-actions {
+    gap: 10px !important;
+}
+
+.navbar .nav-actions > #sellButton,
+.navbar .nav-actions > #navSearchButton {
+    min-height: 44px !important;
+}
+
+.navbar .nav-actions > #sellButton {
+    padding: 9px 16px !important;
+    border-radius: 11px !important;
+}
+
+.navbar .nav-actions > #navSearchButton {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    border-radius: 11px !important;
+}
+
+@media (max-width: 600px) {
+    .navbar .nav-container {
+        min-height: 64px !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+    }
+
+    .navbar .logo-text {
+        font-size: 17px !important;
+    }
+
+    .navbar .nav-actions > #sellButton {
+        min-height: 40px !important;
+        padding: 8px 14px !important;
+    }
+
+    .navbar .nav-actions > #navSearchButton {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+    }
+}
