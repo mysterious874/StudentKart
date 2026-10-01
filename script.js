@@ -2320,7 +2320,7 @@ async function submitInquiry(event) {
     }
 }
 
-async function loadReceivedInquiries() {
+async async function loadReceivedInquiries() {
 
     if (!currentUser) {
         return;
