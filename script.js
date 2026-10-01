@@ -283,7 +283,11 @@ function openModal(id, options = {}) {
 
     if (!options.fromPopState && !studentKartHandlingPopState) {
         window.history.pushState(
-            { studentKart: true, modalId: id },
+            {
+                studentKart: true,
+                modalId: id,
+                modalStack: [...modalHistory, id]
+            },
             "",
             window.location.pathname + window.location.search + "#" + id
         );
@@ -374,24 +378,29 @@ window.addEventListener("popstate", event => {
     if (state?.studentKart === true) {
         studentKartHandlingPopState = true;
 
-        const openModals = [
-            ...document.querySelectorAll(".modal:not(.hidden)")
-        ];
+        const desiredStack = Array.isArray(state.modalStack)
+            ? state.modalStack.filter(Boolean)
+            : (state.modalId ? [state.modalId] : []);
 
-        const currentModal =
-            openModals[openModals.length - 1];
+        document
+            .querySelectorAll(".modal")
+            .forEach(modal => {
+                modal.classList.remove("modal-closing");
+                modal.classList.add("hidden");
+            });
 
         if (state.modalId) {
-            if (currentModal && currentModal.id !== state.modalId) {
-                modalHistory = modalHistory.filter(
-                    historyId => historyId !== state.modalId
-                );
-                openModal(state.modalId, { fromPopState: true });
-            } else if (currentModal && currentModal.id === state.modalId) {
-                currentModal.classList.remove("modal-closing");
+            const targetModal = $(state.modalId);
+
+            if (targetModal) {
+                modalHistory = desiredStack.slice(0, -1);
+                targetModal.classList.remove("hidden");
+                targetModal.classList.remove("modal-closing");
+                document.body.classList.add("modal-open");
             }
-        } else if (currentModal) {
-            closeAllModals({ fromPopState: true });
+        } else {
+            modalHistory = [];
+            document.body.classList.remove("modal-open");
         }
 
         studentKartHandlingPopState = false;
