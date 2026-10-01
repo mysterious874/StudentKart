@@ -3635,143 +3635,98 @@ async function deleteProduct(
    ========================================================= */
 
 function normalizeAuthEmail(raw) {
-
     const value = String(raw || "").trim().toLowerCase();
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        return null;
-    }
-
-    return value;
-}
-
-async function sendMagicLink(email, shouldCreateUser, metadata = {}) {
-
-    const { error } =
-        await supabaseClient.auth.signInWithOtp({
-            email,
-            options: {
-                shouldCreateUser,
-                data: metadata
-            }
-        });
-
-    if (error) throw error;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? value : null;
 }
 
 async function loginUser(event) {
-
     event.preventDefault();
 
     const email = normalizeAuthEmail($("loginIdentifier")?.value);
+    const password = $("loginPassword")?.value || "";
 
-    if (!email) {
-        showToast("Enter a valid email address", "warning");
+    if (!email || !password) {
+        showToast("Enter your email and password", "warning");
         return;
     }
 
-    const button =
-        $("loginForm")?.querySelector('button[type="submit"]');
-
+    const button = $("loginForm")?.querySelector('button[type="submit"]');
     if (button) button.disabled = true;
 
     try {
+        const { error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
 
-        await sendMagicLink(email, false);
+        if (error) throw error;
 
         closeModal("loginModal");
-
-        showToast(
-            "Sign-in link sent. Check your email.",
-            "success"
-        );
-
+        showToast("Logged in successfully", "success");
     } catch (error) {
-
-        console.error("Login magic link error:", error);
-
-        showToast(
-            error?.message || "Could not send sign-in link",
-            "error"
-        );
-
+        console.error("Login error:", error);
+        showToast(error?.message || "Could not login. Check your email and password.", "error");
     } finally {
-
         if (button) button.disabled = false;
     }
 }
 
 async function signupUser(event) {
-
     event.preventDefault();
 
-    const name =
-        $("signupName")?.value?.trim();
+    const name = $("signupName")?.value?.trim();
+    const college = $("signupCollege")?.value?.trim();
+    const email = normalizeAuthEmail($("signupIdentifier")?.value);
+    const password = $("signupPassword")?.value || "";
 
-    const college =
-        $("signupCollege")?.value?.trim();
-
-    const email =
-        normalizeAuthEmail(
-            $("signupIdentifier")?.value
-        );
-
-    if (!name || !college || !email) {
-
-        showToast(
-            "Please enter your name, college and a valid email",
-            "warning"
-        );
-
+    if (!name || !college || !email || !password) {
+        showToast("Please fill all fields correctly", "warning");
         return;
     }
 
-    const metadata = {
-        name,
-        college
-    };
+    if (password.length < 6) {
+        showToast("Password must be at least 6 characters", "warning");
+        return;
+    }
 
-    const button =
-        $("signupForm")?.querySelector('button[type="submit"]');
-
+    const button = $("signupForm")?.querySelector('button[type="submit"]');
     if (button) button.disabled = true;
 
     try {
-
-        await sendMagicLink(
+        const { data, error } = await supabaseClient.auth.signUp({
             email,
-            true,
-            metadata
-        );
+            password,
+            options: {
+                data: { name, college }
+            }
+        });
+
+        if (error) throw error;
+
+        if (data?.user && data?.session) {
+            await ensureProfileAfterPasswordSignup(data.user);
+        }
 
         closeModal("signupModal");
 
         showToast(
-            "Sign-up link sent. Check your email.",
+            data?.session
+                ? "Account created successfully"
+                : "Account created. Check your email to confirm, then login.",
             "success"
         );
-
     } catch (error) {
-
-        console.error("Signup magic link error:", error);
-
-        showToast(
-            error?.message || "Could not send sign-up link",
-            "error"
-        );
-
+        console.error("Signup error:", error);
+        showToast(error?.message || "Could not create account", "error");
     } finally {
-
         if (button) button.disabled = false;
     }
 }
 
-async function ensureProfileAfterMagicLink(user) {
-
+async function ensureProfileAfterPasswordSignup(user) {
     if (!user) return;
 
     try {
-
         const { data: existingProfile, error: fetchError } =
             await supabaseClient
                 .from("profiles")
@@ -3780,56 +3735,33 @@ async function ensureProfileAfterMagicLink(user) {
                 .maybeSingle();
 
         if (fetchError) {
-            console.error(
-                "Profile lookup after magic link error:",
-                fetchError
-            );
+            console.error("Profile lookup error:", fetchError);
             return;
         }
 
-        if (existingProfile) {
-            return;
-        }
+        if (existingProfile) return;
 
-        const metadata =
-            user.user_metadata || {};
+        const metadata = user.user_metadata || {};
 
         const profile = {
             id: user.id,
-            name:
-                metadata.name ||
-                user.email?.split("@")[0] ||
-                "Student",
-            college:
-                metadata.college ||
-                "",
-            email:
-                user.email ||
-                "",
+            name: metadata.name || user.email?.split("@")[0] || "Student",
+            college: metadata.college || "",
+            email: user.email || "",
             avatar_url: ""
         };
 
         const { error: profileError } =
-            await supabaseClient
-                .from("profiles")
-                .insert(profile);
+            await supabaseClient.from("profiles").insert(profile);
 
         if (profileError) {
-            console.error(
-                "Profile creation after magic link error:",
-                profileError
-            );
+            console.error("Profile creation error:", profileError);
             return;
         }
 
         saveProfile(profile);
-
     } catch (error) {
-
-        console.error(
-            "Ensure profile after magic link error:",
-            error
-        );
+        console.error("Ensure profile error:", error);
     }
 }
 
@@ -6699,7 +6631,7 @@ function setupAuthListener() {
                     null;
 
                 if (currentUser) {
-                    await ensureProfileAfterMagicLink(currentUser);
+                    await ensureProfileAfterPasswordSignup(currentUser);
                 }
 
                 updateNavbar();
