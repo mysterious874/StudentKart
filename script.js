@@ -5441,6 +5441,22 @@ function setupEventListeners() {
             }
         );
 
+    $("chatButton")
+        ?.addEventListener(
+            "click",
+            async () => {
+
+                if (!currentUser) {
+                    openModal("loginModal");
+                    showToast("Please login to chat", "warning");
+                    return;
+                }
+
+                await loadReceivedInquiries();
+                openModal("inquiriesModal");
+            }
+        );
+
     $("logoutButton")
         ?.addEventListener(
             "click",
