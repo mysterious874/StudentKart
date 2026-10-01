@@ -8533,3 +8533,67 @@ body .chat-person h2 {
         display: none !important;
     }
 }
+
+
+/* =========================================================
+   WISHLIST PRODUCT GRID
+   Compact boxed cards, side-by-side like Marketplace.
+   ========================================================= */
+#wishlistContainer {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+    width: 100%;
+    align-items: start;
+}
+
+#wishlistContainer .product-card {
+    width: 100%;
+    min-width: 0;
+    background: #ffffff !important;
+    border: 1px solid #d8dee9 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.10) !important;
+    overflow: hidden;
+}
+
+#wishlistContainer .product-card:hover {
+    border-color: #b8c2d1 !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14) !important;
+    transform: translateY(-2px);
+}
+
+#wishlistContainer .product-image-wrap {
+    height: 185px;
+}
+
+#wishlistContainer .product-body {
+    padding: 12px;
+}
+
+@media (max-width: 900px) {
+    #wishlistContainer {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 700px) {
+    #wishlistContainer {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+    }
+
+    #wishlistContainer .product-image-wrap {
+        height: 155px;
+    }
+
+    #wishlistContainer .product-body {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 430px) {
+    #wishlistContainer {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
