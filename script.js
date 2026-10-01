@@ -2367,7 +2367,25 @@ async function loadReceivedInquiries() {
         const inquiries =
             data || [];
 
-        if (!inquiries.length) {
+        const { data: hiddenChats, error: hiddenChatsError } =
+            await supabaseClient
+                .from("hidden_chats")
+                .select("inquiry_id")
+                .eq("user_id", currentUser.id);
+
+        if (hiddenChatsError) {
+            throw hiddenChatsError;
+        }
+
+        const hiddenInquiryIds = new Set(
+            (hiddenChats || []).map(row => String(row.inquiry_id))
+        );
+
+        const visibleInquiries = inquiries.filter(
+            inquiry => !hiddenInquiryIds.has(String(inquiry.id))
+        );
+
+        if (!visibleInquiries.length) {
 
             container.innerHTML = `
                 <div class="empty-state">
@@ -2383,7 +2401,7 @@ async function loadReceivedInquiries() {
         const productIds =
             [
                 ...new Set(
-                    inquiries
+                    visibleInquiries
                         .map(
                             inquiry =>
                                 inquiry.product_id
@@ -2420,7 +2438,7 @@ async function loadReceivedInquiries() {
         }
 
         container.innerHTML =
-            inquiries.map(
+            visibleInquiries.map(
                 inquiry => {
 
                     const product =
@@ -6017,6 +6035,90 @@ async function openInquiryChat(inquiryId) {
     }
 }
 
+async function removeHiddenChat(inquiryId) {
+    if (!currentUser || !inquiryId) return;
+
+    const { error } = await supabaseClient
+        .from("hidden_chats")
+        .delete()
+        .eq("user_id", currentUser.id)
+        .eq("inquiry_id", inquiryId);
+
+    if (error) {
+        console.error("Unhide chat error:", error);
+    }
+}
+
+async function deleteChatForMe() {
+    if (!currentUser || !currentChatInquiry?.id) return;
+
+    const inquiryId = currentChatInquiry.id;
+
+    const { error } = await supabaseClient
+        .from("hidden_chats")
+        .upsert(
+            {
+                user_id: currentUser.id,
+                inquiry_id: inquiryId
+            },
+            {
+                onConflict: "user_id,inquiry_id"
+            }
+        );
+
+    if (error) {
+        console.error("Delete chat for me error:", error);
+        showToast("Could not delete chat", "error");
+        return;
+    }
+
+    closeChatDeleteMenu();
+    stopChatRealtime();
+    currentChatInquiry = null;
+    closeModal("chatModal");
+    await loadReceivedInquiries();
+    showToast("Chat deleted for you", "success");
+}
+
+async function deleteChatForEveryone() {
+    if (!currentUser || !currentChatInquiry?.id) return;
+
+    const inquiryId = currentChatInquiry.id;
+
+    const confirmed = window.confirm(
+        "Delete this entire conversation for everyone? This cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    const { error } = await supabaseClient
+        .from("messages")
+        .delete()
+        .eq("inquiry_id", inquiryId);
+
+    if (error) {
+        console.error("Delete chat for everyone error:", error);
+        showToast("Could not delete conversation", "error");
+        return;
+    }
+
+    await removeHiddenChat(inquiryId);
+    closeChatDeleteMenu();
+    stopChatRealtime();
+    currentChatInquiry = null;
+    closeModal("chatModal");
+    await updateChatUnreadCount();
+    await loadReceivedInquiries();
+    showToast("Chat deleted for everyone", "success");
+}
+
+function closeChatDeleteMenu() {
+    const menu = $("chatDeleteMenu");
+    if (menu) {
+        menu.classList.add("hidden");
+    }
+}
+
 async function openChat(inquiry) {
 
     if (!currentUser) {
@@ -6031,6 +6133,8 @@ async function openChat(inquiry) {
     }
 
     currentChatInquiry = inquiry;
+
+    await removeHiddenChat(inquiry.id);
 
     if ($("chatProductName")) {
         $("chatProductName").textContent =
@@ -6189,6 +6293,8 @@ async function sendChatMessage(event) {
     }
 
     try {
+
+        await removeHiddenChat(currentChatInquiry.id);
 
         const { error } =
             await supabaseClient
@@ -6349,6 +6455,23 @@ $("chatForm")?.addEventListener(
     sendChatMessage
 );
 
+$("chatDeleteButton")?.addEventListener(
+    "click",
+    () => {
+        $("chatDeleteMenu")?.classList.toggle("hidden");
+    }
+);
+
+$("deleteChatForMeButton")?.addEventListener(
+    "click",
+    deleteChatForMe
+);
+
+$("deleteChatForEveryoneButton")?.addEventListener(
+    "click",
+    deleteChatForEveryone
+);
+
 
 // Stop realtime when chat closes
 const originalCloseModal =
@@ -6362,6 +6485,7 @@ if (typeof originalCloseModal === "function") {
             if (modalId === "chatModal") {
                 stopChatRealtime();
                 currentChatInquiry = null;
+                closeChatDeleteMenu();
             }
 
             return originalCloseModal(modalId);
@@ -6468,7 +6592,12 @@ async function startChatUnreadRealtime() {
             async payload => {
                 console.log("🔔 New unread chat message:", payload);
 
+                if (payload?.new?.inquiry_id) {
+                    await removeHiddenChat(payload.new.inquiry_id);
+                }
+
                 await updateChatUnreadCount();
+                await loadReceivedInquiries();
 
                 const isOpenChatMessage =
                     currentChatInquiry &&
