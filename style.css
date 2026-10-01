@@ -9758,3 +9758,29 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
         font-size: 9px;
     }
 }
+
+
+/* Category picker: centered focus */
+.category-picker-modal {
+    align-self: center !important;
+    margin: auto !important;
+    max-height: min(78vh, 620px) !important;
+}
+
+.category-picker-grid {
+    align-content: center;
+    min-height: 300px;
+}
+
+@media (max-width: 700px) {
+    .category-picker-modal {
+        align-self: center !important;
+        margin: auto !important;
+        max-height: 78vh !important;
+    }
+
+    .category-picker-grid {
+        min-height: 360px;
+        align-content: center;
+    }
+}
