@@ -8090,3 +8090,82 @@ body #myListingsModal:not(.hidden) .modal-home-button {
         left: 57px !important;
     }
 }
+
+
+/* FINAL: Profile is a full-screen page, not a centered popup. */
+body #profileModal:not(.hidden) {
+    position: fixed !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 2000 !important;
+    background: #ffffff !important;
+    overflow: hidden !important;
+}
+
+body #profileModal:not(.hidden) > .modal-overlay {
+    display: none !important;
+}
+
+body #profileModal:not(.hidden) > .profile-modal {
+    position: relative !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+body #profileModal:not(.hidden) .profile-modal-back-button {
+    position: fixed !important;
+    top: 14px !important;
+    left: 14px !important;
+    z-index: 50000 !important;
+}
+
+body #profileModal:not(.hidden) .modal-home-button {
+    position: fixed !important;
+    top: 14px !important;
+    left: 61px !important;
+    z-index: 50000 !important;
+}
+
+body #profileModal:not(.hidden) .profile-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 800 !important;
+    padding-top: 76px !important;
+    padding-left: 112px !important;
+    padding-right: 58px !important;
+    background: #ffffff !important;
+}
+
+@media (max-width: 600px) {
+    body #profileModal:not(.hidden) .profile-modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+
+    body #profileModal:not(.hidden) .modal-home-button {
+        top: 10px !important;
+        left: 57px !important;
+    }
+
+    body #profileModal:not(.hidden) .profile-header {
+        padding-top: 64px !important;
+        padding-left: 96px !important;
+        padding-right: 50px !important;
+    }
+}
