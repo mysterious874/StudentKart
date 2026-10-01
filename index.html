@@ -566,6 +566,87 @@
 </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js?v=20261001-chat"></script>
+    <script>
+    (function () {
+        function addChatButtons() {
+            document.querySelectorAll("#inquiriesContainer .inquiry-card").forEach(function (card) {
+                var actions = card.querySelector(".inquiry-actions");
+                if (!actions || actions.querySelector(".inquiry-chat-button")) return;
+
+                var inquiryId = card.dataset.inquiryId;
+                if (!inquiryId) return;
+
+                var button = document.createElement("button");
+                button.type = "button";
+                button.className = "btn btn-primary inquiry-chat-button";
+                button.setAttribute("data-inquiry-action", "chat");
+                button.setAttribute("data-inquiry-id", inquiryId);
+                button.style.cssText = "display:inline-flex!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:999!important;";
+                button.innerHTML = '<i class="fas fa-message"></i> Chat';
+
+                button.addEventListener("click", async function () {
+                    try {
+                        if (typeof currentUser === "undefined" || !currentUser) {
+                            if (typeof openModal === "function") openModal("loginModal");
+                            return;
+                        }
+
+                        var result = await supabaseClient
+                            .from("inquiries")
+                            .select("*")
+                            .eq("id", inquiryId)
+                            .maybeSingle();
+
+                        if (result.error) throw result.error;
+                        if (!result.data) return;
+
+                        var inquiry = result.data;
+                        var product = typeof currentProducts !== "undefined"
+                            ? currentProducts.find(function (item) {
+                                return String(item.id) === String(inquiry.product_id);
+                            })
+                            : null;
+
+                        inquiry.product_name = product && product.name
+                            ? product.name
+                            : "Product Chat";
+
+                        if (typeof openChat === "function") {
+                            openChat(inquiry);
+                        } else {
+                            alert("Chat is loading. Please refresh the page once.");
+                        }
+                    } catch (error) {
+                        console.error("Chat fallback error:", error);
+                        if (typeof showToast === "function") {
+                            showToast("Could not open chat", "error");
+                        }
+                    }
+                });
+
+                actions.insertBefore(button, actions.firstChild);
+            });
+        }
+
+        var observer = new MutationObserver(addChatButtons);
+
+        function startChatFallback() {
+            var container = document.getElementById("inquiriesContainer");
+            if (!container) {
+                setTimeout(startChatFallback, 300);
+                return;
+            }
+            addChatButtons();
+            observer.observe(container, { childList: true, subtree: true });
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", startChatFallback);
+        } else {
+            startChatFallback();
+        }
+    })();
+    </script>
 </body>
 
 </html>
