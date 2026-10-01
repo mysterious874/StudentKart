@@ -6807,6 +6807,29 @@ async function startChatUnreadRealtime() {
 
                 console.log("🗑️ Chat message deleted:", oldMessage);
 
+                // When a conversation is deleted for everyone, hide the
+                // conversation from this user's inbox as well.
+                if (oldMessage.inquiry_id) {
+                    const { error: hideError } = await supabaseClient
+                        .from("hidden_chats")
+                        .upsert(
+                            {
+                                user_id: currentUser.id,
+                                inquiry_id: oldMessage.inquiry_id
+                            },
+                            {
+                                onConflict: "user_id,inquiry_id"
+                            }
+                        );
+
+                    if (hideError) {
+                        console.error(
+                            "Sync deleted chat visibility error:",
+                            hideError
+                        );
+                    }
+                }
+
                 if (
                     currentChatInquiry &&
                     String(oldMessage.inquiry_id) ===
