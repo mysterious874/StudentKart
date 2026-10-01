@@ -9251,3 +9251,84 @@ body .wishlist-page-header .section-label{display:none!important}
     font-size:9px!important;
   }
 }
+
+/* FINAL OVERRIDE: force every page header to navbar-style, not floating */
+body .modal > .modal-content > .modal-header,
+body .modal > .modal-content > .auth-header,
+body .modal > .modal-content > .profile-header,
+body .modal > .modal-content > .seller-profile-header,
+body .modal > .modal-content > .seller-profile-listings-header,
+body .modal > .modal-content > .inquiries-whatsapp-header,
+body #wishlistModal .wishlist-page-header{
+  margin:0!important;
+  padding:13px 18px!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  border:0!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  border-radius:0!important;
+  background:var(--nav)!important;
+  box-shadow:none!important;
+  text-align:left!important;
+}
+body .modal > .modal-content > .modal-header h2,
+body .modal > .modal-content > .auth-header h2,
+body .modal > .modal-content > .profile-header h2,
+body .modal > .modal-content > .seller-profile-header h2,
+body .modal > .modal-content > .seller-profile-listings-header h2,
+body .modal > .modal-content > .inquiries-whatsapp-header h2,
+body #wishlistModal .wishlist-page-header h2{
+  text-align:left!important;
+  color:#fff!important;
+  margin:0 0 2px!important;
+  font-size:16px!important;
+  line-height:1.25!important;
+}
+body .modal > .modal-content > .modal-header p,
+body .modal > .modal-content > .auth-header p,
+body .modal > .modal-content > .profile-header p,
+body .modal > .modal-content > .seller-profile-header p,
+body .modal > .modal-content > .seller-profile-listings-header p,
+body .modal > .modal-content > .inquiries-whatsapp-header p,
+body #wishlistModal .wishlist-page-header p{
+  text-align:left!important;
+  color:rgba(255,255,255,.68)!important;
+  margin:0!important;
+  font-size:10px!important;
+  line-height:1.35!important;
+}
+body .modal > .modal-content > .modal-header,
+body .modal > .modal-content > .auth-header{
+  padding-left:18px!important;
+  padding-right:18px!important;
+}
+body .modal > .modal-content > .modal-header .modal-close,
+body .modal > .modal-content > .auth-header .modal-close{
+  display:none!important;
+}
+@media(max-width:600px){
+  body .modal > .modal-content > .modal-header,
+  body .modal > .modal-content > .auth-header,
+  body .modal > .modal-content > .profile-header,
+  body .modal > .modal-content > .seller-profile-header,
+  body .modal > .modal-content > .seller-profile-listings-header,
+  body .modal > .modal-content > .inquiries-whatsapp-header,
+  body #wishlistModal .wishlist-page-header{
+    margin:0!important;
+    padding:11px 14px!important;
+  }
+  body .modal > .modal-content > .modal-header h2,
+  body .modal > .modal-content > .auth-header h2,
+  body .modal > .modal-content > .profile-header h2,
+  body .modal > .modal-content > .seller-profile-header h2,
+  body .modal > .modal-content > .seller-profile-listings-header h2,
+  body .modal > .modal-content > .inquiries-whatsapp-header h2,
+  body #wishlistModal .wishlist-page-header h2{font-size:15px!important}
+  body .modal > .modal-content > .modal-header p,
+  body .modal > .modal-content > .auth-header p,
+  body .modal > .modal-content > .profile-header p,
+  body .modal > .modal-content > .seller-profile-header p,
+  body .modal > .modal-content > .seller-profile-listings-header p,
+  body .modal > .modal-content > .inquiries-whatsapp-header p,
+  body #wishlistModal .wishlist-page-header p{font-size:9px!important}
+}
