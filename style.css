@@ -9789,7 +9789,7 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
 /* CATEGORY PICKER - CENTER THE SIX BOXES ONLY */
 .category-picker-grid {
     display: grid !important;
-    grid-template-columns: repeat(6, 135px) !important;
+    grid-template-columns: repeat(6, 155px) !important;
     justify-content: center !important;
     justify-items: center !important;
     align-items: center !important;
@@ -9803,13 +9803,13 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
 }
 
 .category-picker-card {
-    width: 135px !important;
-    max-width: 135px !important;
+    width: 155px !important;
+    max-width: 155px !important;
 }
 
 @media (max-width: 700px) {
     .category-picker-grid {
-        grid-template-columns: repeat(2, 145px) !important;
+        grid-template-columns: repeat(2, 160px) !important;
         width: max-content !important;
         max-width: 100% !important;
         gap: 14px !important;
@@ -9817,19 +9817,19 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
     }
 
     .category-picker-card {
-        width: 145px !important;
-        max-width: 145px !important;
+        width: 160px !important;
+        max-width: 160px !important;
     }
 }
 
 
 /* Move category boxes slightly downward without moving the header */
 .category-picker-grid {
-    transform: translateY(100px) !important;
+    transform: translateY(200px) !important;
 }
 
 @media (max-width: 700px) {
     .category-picker-grid {
-        transform: translateY(100px) !important;
+        transform: translateY(200px) !important;
     }
 }
