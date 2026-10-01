@@ -9111,3 +9111,15 @@ body {
         border-radius: 4px 4px 18px 18px !important;
     }
 }
+
+
+/* Hide floating navigation while any StudentKart modal is open */
+body.studentkart-modal-navigation-hidden .navbar,
+body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
+    display: none !important;
+}
+
+body.studentkart-modal-navigation-hidden {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
