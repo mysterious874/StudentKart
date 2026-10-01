@@ -7830,3 +7830,152 @@ body #notificationsModal:not(.hidden) .modal-content {
         left: 50px !important;
     }
 }
+
+
+/* =========================================================
+   FINAL SCREEN EXCEPT PROFILE + CHAT NAV FIX
+   ========================================================= */
+
+/* Profile stays a centered popup. */
+body #profileModal:not(.hidden) {
+    position: fixed !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    padding: 20px !important;
+    z-index: 2000 !important;
+    background: rgba(15, 23, 42, 0.55) !important;
+}
+
+body #profileModal:not(.hidden) > .modal-overlay {
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+}
+
+body #profileModal:not(.hidden) > .profile-modal {
+    position: relative !important;
+    width: min(470px, calc(100vw - 40px)) !important;
+    max-width: 470px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 40px) !important;
+    margin: 0 !important;
+    border-radius: 15px !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow-lg) !important;
+    overflow-y: auto !important;
+    background: #ffffff !important;
+}
+
+body #profileModal:not(.hidden) .profile-modal-back-button {
+    position: absolute !important;
+    top: 12px !important;
+    left: 12px !important;
+    z-index: 10000 !important;
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Chats list: force its Back + Home buttons above the full-page header. */
+body #inquiriesModal:not(.hidden) > .modal-content > .inquiries-modal-back-button,
+body #inquiriesModal:not(.hidden) > .modal-content > .modal-home-button {
+    position: fixed !important;
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 30000 !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body #inquiriesModal:not(.hidden) > .modal-content > .inquiries-modal-back-button {
+    top: 18px !important;
+    left: 18px !important;
+}
+
+body #inquiriesModal:not(.hidden) > .modal-content > .modal-home-button {
+    top: 18px !important;
+    left: 65px !important;
+}
+
+/* Direct chat: the controls are inside .chat-head, so target them there. */
+body #chatModal:not(.hidden) .chat-head {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 9000 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+}
+
+body #chatModal:not(.hidden) .chat-head > .chat-modal-back-button,
+body #chatModal:not(.hidden) .chat-head > .modal-home-button {
+    position: absolute !important;
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 10000 !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body #chatModal:not(.hidden) .chat-head > .chat-modal-back-button {
+    top: 13px !important;
+    left: 13px !important;
+}
+
+body #chatModal:not(.hidden) .chat-head > .modal-home-button {
+    top: 13px !important;
+    left: 60px !important;
+}
+
+@media (max-width: 600px) {
+    body #profileModal:not(.hidden) {
+        padding: 14px !important;
+    }
+
+    body #profileModal:not(.hidden) > .profile-modal {
+        width: min(470px, calc(100vw - 28px)) !important;
+        max-height: calc(100dvh - 28px) !important;
+    }
+
+    body #profileModal:not(.hidden) .profile-modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+
+    body #inquiriesModal:not(.hidden) > .modal-content > .inquiries-modal-back-button {
+        top: 18px !important;
+        left: 18px !important;
+    }
+
+    body #inquiriesModal:not(.hidden) > .modal-content > .modal-home-button {
+        top: 18px !important;
+        left: 65px !important;
+    }
+
+    body #chatModal:not(.hidden) .chat-head > .chat-modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+
+    body #chatModal:not(.hidden) .chat-head > .modal-home-button {
+        top: 10px !important;
+        left: 57px !important;
+    }
+}
