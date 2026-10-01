@@ -6380,3 +6380,10 @@ body #notificationsModal .notifications-header {
     flex: 1;
     text-align: center !important;
 }
+
+/* RESTORE NOTIFICATIONS SCROLL */
+#notificationsModal .notifications-modal-content {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+}
