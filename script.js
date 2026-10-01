@@ -5844,7 +5844,16 @@ function setupEventListeners() {
     $("marketplaceSearch")
         ?.addEventListener(
             "input",
-            applyFilters
+            () => {}
+        );
+
+    $("marketplaceSearchButton")
+        ?.addEventListener(
+            "click",
+            () => {
+                applyFilters();
+                showToast("Search applied", "success");
+            }
         );
 
     [
