@@ -9835,10 +9835,11 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
 }
 
 
-/* Category picker background - match StudentKart dark theme */
-body .modal#categoryPickerModal .category-picker-grid {
-    background: rgba(6, 8, 22, 0.72) !important;
-    border-radius: 0 0 18px 18px;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+
+
+/* Category picker: dark page backdrop, keep the category container unchanged */
+body .modal#categoryPickerModal .modal-overlay {
+    background: rgba(3, 6, 18, 0.78) !important;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
 }
