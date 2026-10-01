@@ -6279,6 +6279,12 @@ async function openChat(inquiry) {
     openModal("chatModal");
 
     await markChatMessagesRead(inquiry.id);
+
+    // Refresh the inquiry list immediately so the unread badge
+    // disappears as soon as the conversation is opened/read.
+    await loadReceivedInquiries();
+    await updateChatUnreadCount();
+
     await loadChatMessages();
 
     startChatRealtime();
