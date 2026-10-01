@@ -4601,9 +4601,7 @@ function injectNotificationStyles() {
             border-radius: 9px;
             text-align: left;
             cursor: pointer;
-            transition:
-                background .2s,
-                border-color .2s;
+            transition: none;
         }
 
         .notification-item:hover {
