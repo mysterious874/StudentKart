@@ -393,10 +393,9 @@
             <form id="loginForm">
                 <div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail"
                         placeholder="you@example.com" autocomplete="email" required></div>
-                <div class="form-group"><label for="loginPassword">Password</label><input type="password"
-                        id="loginPassword" placeholder="Enter your password" autocomplete="current-password" required>
-                </div><button type="submit" class="btn btn-primary btn-full"><i class="fas fa-right-to-bracket"></i>
-                    Login</button>
+                <p class="otp-helper">We'll send a one-time OTP to your email. No password required.</p>
+                <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-paper-plane"></i>
+                    Send Login OTP</button>
             </form>
             <div class="auth-switch">Don't have an account?<button type="button" id="switchToSignup">Sign Up</button>
             </div>
@@ -424,13 +423,37 @@
                         autocomplete="tel" inputmode="numeric" maxlength="10" required>
                     <small class="form-help">We'll use this number for account verification.</small>
                 </div>
-                <div class="form-group"><label for="signupPassword">Password</label><input type="password"
-                        id="signupPassword" placeholder="Create a password" autocomplete="new-password" minlength="6"
-                        required></div><button type="submit" class="btn btn-primary btn-full"><i
-                        class="fas fa-user-plus"></i> Create Account</button>
+                <p class="otp-helper">No password needed. We'll send a one-time OTP to verify your email.</p>
+                <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-paper-plane"></i>
+                    Send Signup OTP</button>
             </form>
             <div class="auth-switch">Already have an account?<button type="button" id="switchToLogin">Login</button>
             </div>
+        </div>
+    </div>
+
+    <!-- OTP VERIFICATION -->
+    <div id="otpModal" class="modal hidden">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content auth-modal">
+            <div class="auth-header">
+                <div class="auth-icon"><i class="fas fa-shield-halved"></i></div>
+                <h2>Verify OTP</h2>
+                <p id="otpDescription">Enter the 6-digit OTP sent to your email.</p>
+            </div>
+            <form id="otpForm">
+                <div class="form-group">
+                    <label for="otpCode">One-Time Password</label>
+                    <input type="text" id="otpCode" placeholder="Enter 6-digit OTP"
+                        inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-check"></i> Verify OTP
+                </button>
+            </form>
+            <button type="button" class="btn btn-outline btn-full" id="resendOtpButton">
+                <i class="fas fa-rotate-right"></i> Resend OTP
+            </button>
         </div>
     </div>
 
