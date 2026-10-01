@@ -5812,9 +5812,26 @@ function setupAuthListener() {
                     await getWishlist();
                     updateWishlistButtons();
 
+                    // Start chat unread notifications for this logged-in user.
+                    await updateChatUnreadCount();
+                    await startChatUnreadRealtime();
+
                 } else {
 
                     stopNotificationRefresh();
+
+                    if (window.chatUnreadChannel) {
+                        await supabaseClient.removeChannel(
+                            window.chatUnreadChannel
+                        );
+                        window.chatUnreadChannel = null;
+                    }
+
+                    const chatBadge = $("chatUnreadCount");
+                    if (chatBadge) {
+                        chatBadge.textContent = "0";
+                        chatBadge.classList.add("hidden");
+                    }
 
                     currentNotifications = [];
 
@@ -5870,6 +5887,10 @@ async function initializeStudentKart() {
             await loadNotifications();
 
             startNotificationRefresh();
+
+            // Restore chat unread state on page refresh.
+            await updateChatUnreadCount();
+            await startChatUnreadRealtime();
         }
 
     } catch (error) {
@@ -6232,14 +6253,25 @@ function startChatRealtime() {
                     filter:
                         `inquiry_id=eq.${currentChatInquiry.id}`
                 },
-                payload => {
+                async payload => {
 
                     console.log(
                         "💬 New chat message:",
                         payload
                     );
 
-                    loadChatMessages();
+                    await loadChatMessages();
+
+                    // If this message was received while this chat is open,
+                    // mark it read immediately.
+                    if (
+                        payload?.new?.receiver_id === currentUser.id &&
+                        payload?.new?.is_read === false
+                    ) {
+                        await markChatMessagesRead(
+                            currentChatInquiry.id
+                        );
+                    }
                 }
             )
             .subscribe(status => {
@@ -6248,6 +6280,11 @@ function startChatRealtime() {
                     "Chat realtime status:",
                     status
                 );
+
+                if (status === "SUBSCRIBED") {
+                    // Catch anything that arrived just before the subscription.
+                    loadChatMessages();
+                }
             });
 }
 
@@ -6428,14 +6465,26 @@ async function startChatUnreadRealtime() {
                 table: "messages",
                 filter: "receiver_id=eq." + currentUser.id
             },
-            async () => {
+            async payload => {
+                console.log("🔔 New unread chat message:", payload);
+
                 await updateChatUnreadCount();
 
-                if (!currentChatInquiry) {
+                const isOpenChatMessage =
+                    currentChatInquiry &&
+                    payload?.new?.inquiry_id === currentChatInquiry.id;
+
+                if (!isOpenChatMessage) {
                     showToast("💬 New chat message received", "success");
                 }
             }
         )
-        .subscribe();
+        .subscribe(status => {
+            console.log("Chat unread realtime status:", status);
+
+            if (status === "SUBSCRIBED") {
+                updateChatUnreadCount();
+            }
+        });
 }
 
