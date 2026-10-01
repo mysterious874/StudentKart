@@ -9879,3 +9879,66 @@ html body #categoryPickerModal:not(.hidden) > .modal-overlay {
     backdrop-filter: blur(24px) saturate(145%) !important;
     -webkit-backdrop-filter: blur(24px) saturate(145%) !important;
 }
+
+
+/* =========================================================
+   MY LISTINGS - FULL PAGE, SAME AS OTHER APP PAGES
+   ========================================================= */
+body #myListingsModal:not(.hidden) {
+    padding: 0 !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    background: rgba(12, 18, 14, 0.62) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+}
+
+body #myListingsModal:not(.hidden) > .modal-content {
+    width: 100% !important;
+    max-width: none !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow-y: auto !important;
+    background: #f7fafb !important;
+}
+
+body #myListingsModal:not(.hidden) > .modal-content > .modal-header {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 3000 !important;
+}
+
+body #myListingsModal:not(.hidden) #myListingsContainer {
+    width: min(1180px, calc(100% - 36px)) !important;
+    margin: 0 auto !important;
+    padding: 24px 0 34px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+}
+
+@media (max-width: 1000px) {
+    body #myListingsModal:not(.hidden) #myListingsContainer {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 760px) {
+    body #myListingsModal:not(.hidden) #myListingsContainer {
+        width: calc(100% - 20px) !important;
+        padding: 16px 0 28px !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    body #myListingsModal:not(.hidden) #myListingsContainer {
+        width: calc(100% - 16px) !important;
+        grid-template-columns: 1fr !important;
+    }
+}
