@@ -7046,3 +7046,51 @@ body:has(.modal:not(.hidden)) .modal-content {
 body:has(.modal:not(.hidden)) .modal-overlay {
     touch-action: none !important;
 }
+
+
+/* =========================================================
+   MODAL HOME BUTTON - NEXT TO BACK ARROW
+   ========================================================= */
+body .modal > .modal-content > .modal-home-button {
+    position: absolute !important;
+    top: 13px !important;
+    left: 55px !important;
+    right: auto !important;
+    z-index: 50 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body .modal > .modal-content > .modal-back-button + .modal-home-button {
+    color: var(--primary) !important;
+}
+
+body .modal > .modal-content > .modal-home-button i {
+    display: block !important;
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+}
+
+@media (max-width: 600px) {
+    body .modal > .modal-content > .modal-home-button {
+        top: 10px !important;
+        left: 50px !important;
+    }
+}
+
+/* Chat uses a dedicated header layout. */
+body #chatModal .chat-head .modal-home-button {
+    position: absolute !important;
+    top: 13px !important;
+    left: 55px !important;
+    right: auto !important;
+}
+
+@media (max-width: 600px) {
+    body #chatModal .chat-head .modal-home-button {
+        top: 10px !important;
+        left: 50px !important;
+    }
+}
