@@ -7780,14 +7780,62 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* Navbar search shortcut */
+/* Navbar search panel */
 document.addEventListener("DOMContentLoaded", () => {
     const navSearchButton = document.getElementById("navSearchButton");
-    const heroSearch = document.getElementById("heroSearch");
-    if (navSearchButton && heroSearch) {
-        navSearchButton.addEventListener("click", () => {
-            heroSearch.scrollIntoView({ behavior: "smooth", block: "center" });
-            setTimeout(() => heroSearch.focus(), 350);
-        });
-    }
+    const searchPanel = document.getElementById("navbarSearchPanel");
+    const searchInput = document.getElementById("navbarSearchInput");
+    const searchSubmit = document.getElementById("navbarSearchSubmit");
+    const filterButton = document.getElementById("navbarFilterButton");
+    const marketplaceSearch = document.getElementById("marketplaceSearch");
+    const marketplaceSearchButton = document.getElementById("marketplaceSearchButton");
+    const filterMenu = document.querySelector(".marketplace-filter-menu");
+
+    if (!navSearchButton || !searchPanel || !searchInput) return;
+
+    const syncMarketplaceSearch = () => {
+        if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
+    };
+
+    const runSearch = () => {
+        syncMarketplaceSearch();
+        if (marketplaceSearchButton) {
+            marketplaceSearchButton.click();
+        } else if (marketplaceSearch) {
+            marketplaceSearch.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        const marketplace = document.getElementById("marketplace");
+        if (marketplace) marketplace.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    navSearchButton.addEventListener("click", () => {
+        const opening = searchPanel.classList.contains("hidden");
+        searchPanel.classList.toggle("hidden");
+        if (opening) {
+            setTimeout(() => searchInput.focus(), 80);
+        }
+    });
+
+    searchInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            runSearch();
+        }
+        if (event.key === "Escape") {
+            searchPanel.classList.add("hidden");
+        }
+    });
+
+    searchInput.addEventListener("input", () => {
+        if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
+    });
+
+    searchSubmit?.addEventListener("click", runSearch);
+
+    filterButton?.addEventListener("click", () => {
+        if (filterMenu) filterMenu.open = true;
+        const marketplace = document.getElementById("marketplace");
+        if (marketplace) marketplace.scrollIntoView({ behavior: "smooth", block: "start" });
+        setTimeout(() => filterMenu?.querySelector(".marketplace-filter-panel")?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 250);
+    });
 });
