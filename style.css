@@ -7299,3 +7299,85 @@ body #notificationsModal .notifications-modal-content > .modal-home-button {
         left: 58px !important;
     }
 }
+
+
+/* =========================================================
+   FINAL FIX: NAV BUTTONS MUST NOT SCROLL WITH MODAL CONTENT
+   ========================================================= */
+
+/* A transformed ancestor makes position:fixed behave like
+   position:absolute. Keep the open modal content untransformed. */
+body .modal:not(.modal-closing) > .modal-content {
+    transform: none !important;
+}
+
+/* Back + Home stay attached to the viewport while the popup
+   content underneath is allowed to scroll. */
+body .modal > .modal-content > .modal-back-button,
+body .modal > .modal-content > .modal-home-button {
+    position: fixed !important;
+    z-index: 1000 !important;
+    flex: none !important;
+}
+
+body .modal > .modal-content > .modal-back-button {
+    top: 13px !important;
+    left: 13px !important;
+}
+
+body .modal > .modal-content > .modal-home-button {
+    top: 13px !important;
+    left: 55px !important;
+}
+
+body #inquiriesModal .inquiries-modal-back-button {
+    top: 18px !important;
+    left: 18px !important;
+}
+
+body #inquiriesModal .modal-home-button {
+    top: 18px !important;
+    left: 65px !important;
+}
+
+body #notificationsModal .notifications-modal-content > .modal-back-button {
+    top: 14px !important;
+    left: 14px !important;
+}
+
+body #notificationsModal .notifications-modal-content > .modal-home-button {
+    top: 14px !important;
+    left: 61px !important;
+}
+
+@media (max-width: 600px) {
+    body .modal > .modal-content > .modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+
+    body .modal > .modal-content > .modal-home-button {
+        top: 10px !important;
+        left: 50px !important;
+    }
+
+    body #inquiriesModal .inquiries-modal-back-button {
+        top: 18px !important;
+        left: 18px !important;
+    }
+
+    body #inquiriesModal .modal-home-button {
+        top: 18px !important;
+        left: 65px !important;
+    }
+
+    body #notificationsModal .notifications-modal-content > .modal-back-button {
+        top: 10px !important;
+        left: 10px !important;
+    }
+
+    body #notificationsModal .notifications-modal-content > .modal-home-button {
+        top: 10px !important;
+        left: 50px !important;
+    }
+}
