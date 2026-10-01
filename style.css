@@ -6370,3 +6370,13 @@ body #notificationsModal .notifications-header {
         padding-right: 10px !important;
     }
 }
+
+/* CENTER NOTIFICATIONS HEADING ONLY */
+#notificationsModal .notifications-header {
+    text-align: center !important;
+}
+
+#notificationsModal .notifications-header > div:first-child {
+    flex: 1;
+    text-align: center !important;
+}
