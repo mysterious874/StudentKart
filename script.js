@@ -4319,14 +4319,6 @@ function ensureNotificationsUI() {
                     </button>
                 </div>
 
-                <button
-                    type="button"
-                    class="btn btn-outline"
-                    id="markAllNotificationsButton">
-                    <i class="fas fa-check-double"></i>
-                    Mark all as read
-                </button>
-
             </div>
 
             <div
