@@ -7202,3 +7202,100 @@ body #chatModal .chat-person {
         padding-left: 82px !important;
     }
 }
+
+
+/* =========================================================
+   KEEP BACK + HOME CONTROLS FIXED WHILE POPUP CONTENT SCROLLS
+   ========================================================= */
+body .modal > .modal-content > .modal-back-button,
+body .modal > .modal-content > .modal-home-button {
+    position: sticky !important;
+    top: 13px !important;
+    z-index: 500 !important;
+    flex: 0 0 auto !important;
+}
+
+/* The buttons are overlaid at the top and must not participate
+   in the scrolling content flow. */
+body .modal > .modal-content > .modal-back-button {
+    position: fixed !important;
+    top: 13px !important;
+    left: calc(50% - min(235px, 50vw - 20px)) !important;
+}
+
+body .modal > .modal-content > .modal-home-button {
+    position: fixed !important;
+    top: 13px !important;
+    left: calc(50% - min(180px, 50vw - 20px)) !important;
+}
+
+body #inquiriesModal .inquiries-modal-back-button {
+    position: fixed !important;
+    top: 18px !important;
+    left: 18px !important;
+}
+
+body #inquiriesModal .modal-home-button {
+    position: fixed !important;
+    top: 18px !important;
+    left: 65px !important;
+}
+
+body #chatModal .chat-head .modal-back-button {
+    position: fixed !important;
+    top: 13px !important;
+    left: calc(50% - min(235px, 50vw - 20px)) !important;
+}
+
+body #chatModal .chat-head .modal-home-button {
+    position: fixed !important;
+    top: 13px !important;
+    left: calc(50% - min(180px, 50vw - 20px)) !important;
+}
+
+body #notificationsModal .notifications-modal-content > .modal-back-button,
+body #notificationsModal .notifications-modal-content > .modal-home-button {
+    position: fixed !important;
+    top: 14px !important;
+    z-index: 600 !important;
+}
+
+body #notificationsModal .notifications-modal-content > .modal-back-button {
+    left: 14px !important;
+}
+
+body #notificationsModal .notifications-modal-content > .modal-home-button {
+    left: 61px !important;
+}
+
+@media (max-width: 600px) {
+    body .modal > .modal-content > .modal-back-button {
+        top: 10px !important;
+        left: 14px !important;
+    }
+
+    body .modal > .modal-content > .modal-home-button {
+        top: 10px !important;
+        left: 58px !important;
+    }
+
+    body #inquiriesModal .inquiries-modal-back-button {
+        top: 18px !important;
+        left: 18px !important;
+    }
+
+    body #inquiriesModal .modal-home-button {
+        top: 18px !important;
+        left: 65px !important;
+    }
+
+    body #chatModal .chat-head .modal-back-button {
+        top: 10px !important;
+        left: 14px !important;
+    }
+
+    body #chatModal .chat-head .modal-home-button {
+        top: 10px !important;
+        left: 58px !important;
+    }
+}
