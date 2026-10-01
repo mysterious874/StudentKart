@@ -4802,3 +4802,88 @@ body { font-weight: 400; }
         font-size: 13px;
     }
 }
+
+
+/* =========================
+   RECEIVED INQUIRIES — MODERN CARDS
+   ========================= */
+#inquiriesContainer {
+    display: grid;
+    gap: 12px;
+}
+
+.inquiry-card {
+    position: relative;
+    padding: 17px 18px;
+    border: 1px solid #e3ebee;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 3px 12px rgba(16, 42, 67, .05);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.inquiry-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(15, 139, 141, .28);
+    box-shadow: 0 8px 22px rgba(16, 42, 67, .08);
+}
+
+.inquiry-card h3,
+.inquiry-card h4 {
+    color: #102a43;
+}
+
+.inquiry-card p {
+    color: #627681;
+}
+
+.inquiry-card .inquiry-actions {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #edf2f3;
+}
+
+.inquiry-card .inquiry-chat-button {
+    min-height: 36px;
+    padding: 8px 13px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.inquiry-card .btn {
+    border-radius: 9px;
+}
+
+.inquiry-status,
+.inquiry-card .status-badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: #e8f6f6;
+    color: #087577;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .inquiry-card {
+        padding: 14px;
+        border-radius: 13px;
+    }
+
+    .inquiry-card .inquiry-actions {
+        justify-content: stretch;
+    }
+
+    .inquiry-card .inquiry-actions .btn {
+        flex: 1;
+    }
+}
