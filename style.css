@@ -9821,3 +9821,15 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
         max-width: 145px !important;
     }
 }
+
+
+/* Move category boxes slightly downward without moving the header */
+.category-picker-grid {
+    transform: translateY(28px) !important;
+}
+
+@media (max-width: 700px) {
+    .category-picker-grid {
+        transform: translateY(22px) !important;
+    }
+}
