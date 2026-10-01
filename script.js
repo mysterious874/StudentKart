@@ -6554,14 +6554,20 @@ function setupEventListeners() {
 
                 if (edit) {
 
+                    const productId =
+                        edit.dataset.myEdit;
+
                     closeModal(
                         "myListingsModal"
                     );
 
-                    openEditProduct(
-                        edit.dataset
-                            .myEdit
-                    );
+                    // closeModal finishes its animation/history update
+                    // asynchronously. Wait for it before opening Edit,
+                    // otherwise the old modal's popstate can immediately
+                    // close the Edit modal again.
+                    window.setTimeout(() => {
+                        openEditProduct(productId);
+                    }, 260);
 
                     return;
                 }
