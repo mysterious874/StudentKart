@@ -227,14 +227,37 @@ function showToast(message, type = "success") {
    ========================================================= */
 
 let modalHistory = [];
+let studentKartHistoryReady = false;
+let studentKartHandlingPopState = false;
+let studentKartSkipNextPopState = false;
 
-function openModal(id) {
+function ensureStudentKartHistory() {
+    if (studentKartHistoryReady) {
+        return;
+    }
+
+    const currentState = window.history.state;
+
+    if (!currentState || currentState.studentKart !== true) {
+        window.history.replaceState(
+            { ...(currentState || {}), studentKart: true, modalId: null },
+            "",
+            window.location.href
+        );
+    }
+
+    studentKartHistoryReady = true;
+}
+
+function openModal(id, options = {}) {
 
     const modal = $(id);
 
     if (!modal) {
         return;
     }
+
+    ensureStudentKartHistory();
 
     const currentModal =
         document.querySelector(
@@ -257,17 +280,21 @@ function openModal(id) {
     modal.classList.remove("hidden");
 
     document.body.classList.add("modal-open");
+
+    if (!options.fromPopState && !studentKartHandlingPopState) {
+        window.history.pushState(
+            { studentKart: true, modalId: id },
+            "",
+            window.location.pathname + window.location.search + "#" + id
+        );
+    }
 }
 
-function closeModal(id) {
+function closeModal(id, options = {}) {
 
     const modal = $(id);
 
-    if (!modal) {
-        return;
-    }
-
-    if (modal.classList.contains("hidden")) {
+    if (!modal || modal.classList.contains("hidden")) {
         return;
     }
 
@@ -287,6 +314,12 @@ function closeModal(id) {
                 parentModal.classList.remove("modal-closing");
                 parentModal.classList.remove("hidden");
                 document.body.classList.add("modal-open");
+
+                if (!options.fromPopState && window.history.state?.studentKart) {
+                    studentKartSkipNextPopState = true;
+                    window.history.back();
+                }
+
                 return;
             }
         }
@@ -298,11 +331,16 @@ function closeModal(id) {
 
         if (!anyOpen) {
             document.body.classList.remove("modal-open");
+
+            if (!options.fromPopState && window.history.state?.studentKart && window.history.state?.modalId) {
+                studentKartSkipNextPopState = true;
+                window.history.back();
+            }
         }
     }, 220);
 }
 
-function closeAllModals() {
+function closeAllModals(options = {}) {
 
     modalHistory = [];
 
@@ -314,7 +352,67 @@ function closeAllModals() {
         });
 
     document.body.classList.remove("modal-open");
+
+    if (!options.fromPopState && window.history.state?.studentKart && window.history.state?.modalId) {
+        studentKartSkipNextPopState = true;
+        window.history.back();
+    }
 }
+
+window.addEventListener("popstate", event => {
+    if (studentKartSkipNextPopState) {
+        studentKartSkipNextPopState = false;
+        return;
+    }
+
+    if (!studentKartHistoryReady) {
+        return;
+    }
+
+    const state = event.state;
+
+    if (state?.studentKart === true) {
+        studentKartHandlingPopState = true;
+
+        const openModals = [
+            ...document.querySelectorAll(".modal:not(.hidden)")
+        ];
+
+        const currentModal =
+            openModals[openModals.length - 1];
+
+        if (state.modalId) {
+            if (currentModal && currentModal.id !== state.modalId) {
+                modalHistory = modalHistory.filter(
+                    historyId => historyId !== state.modalId
+                );
+                openModal(state.modalId, { fromPopState: true });
+            } else if (currentModal && currentModal.id === state.modalId) {
+                currentModal.classList.remove("modal-closing");
+            }
+        } else if (currentModal) {
+            closeAllModals({ fromPopState: true });
+        }
+
+        studentKartHandlingPopState = false;
+        return;
+    }
+
+    /* Keep one StudentKart history entry so Android/browser Back
+       does not immediately leave the app when a page is open. */
+    if (document.querySelector(".modal:not(.hidden)")) {
+        studentKartHandlingPopState = true;
+        closeAllModals({ fromPopState: true });
+        window.history.pushState(
+            { studentKart: true, modalId: null },
+            "",
+            window.location.pathname + window.location.search
+        );
+        studentKartHandlingPopState = false;
+    }
+});
+
+ensureStudentKartHistory();
 
 
 /* =========================================================
