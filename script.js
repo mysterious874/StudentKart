@@ -3729,6 +3729,12 @@ async function signupUser(event) {
             ?.value
             ?.trim();
 
+    const mobile =
+        $("signupMobile")
+            ?.value
+            ?.replace(/\\D/g, "")
+            ?.trim();
+
     const password =
         $("signupPassword")
             ?.value;
@@ -3737,11 +3743,22 @@ async function signupUser(event) {
         !name ||
         !college ||
         !email ||
+        !mobile ||
         !password
     ) {
 
         showToast(
             "Please fill all fields",
+            "warning"
+        );
+
+        return;
+    }
+
+    if (!/^[6-9]\\d{9}$/.test(mobile)) {
+
+        showToast(
+            "Please enter a valid 10-digit Indian mobile number",
             "warning"
         );
 
@@ -3781,7 +3798,8 @@ async function signupUser(event) {
                     options: {
                         data: {
                             name,
-                            college
+                            college,
+                            mobile
                         }
                     }
                 });
