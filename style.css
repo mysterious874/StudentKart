@@ -10987,3 +10987,53 @@ body #signupModal .auth-header p {
         text-align: center !important;
     }
 }
+
+
+/* FINAL FIX: Chats + Browse Categories header centering */
+body .category-picker-header,
+body .category-picker-header h2,
+body .category-picker-header p,
+body .inquiries-whatsapp-header,
+body .inquiries-whatsapp-header h2,
+body .inquiries-whatsapp-header p,
+body .inquiries-whatsapp-header .section-label {
+    text-align: center !important;
+}
+
+body .category-picker-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body .category-picker-header h2,
+body .category-picker-header p {
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+body .inquiries-whatsapp-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body .inquiries-whatsapp-header > div:first-child {
+    width: 100% !important;
+    text-align: center !important;
+}
+
+body .inquiries-whatsapp-header .section-label,
+body .inquiries-whatsapp-header p {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+}
+
+body .inquiries-whatsapp-header .inquiry-bulk-tools {
+    width: 100% !important;
+    justify-content: center !important;
+}
