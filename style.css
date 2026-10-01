@@ -6890,7 +6890,7 @@ body #profileModal .profile-modal-back-button {
 
 
 /* Profile popup - force exact viewport centering on mobile */
-body #profileModal {
+body #profileModal:not(.hidden) {
     display: grid !important;
     place-items: center !important;
     align-items: center !important;
