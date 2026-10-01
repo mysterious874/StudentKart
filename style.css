@@ -9171,8 +9171,84 @@ body.studentkart-modal-navigation-hidden .mobile-bottom-nav { display: none !imp
 }
 
 
-/* FINAL: unify every internal page header with the Wishlist popup style */
-body .modal-header,body .auth-header,body .profile-header,body .seller-profile-header,body .seller-profile-listings-header,body .inquiries-whatsapp-header{margin:14px 14px 0!important;padding:15px 18px!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:12px!important;background:var(--nav)!important;box-shadow:0 6px 18px rgba(0,0,0,.12)!important}
-body .modal-header h2,body .auth-header h2,body .profile-header h2,body .seller-profile-header h2,body .seller-profile-listings-header h2,body .inquiries-whatsapp-header h2{margin:0 0 3px!important;color:#fff!important;font-size:18px!important;font-weight:700!important}
-body .modal-header p,body .auth-header p,body .profile-header p,body .seller-profile-header p,body .seller-profile-listings-header p,body .inquiries-whatsapp-header p{margin:0!important;color:rgba(255,255,255,.68)!important;font-size:11px!important}
-@media(max-width:600px){body .modal-header,body .auth-header,body .profile-header,body .seller-profile-header,body .seller-profile-listings-header,body .inquiries-whatsapp-header{margin:10px 10px 0!important;padding:13px 15px!important;border-radius:11px!important}body .modal-header h2,body .auth-header h2,body .profile-header h2,body .seller-profile-header h2,body .seller-profile-listings-header h2,body .inquiries-whatsapp-header h2{font-size:17px!important}}
+/* Unified page headers - compact navbar-style */
+body .modal-header,
+body .auth-header,
+body .profile-header,
+body .seller-profile-header,
+body .seller-profile-listings-header,
+body .inquiries-whatsapp-header,
+body .wishlist-page-header{
+  margin:12px 12px 0!important;
+  padding:12px 16px!important;
+  min-height:0!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:10px!important;
+  background:var(--nav)!important;
+  box-shadow:0 5px 16px rgba(0,0,0,.12)!important;
+  text-align:left!important;
+}
+body .modal-header h2,
+body .auth-header h2,
+body .profile-header h2,
+body .seller-profile-header h2,
+body .seller-profile-listings-header h2,
+body .inquiries-whatsapp-header h2,
+body .wishlist-page-header h2{
+  margin:0 0 2px!important;
+  color:#fff!important;
+  font-size:16px!important;
+  line-height:1.25!important;
+  font-weight:700!important;
+}
+body .modal-header p,
+body .auth-header p,
+body .profile-header p,
+body .seller-profile-header p,
+body .seller-profile-listings-header p,
+body .inquiries-whatsapp-header p,
+body .wishlist-page-header p{
+  display:block!important;
+  margin:0!important;
+  color:rgba(255,255,255,.68)!important;
+  font-size:10px!important;
+  line-height:1.35!important;
+  font-weight:400!important;
+}
+body .wishlist-page-header > div{
+  width:100%!important;
+}
+body .wishlist-page-header .section-label{
+  display:none!important;
+}
+@media(max-width:600px){
+  body .modal-header,
+  body .auth-header,
+  body .profile-header,
+  body .seller-profile-header,
+  body .seller-profile-listings-header,
+  body .inquiries-whatsapp-header,
+  body .wishlist-page-header{
+    margin:9px 9px 0!important;
+    padding:11px 13px!important;
+    border-radius:9px!important;
+  }
+  body .modal-header h2,
+  body .auth-header h2,
+  body .profile-header h2,
+  body .seller-profile-header h2,
+  body .seller-profile-listings-header h2,
+  body .inquiries-whatsapp-header h2,
+  body .wishlist-page-header h2{
+    font-size:15px!important;
+  }
+  body .modal-header p,
+  body .auth-header p,
+  body .profile-header p,
+  body .seller-profile-header p,
+  body .seller-profile-listings-header p,
+  body .inquiries-whatsapp-header p,
+  body .wishlist-page-header p{
+    font-size:9px!important;
+  }
+}
