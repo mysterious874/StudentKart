@@ -25,6 +25,7 @@ let currentUser = null;
 let currentChatInquiry = null;
 let chatRealtimeChannel = null;
 let currentProducts = [];
+let selectedMarketplaceCategory = "all";
 let currentProduct = null;
 let editingProductId = null;
 let selectedInquiryProduct = null;
@@ -1431,6 +1432,7 @@ function applyFilters() {
             .toLowerCase();
 
     const category =
+        selectedMarketplaceCategory ||
         $("categoryFilter")
             ?.value || "all";
 
@@ -4364,13 +4366,14 @@ function selectCategory(
     category
 ) {
 
+    selectedMarketplaceCategory =
+        category || "all";
+
     const filter =
         $("categoryFilter");
 
     if (filter) {
-
-        filter.value =
-            category;
+        filter.value = category;
     }
 
     applyFilters();
