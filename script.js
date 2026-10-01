@@ -2471,9 +2471,11 @@ async function loadReceivedInquiries() {
                     latestMessages[String(message.inquiry_id)] = message;
                 }
 
+                // Only unread messages received by the current user
+                // should contribute to the chat alert/count.
                 if (
-                    message.receiver_id === currentUser.id ||
-                    (message.sender_id !== currentUser.id && message.is_read === false)
+                    message.receiver_id === currentUser.id &&
+                    message.is_read === false
                 ) {
                     const key = String(message.inquiry_id);
                     unreadCounts[key] = (unreadCounts[key] || 0) + 1;
