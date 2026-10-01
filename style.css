@@ -8859,3 +8859,40 @@ body {
     }
     .bottom-nav-item i { font-size: 18px; }
 }
+
+/* =========================================================
+   NAVBAR FINAL FIX - LOGO TEXT + SEARCH
+   ========================================================= */
+.navbar .logo-text {
+    display: inline !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+.navbar .nav-actions > #navSearchButton {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+}
+.navbar #navSearchButton i {
+    display: inline-block !important;
+    visibility: visible !important;
+    font-size: 16px !important;
+}
+@media (max-width: 600px) {
+    .navbar .logo-text {
+        display: inline !important;
+        font-size: 16px !important;
+    }
+    .navbar .nav-actions > #navSearchButton {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+    }
+}
