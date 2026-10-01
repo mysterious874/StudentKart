@@ -9087,3 +9087,15 @@ body {
         padding-top: 82px !important;
     }
 }
+
+
+/* Top floating navbar - softer top corners */
+.navbar {
+    border-radius: 10px 10px 20px 20px !important;
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        border-radius: 9px 9px 18px 18px !important;
+    }
+}
