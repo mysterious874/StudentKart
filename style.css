@@ -9658,3 +9658,103 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
         margin-top: 0;
     }
 }
+
+
+/* =========================================================
+   CATEGORY PICKER
+   ========================================================= */
+.category-picker-modal {
+    width: min(980px, calc(100vw - 32px)) !important;
+    max-width: 980px !important;
+    overflow: hidden;
+}
+
+.category-picker-header {
+    flex-shrink: 0;
+}
+
+.category-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+    padding: 22px;
+    background: #f7fafb;
+}
+
+.category-picker-card {
+    min-width: 0;
+    min-height: 145px;
+    padding: 16px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+    transition: .2s ease;
+    text-align: center;
+}
+
+.category-picker-card:hover,
+.category-picker-card:focus-visible {
+    border-color: #b8dfe0;
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    outline: none;
+}
+
+.category-picker-icon {
+    width: 50px;
+    height: 50px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 20px;
+}
+
+.category-picker-card strong {
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.category-picker-card small {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.25;
+}
+
+@media (max-width: 700px) {
+    .category-picker-modal {
+        width: calc(100vw - 16px) !important;
+    }
+
+    .category-picker-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+        padding: 12px;
+    }
+
+    .category-picker-card {
+        min-height: 112px;
+        padding: 12px 8px;
+    }
+
+    .category-picker-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 17px;
+    }
+
+    .category-picker-card strong {
+        font-size: 12px;
+    }
+
+    .category-picker-card small {
+        font-size: 9px;
+    }
+}
