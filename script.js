@@ -7563,3 +7563,67 @@ async function startChatUnreadRealtime() {
         });
 }
 
+
+
+/* =========================================================
+   MODAL BACK + HOME NAVIGATION
+   ========================================================= */
+function goToHomeFromModal() {
+    if (typeof closeAllModals === "function") {
+        closeAllModals();
+    }
+
+    window.location.hash = "home";
+
+    window.setTimeout(() => {
+        const homeSection = document.getElementById("home");
+        if (homeSection) {
+            homeSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    }, 20);
+}
+
+function addHomeButtonsToBackArrows(root = document) {
+    root.querySelectorAll(".modal-back-button").forEach(backButton => {
+        if (backButton.nextElementSibling?.classList.contains("modal-home-button")) {
+            return;
+        }
+
+        const homeButton = document.createElement("button");
+        homeButton.type = "button";
+        homeButton.className = "modal-close modal-home-button";
+        homeButton.setAttribute("aria-label", "Home");
+        homeButton.title = "Home";
+        homeButton.innerHTML = '<i class="fas fa-house"></i>';
+
+        homeButton.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            goToHomeFromModal();
+        });
+
+        backButton.insertAdjacentElement("afterend", homeButton);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    addHomeButtonsToBackArrows();
+
+    const modalObserver = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    addHomeButtonsToBackArrows(node);
+                }
+            });
+        });
+    });
+
+    modalObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
