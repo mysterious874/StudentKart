@@ -391,11 +391,19 @@
                 <p>Login to your StudentKart account.</p>
             </div>
             <form id="loginForm">
-                <div class="form-group"><label for="loginIdentifier">Email Address</label>
+                <div class="form-group">
+                    <label for="loginIdentifier">Email Address</label>
                     <input type="email" id="loginIdentifier" placeholder="you@example.com"
-                        autocomplete="email" required></div>
-                <p class="otp-helper">We'll send a secure sign-in link to your email.</p>
-                <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-paper-plane"></i> Send Sign-In Link</button>
+                        autocomplete="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password"
+                        autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-right-to-bracket"></i> Login
+                </button>
             </form>
             <div class="auth-switch">Don't have an account?<button type="button" id="switchToSignup">Sign Up</button>
             </div>
@@ -412,25 +420,35 @@
                 <p>Join the StudentKart marketplace.</p>
             </div>
             <form id="signupForm">
-                <div class="form-group"><label for="signupName">Full Name</label><input type="text" id="signupName"
-                        placeholder="Your full name" autocomplete="name" required></div>
-                <div class="form-group"><label for="signupCollege">College</label><input type="text" id="signupCollege"
-                        placeholder="Your college" autocomplete="organization" required></div>
-                <div class="form-group"><label for="signupIdentifier">Email Address</label>
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" placeholder="Your full name"
+                        autocomplete="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupCollege">College</label>
+                    <input type="text" id="signupCollege" placeholder="Your college"
+                        autocomplete="organization" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupIdentifier">Email Address</label>
                     <input type="email" id="signupIdentifier" placeholder="you@example.com"
                         autocomplete="email" required>
-                    <small class="form-help">We'll send a secure sign-up link to your email.</small>
                 </div>
-                <p class="otp-helper">No password required.</p>
-                <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-paper-plane"></i> Send Sign-Up Link</button>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create a password"
+                        autocomplete="new-password" minlength="6" required>
+                    <small class="form-help">Use at least 6 characters.</small>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
             </form>
             <div class="auth-switch">Already have an account?<button type="button" id="switchToLogin">Login</button>
             </div>
         </div>
     </div>
-
-    <!-- MAGIC LINK AUTH -->
-    <div id="otpModal" class="modal hidden" aria-hidden="true"></div>
 
     <!-- PROFILE -->
     <div id="profileModal" class="modal hidden">
