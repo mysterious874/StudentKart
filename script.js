@@ -2413,21 +2413,16 @@ async function loadReceivedInquiries() {
         let productsMap = {};
 
         if (productIds.length) {
-
             const {
                 data: products
             } =
                 await supabaseClient
                     .from("products")
                     .select("*")
-                    .in(
-                        "id",
-                        productIds
-                    );
+                    .in("id", productIds);
 
             (products || [])
                 .forEach(product => {
-
                     productsMap[
                         String(product.id)
                     ] =
@@ -2437,115 +2432,152 @@ async function loadReceivedInquiries() {
                 });
         }
 
+        const buyerIds = [
+            ...new Set(
+                visibleInquiries
+                    .map(inquiry => inquiry.buyer_id)
+                    .filter(Boolean)
+            )
+        ];
+
+        let profilesMap = {};
+
+        if (buyerIds.length) {
+            const { data: profiles } =
+                await supabaseClient
+                    .from("profiles")
+                    .select("id,name,college,avatar_url")
+                    .in("id", buyerIds);
+
+            (profiles || []).forEach(profile => {
+                profilesMap[String(profile.id)] = profile;
+            });
+        }
+
+        const inquiryIds = visibleInquiries.map(inquiry => inquiry.id);
+        let latestMessages = {};
+        let unreadCounts = {};
+
+        if (inquiryIds.length) {
+            const { data: messages } =
+                await supabaseClient
+                    .from("messages")
+                    .select("inquiry_id,sender_id,message,created_at,is_read")
+                    .in("inquiry_id", inquiryIds)
+                    .order("created_at", { ascending: false });
+
+            (messages || []).forEach(message => {
+                if (!latestMessages[String(message.inquiry_id)]) {
+                    latestMessages[String(message.inquiry_id)] = message;
+                }
+
+                if (
+                    message.receiver_id === currentUser.id ||
+                    (message.sender_id !== currentUser.id && message.is_read === false)
+                ) {
+                    const key = String(message.inquiry_id);
+                    unreadCounts[key] = (unreadCounts[key] || 0) + 1;
+                }
+            });
+        }
+
         container.innerHTML =
             visibleInquiries.map(
                 inquiry => {
-
                     const product =
                         productsMap[
-                        String(
-                            inquiry.product_id
-                        )
+                            String(
+                                inquiry.product_id
+                            )
                         ];
 
-                    const status =
-                        inquiry.status ||
-                        "new";
+                    const profile =
+                        profilesMap[
+                            String(
+                                inquiry.buyer_id
+                            )
+                        ];
+
+                    const buyerName =
+                        profile?.name ||
+                        inquiry.buyer_name ||
+                        "Student";
+
+                    const latest =
+                        latestMessages[
+                            String(inquiry.id)
+                        ];
+
+                    const preview =
+                        latest?.message ||
+                        inquiry.message ||
+                        "Started a conversation";
+
+                    const unread =
+                        unreadCounts[
+                            String(inquiry.id)
+                        ] || 0;
+
+                    const initials =
+                        buyerName
+                            .split(" ")
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .map(name => name[0])
+                            .join("")
+                            .toUpperCase() || "S";
+
+                    const timeText =
+                        latest?.created_at ||
+                        inquiry.created_at;
 
                     return `
                         <div
-                            class="inquiry-card"
-                            data-inquiry-id="${escapeHTML(
-                        inquiry.id
-                    )}">
-
-                            <div class="inquiry-card-main">
-
-                                <div class="inquiry-card-icon">
-                                    <i class="fas fa-message"></i>
-                                </div>
-
-                                <div>
-
-                                    <strong>
-                                        ${escapeHTML(
-                        product?.name ||
-                        "Product"
-                    )}
-                                    </strong>
-
-                                    <p>
-                                        ${escapeHTML(
-                        inquiry.message
-                    )}
-                                    </p>
-
-                                    <span>
-                                        ${getRelativeDate(
-                        inquiry.created_at
-                    )}
-                                    </span>
-
-                                </div>
-
+                            class="whatsapp-inquiry-card"
+                            data-inquiry-id="${escapeHTML(inquiry.id)}"
+                        >
+                            <div class="whatsapp-inquiry-avatar">
+                                ${profile?.avatar_url
+                                    ? `<img src="${escapeHTML(profile.avatar_url)}" alt="">`
+                                    : escapeHTML(initials)}
                             </div>
 
-                            <div class="inquiry-actions">
+                            <div class="whatsapp-inquiry-main">
+                                <div class="whatsapp-inquiry-top">
+                                    <strong>${escapeHTML(buyerName)}</strong>
+                                    <time>${escapeHTML(getRelativeDate(timeText))}</time>
+                                </div>
 
-                                <span class="status-badge">
-                                    ${escapeHTML(status)}
-                                </span>
+                                <div class="whatsapp-inquiry-bottom">
+                                    <div class="whatsapp-inquiry-preview">
+                                        <span class="whatsapp-product-name">
+                                            ${escapeHTML(product?.name || "Product")}
+                                        </span>
+                                        <span class="whatsapp-message-preview">
+                                            ${escapeHTML(preview)}
+                                        </span>
+                                    </div>
 
-                                <button
-                                    type="button"
-                                    class="btn btn-primary inquiry-chat-button"
-                                    data-inquiry-action="chat"
-                                    data-inquiry-id="${escapeHTML(inquiry.id)}"
-                                    style="display:inline-flex !important; visibility:visible !important; opacity:1 !important; position:relative !important; z-index:10 !important;"
-                                >
-                                    <i class="fas fa-message"></i>
-                                    Chat
-                                </button>
-
-                                ${status === "new"
-                            ? `
-                                            <button
-                                                type="button"
-                                                class="btn btn-outline"
-                                                data-inquiry-action="status"
-                                                data-inquiry-id="${escapeHTML(
-                                inquiry.id
-                            )}"
-                                                data-status="read">
-                                                Mark read
-                                            </button>
-                                        `
-                            : ""
-                        }
-
-                                ${status !== "replied"
-                            ? `
-                                            <button
-                                                type="button"
-                                                class="btn btn-outline"
-                                                data-inquiry-action="status"
-                                                data-inquiry-id="${escapeHTML(
-                                inquiry.id
-                            )}"
-                                                data-status="replied">
-                                                Mark replied
-                                            </button>
-                                        `
-                            : ""
-                        }
-
+                                    <div class="whatsapp-inquiry-meta">
+                                        ${unread
+                                            ? `<span class="whatsapp-unread">${unread > 99 ? "99+" : unread}</span>`
+                                            : ""}
+                                        <button
+                                            type="button"
+                                            class="whatsapp-chat-button"
+                                            data-inquiry-action="chat"
+                                            data-inquiry-id="${escapeHTML(inquiry.id)}"
+                                            aria-label="Open chat with ${escapeHTML(buyerName)}"
+                                        >
+                                            <i class="fas fa-message"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-
                         </div>
                     `;
                 }
             ).join("");
-
     } catch (error) {
 
         console.error(
