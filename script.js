@@ -5002,6 +5002,10 @@ ${unread
                 `;
             })
             .join("");
+
+    // Re-apply the current selection immediately after rendering.
+    // This keeps the checkmark visible even when notifications auto-refresh.
+    updateNotificationSelectionUI();
 }
 
 function updateNotificationSelectionUI() {
