@@ -9833,3 +9833,12 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
         transform: translateY(160px) !important;
     }
 }
+
+
+/* Category picker background - match StudentKart dark theme */
+body .modal#categoryPickerModal .category-picker-grid {
+    background: rgba(6, 8, 22, 0.72) !important;
+    border-radius: 0 0 18px 18px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
