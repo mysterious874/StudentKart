@@ -1839,10 +1839,10 @@ function ensureSellerProfileUI() {
 
             <button
                 type="button"
-                class="modal-close"
+                class="modal-close modal-back-button"
                 data-close-modal
-                aria-label="Close">
-                <i class="fas fa-xmark"></i>
+                aria-label="Back">
+                <i class="fas fa-arrow-left"></i>
             </button>
 
             <div class="seller-profile-header">
@@ -4285,10 +4285,10 @@ function ensureNotificationsUI() {
 
             <button
                 type="button"
-                class="modal-close"
+                class="modal-close modal-back-button"
                 data-close-modal
-                aria-label="Close">
-                <i class="fas fa-xmark"></i>
+                aria-label="Back">
+                <i class="fas fa-arrow-left"></i>
             </button>
 
             <div class="notifications-header">
