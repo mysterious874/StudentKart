@@ -6294,3 +6294,41 @@ textarea {
         padding-left: 50px;
     }
 }
+
+/* COMPACT TOP-CENTER NOTIFICATIONS CARD */
+#notificationsModal {
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding: 18px 14px !important;
+}
+
+#notificationsModal .notifications-modal-content {
+    width: min(560px, calc(100vw - 28px)) !important;
+    max-width: 560px !important;
+    max-height: min(680px, calc(100vh - 36px)) !important;
+    margin: 0 auto !important;
+    border-radius: 16px !important;
+    overflow: hidden;
+}
+
+#notificationsModal .notifications-header {
+    padding-left: 54px;
+    padding-right: 16px;
+}
+
+@media (max-width: 700px) {
+    #notificationsModal {
+        padding: 12px 10px !important;
+    }
+
+    #notificationsModal .notifications-modal-content {
+        width: min(440px, calc(100vw - 20px)) !important;
+        max-height: calc(100vh - 24px) !important;
+        border-radius: 14px !important;
+    }
+
+    #notificationsModal .notifications-header {
+        padding-left: 50px;
+        padding-right: 12px;
+    }
+}
