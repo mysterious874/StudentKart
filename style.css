@@ -10568,8 +10568,10 @@ button {
     min-height: 118px !important;
     padding: 20px 22px 18px 82px !important;
     display: flex !important;
+    flex-direction: column !important;
     justify-content: center !important;
-    align-items: flex-start !important;
+    align-items: center !important;
+    text-align: center !important;
     background:
         radial-gradient(circle at 92% 15%, rgba(15,139,141,.22), transparent 34%),
         linear-gradient(135deg, #102a43, #143b4a) !important;
@@ -10602,6 +10604,8 @@ button {
 .auth-modal .auth-header p {
     font-size: 11px !important;
     color: rgba(255,255,255,.68) !important;
+    text-align: center !important;
+    max-width: 280px !important;
 }
 
 .auth-modal form {
