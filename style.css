@@ -7017,3 +7017,32 @@ body .modal-content .modal-header {
     opacity: 0;
     transform: translateY(10px) scale(0.985);
 }
+
+
+/* =========================================================
+   GLOBAL MODAL BACKGROUND SCROLL LOCK
+   ========================================================= */
+html:has(.modal:not(.hidden)),
+body:has(.modal:not(.hidden)) {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+}
+
+body:has(.modal:not(.hidden)) {
+    touch-action: none !important;
+}
+
+body:has(.modal:not(.hidden)) .modal {
+    overscroll-behavior: none !important;
+    touch-action: none !important;
+}
+
+body:has(.modal:not(.hidden)) .modal-content {
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+body:has(.modal:not(.hidden)) .modal-overlay {
+    touch-action: none !important;
+}
