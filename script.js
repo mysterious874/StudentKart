@@ -2474,22 +2474,20 @@ async function loadReceivedInquiries() {
 
                             <div class="inquiry-actions">
 
-                               
-                            <span class="status-badge">
-    ${escapeHTML(
-        status
-    )}
-</span>
+                                <span class="status-badge">
+                                    ${escapeHTML(status)}
+                                </span>
 
-<button
-    type="button"
-    class="btn btn-primary"
-    data-inquiry-action="chat"
-    data-inquiry-id="${escapeHTML(inquiry.id)}"
->
-    <i class="fas fa-message"></i>
-    Chat
-</button>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary inquiry-chat-button"
+                                    data-inquiry-action="chat"
+                                    data-inquiry-id="${escapeHTML(inquiry.id)}"
+                                    style="display:inline-flex !important; visibility:visible !important; opacity:1 !important; position:relative !important; z-index:10 !important;"
+                                >
+                                    <i class="fas fa-message"></i>
+                                    Chat
+                                </button>
 
                                 ${status === "new"
                             ? `
@@ -2546,6 +2544,42 @@ async function loadReceivedInquiries() {
         `;
     }
 }
+
+async function getInquiryForChat(inquiryId) {
+
+    if (!currentUser || !inquiryId) {
+        return null;
+    }
+
+    try {
+        const { data, error } =
+            await supabaseClient
+                .from("inquiries")
+                .select("*")
+                .eq("id", inquiryId)
+                .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        return data || null;
+
+    } catch (error) {
+        console.error(
+            "Get inquiry for chat error:",
+            error
+        );
+
+        showToast(
+            "Could not open chat",
+            "error"
+        );
+
+        return null;
+    }
+}
+
 
 async function updateInquiryStatus(
     inquiryId,
@@ -5692,19 +5726,47 @@ function setupEventListeners() {
                         "[data-inquiry-action]"
                     );
 
-                if (
-                    button &&
-                    button.dataset
-                        .inquiryAction ===
-                    "status"
-                ) {
+                if (!button) {
+                    return;
+                }
+
+                const action =
+                    button.dataset.inquiryAction;
+
+                const inquiryId =
+                    button.dataset.inquiryId;
+
+                if (action === "chat") {
+
+                    const inquiry =
+                        await getInquiryForChat(
+                            inquiryId
+                        );
+
+                    if (!inquiry) {
+                        return;
+                    }
+
+                    const product =
+                        currentProducts.find(
+                            item =>
+                                String(item.id) ===
+                                String(inquiry.product_id)
+                        );
+
+                    inquiry.product_name =
+                        product?.name ||
+                        "Product Chat";
+
+                    openChat(inquiry);
+                    return;
+                }
+
+                if (action === "status") {
 
                     await updateInquiryStatus(
-                        button.dataset
-                            .inquiryId,
-
-                        button.dataset
-                            .status
+                        inquiryId,
+                        button.dataset.status
                     );
                 }
             }
