@@ -8675,3 +8675,139 @@ body .chat-person h2 {
         margin: 0;
     }
 }
+
+
+/* =========================================================
+   FLIPKART-STYLE FLOATING BOTTOM NAV
+   Top navbar keeps only logo + Sell.
+   ========================================================= */
+.navbar .nav-links {
+    display: none !important;
+}
+
+.navbar .nav-actions > button {
+    display: none !important;
+}
+
+.navbar .nav-actions > #sellButton {
+    display: inline-flex !important;
+}
+
+.navbar .nav-container {
+    justify-content: space-between;
+}
+
+.mobile-bottom-nav {
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    z-index: 9990;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: min(94vw, 560px);
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid #dce2ea;
+    border-radius: 22px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.bottom-nav-item {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 7px 4px;
+    border: 0;
+    border-radius: 16px;
+    background: transparent;
+    color: #64748b;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.bottom-nav-item i {
+    font-size: 17px;
+    line-height: 1;
+}
+
+.bottom-nav-item:hover,
+.bottom-nav-item:focus-visible {
+    color: var(--primary2);
+    background: #f0fdfa;
+}
+
+.bottom-nav-item:active {
+    transform: scale(.95);
+}
+
+body {
+    padding-bottom: 86px;
+}
+
+@media (min-width: 851px) {
+    .mobile-bottom-nav {
+        width: min(92vw, 620px);
+        bottom: 18px;
+    }
+
+    .bottom-nav-item {
+        min-height: 52px;
+        font-size: 11px;
+    }
+
+    .bottom-nav-item i {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 600px) {
+    .navbar .logo-text {
+        display: none;
+    }
+
+    .navbar .nav-actions {
+        gap: 6px;
+    }
+
+    .navbar #sellButton {
+        min-height: 38px;
+        padding: 8px 13px !important;
+        border-radius: 10px;
+    }
+
+    .mobile-bottom-nav {
+        bottom: 10px;
+        width: calc(100vw - 20px);
+        padding: 7px 6px;
+        border-radius: 20px;
+    }
+
+    .bottom-nav-item {
+        min-height: 48px;
+        font-size: 9px;
+        gap: 3px;
+        border-radius: 14px;
+    }
+
+    .bottom-nav-item i {
+        font-size: 16px;
+    }
+
+    body {
+        padding-bottom: 78px;
+    }
+}
