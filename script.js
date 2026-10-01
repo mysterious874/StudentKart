@@ -280,6 +280,7 @@ function openModal(id, options = {}) {
     modal.classList.remove("hidden");
 
     document.body.classList.add("modal-open");
+    document.body.classList.add("studentkart-modal-navigation-hidden");
 
     if (!options.fromPopState && !studentKartHandlingPopState) {
         window.history.pushState(
@@ -318,6 +319,7 @@ function closeModal(id, options = {}) {
                 parentModal.classList.remove("modal-closing");
                 parentModal.classList.remove("hidden");
                 document.body.classList.add("modal-open");
+                document.body.classList.add("studentkart-modal-navigation-hidden");
 
                 if (!options.fromPopState && window.history.state?.studentKart) {
                     studentKartSkipNextPopState = true;
@@ -335,6 +337,7 @@ function closeModal(id, options = {}) {
 
         if (!anyOpen) {
             document.body.classList.remove("modal-open");
+            document.body.classList.remove("studentkart-modal-navigation-hidden");
 
             if (!options.fromPopState && window.history.state?.studentKart && window.history.state?.modalId) {
                 studentKartSkipNextPopState = true;
@@ -399,6 +402,7 @@ window.addEventListener("popstate", event => {
                 targetModal.classList.remove("hidden");
                 targetModal.classList.remove("modal-closing");
                 document.body.classList.add("modal-open");
+                document.body.classList.add("studentkart-modal-navigation-hidden");
             }
         } else {
             modalHistory = [];
