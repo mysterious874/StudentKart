@@ -6387,3 +6387,18 @@ body #notificationsModal .notifications-header {
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
 }
+
+/* SMALLER NOTIFICATIONS POPUP */
+#notificationsModal .notifications-modal-content {
+    width: min(400px, calc(100vw - 28px)) !important;
+    max-width: 400px !important;
+    max-height: min(560px, calc(100vh - 28px)) !important;
+}
+
+@media (max-width: 700px) {
+    #notificationsModal .notifications-modal-content {
+        width: min(340px, calc(100vw - 24px)) !important;
+        max-width: 340px !important;
+        max-height: calc(100vh - 24px) !important;
+    }
+}
