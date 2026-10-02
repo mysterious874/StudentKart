@@ -12262,6 +12262,27 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================================================
+   SHARED LISTING LINKS
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+    const productHash = window.location.hash.match(/^#product-(.+)$/);
+
+    if (!productHash) {
+        return;
+    }
+
+    const productId = decodeURIComponent(productHash[1]);
+
+    // Give the initial product fetch a moment to populate the marketplace.
+    window.setTimeout(() => {
+        if (typeof openProductDetails === "function") {
+            void openProductDetails(productId);
+        }
+    }, 450);
+});
+
+/* =========================================================
    FINAL NAVBAR SCROLL BEHAVIOR
    Hide navbar while scrolling down, reveal it while scrolling up.
    Bottom floating navigation is intentionally untouched.
