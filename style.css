@@ -18273,6 +18273,15 @@ body .modal.studentkart-bottom-nav-opening {
     animation: studentKartMacBackdrop 0.46s ease-out both;
 }
 
+/* Wishlist is data-rendered asynchronously. Keep its backdrop stable so
+   the modal never flashes transparent for a frame while opening. */
+body #wishlistModal.modal.studentkart-bottom-nav-opening {
+    animation: none !important;
+    background: rgba(12, 18, 14, 0.62) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+}
+
 body .modal.studentkart-bottom-nav-opening .modal-content {
     animation: studentKartMacOpen 0.52s cubic-bezier(.16,.82,.18,1) both !important;
     transform-origin: 50% 115% !important;
