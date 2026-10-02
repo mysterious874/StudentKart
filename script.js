@@ -9089,30 +9089,13 @@ function showChatImageSelection(file) {
         return;
     }
 
-    const preview = $("chatImagePreview");
-    const image = $("chatImagePreviewImg");
-    const name = $("chatImagePreviewName");
-
-    if (!preview || !image) return;
-
-    const url = URL.createObjectURL(file);
-    image.onload = () => URL.revokeObjectURL(url);
-    image.src = isVideoPreviewFile(file) ? "" : url;
-    if (isVideoPreviewFile(file)) {
-        image.style.display = "none";
-        const video = document.createElement("video");
-        video.src = url;
-        video.muted = true;
-        video.playsInline = true;
-        video.preload = "metadata";
-        video.style.cssText = "width:100%;height:100%;object-fit:cover;border-radius:8px;display:block";
-        video.id = "chatImagePreviewVideo";
-        $("chatImagePreviewImg")?.replaceWith(video);
-    } else {
-        image.style.display = "block";
-    }
-    if (name) name.textContent = (isVideoPreviewFile(file) ? "🎬 " : "🖼️ ") + file.name;
-    preview.classList.remove("hidden");
+    /*
+     * WhatsApp-style chat flow:
+     * Do not render the selected media as a separate preview above
+     * the composer. The actual upload/sending state is rendered as
+     * a message bubble inside chatMessages when the user sends it.
+     */
+    $("chatImagePreview")?.classList.add("hidden");
 }
 
 function clearChatReplyPreview() {
