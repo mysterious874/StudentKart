@@ -7112,6 +7112,7 @@ async function openChat(inquiry) {
     }
 
     currentChatInquiry = inquiry;
+    clearChatMessageSelection();
 
     await removeHiddenChat(inquiry.id);
 
@@ -7379,6 +7380,7 @@ async function loadChatMessages() {
             })
             .join("");
 
+        updateChatMessageSelectionUI();
         scrollChatToBottom();
 
     } catch (error) {
