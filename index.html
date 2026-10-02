@@ -11,10 +11,23 @@
     <link rel="apple-touch-icon" href="/icons/studentkart-icon.svg">
     <title>StudentKart — Student Marketplace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20261002-clean-brand-only">
+    <link rel="stylesheet" href="style.css?v=20261002-screenshot-navbar">
 </head>
 
 <body>
+<header class="navbar" aria-label="StudentKart main navigation">
+  <div class="nav-container">
+    <a href="#home" class="logo" aria-label="StudentKart Home">
+      <div class="logo-mark"><span class="logo-graduation"><i class="fas fa-graduation-cap"></i></span><span class="logo-cart"><i class="fas fa-cart-shopping"></i></span></div>
+      <span class="logo-text">StudentKart</span>
+    </a>
+    <div class="nav-actions">
+      <button type="button" class="btn btn-outline nav-search-button" id="navSearchButton" aria-label="Search" title="Search"><i class="fas fa-search"></i></button>
+      <button type="button" class="btn btn-primary" id="sellButton"><i class="fas fa-plus"></i><span>Sell</span></button>
+      <button type="button" class="btn btn-outline nav-profile-button" id="profileButton" aria-label="Profile" title="Profile"><i class="fas fa-user"></i></button>
+    </div>
+  </div>
+</header>
 <div id="navbarSearchPanel" class="navbar-search-panel hidden" aria-label="Search StudentKart">
         <div class="navbar-search-inner">
             <div class="navbar-search-field">
@@ -139,7 +152,7 @@
 
     <main>
         <section id="home" class="hero">
-            <a href="#home" class="hero-brand-only" aria-label="StudentKart Home"><span class="hero-brand-mark"><i class="fas fa-graduation-cap"></i></span><span>StudentKart</span></a>
+            
             <div class="hero-container">
                 <div class="hero-content">
                     <div class="hero-badge"><i class="fas fa-graduation-cap"></i> Built for Students</div>
