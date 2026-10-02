@@ -8280,6 +8280,11 @@ function applyStudentKartSettings() {
     document.documentElement.lang = settings.preferences.language === "hi" ? "hi" : "en";
 
     const rows = {
+        "chat-notifications": settings.notifications.chat,
+        "wishlist-notifications": settings.notifications.wishlist,
+        "listing-notifications": settings.notifications.listings,
+        "buyer-seller-notifications": settings.notifications.buyerSeller,
+        "sold-notifications": settings.notifications.sold,
         "push-notifications": settings.notifications.push,
         "vibration": settings.preferences.vibration,
         "hide-phone": settings.privacy.hidePhone,
