@@ -21721,3 +21721,21 @@ html body > .mobile-bottom-nav{
     margin-top:17px !important;
   }
 }
+
+
+/* =========================================================
+   STUDENTKART — MOVE HERO CONTENT UP
+   ========================================================= */
+.sk-home-container{
+  padding-top:52px !important;
+}
+@media(max-width:800px){
+  .sk-home-container{
+    padding-top:48px !important;
+  }
+}
+@media(max-width:600px){
+  .sk-home-container{
+    padding-top:42px !important;
+  }
+}
