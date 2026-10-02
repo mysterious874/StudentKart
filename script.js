@@ -4433,131 +4433,65 @@ function selectCategory(
 
 function ensureNotificationsUI() {
 
-    if ($("notificationsModal")) {
-        return;
+    let button = $("notificationButton");
+
+    if (!button) {
+        button = document.createElement("button");
+        button.type = "button";
+        button.id = "notificationButton";
+        button.className = "btn btn-outline nav-notification-button";
+        button.setAttribute("aria-label", "Open Notifications");
+        button.title = "Notifications";
+        button.innerHTML = `
+            <i class="fa-regular fa-bell"></i>
+            <span class="notification-count hidden" id="notificationCount">0</span>
+        `;
+        document.querySelector(".nav-actions")?.appendChild(button);
     }
 
-    const button =
-        document.createElement("button");
-
-    button.type =
-        "button";
-
-    button.id =
-        "notificationButton";
-
-    button.className =
-        "btn btn-outline nav-notification-button";
-
-    button.setAttribute(
-        "aria-label",
-        "Open Notifications"
-    );
-
-    button.innerHTML = `
-        <i class="fa-regular fa-bell"></i>
-        <span
-            class="notification-count hidden"
-            id="notificationCount">
-            0
-        </span>
-    `;
-
-    const wishlistButton =
-        $("wishlistButton");
-
-    if (
-        wishlistButton?.parentElement
-    ) {
-
-        wishlistButton.parentElement
-            .insertBefore(
-                button,
-                wishlistButton
-            );
-
-    } else {
-
-        document
-            .querySelector(
-                ".nav-actions"
-            )
-            ?.appendChild(
-                button
-            );
+    if (!$("notificationsModal")) {
+        const modal = document.createElement("div");
+        modal.id = "notificationsModal";
+        modal.className = "modal hidden";
+        modal.innerHTML = `
+            <div class="modal-overlay" data-close-modal></div>
+            <div class="modal-content wide-modal notifications-modal-content">
+                <button type="button" class="modal-close modal-back-button" data-close-modal aria-label="Back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="notifications-header">
+                    <div>
+                        <span class="section-label">ALERTS</span>
+                        <h2>Notifications</h2>
+                        <p>Stay updated on your marketplace activity.</p>
+                    </div>
+                    <div id="notificationSelectionToolbar" class="notification-selection-toolbar hidden">
+                        <span class="notification-selection-count"><span id="notificationSelectionCount">0</span> selected</span>
+                        <button type="button" class="notification-action-box" id="selectAllNotificationsButton" title="Select all"><i class="fas fa-check-double"></i></button>
+                        <button type="button" class="notification-action-box" id="markSelectedNotificationsButton" title="Mark as read"><i class="fas fa-check"></i></button>
+                        <button type="button" class="notification-action-box danger" id="deleteSelectedNotificationsButton" title="Delete selected"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <div id="notificationsContainer"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
     }
 
-    const modal =
-        document.createElement("div");
-
-    modal.id =
-        "notificationsModal";
-
-    modal.className =
-        "modal hidden";
-
-    modal.innerHTML = `
-        <div
-            class="modal-overlay"
-            data-close-modal>
-        </div>
-
-        <div
-            class="modal-content wide-modal notifications-modal-content">
-
-            <button
-                type="button"
-                class="modal-close modal-back-button"
-                data-close-modal
-                aria-label="Back">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-
-            <div class="notifications-header">
-
-                <div>
-<h2>
-                        Notifications
-                    </h2>
-
-                    <p>
-                        Stay updated on your marketplace activity.
-                    </p>
-                </div>
-
-                <div id="notificationSelectionToolbar" class="notification-selection-toolbar hidden">
-                    <span class="notification-selection-count"><span id="notificationSelectionCount">0</span> selected</span>
-                    <button type="button" class="notification-action-box" id="selectAllNotificationsButton" title="Select all">
-                        <i class="fas fa-check-double"></i><span>Select All</span>
-                    </button>
-                    <button type="button" class="notification-action-box" id="markSelectedNotificationsReadButton" title="Mark as read">
-                        <i class="fas fa-envelope-open"></i><span>Mark Read</span>
-                    </button>
-                    <button type="button" class="notification-action-box notification-action-danger" id="deleteSelectedNotificationsButton" disabled title="Delete selected">
-                        <i class="fas fa-trash"></i><span>Delete</span>
-                    </button>
-                    <button type="button" class="notification-action-box" id="cancelNotificationSelectionButton" title="Cancel selection">
-                        <i class="fas fa-xmark"></i><span>Cancel</span>
-                    </button>
-                </div>
-
-            </div>
-
-            <div
-                id="notificationsContainer"
-                class="notifications-container">
-            </div>
-
-        </div>
-    `;
-
-    document.body.appendChild(
-        modal
-    );
-
-    injectNotificationStyles();
+    if (!button.dataset.notificationBound) {
+        button.dataset.notificationBound = "true";
+        button.addEventListener("click", async () => {
+            if (!currentUser) {
+                openModal("loginModal");
+                showToast("Please login to see notifications", "warning");
+                return;
+            }
+            openModal("notificationsModal");
+            await loadNotifications();
+            renderNotifications();
+        });
+    }
 }
-
 function injectNotificationStyles() {
 
     if (
