@@ -8567,10 +8567,12 @@ $("chatMessages")?.addEventListener("click", async event => {
     }
 
     if (selectedChatMessageIds.size > 0) {
-        // Once selection mode is active, a normal tap only selects/deselects.
-        // It must never open the photo/video viewer.
+        // Selection mode must completely consume the click. The media viewer
+        // is registered on the same #chatMessages element later in the script,
+        // so stopPropagation() alone is not enough; stopImmediatePropagation()
+        // prevents that later listener from opening the photo/video.
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
         toggleChatMessageSelection(messageEl.dataset.messageId);
         return;
     }
