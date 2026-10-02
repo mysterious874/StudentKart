@@ -16369,3 +16369,24 @@ body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) .mobil
     opacity: 1 !important;
     pointer-events: auto !important;
 }
+
+/* =========================================================
+   FINAL NAVBAR SCROLL VISIBILITY
+   Smoothly slide the top navbar away on downward scroll and bring it
+   back when the user scrolls upward. Bottom navigation stays visible.
+   ========================================================= */
+.navbar {
+    transition: transform 0.22s ease, opacity 0.18s ease !important;
+    will-change: transform, opacity;
+}
+
+.navbar.navbar-scroll-hidden {
+    transform: translate3d(0, -110%, 0) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Keep the mobile/floating bottom navigation independent from navbar scroll. */
+.mobile-bottom-nav {
+    transform: translate3d(-50%, 0, 0) !important;
+}
