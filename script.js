@@ -2921,6 +2921,9 @@ async function loadReceivedInquiries() {
                         <div
                             class="whatsapp-inquiry-card"
                             data-inquiry-id="${escapeHTML(inquiry.id)}"
+                            data-chat-name="${escapeHTML(participantName)}"
+                            data-chat-preview="${escapeHTML(preview)}"
+                            data-chat-unread="${unread > 0 ? "true" : "false"}"
                         >
                             <label class="inquiry-select-box" onclick="event.stopPropagation()">
                                 <input
@@ -2972,6 +2975,13 @@ async function loadReceivedInquiries() {
                     `;
                 }
             ).join("");
+        const filteredEmpty = document.createElement("div");
+        filteredEmpty.id = "chatListFilteredEmpty";
+        filteredEmpty.className = "chat-list-filtered-empty hidden";
+        filteredEmpty.innerHTML = '<i class="fas fa-magnifying-glass"></i><strong>No chats found</strong><span>Try a different name or message.</span>';
+        container.appendChild(filteredEmpty);
+        setupChatListControls();
+        applyChatListFilter();
     } catch (error) {
 
         console.error(
@@ -2992,6 +3002,88 @@ async function loadReceivedInquiries() {
     } finally {
         inquiriesLoading = false;
     }
+}
+
+function applyChatListFilter() {
+    const container = $("inquiriesContainer");
+    if (!container) return;
+
+    const query = ($("chatListSearchInput")?.value || "").trim().toLowerCase();
+    const activeTab = document.querySelector(".chat-list-tab.active")?.dataset.chatFilter || "all";
+    const cards = container.querySelectorAll(".whatsapp-inquiry-card");
+    let visible = 0;
+
+    cards.forEach(card => {
+        const haystack = [
+            card.dataset.chatName || "",
+            card.dataset.chatPreview || "",
+            card.querySelector(".whatsapp-product-name")?.textContent || ""
+        ].join(" ").toLowerCase();
+
+        const matchesSearch = !query || haystack.includes(query);
+        const matchesTab = activeTab !== "unread" || card.dataset.chatUnread === "true";
+        const show = matchesSearch && matchesTab;
+
+        card.classList.toggle("chat-filter-hidden", !show);
+        if (show) visible++;
+    });
+
+    const empty = $("chatListFilteredEmpty");
+    if (empty) empty.classList.toggle("hidden", visible > 0 || !cards.length);
+}
+
+function setupChatListControls() {
+    const input = $("chatListSearchInput");
+    const clear = $("chatListSearchClear");
+    if (input && !input.dataset.bound) {
+        input.dataset.bound = "true";
+        input.addEventListener("input", () => {
+            clear?.classList.toggle("hidden", !input.value);
+            applyChatListFilter();
+        });
+    }
+
+    if (clear && !clear.dataset.bound) {
+        clear.dataset.bound = "true";
+        clear.addEventListener("click", () => {
+            if (!input) return;
+            input.value = "";
+            clear.classList.add("hidden");
+            applyChatListFilter();
+            input.focus();
+        });
+    }
+
+    document.querySelectorAll(".chat-list-tab").forEach(tab => {
+        if (tab.dataset.bound) return;
+        tab.dataset.bound = "true";
+        tab.addEventListener("click", () => {
+            document.querySelectorAll(".chat-list-tab").forEach(item => {
+                const active = item === tab;
+                item.classList.toggle("active", active);
+                item.setAttribute("aria-selected", active ? "true" : "false");
+            });
+            applyChatListFilter();
+        });
+    });
+
+    const refresh = $("chatListRefreshButton");
+    if (refresh && !refresh.dataset.bound) {
+        refresh.dataset.bound = "true";
+        refresh.addEventListener("click", async () => {
+            refresh.classList.add("is-loading");
+            try { await loadReceivedInquiries(); }
+            finally { refresh.classList.remove("is-loading"); }
+        });
+    }
+
+    const close = $("chatListCloseButton");
+    if (close && !close.dataset.bound) {
+        close.dataset.bound = "true";
+        close.addEventListener("click", () => closeModal("inquiriesModal"));
+    }
+
+    applyChatListFilter();
 }
 
 async function getInquiryForChat(inquiryId) {
@@ -6374,6 +6466,7 @@ function setupEventListeners() {
                 }
 
                 await loadReceivedInquiries();
+                setupChatListControls();
                 openModal("inquiriesModal");
             }
         );
