@@ -13786,3 +13786,39 @@ body #chatModal .chat-head > .chat-actions {
         flex-basis: 43px !important;
     }
 }
+
+
+/* Chat page background — matched with dark navy header */
+body #chatModal .chat-modal-content {
+    background: #eef4fa !important;
+}
+
+body #chatModal .chat-profile-intro {
+    background: #eef4fa !important;
+    border-bottom-color: #d7e3ee !important;
+}
+
+body #chatModal .chat-messages {
+    background: #e8f0f7 !important;
+}
+
+body #chatModal .chat-security-notice,
+body #chatModal .chat-form {
+    background: #eef4fa !important;
+    border-color: #d7e3ee !important;
+}
+
+body #chatModal .chat-message-other .chat-message-bubble {
+    background: #ffffff !important;
+    border-color: #dbe5ed !important;
+}
+
+body #chatModal .chat-input-pill {
+    background: #ffffff !important;
+    border: 1px solid #d9e4ed !important;
+}
+
+body #chatModal .chat-profile-details,
+body #chatModal .chat-security-notice {
+    color: #687b89 !important;
+}
