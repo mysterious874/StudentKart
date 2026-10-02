@@ -14462,3 +14462,63 @@ body #chatModal #chatLikeButton.chat-send-button i {
     font-size: 12px;
     color: var(--text-soft, #718187);
 }
+
+
+/* Sell modal: keep the mobile floating navigation hidden. */
+body:has(#sellModal:not(.hidden)) .mobile-bottom-nav,
+body:has(#sellModal:not(.hidden)) .bottom-floating-nav,
+body:has(#sellModal:not(.hidden)) .floating-bottom-nav {
+    display: none !important;
+}
+
+/* Theme-matched product image picker */
+.product-image-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.product-image-choose-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 16px;
+    border: 1px solid rgba(15,139,141,.22);
+    border-radius: 12px;
+    background: linear-gradient(135deg, #e8f5f3, #d8efed);
+    color: #087577;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.product-image-choose-button:hover {
+    background: linear-gradient(135deg, #dff2ef, #cce9e6);
+    box-shadow: 0 6px 16px rgba(15,139,141,.14);
+    transform: translateY(-1px);
+}
+.product-image-choose-button:active {
+    transform: translateY(0);
+}
+.product-image-choose-button i {
+    font-size: 15px;
+}
+.product-image-file-name {
+    max-width: min(260px, 100%);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-soft, #718187);
+    font-size: 11px;
+}
+body.studentkart-dark .product-image-choose-button {
+    background: #18383b;
+    color: #8fe1dd;
+    border-color: rgba(143,225,221,.2);
+}
+body.studentkart-dark .product-image-file-name {
+    color: #a9bcc2;
+}
