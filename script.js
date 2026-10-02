@@ -233,6 +233,7 @@ let modalHistory = [];
 let studentKartHistoryReady = false;
 let studentKartHandlingPopState = false;
 let studentKartSkipNextPopState = false;
+let studentKartModalCloseTimers = new Map();
 
 function ensureStudentKartHistory() {
     if (studentKartHistoryReady) {
@@ -283,8 +284,20 @@ function openModal(id, options = {}) {
 
     const currentModal =
         document.querySelector(
-            ".modal:not(.hidden):not(.modal-closing)"
+            ".modal:not(.hidden)"
         );
+
+    // If another modal is in the middle of its close animation, cancel that
+    // animation and treat it as the real parent of the new modal. This keeps
+    // modal navigation/history in the same order the user sees on screen.
+    if (currentModal && currentModal.id !== id) {
+        const pendingClose = studentKartModalCloseTimers.get(currentModal.id);
+        if (pendingClose) {
+            window.clearTimeout(pendingClose);
+            studentKartModalCloseTimers.delete(currentModal.id);
+        }
+        currentModal.classList.remove("modal-closing");
+    }
 
     if (
         currentModal &&
@@ -375,7 +388,13 @@ function closeModal(id, options = {}) {
 
     modal.classList.add("modal-closing");
 
-    window.setTimeout(() => {
+    const existingCloseTimer = studentKartModalCloseTimers.get(id);
+    if (existingCloseTimer) {
+        window.clearTimeout(existingCloseTimer);
+    }
+
+    const closeTimer = window.setTimeout(() => {
+        studentKartModalCloseTimers.delete(id);
         modal.classList.remove("modal-closing");
         modal.classList.add("hidden");
 
@@ -416,6 +435,7 @@ function closeModal(id, options = {}) {
             }
         }
     }, 220);
+    studentKartModalCloseTimers.set(id, closeTimer);
 }
 
 function closeAllModals(options = {}) {
@@ -440,74 +460,6 @@ function closeAllModals(options = {}) {
     }
 }
 
-// Chat navigation guard: when Chat is visible, Back always returns to the Chats list
-// in a single navigation step, regardless of stale modal/history entries.
-document.addEventListener("click", event => {
-    const button = event.target.closest("#chatBackButton");
-    if (!button) return;
-
-    const chatModal = $("chatModal");
-    const inquiriesModal = $("inquiriesModal");
-    if (!chatModal || chatModal.classList.contains("hidden")) return;
-
-    event.preventDefault();
-    event.stopImmediatePropagation();
-
-    chatModal.classList.remove("modal-closing");
-    chatModal.classList.add("hidden");
-
-    if (inquiriesModal) {
-        inquiriesModal.classList.remove("modal-closing");
-        inquiriesModal.classList.remove("hidden");
-    }
-
-    document.body.classList.add("modal-open");
-    document.body.classList.add("studentkart-modal-navigation-hidden");
-    document.body.classList.remove("studentkart-chat-open");
-
-    modalHistory = [];
-    ensureStudentKartHistory();
-    window.history.replaceState(
-        {
-            studentKart: true,
-            modalId: "inquiriesModal",
-            modalStack: ["inquiriesModal"]
-        },
-        "",
-        window.location.pathname + window.location.search + "#inquiriesModal"
-    );
-}, true);
-
-window.addEventListener("popstate", event => {
-    // If Chat is currently visible, Android/browser Back must restore the
-    // Chats list immediately instead of stepping through a stale history entry.
-    const visibleChat = $("chatModal") && !$("chatModal").classList.contains("hidden");
-    const inquiries = $("inquiriesModal");
-
-    if (visibleChat && inquiries) {
-        $("chatModal").classList.remove("modal-closing");
-        $("chatModal").classList.add("hidden");
-        inquiries.classList.remove("modal-closing");
-        inquiries.classList.remove("hidden");
-
-        document.body.classList.add("modal-open");
-        document.body.classList.add("studentkart-modal-navigation-hidden");
-        document.body.classList.remove("studentkart-chat-open");
-
-        modalHistory = [];
-        ensureStudentKartHistory();
-        window.history.replaceState(
-            {
-                studentKart: true,
-                modalId: "inquiriesModal",
-                modalStack: ["inquiriesModal"]
-            },
-            "",
-            window.location.pathname + window.location.search + "#inquiriesModal"
-        );
-        return;
-    }
-    /* existing modal history handler */
 
     /*
      * System/browser Back uses this same navigation stack as the
@@ -8456,70 +8408,37 @@ $("chatVideoCallButton")?.addEventListener("click", () => {
 
 
 
-$("chatBackButton")?.addEventListener("click", () => {
-    /*
-     * The Chat header arrow is an in-app navigation control. Do not use
-     * history.back() here: mobile browsers can have an extra history entry
-     * from the modal that makes the first tap appear to do nothing.
-     * Restore the parent screen directly in ONE tap and synchronize the
-     * current history entry with that visible screen.
-     */
+$("chatBackButton")?.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+
     const chatModal = $("chatModal");
-    const inquiriesModal = $("inquiriesModal");
+    if (!chatModal || chatModal.classList.contains("hidden")) return;
 
-    if (chatModal && !chatModal.classList.contains("hidden")) {
-        const state = window.history.state;
-        const stack = Array.isArray(state?.modalStack)
-            ? state.modalStack.filter(Boolean)
-            : [];
+    const parentId = modalHistory.length
+        ? modalHistory[modalHistory.length - 1]
+        : "inquiriesModal";
 
-        const parentId =
-            stack.length >= 2
-                ? stack[stack.length - 2]
-                : "inquiriesModal";
+    const parentModal = $(parentId) || $("inquiriesModal");
 
-        const parentModal =
-            $(parentId) || inquiriesModal;
+    chatModal.classList.remove("modal-closing");
+    chatModal.classList.add("hidden");
+    document.body.classList.remove("studentkart-chat-open");
 
-        chatModal.classList.remove("modal-closing");
-        chatModal.classList.add("hidden");
-
-        if (parentModal) {
-            parentModal.classList.remove("modal-closing");
-            parentModal.classList.remove("hidden");
-            document.body.classList.add("modal-open");
-            document.body.classList.add("studentkart-modal-navigation-hidden");
-            document.body.classList.remove("studentkart-chat-open");
-
-            modalHistory = [];
-            const parentStack = [parentModal.id];
-
-            ensureStudentKartHistory();
-            window.history.replaceState(
-                {
-                    studentKart: true,
-                    modalId: parentModal.id,
-                    modalStack: parentStack
-                },
-                "",
-                window.location.pathname + window.location.search + "#" + parentModal.id
-            );
-            return;
-        }
+    if (parentModal) {
+        parentModal.classList.remove("modal-closing");
+        parentModal.classList.remove("hidden");
+        document.body.classList.add("modal-open");
+        document.body.classList.add("studentkart-modal-navigation-hidden");
+        modalHistory = [];
+        setStudentKartModalHistory(parentModal.id, [parentModal.id]);
+    } else {
+        modalHistory = [];
+        document.body.classList.remove("modal-open");
+        document.body.classList.remove("studentkart-modal-navigation-hidden");
+        setStudentKartModalHistory(null, []);
     }
-
-    // Safe fallback for an old/stale session without a visible parent modal.
-    const returnProduct = window.studentKartReturnToProductDetails;
-    if (returnProduct) {
-        window.studentKartReturnToProductDetails = null;
-        closeModal("chatModal", { instant: true });
-        requestAnimationFrame(() => openProductDetails(returnProduct.id));
-        return;
-    }
-
-    showChatsFromChat();
 });
-
 
 
 let selectedChatMessageIds = new Set();
