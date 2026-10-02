@@ -6884,6 +6884,12 @@ function setupEventListeners() {
                     return;
                 }
 
+                // The Chat button is a user gesture, so it is a safe place
+                // to request browser notification permission for incoming messages.
+                if ("Notification" in window && Notification.permission === "default") {
+                    Notification.requestPermission().catch(() => {});
+                }
+
                 // Open the Chat section immediately on the first tap.
                 setupChatListControls();
                 openModal("inquiriesModal");
@@ -9089,6 +9095,37 @@ if (typeof originalCloseModal === "function") {
    CHAT UNREAD NOTIFICATIONS
    ========================================================= */
 
+async function showChatBrowserNotification(message) {
+    if (!currentUser || !message) return;
+    if (message.receiver_id !== currentUser.id) return;
+    if (currentChatInquiry && String(message.inquiry_id) === String(currentChatInquiry.id)) return;
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+    let body = String(message.message || "You have received a new message.");
+    if (body.startsWith("__STUDENTKART_MEDIA__") || body.startsWith("__STUDENTKART_IMAGE__")) {
+        try {
+            const prefix = body.startsWith("__STUDENTKART_MEDIA__")
+                ? "__STUDENTKART_MEDIA__"
+                : "__STUDENTKART_IMAGE__";
+            const media = JSON.parse(body.slice(prefix.length));
+            body = media.mediaType === "video" ? "Sent you a video." : "Sent you a photo.";
+            if (media.caption) body += " " + media.caption;
+        } catch {
+            body = "You have received a new media message.";
+        }
+    }
+
+    try {
+        new Notification("StudentKart • New message", {
+            body: body.slice(0, 180),
+            tag: "studentkart-chat-" + String(message.inquiry_id || message.id || Date.now()),
+            renotify: true
+        });
+    } catch (error) {
+        console.warn("Chat browser notification error:", error);
+    }
+}
+
 async function updateChatUnreadCount() {
     if (!currentUser) return;
 
@@ -9105,8 +9142,16 @@ async function updateChatUnreadCount() {
         if (error) throw error;
 
         const unread = count || 0;
-        badge.textContent = unread > 99 ? "99+" : String(unread);
+        const label = unread > 99 ? "99+" : String(unread);
+
+        badge.textContent = label;
         badge.classList.toggle("hidden", unread === 0);
+
+        const bottomBadge = $("chatBottomUnreadCount");
+        if (bottomBadge) {
+            bottomBadge.textContent = label;
+            bottomBadge.classList.toggle("hidden", unread === 0);
+        }
     } catch (error) {
         console.error("Chat unread count error:", error);
     }
@@ -9205,6 +9250,7 @@ async function startChatUnreadRealtime() {
 
                 if (!isOpenChatMessage) {
                     showToast("💬 New chat message received", "success");
+                    showChatBrowserNotification(message);
                 }
             }
         )
