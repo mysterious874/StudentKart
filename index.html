@@ -152,20 +152,55 @@
     </div>
 
 <main>
-        <section id="home" class="hero">
-            
-            <div class="hero-container">
-                <div class="hero-content">
-                    <div class="hero-badge"><i class="fas fa-graduation-cap"></i> Built for Students</div>
-                    <h1>Buy, Sell &amp; <span>Discover.</span></h1>
-                    <p>StudentKart is a simple student marketplace where you can buy, sell and discover useful products
-                        around your campus.</p>
-                    <div class="hero-trust"><span><i class="fas fa-shield-halved"></i> Student-focused</span><span><i
-                                class="fas fa-bolt"></i> Easy to use</span><span><i class="fas fa-users"></i> Campus
-                            marketplace</span></div>
-                </div>
+        <section id="home" class="hero sk-home-v2">
+    <div class="sk-home-glow sk-home-glow-a"></div>
+    <div class="sk-home-glow sk-home-glow-b"></div>
+    <div class="hero-container sk-home-container">
+        <div class="sk-home-copy">
+            <div class="sk-home-eyebrow"><span class="sk-live-dot"></span> YOUR CAMPUS. YOUR MARKETPLACE.</div>
+            <h1>Everything students need.<br><span>Right around campus.</span></h1>
+            <p>Buy what you need, sell what you no longer use, rent useful stuff, and connect with students around you.</p>
+            <div class="sk-home-actions">
+                <a href="#marketplace" class="sk-home-btn sk-home-btn-primary"><i class="fas fa-store"></i><span>Explore Marketplace</span><i class="fas fa-arrow-right sk-home-btn-arrow"></i></a>
+                <button type="button" class="sk-home-btn sk-home-btn-secondary" id="homeSellButton" onclick="openSellModal()"><i class="fas fa-plus"></i><span>Sell an Item</span></button>
             </div>
-        </section>
+            <div class="sk-home-proof">
+                <span><i class="fas fa-shield-halved"></i> Student-focused</span>
+                <span><i class="fas fa-location-dot"></i> Campus-based</span>
+                <span><i class="fas fa-comments"></i> Chat with sellers</span>
+            </div>
+        </div>
+
+        <div class="sk-home-showcase">
+            <div class="sk-showcase-top">
+                <span class="sk-showcase-label">CAMPUS MARKET</span>
+                <span class="sk-showcase-status"><i class="fas fa-circle"></i> Live</span>
+            </div>
+            <div class="sk-showcase-card sk-showcase-featured">
+                <div class="sk-showcase-image"><i class="fas fa-laptop"></i></div>
+                <div class="sk-showcase-info">
+                    <span>Featured listing</span>
+                    <strong>Student essentials</strong>
+                    <small>Discover useful products near you</small>
+                </div>
+                <i class="fas fa-arrow-up-right-from-square sk-showcase-open"></i>
+            </div>
+            <div class="sk-showcase-mini-grid">
+                <a href="#marketplace" class="sk-mini-card"><span class="sk-mini-icon"><i class="fas fa-book"></i></span><b>Books</b><small>Study smarter</small></a>
+                <a href="#marketplace" class="sk-mini-card"><span class="sk-mini-icon"><i class="fas fa-mobile-screen-button"></i></span><b>Electronics</b><small>Tech nearby</small></a>
+                <a href="#marketplace" class="sk-mini-card"><span class="sk-mini-icon"><i class="fas fa-bicycle"></i></span><b>Vehicles</b><small>Move around</small></a>
+                <a href="#marketplace" class="sk-mini-card"><span class="sk-mini-icon"><i class="fas fa-couch"></i></span><b>Furniture</b><small>Set up your space</small></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="sk-home-bottom">
+        <div class="sk-home-stat"><strong>Buy</strong><span>Find student-friendly deals</span></div>
+        <div class="sk-home-stat"><strong>Sell</strong><span>Turn unused items into cash</span></div>
+        <div class="sk-home-stat"><strong>Rent</strong><span>Use things without buying</span></div>
+        <div class="sk-home-stat"><strong>Connect</strong><span>Chat directly with students</span></div>
+    </div>
+</section>
 
         <section id="categoryPage" class="category-page hidden" aria-label="Category listings">
             <div class="category-page-navbar">
