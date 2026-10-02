@@ -14887,80 +14887,46 @@ body #chatModal .chat-message {
 
 
 /* =========================================================
-   COMPACT LISTING CARDS — reduce vertical height
+   COMPACT LISTING CARDS — compact the card, preserve photos
    ========================================================= */
-.listing-card,
-.product-card,
-.marketplace-card {
-    padding: 12px !important;
+.product-card {
+    padding: 0 !important;
 }
 
-.listing-card .listing-image,
-.product-card .product-image,
-.marketplace-card .product-image {
-    height: 150px !important;
-    min-height: 150px !important;
+.product-card .product-image-wrap {
+    height: 205px !important;
+    min-height: 205px !important;
 }
 
-.listing-card .listing-content,
-.product-card .product-content,
-.marketplace-card .product-content {
-    padding: 10px !important;
+.product-card .product-body {
+    padding: 10px 12px !important;
 }
 
-.listing-card h3,
-.product-card h3,
-.marketplace-card h3 {
-    margin-bottom: 5px !important;
-    line-height: 1.25 !important;
+.product-card .product-body .product-location {
+    margin-top: 4px !important;
+    min-height: 16px !important;
 }
 
-.listing-card p,
-.product-card p,
-.marketplace-card p {
-    margin-bottom: 5px !important;
-    line-height: 1.35 !important;
-}
-
-.listing-card .listing-meta,
-.product-card .product-meta,
-.marketplace-card .product-meta {
-    gap: 5px !important;
-    margin-top: 6px !important;
+.product-card .product-body .product-meta {
+    min-height: 16px !important;
 }
 
 @media (max-width: 700px) {
-    .listing-card,
-    .product-card,
-    .marketplace-card {
-        padding: 8px !important;
+    .product-card {
+        padding: 0 !important;
         border-radius: 12px !important;
     }
 
-    .listing-card .listing-image,
-    .product-card .product-image,
-    .marketplace-card .product-image {
-        height: 112px !important;
-        min-height: 112px !important;
+    .product-card .product-image-wrap {
+        height: 205px !important;
+        min-height: 205px !important;
     }
 
-    .listing-card .listing-content,
-    .product-card .product-content,
-    .marketplace-card .product-content {
-        padding: 8px !important;
+    .product-card .product-body {
+        padding: 8px 10px !important;
     }
 
-    .listing-card h3,
-    .product-card h3,
-    .marketplace-card h3 {
-        font-size: 13px !important;
-        margin-bottom: 3px !important;
-    }
-
-    .listing-card p,
-    .product-card p,
-    .marketplace-card p {
-        font-size: 11px !important;
-        margin-bottom: 3px !important;
+    .product-card .product-body .product-location {
+        margin-top: 3px !important;
     }
 }
