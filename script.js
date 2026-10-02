@@ -30,6 +30,7 @@ function finishStudentKartSplash(){
 
     window.setTimeout(() => {
         splash.remove();
+        document.querySelector(".mobile-bottom-nav")?.classList.remove("splash-hidden");
         document.body.classList.remove("studentkart-splash-active", "studentkart-splash-leaving");
     }, 500);
 }
