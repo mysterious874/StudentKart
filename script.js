@@ -7866,6 +7866,51 @@ $("chatModal")?.querySelector(".chat-person")?.addEventListener("click", async (
 
 $("chatModal")?.querySelector(".chat-person")?.style.setProperty("cursor", "pointer");
 
+$("chatBackButton")?.addEventListener("click", () => {
+    const chatModal = $("chatModal");
+    const inquiriesModal = $("inquiriesModal");
+
+    if (!chatModal || !inquiriesModal) return;
+
+    chatModal.classList.remove("modal-closing");
+    chatModal.classList.add("hidden");
+
+    inquiriesModal.classList.remove("modal-closing");
+    inquiriesModal.classList.remove("hidden");
+
+    document.body.classList.add("modal-open");
+    document.body.classList.add("studentkart-modal-navigation-hidden");
+    document.body.classList.remove("studentkart-chat-open");
+
+    modalHistory = [];
+
+    if (window.history.state?.studentKart) {
+        window.history.replaceState(
+            {
+                ...window.history.state,
+                studentKart: true,
+                modalId: "inquiriesModal",
+                modalStack: ["inquiriesModal"]
+            },
+            "",
+            window.location.pathname + window.location.search + "#inquiriesModal"
+        );
+    }
+});
+
+window.addEventListener("hashchange", () => {
+    const hash = window.location.hash.replace("#", "");
+    if (hash === "inquiriesModal" && $("chatModal") && !$("chatModal").classList.contains("hidden")) {
+        $("chatModal").classList.add("hidden");
+        $("chatModal").classList.remove("modal-closing");
+        $("inquiriesModal")?.classList.remove("hidden");
+        document.body.classList.add("modal-open");
+        document.body.classList.add("studentkart-modal-navigation-hidden");
+        document.body.classList.remove("studentkart-chat-open");
+        modalHistory = [];
+    }
+});
+
 let selectedChatMessageIds = new Set();
 let chatLongPressTimer = null;
 let chatLongPressTriggered = false;
