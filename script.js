@@ -7791,23 +7791,26 @@ async function openChat(inquiry) {
     );
 
     if (chatListIsOpen) {
-        modalHistory = ["inquiriesModal"];
+        /*
+         * Normalize the current history entry first. This prevents stale
+         * modal entries from accumulating when Chat is opened repeatedly.
+         * Then openModal() creates exactly ONE Chat entry on top of Chats.
+         */
+        modalHistory = [];
+
+        ensureStudentKartHistory();
+        window.history.replaceState(
+            {
+                studentKart: true,
+                modalId: "inquiriesModal",
+                modalStack: ["inquiriesModal"]
+            },
+            "",
+            window.location.pathname + window.location.search + "#inquiriesModal"
+        );
     }
 
     openModal("chatModal");
-
-    if (chatListIsOpen && window.history.state?.studentKart) {
-        window.history.replaceState(
-            {
-                ...window.history.state,
-                studentKart: true,
-                modalId: "chatModal",
-                modalStack: ["inquiriesModal", "chatModal"]
-            },
-            "",
-            window.location.pathname + window.location.search + "#chatModal"
-        );
-    }
 
     document.body.classList.add("studentkart-chat-open");
 
