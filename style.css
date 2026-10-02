@@ -18092,3 +18092,28 @@ body.studentkart-dark .studentkart-custom-select-option { color: #dcefed; }
 body.studentkart-dark .studentkart-custom-select-option:hover,
 body.studentkart-dark .studentkart-custom-select-option:focus-visible { background: rgba(143,225,221,.10); }
 body.studentkart-dark .studentkart-custom-select-option.is-selected { background: rgba(143,225,221,.14); color: #8fe1dd; }
+
+
+/* =========================================================
+   FINAL MODAL BACKGROUND SCROLL LOCK
+   Never allow touch/wheel gestures to move the page behind a modal.
+   ========================================================= */
+html:has(.modal:not(.hidden)),
+body:has(.modal:not(.hidden)) {
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: auto !important;
+}
+body:has(.modal:not(.hidden)) {
+    touch-action: none !important;
+}
+body:has(.modal:not(.hidden)) .modal:not(.hidden) {
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+}
+body:has(.modal:not(.hidden)) .modal:not(.hidden) .modal-content {
+    touch-action: pan-y !important;
+    overscroll-behavior-y: contain !important;
+    overscroll-behavior-x: none !important;
+    -webkit-overflow-scrolling: touch !important;
+}
