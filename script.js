@@ -8218,6 +8218,11 @@ function endChatMessageLongPress() {
     clearTimeout(chatLongPressTimer);
 }
 
+$("chatMessages")?.addEventListener("pointerdown", startChatSwipeReply);
+$("chatMessages")?.addEventListener("pointermove", moveChatSwipeReply);
+$("chatMessages")?.addEventListener("pointerup", endChatSwipeReply);
+$("chatMessages")?.addEventListener("pointercancel", endChatSwipeReply);
+
 $("chatMessages")?.addEventListener("pointerdown", beginChatMessageLongPress);
 $("chatMessages")?.addEventListener("pointerup", endChatMessageLongPress);
 $("chatMessages")?.addEventListener("pointercancel", endChatMessageLongPress);
