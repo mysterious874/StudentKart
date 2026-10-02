@@ -12249,7 +12249,7 @@ const SK_WORD_EXTRA = {
         Information:"जानकारी",policies:"नीतियाँ",support:"सहायता",Something:"कुछ",details:"विवरण",
         Search:"खोजें",image:"इमेज",selected:"चयनित",Preview:"प्रीव्यू",Details:"विवरण",
         Listed:"सूचीबद्ध",by:"द्वारा",saved:"सहेजे गए",later:"बाद के लिए",Inquiry:"पूछताछ",
-        Ask:"पूछें",buyer:"खरीदार",messages:"संदेश",Here:"यहाँ",Don't:"नहीं",have:"है",
+        Ask:"पूछें",buyer:"खरीदार",messages:"संदेश",Here:"यहाँ","Don't":"नहीं",have:"है",
         already:"पहले से",Since:"से",Recently:"हाल ही में",Conversation:"बातचीत",Delete:"हटाएँ",
         Everyone:"सभी",selected:"चयनित",Choose:"चुनें",want:"चाहते",how:"कैसे",No:"कोई नहीं",
         messages:"संदेश",Replying:"जवाब दिया जा रहा है",Record:"रिकॉर्ड करें"
