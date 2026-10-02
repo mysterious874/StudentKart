@@ -1299,7 +1299,7 @@ function updateNavbar() {
             "hidden"
         );
 
-        profileButton?.classList.add(
+        profileButton?.classList.remove(
             "hidden"
         );
 
@@ -5848,6 +5848,19 @@ function setupEventListeners() {
     /* -----------------------------------------
        WISHLIST
        ----------------------------------------- */
+
+    $("profileButton")
+        ?.addEventListener(
+            "click",
+            () => {
+                if (currentUser) {
+                    openModal("profileModal");
+                    loadProfile?.();
+                } else {
+                    openModal("loginModal");
+                }
+            }
+        );
 
     $("wishlistButton")
         ?.addEventListener(
