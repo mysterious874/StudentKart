@@ -17018,3 +17018,48 @@ main, .footer { margin-left:0 !important; }
     .hero-nav-rail { display:none !important; }
     .hero-nav-rail + .navbar-search-panel { left:10px !important; right:10px !important; top:10px !important; }
 }
+
+
+/* HERO HORIZONTAL NAV — LOGO + SEARCH + SELL + PROFILE + AUTH */
+.hero-nav-rail {
+  top: 18px !important; left: 22px !important; right: 22px !important; width: auto !important;
+  min-height: 64px !important; height: 64px !important; padding: 8px 14px !important;
+  flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
+  gap: 14px !important; border-radius: 16px !important;
+}
+.hero-nav-rail .hero-nav-logo { border: 0 !important; padding: 0 !important; flex: 0 0 auto !important; }
+.hero-nav-rail .hero-nav-logo .logo { flex-direction: row !important; gap: 8px !important; }
+.hero-nav-rail .hero-nav-logo .logo-mark { width: 38px !important; height: 38px !important; transform: none !important; }
+.hero-nav-rail .hero-nav-logo .logo-text { font-size: 15px !important; }
+.hero-nav-rail .nav-links { display:none !important; }
+.hero-nav-rail .nav-actions {
+  flex-direction: row !important; align-items: center !important; justify-content: flex-end !important;
+  gap: 8px !important; flex: 1 !important;
+}
+.hero-nav-rail .nav-actions .btn {
+  width:auto !important; min-width: 42px !important; min-height: 42px !important; height:42px !important;
+  padding: 0 13px !important; flex-direction: row !important; gap:7px !important;
+  font-size: 12px !important; white-space: nowrap !important; border-radius: 10px !important;
+}
+.hero-nav-rail .nav-actions .btn i { font-size: 13px !important; }
+.hero-nav-rail .nav-search-button { min-width: 42px !important; }
+.hero-nav-rail .nav-search-button span { display:none !important; }
+.hero-nav-rail .nav-actions .btn-primary#sellButton { padding: 0 16px !important; }
+.hero-nav-rail .nav-actions .nav-notification-button,
+.hero-nav-rail .nav-actions .nav-chat-button { display:none !important; }
+.hero-nav-rail .nav-actions .nav-profile-button { display:flex !important; }
+.hero-nav-rail .hero-nav-logo + .nav-links + .nav-actions { margin-left:auto !important; }
+.hero-nav-rail + .navbar-search-panel { left:22px !important; right:22px !important; top:94px !important; }
+main, .footer { margin-left:0 !important; }
+@media (max-width:680px) {
+  .hero-nav-rail { top:10px !important; left:10px !important; right:10px !important; height:58px !important; min-height:58px !important; padding:7px 9px !important; gap:6px !important; }
+  .hero-nav-rail .hero-nav-logo .logo-text { font-size:13px !important; }
+  .hero-nav-rail .hero-nav-logo .logo-mark { width:32px !important; height:32px !important; }
+  .hero-nav-rail .nav-actions { gap:4px !important; }
+  .hero-nav-rail .nav-actions .btn { min-width:38px !important; height:38px !important; min-height:38px !important; padding:0 9px !important; font-size:10px !important; }
+  .hero-nav-rail .nav-actions .btn-primary#sellButton { padding:0 10px !important; }
+  .hero-nav-rail .nav-actions .nav-profile-button span { display:none !important; }
+  .hero-nav-rail .nav-actions #loginButton span { display:none !important; }
+  .hero-nav-rail .nav-actions #signupButton span { display:none !important; }
+  .hero-nav-rail + .navbar-search-panel { left:10px !important; right:10px !important; top:78px !important; }
+}
