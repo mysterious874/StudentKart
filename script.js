@@ -11829,6 +11829,19 @@ function studentKartBottomNavOpen(modalId) {
     }, 520);
 }
 
+/* Bottom-nav page opening animation for direct page anchors */
+document.addEventListener("click", event => {
+    const navLink = event.target.closest(".mobile-bottom-nav a[href]");
+    if (!navLink) return;
+    const href = navLink.getAttribute("href");
+    const target = href ? document.querySelector(href) : null;
+    if (!target) return;
+    target.classList.remove("studentkart-bottom-nav-section-opening");
+    void target.offsetWidth;
+    target.classList.add("studentkart-bottom-nav-section-opening");
+    window.setTimeout(() => target.classList.remove("studentkart-bottom-nav-section-opening"), 500);
+});
+
 /* Footer information links */
 const bottomSettingsButton = $("bottomSettingsButton");
 if (bottomSettingsButton) {
