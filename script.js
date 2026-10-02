@@ -6859,6 +6859,14 @@ function setupEventListeners() {
                     return;
                 }
 
+                // In chat selection mode, a normal card/button click must
+                // select/deselect the chat instead of opening it. The
+                // dedicated long-press handler will handle the selection.
+                if (chatSelectionMode) {
+                    event.preventDefault();
+                    return;
+                }
+
                 const action =
                     button?.dataset.inquiryAction ||
                     "chat";
