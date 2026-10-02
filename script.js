@@ -319,6 +319,10 @@ function openModal(id, options = {}) {
 
 function closeModal(id, options = {}) {
 
+    if (id === "productModal") {
+        document.body.classList.remove("studentkart-product-details-open");
+    }
+
     if (id === "chatModal") {
         document.body.classList.remove("studentkart-chat-open");
     }
@@ -416,6 +420,7 @@ function closeModal(id, options = {}) {
 
 function closeAllModals(options = {}) {
 
+    document.body.classList.remove("studentkart-product-details-open");
     document.body.classList.remove("studentkart-chat-open");
 
     modalHistory = [];
@@ -2122,6 +2127,10 @@ async function openProductDetails(productId) {
     }
 
     openModal("productModal");
+
+    // Product details is a dedicated full-screen experience.
+    // Keep both floating navigation bars completely out of the way.
+    document.body.classList.add("studentkart-product-details-open");
 }
 
 
