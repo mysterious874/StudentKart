@@ -8037,6 +8037,7 @@ function populateStudentKartIndiaData() {
     const stateSelects = ["signupState","editProfileState"];
     const cityLists = ["studentkartCityList"];
     const institutionLists = ["studentkartInstitutionList"];
+    const locationList = $("studentkartLocationList");
 
     stateSelects.forEach(id => {
         const select = $(id);
@@ -8064,6 +8065,17 @@ function populateStudentKartIndiaData() {
             .map(name => '<option value="' + escapeHTML(name) + '"></option>')
             .join("");
     });
+
+    // Searchable marketplace location list: India-wide cities + universities.
+    if (locationList) {
+        const locationOptions = [...new Set([
+            ...STUDENTKART_INDIA_CITIES,
+            ...STUDENTKART_INSTITUTIONS
+        ])].sort((a, b) => a.localeCompare(b, "en"));
+        locationList.innerHTML = locationOptions
+            .map(value => '<option value="' + escapeHTML(value) + '"></option>')
+            .join("");
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
