@@ -2925,13 +2925,7 @@ async function loadReceivedInquiries() {
                             data-chat-preview="${escapeHTML(preview)}"
                             data-chat-unread="${unread > 0 ? "true" : "false"}"
                         >
-                            <label class="inquiry-select-box" onclick="event.stopPropagation()">
-                                <input
-                                    type="checkbox"
-                                    class="inquiry-select-checkbox"
-                                    data-inquiry-select="${escapeHTML(inquiry.id)}"
-                                >
-                            </label>
+                            <div class="chat-selection-indicator" aria-hidden="true"></div>
                             <div class="whatsapp-inquiry-avatar">
                                 ${profile?.avatar_url
                                     ? `<img src="${escapeHTML(profile.avatar_url)}" alt="">`
@@ -2981,6 +2975,8 @@ async function loadReceivedInquiries() {
         filteredEmpty.innerHTML = '<i class="fas fa-magnifying-glass"></i><strong>No chats found</strong><span>Try a different name or message.</span>';
         container.appendChild(filteredEmpty);
         setupChatListControls();
+        bindChatLongPress();
+        updateChatSelectionUI();
         applyChatListFilter();
     } catch (error) {
 
@@ -3002,6 +2998,98 @@ async function loadReceivedInquiries() {
     } finally {
         inquiriesLoading = false;
     }
+}
+
+let chatSelectionMode = false;
+const selectedChatIds = new Set();
+let chatHoldTimer = null;
+let chatHoldTriggered = false;
+
+function updateChatSelectionUI() {
+    const container = $("inquiriesContainer");
+    if (!container) return;
+    container.classList.toggle("chat-selection-mode", chatSelectionMode);
+    container.querySelectorAll(".whatsapp-inquiry-card").forEach(card => {
+        card.classList.toggle("is-selected", selectedChatIds.has(String(card.dataset.inquiryId)));
+        const indicator = card.querySelector(".chat-selection-indicator");
+        if (indicator) indicator.textContent = selectedChatIds.has(String(card.dataset.inquiryId)) ? "✓" : "";
+    });
+    const count = $("selectedInquiryCount");
+    if (count) {
+        count.textContent = selectedChatIds.size + " selected";
+        count.classList.toggle("hidden", !chatSelectionMode || selectedChatIds.size === 0);
+    }
+    document.querySelectorAll(".bulk-action-button").forEach(btn => {
+        btn.classList.toggle("hidden", !chatSelectionMode || selectedChatIds.size === 0);
+    });
+}
+
+function exitChatSelectionMode() {
+    chatSelectionMode = false;
+    selectedChatIds.clear();
+    updateChatSelectionUI();
+}
+
+function toggleChatSelection(id) {
+    const key = String(id);
+    if (selectedChatIds.has(key)) selectedChatIds.delete(key);
+    else selectedChatIds.add(key);
+    if (!selectedChatIds.size) chatSelectionMode = false;
+    updateChatSelectionUI();
+}
+
+function enterChatSelectionMode(id) {
+    chatSelectionMode = true;
+    selectedChatIds.add(String(id));
+    updateChatSelectionUI();
+}
+
+function bindChatLongPress() {
+    const container = $("inquiriesContainer");
+    if (!container || container.dataset.longPressBound) return;
+    container.dataset.longPressBound = "true";
+
+    const startHold = (event) => {
+        const card = event.target.closest(".whatsapp-inquiry-card");
+        if (!card) return;
+        chatHoldTriggered = false;
+        clearTimeout(chatHoldTimer);
+        chatHoldTimer = setTimeout(() => {
+            chatHoldTriggered = true;
+            enterChatSelectionMode(card.dataset.inquiryId);
+            if (navigator.vibrate) navigator.vibrate(35);
+        }, 550);
+    };
+    const cancelHold = () => clearTimeout(chatHoldTimer);
+
+    container.addEventListener("pointerdown", startHold);
+    container.addEventListener("pointerup", cancelHold);
+    container.addEventListener("pointercancel", cancelHold);
+    container.addEventListener("pointerleave", cancelHold);
+
+    container.addEventListener("click", (event) => {
+        const card = event.target.closest(".whatsapp-inquiry-card");
+        if (!card) return;
+        if (chatHoldTriggered) {
+            chatHoldTriggered = false;
+            return;
+        }
+        if (chatSelectionMode) {
+            event.preventDefault();
+            toggleChatSelection(card.dataset.inquiryId);
+            return;
+        }
+        const chatButton = event.target.closest(".whatsapp-chat-button");
+        if (chatButton) return;
+        card.querySelector(".whatsapp-chat-button")?.click();
+    });
+
+    container.addEventListener("contextmenu", (event) => {
+        const card = event.target.closest(".whatsapp-inquiry-card");
+        if (!card) return;
+        event.preventDefault();
+        enterChatSelectionMode(card.dataset.inquiryId);
+    });
 }
 
 function applyChatListFilter() {
