@@ -8144,6 +8144,13 @@ document.addEventListener("pointerdown", event => {
 
 
 /* Footer information links */
+const bottomSettingsButton = $("bottomSettingsButton");
+if (bottomSettingsButton) {
+    bottomSettingsButton.addEventListener("click", () => {
+        showToast?.("Settings coming next");
+    });
+}
+
 const footerInfoContent = {
     about: {
         title: "About StudentKart",
