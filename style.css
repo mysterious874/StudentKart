@@ -20352,3 +20352,71 @@ body.category-page-active .category-page-container {
     padding-bottom: 120px !important;
   }
 }
+
+
+/* FINAL — top navbar and bottom floating navigation are separate elements */
+@media (max-width: 600px) {
+  body > header.navbar {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    z-index: 5000 !important;
+  }
+
+  body > header.navbar.navbar-scroll-hidden {
+    top: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  body > .mobile-bottom-nav {
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: 14px !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 26px) !important;
+    max-width: none !important;
+    height: 90px !important;
+    min-height: 90px !important;
+    display: grid !important;
+    grid-template-columns: repeat(6,minmax(0,1fr)) !important;
+    gap: 2px !important;
+    padding: 9px 7px !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+    border-radius: 25px !important;
+    background: #102f4b !important;
+    box-shadow: 0 14px 35px rgba(16,42,67,.28) !important;
+    z-index: 99999 !important;
+  }
+
+  body > .mobile-bottom-nav .bottom-nav-item {
+    min-width: 0 !important;
+    min-height: 70px !important;
+    height: 70px !important;
+    padding: 5px 1px !important;
+    border-radius: 13px !important;
+    color: #b8c7d4 !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    gap: 5px !important;
+  }
+
+  body > .mobile-bottom-nav .bottom-nav-item i {
+    font-size: 23px !important;
+  }
+
+  body > .mobile-bottom-nav .bottom-nav-item.active,
+  body > .mobile-bottom-nav .bottom-nav-item:hover {
+    background: rgba(22,163,159,.20) !important;
+    color: #fff !important;
+  }
+
+  body {
+    padding-bottom: 120px !important;
+  }
+}
