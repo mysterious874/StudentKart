@@ -3797,13 +3797,13 @@ input[type="file"] {
 }
 
 .chat-head {
-    min-height: 68px;
-    padding: 8px 10px 8px 8px;
+    min-height: 72px;
+    padding: 8px 8px 8px 2px;
     display: flex;
     align-items: center;
     gap: 5px;
-    background: var(--nav);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    background: #061b3a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12);
     position: relative;
     z-index: 10;
@@ -3814,7 +3814,7 @@ input[type="file"] {
     flex: 1 1 auto;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     cursor: pointer;
 }
 
@@ -3920,9 +3920,9 @@ input[type="file"] {
 .chat-back-button,
 .chat-call-button,
 .chat-delete-button {
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
     padding: 0;
     border: 0;
     border-radius: 50%;
@@ -3941,12 +3941,18 @@ input[type="file"] {
     background: rgba(255, 255, 255, 0.12);
 }
 
+.chat-back-button {
+    font-size: 24px;
+    margin-left: 0;
+}
+
 .chat-call-button {
     color: #ffffff;
+    font-size: 18px;
 }
 
 .chat-delete-button:hover {
-    color: #ffb4b4;
+    color: #ffffff;
 }
 
 .chat-back-button:active,
@@ -4270,8 +4276,8 @@ input[type="file"] {
 
     .chat-head {
         min-height: 64px;
-        padding-left: 5px;
-        padding-right: 6px;
+        padding-left: 0;
+        padding-right: 3px;
     }
 
     .chat-avatar {
@@ -4294,11 +4300,17 @@ input[type="file"] {
     }
 
     .chat-call-button,
-    .chat-delete-button,
+    .chat-delete-button {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
     .chat-back-button {
-        width: 35px;
-        height: 35px;
-        flex-basis: 35px;
+        width: 46px;
+        height: 46px;
+        flex-basis: 46px;
+        font-size: 25px;
     }
 
     .chat-profile-intro {
