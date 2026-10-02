@@ -7034,6 +7034,14 @@ document.addEventListener("click", event => {
             loginUser
         );
 
+    // Force the Login action through the form submit handler. This also
+    // prevents mobile browsers from treating the button tap as a no-op.
+    const loginSubmitButton = $("loginForm")?.querySelector('button[type="submit"]');
+    loginSubmitButton?.addEventListener("click", event => {
+        event.preventDefault();
+        $("loginForm")?.requestSubmit();
+    });
+
     $("signupForm")
         ?.addEventListener(
             "submit",
