@@ -5228,6 +5228,8 @@ function selectCategory(category) {
     if (selected === "all") {
         selectedMarketplaceCategory = "all";
         showHomePageFromCategory();
+        modalHistory = [];
+        setStudentKartModalHistory(null, []);
         applyFilters();
         return;
     }
@@ -6955,20 +6957,23 @@ document.addEventListener("click", event => {
     });
 
     $("categoryPageBack")?.addEventListener("click", () => {
-    // The page-level Back arrow intentionally returns to the category picker.
-    // Browser/Android Back remains separate and returns to the previous page
-    // because the picker history entry is replaced when a category is opened.
+    // Category -> picker is one navigation step. Replace the current category
+    // entry so browser/Android Back then goes to the real page before Categories.
     showHomePageFromCategory();
     const modal = $("categoryPickerModal");
     if (modal) {
         modal.classList.remove("hidden");
         document.body.classList.add("modal-open");
         document.body.classList.add("studentkart-modal-navigation-hidden");
+        modalHistory = [];
+        setStudentKartModalHistory("categoryPickerModal", ["categoryPickerModal"]);
     }
 });
 
     $("categoryPageBrowseAll")?.addEventListener("click", () => {
         showHomePageFromCategory();
+        modalHistory = [];
+        setStudentKartModalHistory(null, []);
         $("marketplace")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
@@ -10006,7 +10011,8 @@ function goToHomeFromModal() {
         closeAllModals();
     }
 
-    window.location.hash = "home";
+    // Return to the app's real Home state without creating another history entry.
+    setStudentKartModalHistory(null, []);
 
     window.setTimeout(() => {
         const homeSection = document.getElementById("home");
