@@ -18282,6 +18282,15 @@ body #wishlistModal.modal.studentkart-bottom-nav-opening {
     -webkit-backdrop-filter: blur(4px) !important;
 }
 
+/* Prevent the base modalOpen animation from firing one frame before the
+   bottom-nav/macOS animation. That was causing the single visible blink. */
+body #wishlistModal .modal-content {
+    animation: none;
+}
+body #wishlistModal.modal.studentkart-bottom-nav-opening .modal-content {
+    animation: studentKartMacOpen 0.52s cubic-bezier(.16,.82,.18,1) both !important;
+}
+
 body .modal.studentkart-bottom-nav-opening .modal-content {
     animation: studentKartMacOpen 0.52s cubic-bezier(.16,.82,.18,1) both !important;
     transform-origin: 50% 115% !important;
