@@ -9807,6 +9807,36 @@ body {
 }
 
 
+/* =========================================================
+   GLOBAL PAGE NAVIGATION VISIBILITY
+   Any open StudentKart modal/page owns the viewport.
+   Hide the global navbar and bottom floating navigation so
+   page-specific buttons do not appear underneath them.
+   ========================================================= */
+body:has(.modal:not(.hidden)) .navbar,
+body:has(.modal:not(.hidden)) .mobile-bottom-nav,
+body.studentkart-modal-navigation-hidden .navbar,
+body.studentkart-modal-navigation-hidden .mobile-bottom-nav,
+body.studentkart-product-details-open .navbar,
+body.studentkart-product-details-open .mobile-bottom-nav,
+body.studentkart-chat-open .navbar,
+body.studentkart-chat-open .mobile-bottom-nav,
+body.category-page-active .navbar,
+body.category-page-active .mobile-bottom-nav {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+body:has(.modal:not(.hidden)),
+body.studentkart-modal-navigation-hidden,
+body.studentkart-product-details-open,
+body.studentkart-chat-open,
+body.category-page-active {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
 /* Hide floating navigation while any StudentKart modal is open */
 body.studentkart-modal-navigation-hidden .navbar,
 body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
