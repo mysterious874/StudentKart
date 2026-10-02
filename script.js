@@ -11064,14 +11064,445 @@ async function saveStudentKartSettings(nextSettings, silent = false) {
 
 function applyStudentKartSettings() {
     if (!currentUser) return;
-
-    // Settings currently exposes only Edit Profile.
-    // Keep only the account-level preferences needed by the rest of the app.
     const settings = getStudentKartSettings();
     const theme = settings.preferences.theme === "dark";
     document.body.classList.toggle("studentkart-dark", theme);
     document.documentElement.lang = settings.preferences.language === "hi" ? "hi" : "en";
+
+    const rows = {
+        "chat-notifications": settings.notifications.chat,
+        "wishlist-notifications": settings.notifications.wishlist,
+        "listing-notifications": settings.notifications.listings,
+        "buyer-seller-notifications": settings.notifications.buyerSeller,
+        "sold-notifications": settings.notifications.sold,
+        "push-notifications": settings.notifications.push,
+        "vibration": settings.preferences.vibration,
+        "hide-phone": settings.privacy.hidePhone,
+        "hide-email": settings.privacy.hideEmail
+    };
+
+    Object.entries(rows).forEach(([action, enabled]) => {
+        const row = document.querySelector(`[data-setting-action="${action}"]`);
+        const sw = row?.querySelector(".settings-switch");
+        if (sw) {
+            sw.dataset.enabled = enabled ? "true" : "false";
+            sw.querySelector("span")?.style.setProperty("transform", enabled ? "translateX(18px)" : "translateX(0)");
+            sw.style.background = enabled ? "#0f8b8d" : "#d9e3e8";
+        }
+    });
+
+    const themeRow = document.querySelector('[data-setting-action="theme"]');
+    const themeSmall = themeRow?.querySelector("small");
+    if (themeSmall) themeSmall.textContent = theme === "dark" ? "Dark mode is active" : "Light mode is active";
 }
+
+async function settingsToggle(path) {
+    const settings = getStudentKartSettings();
+    const parts = path.split(".");
+    let obj = settings;
+    for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
+    const key = parts[parts.length - 1];
+    obj[key] = !Boolean(obj[key]);
+    return saveStudentKartSettings(settings);
+}
+
+function openSettingsActionModal({title, description="", fields=[], options=[], danger=false, confirmText="Save", onConfirm}) {
+    let modal = $("settingsActionModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "settingsActionModal";
+        modal.className = "modal hidden";
+        document.body.appendChild(modal);
+    }
+
+    const fieldHTML = fields.map(field => {
+        const type = field.type || "text";
+        if (type === "textarea") {
+            return `<label class="settings-action-field"><span>${escapeHTML(field.label)}</span><textarea id="settingsAction_${escapeHTML(field.id)}" placeholder="${escapeHTML(field.placeholder || "")}">${escapeHTML(field.value || "")}</textarea></label>`;
+        }
+        return `<label class="settings-action-field"><span>${escapeHTML(field.label)}</span><input id="settingsAction_${escapeHTML(field.id)}" type="${type}" value="${escapeHTML(field.value || "")}" placeholder="${escapeHTML(field.placeholder || "")}"></label>`;
+    }).join("");
+
+    const optionHTML = options.length
+        ? `<div class="settings-action-options">${options.map(option =>
+            `<button type="button" class="settings-action-option" data-settings-option="${escapeHTML(option.value)}"><i class="fas ${escapeHTML(option.icon || "fa-circle") }"></i><span><b>${escapeHTML(option.label)}</b><small>${escapeHTML(option.description || "")}</small></span><i class="fas fa-chevron-right"></i></button>`
+        ).join("")}</div>`
+        : "";
+
+    modal.innerHTML = `
+        <div class="modal-overlay" data-settings-action-close></div>
+        <div class="modal-content settings-action-modal-content">
+            <div class="settings-action-header">
+                <div>
+                    <span class="section-label">STUDENTKART</span>
+                    <h2>${escapeHTML(title)}</h2>
+                    <p>${escapeHTML(description)}</p>
+                </div>
+                <button type="button" class="modal-close" data-settings-action-close aria-label="Close">&times;</button>
+            </div>
+            <div class="settings-action-body">${fieldHTML}${optionHTML}</div>
+            <div class="settings-action-footer">
+                <button type="button" class="btn btn-outline" data-settings-action-close>Cancel</button>
+                ${fields.length ? `<button type="button" class="btn ${danger ? "btn-danger" : "btn-primary"}" id="settingsActionConfirm">${escapeHTML(confirmText)}</button>` : ""}
+            </div>
+        </div>`;
+
+    modal.querySelectorAll("[data-settings-action-close]").forEach(btn => {
+        btn.addEventListener("click", () => closeModal("settingsActionModal"));
+    });
+
+    modal.querySelectorAll("[data-settings-option]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const value = btn.dataset.settingsOption;
+            await onConfirm?.(value);
+            closeModal("settingsActionModal");
+        });
+    });
+
+    modal.querySelector("#settingsActionConfirm")?.addEventListener("click", async () => {
+        const values = {};
+        fields.forEach(field => {
+            const el = $(`settingsAction_${field.id}`);
+            values[field.id] = el?.value?.trim() || "";
+        });
+        const ok = await onConfirm?.(values);
+        if (ok !== false) closeModal("settingsActionModal");
+    });
+
+    openModal("settingsActionModal");
+}
+
+async function settingsEmail() {
+    if (!currentUser) return;
+    openSettingsActionModal({
+        title: "Change Email",
+        description: "Update the email connected to your StudentKart account.",
+        fields: [{id:"email", label:"New Email Address", type:"email", value:currentUser.email || "", placeholder:"you@example.com"}],
+        confirmText: "Update Email",
+        onConfirm: async values => {
+            if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(values.email)) {
+                showToast("Please enter a valid email address", "warning"); return false;
+            }
+            const {data,error}=await supabaseClient.auth.updateUser({email:values.email.toLowerCase()});
+            if(error){showToast(error.message||"Could not update email","error");return false;}
+            if(data?.user) currentUser=data.user;
+            showToast("Email update started. Check your confirmation email if required.","success");
+        }
+    });
+}
+
+async function settingsMobile() {
+    if (!currentUser) return;
+    openSettingsActionModal({
+        title: "Change Mobile Number",
+        description: "Enter your mobile number with country code.",
+        fields: [{id:"phone", label:"Mobile Number", type:"tel", value:currentUser.phone || "", placeholder:"+919876543210"}],
+        confirmText: "Update Mobile",
+        onConfirm: async values => {
+            const phone=values.phone.replace(/\\s+/g,"");
+            if(!/^\\+?[1-9]\\d{9,14}$/.test(phone)){showToast("Enter a valid mobile number with country code","warning");return false;}
+            const {data,error}=await supabaseClient.auth.updateUser({phone});
+            if(error){showToast(error.message||"Could not update mobile number","error");return false;}
+            if(data?.user) currentUser=data.user;
+            showToast("Mobile update started. OTP verification may be required.","success");
+        }
+    });
+}
+
+function settingsCollege() {
+    closeModal("settingsModal");
+    openEditProfile?.();
+}
+
+async function settingsLocationCurrent() {
+    if (!navigator.geolocation) { showToast("Location is not supported by this browser","warning"); return; }
+    showToast("Requesting your current location...","info");
+    navigator.geolocation.getCurrentPosition(async position => {
+        const settings=getStudentKartSettings();
+        settings.location.latitude=Number(position.coords.latitude.toFixed(6));
+        settings.location.longitude=Number(position.coords.longitude.toFixed(6));
+        await saveStudentKartSettings(settings,true);
+        showToast("Current location saved","success");
+    }, error => {
+        console.warn("Geolocation error",error);
+        showToast("Location permission was denied or unavailable","warning");
+    }, {enableHighAccuracy:true,timeout:10000,maximumAge:300000});
+}
+
+async function settingsLocationDetails() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Change Location",
+        description:"Set the area you want StudentKart to use for local listings.",
+        fields:[
+            {id:"state",label:"State",value:settings.location.state},
+            {id:"city",label:"City",value:settings.location.city},
+            {id:"area",label:"Area",value:settings.location.area}
+        ],
+        confirmText:"Save Location",
+        onConfirm:async values=>{
+            settings.location.state=values.state;
+            settings.location.city=values.city;
+            settings.location.area=values.area;
+            await saveStudentKartSettings(settings);
+        }
+    });
+}
+
+async function settingsDistance() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Nearby Listings Distance",
+        description:"Choose how far StudentKart should search around your preferred location.",
+        options:[5,10,25,50,100].map(km=>({value:String(km),label:km+" km",description:"Show listings within "+km+" km",icon:"fa-route"})),
+        onConfirm:async value=>{
+            settings.location.distanceKm=Number(value);
+            await saveStudentKartSettings(settings);
+        }
+    });
+}
+
+async function settingsLocationPermission() {
+    openSettingsActionModal({
+        title:"Location Permission",
+        description:"StudentKart uses browser location access only when you request your current location.",
+        options:[
+            {value:"request",label:"Request Location Access",description:"Ask the browser for location permission",icon:"fa-location-crosshairs"},
+            {value:"status",label:"Check Permission Status",description:"See whether location access is allowed",icon:"fa-circle-info"}
+        ],
+        onConfirm:async value=>{
+            if(value==="request"){ settingsLocationCurrent(); return; }
+            try {
+                const result=await navigator.permissions.query({name:"geolocation"});
+                showToast("Location permission: "+result.state,"info");
+            } catch(_) { showToast("Manage location access from your browser site settings.","info"); }
+        }
+    });
+}
+
+async function settingsTheme() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Appearance",
+        description:"Choose how StudentKart should look on your device.",
+        options:[
+            {value:"light",label:"Light Mode",description:"Clean light StudentKart interface",icon:"fa-sun"},
+            {value:"dark",label:"Dark Mode",description:"Dark interface for low-light use",icon:"fa-moon"}
+        ],
+        onConfirm:async value=>{settings.preferences.theme=value;await saveStudentKartSettings(settings);}
+    });
+}
+
+async function settingsLanguage() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Language",
+        description:"Choose your preferred app language.",
+        options:[
+            {value:"en",label:"English",description:"Use English throughout the interface",icon:"fa-language"},
+            {value:"hi",label:"Hindi",description:"Hindi preference (interface translation can be expanded)",icon:"fa-language"}
+        ],
+        onConfirm:async value=>{settings.preferences.language=value;await saveStudentKartSettings(settings);}
+    });
+}
+
+async function settingsProfileVisibility() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Profile Visibility",
+        description:"Choose who can discover your StudentKart profile.",
+        options:[
+            {value:"public",label:"Public",description:"Anyone using StudentKart can see your profile",icon:"fa-earth-asia"},
+            {value:"students",label:"Students",description:"Keep your profile visible to the StudentKart community",icon:"fa-user-group"},
+            {value:"private",label:"Private",description:"Limit profile visibility",icon:"fa-lock"}
+        ],
+        onConfirm:async value=>{settings.privacy.profileVisibility=value;await saveStudentKartSettings(settings);}
+    });
+}
+
+async function settingsBlockedUsers() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Blocked Users",
+        description:"Manage accounts you have blocked.",
+        fields:[{id:"users",label:"Blocked User IDs / Emails",type:"textarea",value:(settings.privacy.blockedUsers||[]).join(", "),placeholder:"Enter IDs or emails separated by commas"}],
+        confirmText:"Save Block List",
+        onConfirm:async values=>{
+            settings.privacy.blockedUsers=values.users?values.users.split(",").map(v=>v.trim()).filter(Boolean):[];
+            await saveStudentKartSettings(settings);
+        }
+    });
+}
+
+async function settingsReportProblem() {
+    openSettingsActionModal({
+        title:"Report a Problem",
+        description:"Tell us what went wrong. Your email app will open with the report ready to send.",
+        fields:[
+            {id:"subject",label:"Subject",value:"StudentKart Problem Report"},
+            {id:"message",label:"What happened?",type:"textarea",placeholder:"Describe the problem..."}
+        ],
+        confirmText:"Prepare Report",
+        onConfirm:async values=>{
+            const subject=encodeURIComponent(values.subject||"StudentKart Problem Report");
+            const body=encodeURIComponent(values.message||"");
+            window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
+        }
+    });
+}
+
+async function settingsLoginSessions() {
+    const {data,error}=await supabaseClient.auth.getSession();
+    const expires=data?.session?.expires_at?new Date(data.session.expires_at*1000).toLocaleString("en-IN"):"Unknown";
+    openSettingsActionModal({
+        title:"Login Session",
+        description:error?"Could not read your current session.":"This browser currently has an active StudentKart session.",
+        options:error?[]:[{value:"current",label:"Current Session Active",description:"Session expiry: "+expires,icon:"fa-circle-check"}],
+        onConfirm:async()=>{}
+    });
+}
+
+async function settingsLogoutAll() {
+    openSettingsActionModal({
+        title:"Logout From All Devices",
+        description:"This will sign out the current account. Continue only if you want to end your StudentKart session.",
+        options:[
+            {value:"logout",label:"Logout From All Devices",description:"End the current Supabase session",icon:"fa-right-from-bracket"}
+        ],
+        onConfirm:async value=>{
+            if(value!=="logout")return;
+            const {error}=await supabaseClient.auth.signOut();
+            if(error){showToast(error.message||"Could not logout","error");return;}
+            showToast("Logged out successfully","success");
+        }
+    });
+}
+
+function settingsAccountSecurity() {
+    if (!currentUser) return;
+    openSettingsActionModal({
+        title:"Account Security",
+        description:"Review the security state of your StudentKart account.",
+        options:[
+            {value:"email",label:"Email",description:(currentUser.email||"Not added")+" · "+(currentUser.email_confirmed_at?"Verified":"Verification may be required"),icon:"fa-envelope"},
+            {value:"phone",label:"Mobile",description:(currentUser.phone||"Not added")+" · "+(currentUser.phone_confirmed_at?"Verified":"Verification may be required"),icon:"fa-mobile-screen"},
+            {value:"session",label:"Session",description:"Your current authenticated session is active",icon:"fa-shield-halved"}
+        ],
+        onConfirm:async()=>{}
+    });
+}
+
+function settingsDeleteAccount() {
+    openSettingsActionModal({
+        title:"Delete Account",
+        description:"Account deletion is permanent. Send a deletion request so it can be processed safely on the server.",
+        fields:[{id:"confirm",label:"Type DELETE to continue",placeholder:"DELETE"}],
+        confirmText:"Request Deletion",
+        danger:true,
+        onConfirm:async values=>{
+            if(values.confirm!=="DELETE"){showToast("Type DELETE exactly to continue","warning");return false;}
+            const subject=encodeURIComponent("StudentKart account deletion request");
+            const body=encodeURIComponent("Please delete my StudentKart account. Account ID: "+(currentUser?.id||"unknown"));
+            window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
+            showToast("Deletion request prepared","warning");
+        }
+    });
+}
+async function handleSettingAction(action) {
+    if (!currentUser) {
+        closeModal("settingsModal");
+        openModal("loginModal");
+        return;
+    }
+
+    if (action === "edit-profile" || action === "college" || action === "profile-photo") {
+        closeModal("settingsModal");
+        openEditProfile?.();
+        return;
+    }
+
+    if (action === "email") return settingsEmail();
+    if (action === "mobile") return settingsMobile();
+
+    if (["chat-notifications", "wishlist-notifications", "listing-notifications", "buyer-seller-notifications", "sold-notifications"].includes(action)) {
+        const map = {
+            "chat-notifications": "chat",
+            "wishlist-notifications": "wishlist",
+            "listing-notifications": "listings",
+            "buyer-seller-notifications": "buyerSeller",
+            "sold-notifications": "sold"
+        };
+        return settingsToggle(`notifications.${map[action]}`);
+    }
+
+    if (action === "push-notifications") {
+        const settings = getStudentKartSettings();
+        if (!settings.notifications.push && "Notification" in window) {
+            const permission = await Notification.requestPermission();
+            if (permission !== "granted") {
+                showToast("Browser notification permission was not granted", "warning");
+                return;
+            }
+        }
+        return settingsToggle("notifications.push");
+    }
+
+    if (action === "profile-visibility") return settingsProfileVisibility();
+    if (action === "hide-phone") return settingsToggle("privacy.hidePhone");
+    if (action === "hide-email") return settingsToggle("privacy.hideEmail");
+    if (action === "blocked-users") return settingsBlockedUsers();
+
+    if (action === "report-problem") {
+        const body = encodeURIComponent("StudentKart problem report:\n\n");
+        window.location.href = `mailto:rathodharish004@gmail.com?subject=StudentKart%20Problem%20Report&body=${body}`;
+        return;
+    }
+
+    if (action === "safety-tips" || action === "safety-about" || action === "about" ||
+        action === "terms" || action === "privacy-policy" || action === "contact") {
+        const map = {
+            "safety-tips": "safety",
+            "safety-about": "safety",
+            about: "about",
+            terms: "terms",
+            "privacy-policy": "privacy",
+            contact: "contact"
+        };
+        closeModal("settingsModal");
+        document.querySelector(`[data-footer-info="${map[action]}"]`)?.click();
+        return;
+    }
+
+    if (action === "current-location") return settingsLocationCurrent();
+    if (action === "change-location" || action === "state-city-area") return settingsLocationDetails();
+    if (action === "nearby-distance") return settingsDistance();
+    if (action === "location-permission") return settingsLocationPermission();
+
+    if (action === "theme") return settingsTheme();
+    if (action === "language") return settingsLanguage();
+    if (action === "vibration") return settingsToggle("preferences.vibration");
+
+    if (action === "login-sessions") return settingsLoginSessions();
+    if (action === "logout-all") return settingsLogoutAll();
+    if (action === "account-security") return settingsAccountSecurity();
+    if (action === "delete-account") return settingsDeleteAccount();
+
+    if (action === "logout") {
+        closeModal("settingsModal");
+        $("logoutButton")?.click();
+        return;
+    }
+}
+
+document.addEventListener("click", event => {
+    const row = event.target.closest("[data-setting-action]");
+    if (!row) return;
+    event.preventDefault();
+    event.stopPropagation();
+    handleSettingAction(row.dataset.settingAction);
+});
+
+
 
 const footerInfoContent = {
     about: {
