@@ -23,6 +23,7 @@ let currentUser = null;
 // ===============================
 
 let currentChatInquiry = null;
+let chatReplyTarget = null;
 let chatRealtimeChannel = null;
 let currentProducts = [];
 let selectedMarketplaceCategory = "all";
@@ -8173,6 +8174,7 @@ function endChatSwipeReply(event) {
     const input = $("chatInput");
     if (!input) return;
 
+    chatReplyTarget = { id: messageEl.dataset.messageId || "", text, mediaType: messageEl.dataset.messageType || "text", mediaUrl: messageEl.querySelector(".chat-message-image, .chat-message-video source")?.src || "" };
     setChatReplyPreview(text, "Replying to message");
     input.focus();
     showToast("Reply ready", "success");
@@ -8349,7 +8351,8 @@ function replyToSelectedChatMessage() {
     if (!bubble || !input) return;
 
     const quoted = bubble.textContent.trim();
-    input.value = quoted ? "> " + quoted + "\n" : "";
+    chatReplyTarget = { id: target.dataset.messageId || "", text: quoted, mediaType: target.dataset.messageType || "text", mediaUrl: target.querySelector(".chat-message-image, .chat-message-video source")?.src || "" };
+    input.value = "";
     setChatReplyPreview(quoted, "Replying to message");
     input.focus();
     clearChatMessageSelection();
@@ -8386,6 +8389,8 @@ async function deleteSelectedChatMessagesForEveryone() {
     if (!window.confirm("Delete " + ownIds.length + " selected message" + (ownIds.length === 1 ? "" : "s") + " for everyone?")) return;
 
     try {
+        if (chatReplyTarget) messageToSend = createChatReplyMessage(messageToSend, chatReplyTarget);
+
         const { error } = await supabaseClient
             .from("messages")
             .delete()
@@ -8415,6 +8420,20 @@ function parseChatImageMessage(value) {
     } catch {
         return null;
     }
+}
+
+function createChatReplyMessage(message, replyTarget) {
+    return "__STUDENTKART_REPLY__" + JSON.stringify({
+        replyTo: { id: String(replyTarget?.id || ""), text: String(replyTarget?.text || "").slice(0, 500), mediaType: replyTarget?.mediaType || "text", mediaUrl: replyTarget?.mediaUrl || "" },
+        content: String(message || "")
+    });
+}
+
+function parseChatReplyMessage(value) {
+    const raw = String(value || "");
+    const prefix = "__STUDENTKART_REPLY__";
+    if (!raw.startsWith(prefix)) return null;
+    try { const data = JSON.parse(raw.slice(prefix.length)); return data?.replyTo ? { replyTo: data.replyTo, content: String(data.content || "") } : null; } catch { return null; }
 }
 
 function createChatImageMessage(url, caption = "", mediaType = "image") {
@@ -8492,9 +8511,16 @@ async function loadChatMessages() {
 
         container.innerHTML = profileIntroHtml + visibleMessages.map(message => {
             const isMine = message.sender_id === currentUser.id;
-            const image = parseChatMediaMessage(message.message);
-
+            const reply = parseChatReplyMessage(message.message);
+            const actualMessage = reply ? reply.content : message.message;
+            const image = parseChatMediaMessage(actualMessage);
             let content = "";
+            let replyHtml = "";
+            if (reply) {
+                const quoted = reply.replyTo || {};
+                const quotedText = quoted.text || (quoted.mediaType === "video" ? "Video" : quoted.mediaType === "image" ? "Photo" : "Message");
+                replyHtml = '<div class="chat-quoted-message"><span class="chat-quoted-line"></span><div class="chat-quoted-content"><strong>Replying to</strong><span>' + escapeHtml(quotedText).slice(0, 180) + '</span></div></div>';
+            }
 
             if (image) {
                 const safeUrl = escapeHtml(image.url);
@@ -8529,6 +8555,7 @@ async function loadChatMessages() {
                      data-message-id="${escapeHtml(String(message.id))}"
                      data-sender-id="${escapeHtml(String(message.sender_id || ""))}"
                      data-message-type="${image ? image.mediaType : "text"}">
+                    ${replyHtml}
                     ${content}
                     <small class="chat-message-time">
                         ${formatChatTime(message.created_at)}
@@ -8741,6 +8768,7 @@ function showChatImageSelection(file) {
 }
 
 function clearChatReplyPreview() {
+    chatReplyTarget = null;
     $("chatReplyPreview")?.classList.add("hidden");
     const text = $("chatReplyText");
     if (text) text.textContent = "";
