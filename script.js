@@ -6808,6 +6808,26 @@ function setupEventListeners() {
 
     document.addEventListener("keydown", trapStudentKartModalFocus);
 
+document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") {
+        return;
+    }
+
+    const openModalElement = document.querySelector(".modal:not(.hidden)");
+    if (!openModalElement) {
+        return;
+    }
+
+    const closeButton = openModalElement.querySelector(
+        "[data-close-modal], .modal-close"
+    );
+
+    if (closeButton instanceof HTMLElement) {
+        event.preventDefault();
+        closeButton.click();
+    }
+});
+
 document.addEventListener("click", event => {
         if (event.target.closest("[data-close-product-image-preview]")) {
             event.preventDefault();
