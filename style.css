@@ -11125,3 +11125,59 @@ body .inquiries-whatsapp-header .inquiry-bulk-tools {
     outline-offset: 2px;
     filter: brightness(1.12);
 }
+
+
+
+/* Chat multi-message action toolbar */
+.chat-selection-bar {
+    flex-wrap: wrap;
+}
+.chat-selection-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.chat-selection-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 6px 9px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 7px;
+    background: rgba(255,255,255,.05);
+    color: rgba(255,255,255,.84);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+}
+.chat-selection-actions button:hover {
+    background: rgba(255,255,255,.09);
+}
+.chat-selection-actions button.danger {
+    color: #ff9a9a;
+    border-color: rgba(255,120,120,.22);
+}
+@media (max-width: 600px) {
+    .chat-selection-bar {
+        align-items: stretch;
+        padding: 8px 10px;
+    }
+    .chat-selection-bar > span {
+        width: 100%;
+    }
+    .chat-selection-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+    .chat-selection-actions button {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    .chat-selection-actions button span {
+        display: none;
+    }
+}
