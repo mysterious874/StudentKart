@@ -12477,7 +12477,8 @@ body.studentkart-dark .notification-count { border-color:#102a43; }
 /* =========================================================
    CHAT FOCUS + BACKGROUND LOADING
    ========================================================= */
-body.studentkart-chat-open > .bottom-floating-nav,
+body.studentkart-chat-open .mobile-bottom-nav,
+body.studentkart-chat-open > .mobile-bottom-nav,
 body.studentkart-chat-open .bottom-floating-nav,
 body.studentkart-chat-open .floating-bottom-nav {
     display: none !important;
