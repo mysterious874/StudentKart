@@ -15373,14 +15373,9 @@ body.category-page-active .category-page-navbar-title small{
     color:rgba(255,255,255,.72)!important;
 }
 
-/* CATEGORY PICKER — center category boxes */
+/* CATEGORY PICKER — center only the category grid */
 .category-picker-modal{
-    display:flex!important;
-    flex-direction:column!important;
-    justify-content:center!important;
-}
-.category-picker-header{
-    flex:0 0 auto!important;
+    display:block!important;
 }
 .category-picker-grid{
     align-content:center!important;
