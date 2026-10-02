@@ -7144,6 +7144,50 @@ async function openChat(inquiry) {
 }
 
 
+let selectedChatMessageIds = new Set();
+let chatLongPressTimer = null;
+let chatLongPressTriggered = false;
+
+function updateChatMessageSelectionUI() {
+    document.querySelectorAll("#chatMessages .chat-message").forEach(messageEl => {
+        messageEl.classList.toggle(
+            "chat-message-selected",
+            selectedChatMessageIds.has(String(messageEl.dataset.messageId))
+        );
+    });
+    const bar = $("chatSelectionBar");
+    const count = $("chatSelectionCount");
+    if (count) count.textContent = String(selectedChatMessageIds.size);
+    if (bar) bar.classList.toggle("hidden", selectedChatMessageIds.size === 0);
+}
+
+function toggleChatMessageSelection(messageId) {
+    const id = String(messageId);
+    if (selectedChatMessageIds.has(id)) selectedChatMessageIds.delete(id);
+    else selectedChatMessageIds.add(id);
+    updateChatMessageSelectionUI();
+}
+
+function clearChatMessageSelection() {
+    selectedChatMessageIds.clear();
+    updateChatMessageSelectionUI();
+}
+
+function beginChatMessageLongPress(event) {
+    const messageEl = event.target.closest(".chat-message");
+    if (!messageEl || !messageEl.dataset.messageId) return;
+    chatLongPressTriggered = false;
+    clearTimeout(chatLongPressTimer);
+    chatLongPressTimer = setTimeout(() => {
+        chatLongPressTriggered = true;
+        toggleChatMessageSelection(messageEl.dataset.messageId);
+    }, 550);
+}
+
+function endChatMessageLongPress() {
+    clearTimeout(chatLongPressTimer);
+}
+
 async function loadChatMessages() {
 
     if (!currentChatInquiry || !currentUser) {
@@ -7198,7 +7242,8 @@ async function loadChatMessages() {
                     <div class="chat-message ${isMine
                         ? "chat-message-own"
                         : "chat-message-other"
-                    }">
+                    }"
+                        data-message-id="${escapeHtml(String(message.id))}">
 
                         <div class="chat-message-bubble">
                             ${escapeHtml(message.message)}
