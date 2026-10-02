@@ -8974,6 +8974,7 @@ function populateStudentKartIndiaData() {
 
 document.addEventListener("DOMContentLoaded", () => {
     populateStudentKartIndiaData();
+    setupEditProfileCityLocationPicker();
     setupStudentKartIndiaLocationSearch();
     addHomeButtonsToBackArrows();
 
