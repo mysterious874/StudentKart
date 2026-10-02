@@ -13822,3 +13822,33 @@ body #chatModal .chat-profile-details,
 body #chatModal .chat-security-notice {
     color: #687b89 !important;
 }
+
+
+/* FINAL VISIBLE CHAT SURFACE COLOR */
+#chatModal .chat-modal-content,
+#chatModal .chat-profile-intro,
+#chatModal .chat-security-notice,
+#chatModal .chat-form {
+    background-color: #e3edf7 !important;
+}
+
+#chatModal .chat-messages {
+    background-color: #d7e5f2 !important;
+    background-image: none !important;
+}
+
+#chatModal .chat-empty {
+    background: transparent !important;
+}
+
+#chatModal .chat-profile-connection {
+    color: #354b5b !important;
+}
+
+#chatModal .chat-security-notice {
+    color: #62798a !important;
+}
+
+#chatModal .chat-input-pill {
+    background-color: #ffffff !important;
+}
