@@ -759,9 +759,26 @@
     <div id="chatMessages" class="chat-messages">
       <div class="chat-empty"><i class="fas fa-comment-dots"></i><p>No messages yet.</p><span>Start the conversation below.</span></div>
     </div>
+    <div id="chatReplyPreview" class="chat-reply-preview hidden">
+      <div><strong id="chatReplyLabel">Replying</strong><span id="chatReplyText"></span></div>
+      <button type="button" id="cancelChatReply" aria-label="Cancel reply"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div id="chatImagePreview" class="chat-image-preview hidden">
+      <div class="chat-image-preview-card">
+        <img id="chatImagePreviewImg" src="" alt="Selected image">
+        <button type="button" id="removeChatImage" aria-label="Remove image"><i class="fas fa-xmark"></i></button>
+      </div>
+      <span id="chatImagePreviewName"></span>
+    </div>
     <form id="chatForm" class="chat-form">
-      <input type="text" id="chatInput" placeholder="Write a message..." autocomplete="off" required>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i><span>Send</span></button>
+      <button type="button" class="chat-attach-button" id="chatEmojiButton" title="Emoji"><i class="far fa-face-smile"></i></button>
+      <button type="button" class="chat-attach-button" id="chatAttachButton" title="Photo"><i class="fas fa-paperclip"></i></button>
+      <input type="file" id="chatImageInput" accept="image/*" hidden>
+      <div id="chatEmojiPicker" class="chat-emoji-picker hidden">
+        <button type="button">😀</button><button type="button">😂</button><button type="button">😍</button><button type="button">❤️</button><button type="button">👍</button><button type="button">🔥</button><button type="button">🎉</button><button type="button">😢</button><button type="button">😎</button><button type="button">🙏</button><button type="button">🤝</button><button type="button">💯</button>
+      </div>
+      <input type="text" id="chatInput" placeholder="Write a message..." autocomplete="off">
+      <button type="submit" class="btn btn-primary chat-send-button" aria-label="Send"><i class="fas fa-paper-plane"></i><span>Send</span></button>
     </form>
   </div>
 </div>
