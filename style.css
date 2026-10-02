@@ -12449,3 +12449,17 @@ body.studentkart-dark .filter-panel-grid input,body.studentkart-dark .filter-pan
         width: calc(100vw - 16px) !important;
     }
 }
+
+
+/* FINAL FIX — search bar must sit clearly BELOW the navbar */
+.navbar-search-panel {
+    top: 88px !important;
+    z-index: 9999 !important;
+}
+
+@media (max-width: 600px) {
+    .navbar-search-panel {
+        top: 80px !important;
+        width: calc(100vw - 16px) !important;
+    }
+}
