@@ -2229,6 +2229,31 @@ async function openProductDetails(productId) {
         };
     }
 
+    const reportButton =
+        $("reportProductButton");
+
+    if (reportButton) {
+        reportButton.disabled = false;
+        reportButton.onclick = event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const productName = product.name || "Listing";
+            const subject = encodeURIComponent("StudentKart Listing Report");
+            const body = encodeURIComponent(
+                "I want to report this StudentKart listing.\\n\\n" +
+                "Listing: " + productName + "\\n" +
+                "Product ID: " + product.id + "\\n" +
+                "Seller: " + (product.seller || "Student") + "\\n" +
+                "Price: " + formatPrice(product.price) + "\\n\\n" +
+                "Reason:\\n"
+            );
+
+            window.location.href =
+                "mailto:rathodharish004@gmail.com?subject=" + subject + "&body=" + body;
+        };
+    }
+
     const contactButton =
         $("contactSellerButton");
 
