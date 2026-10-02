@@ -2187,6 +2187,26 @@ function ensureSellerProfileUI() {
                 class="seller-profile-listings">
             </div>
 
+            <div class="seller-profile-safety">
+                <div class="seller-profile-safety-title">
+                    <i class="fas fa-shield-halved"></i>
+                    <div>
+                        <strong>Safety & Privacy</strong>
+                        <span>Manage your interaction with this user</span>
+                    </div>
+                </div>
+                <div class="seller-profile-safety-actions">
+                    <button type="button" class="seller-profile-safety-button seller-profile-block-button" id="sellerProfileBlockButton">
+                        <i class="fas fa-ban"></i>
+                        <span>Block user</span>
+                    </button>
+                    <button type="button" class="seller-profile-safety-button seller-profile-report-button" id="sellerProfileReportButton">
+                        <i class="fas fa-flag"></i>
+                        <span>Report user</span>
+                    </button>
+                </div>
+            </div>
+
         </div>
     `;
 
@@ -2303,6 +2323,61 @@ async function openSellerProfile(
 
     const chatButton =
         $("sellerProfileChatButton");
+
+    const blockButton = $("sellerProfileBlockButton");
+    const reportButton = $("sellerProfileReportButton");
+
+    if (blockButton) {
+        blockButton.onclick = async () => {
+            if (!currentUser) {
+                closeModal("sellerProfileModal");
+                openModal("loginModal");
+                showToast("Please login to block a user", "warning");
+                return;
+            }
+
+            if (String(currentUser.id) === String(sellerId)) {
+                showToast("You cannot block yourself", "warning");
+                return;
+            }
+
+            const settings = getStudentKartSettings();
+            const blockedUsers = Array.isArray(settings.privacy?.blockedUsers)
+                ? settings.privacy.blockedUsers.map(String)
+                : [];
+
+            if (blockedUsers.includes(String(sellerId))) {
+                showToast("User is already blocked", "info");
+                return;
+            }
+
+            settings.privacy.blockedUsers = [...blockedUsers, String(sellerId)];
+            blockButton.disabled = true;
+            try {
+                const saved = await saveStudentKartSettings(settings, true);
+                if (!saved) return;
+                closeModal("sellerProfileModal");
+                showToast("User blocked", "success");
+            } finally {
+                blockButton.disabled = false;
+            }
+        };
+    }
+
+    if (reportButton) {
+        reportButton.onclick = () => {
+            const profileName = $("sellerProfileName")?.textContent?.trim() || "Student";
+            const subject = encodeURIComponent("StudentKart User Report");
+            const body = encodeURIComponent(
+                "I want to report this StudentKart user.\n\n" +
+                "User: " + profileName + "\n" +
+                "User ID: " + sellerId + "\n\n" +
+                "Reason:\n"
+            );
+            window.location.href =
+                "mailto:rathodharish004@gmail.com?subject=" + subject + "&body=" + body;
+        };
+    }
 
     if (chatButton) {
         chatButton.onclick = async () => {
