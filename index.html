@@ -416,7 +416,17 @@
     </div>
 
     <!-- PRODUCT DETAILS -->
-    <div id="productModal" class="modal hidden">
+    <div id="productImagePreviewModal" class="product-image-preview-modal hidden" aria-hidden="true">
+    <div class="product-image-preview-backdrop" data-close-product-image-preview></div>
+    <div class="product-image-preview-dialog" role="dialog" aria-modal="true" aria-label="Product image preview">
+        <button type="button" class="product-image-preview-close" data-close-product-image-preview aria-label="Close image preview">
+            <i class="fas fa-xmark"></i>
+        </button>
+        <img id="productImagePreview" src="" alt="Product preview">
+    </div>
+</div>
+
+<div id="productModal" class="modal hidden">
         <div class="modal-overlay" data-close-modal></div>
         <div class="modal-content product-details-modal">
             <button type="button" class="modal-close product-details-close" data-close-modal aria-label="Close product details" title="Close">
