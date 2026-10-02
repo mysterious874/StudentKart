@@ -754,8 +754,10 @@
                 </div>
                 <div class="form-group"><label for="editProfileName">Name</label><input type="text" id="editProfileName"
                         required></div>
-                <div class="form-group"><label for="editProfileUsername">Username / Search ID</label><input type="text" id="editProfileUsername" placeholder="e.g. harish123, your email or mobile number" maxlength="80" autocomplete="username">
-                    <small class="form-help">Others can find you in Chat using this username, email or mobile number.</small></div>
+                <div class="form-group edit-profile-username-group"><label for="editProfileUsername">Username / Search ID</label><input type="text" id="editProfileUsername" placeholder="e.g. harish123, your email or mobile number" maxlength="80" autocomplete="username">
+                    <small class="form-help">Others can find you in Chat using this username, email or mobile number.</small>
+                    <div id="editProfileUsernameAvailability" class="username-availability hidden" aria-live="polite"></div>
+                </div>
                 <div class="form-group"><label for="editProfilePhone">Mobile Number</label><input type="tel" id="editProfilePhone" placeholder="10-digit mobile number" inputmode="numeric" maxlength="15" autocomplete="tel"></div>
                 <div class="form-group"><label for="editProfileCollege">College / University</label><input type="text"
                         id="editProfileCollege" list="studentkartInstitutionList" placeholder="Search your college or university"></div>
