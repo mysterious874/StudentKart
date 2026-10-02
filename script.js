@@ -8389,20 +8389,22 @@ $("chatVideoCallButton")?.addEventListener("click", () => {
 
 
 $("chatBackButton")?.addEventListener("click", () => {
-    const returnProduct = window.studentKartReturnToProductDetails;
+    /*
+     * Chat is a real navigation level. Use the browser history so the
+     * visible Back arrow and Android/browser Back always perform exactly
+     * the same single-step navigation.
+     */
+    if (window.history.state?.studentKart) {
+        window.history.back();
+        return;
+    }
 
+    // Safe fallback for an old/stale session without StudentKart history.
+    const returnProduct = window.studentKartReturnToProductDetails;
     if (returnProduct) {
         window.studentKartReturnToProductDetails = null;
-
-        // Close only the chat. View Details is still underneath, so there is
-        // no Home/chat-list flash during the transition.
-        closeModal("chatModal");
-
-        // Re-open the same seller's listing details immediately.
-        requestAnimationFrame(() => {
-            openProductDetails(returnProduct.id);
-        });
-
+        closeModal("chatModal", { instant: true });
+        requestAnimationFrame(() => openProductDetails(returnProduct.id));
         return;
     }
 
