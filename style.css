@@ -5133,19 +5133,25 @@ body { font-weight: 400; }
 }
 
 .chat-unread-count {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    z-index: 5;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 18px;
-    height: 18px;
+    min-width: 19px;
+    height: 19px;
     padding: 0 5px;
-    margin-left: 2px;
     border-radius: 999px;
-    background: #e05252;
+    background: #e53935;
     color: #ffffff;
+    border: 2px solid #ffffff;
     font-size: 10px;
     line-height: 1;
-    font-weight: 700;
+    font-weight: 800;
+    box-shadow: 0 2px 7px rgba(0,0,0,.18);
+    pointer-events: none;
 }
 
 .chat-unread-count.hidden {
