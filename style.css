@@ -11965,3 +11965,55 @@ body.studentkart-modal-navigation-hidden {
     color: #73e8e5;
 }
 
+
+
+/* Footer navigation links */
+.footer-footer-links {
+    display: flex;
+    gap: 38px;
+}
+.footer-link-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+}
+.footer-link-group strong {
+    color: #eef7f8;
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+.footer-link-group button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #9cafbd;
+    font: inherit;
+    font-size: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: .2s ease;
+}
+.footer-link-group button:hover {
+    color: #73e8e5;
+}
+.footer-info-modal-content {
+    max-width: 520px;
+}
+.footer-info-body {
+    padding: 4px 20px 22px;
+    color: #486581;
+    font-size: 14px;
+    line-height: 1.7;
+}
+@media (max-width: 850px) {
+    .footer-footer-links {
+        grid-column: 1 / -1;
+    }
+}
+@media (max-width: 600px) {
+    .footer-footer-links {
+        gap: 42px;
+        flex-wrap: wrap;
+    }
+}
