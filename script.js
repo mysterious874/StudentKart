@@ -8488,6 +8488,19 @@ $("chatMessages")?.addEventListener("pointerup", endChatMessageLongPress);
 $("chatMessages")?.addEventListener("pointercancel", endChatMessageLongPress);
 $("chatMessages")?.addEventListener("pointerleave", endChatMessageLongPress);
 
+// Prevent Chrome's native image long-press/context menu so a deliberate hold
+// selects the chat message instead.
+$("chatMessages")?.addEventListener("contextmenu", event => {
+    const messageEl = event.target.closest(".chat-message");
+    if (!messageEl) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (messageEl.dataset.messageId && !selectedChatMessageIds.has(String(messageEl.dataset.messageId))) {
+        toggleChatMessageSelection(messageEl.dataset.messageId);
+        if (navigator.vibrate) navigator.vibrate(35);
+    }
+});
+
 $("chatMessages")?.addEventListener("click", async event => {
     const quoted = event.target.closest(".chat-quoted-message");
     if (quoted) {
