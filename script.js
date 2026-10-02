@@ -7742,6 +7742,51 @@ function closeChatDeleteMenu() {
     }
 }
 
+async function loadChatContactProfile() {
+    const otherUserId = window.currentChatOtherUserId;
+    if (!otherUserId) return;
+
+    try {
+        const fallback = currentProducts.find(
+            product => String(product.userId) === String(otherUserId)
+        );
+        const profile = await getSellerProfileData(otherUserId, fallback);
+        if (!profile) return;
+
+        const name = profile.name || "Student";
+        const details = [
+            profile.college,
+            currentChatInquiry?.product_name ? "Product: " + currentChatInquiry.product_name : ""
+        ].filter(Boolean).join(" • ") || "StudentKart chat";
+
+        const avatarUrl = profile.avatar_url || "";
+
+        ["chatProfileName"].forEach(id => {
+            const el = $(id);
+            if (el) el.textContent = name;
+        });
+
+        const detailsEl = $("chatProfileDetails");
+        if (detailsEl) detailsEl.textContent = details;
+
+        const headerImg = $("chatAvatarImage");
+        const headerIcon = $("chatAvatarIcon");
+        if (headerImg && headerIcon) {
+            headerImg.src = avatarUrl;
+            headerIcon.style.display = avatarUrl ? "none" : "";
+        }
+
+        const profileImg = $("chatProfileAvatarImage");
+        const profileIcon = $("chatProfileAvatarIcon");
+        if (profileImg && profileIcon) {
+            profileImg.src = avatarUrl;
+            profileIcon.style.display = avatarUrl ? "none" : "";
+        }
+    } catch (error) {
+        console.warn("Chat contact profile refresh error:", error);
+    }
+}
+
 async function openChat(inquiry) {
 
     if (!currentUser) {
@@ -7780,6 +7825,8 @@ async function openChat(inquiry) {
         String(inquiry.seller_id) === String(currentUser.id)
             ? inquiry.buyer_id
             : inquiry.seller_id;
+
+    void loadChatContactProfile();
 
     /*
      * Chat is a child of the Chats list. Keep that relationship explicit
@@ -7886,6 +7933,38 @@ $("chatModal")?.querySelector(".chat-person")?.addEventListener("click", async (
 });
 
 $("chatModal")?.querySelector(".chat-person")?.style.setProperty("cursor", "pointer");
+
+$("chatViewProfileButton")?.addEventListener("click", async event => {
+    event.preventDefault();
+    const otherUserId = window.currentChatOtherUserId;
+    if (otherUserId) await openSellerProfile(otherUserId);
+});
+
+$("chatVoiceCallButton")?.addEventListener("click", () => {
+    showToast("Voice calls will be available soon.", "info");
+});
+
+$("chatVideoCallButton")?.addEventListener("click", () => {
+    showToast("Video calls will be available soon.", "info");
+});
+
+$("chatCameraButton")?.addEventListener("click", () => {
+    $("chatImageInput")?.click();
+});
+
+$("chatMicButton")?.addEventListener("click", () => {
+    showToast("Voice messages will be available soon.", "info");
+});
+
+$("chatLikeButton")?.addEventListener("click", event => {
+    event.preventDefault();
+    const input = $("chatInput");
+    if (!input || input.value.trim()) return;
+    input.value = "👍";
+    $("chatForm")?.requestSubmit();
+});
+
+
 
 $("chatBackButton")?.addEventListener("click", () => {
     showChatsFromChat();
@@ -8438,10 +8517,12 @@ function setChatPresenceStatus(online, lastSeen = null) {
 
     if (online) {
         status.textContent = "Online";
+        $("chatHeaderOnlineDot")?.classList.remove("hidden");
         return;
     }
 
     status.textContent = formatChatLastSeen(lastSeen);
+    $("chatHeaderOnlineDot")?.classList.add("hidden");
 }
 
 function getStoredChatLastSeen(userId) {
