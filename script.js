@@ -5568,22 +5568,14 @@ function openCategoryPage(category, options = {}) {
             category: selected
         };
 
-        if (currentState?.studentKart === true &&
-            currentState?.modalId === "categoryPickerModal") {
-            window.history.replaceState(
-                categoryState,
-                "",
-                window.location.pathname + window.location.search + "#category-" +
-                    encodeURIComponent(selected)
-            );
-        } else {
-            window.history.pushState(
-                categoryState,
-                "",
-                window.location.pathname + window.location.search + "#category-" +
-                    encodeURIComponent(selected)
-            );
-        }
+        // Keep the Categories picker as a real history step.
+        // Android Back from a category must return to the picker, not Home.
+        window.history.pushState(
+            categoryState,
+            "",
+            window.location.pathname + window.location.search + "#category-" +
+                encodeURIComponent(selected)
+        );
     }
 
     $("categoryPickerModal")?.classList.add("hidden");
@@ -7396,18 +7388,18 @@ document.addEventListener("click", event => {
     });
 
     $("categoryPageBack")?.addEventListener("click", () => {
-    // Category -> picker is one navigation step. Replace the current category
-    // entry so browser/Android Back then goes to the real page before Categories.
-    showHomePageFromCategory();
-    const modal = $("categoryPickerModal");
-    if (modal) {
-        modal.classList.remove("hidden");
-        document.body.classList.add("modal-open");
-        document.body.classList.add("studentkart-modal-navigation-hidden");
-        modalHistory = [];
-        setStudentKartModalHistory("categoryPickerModal", ["categoryPickerModal"]);
-    }
-});
+        // Use the same history step as Android/browser Back.
+        // This restores the Categories picker without jumping to Home.
+        if (
+            window.history.state?.studentKart === true &&
+            window.history.state?.page === "category"
+        ) {
+            window.history.back();
+            return;
+        }
+
+        showHomePageFromCategory();
+    });
 
     $("categoryPageBrowseAll")?.addEventListener("click", () => {
         showHomePageFromCategory();
