@@ -8135,10 +8135,10 @@ function updateChatMessageSelectionUI() {
             selectedChatMessageIds.has(String(messageEl.dataset.messageId))
         );
     });
-    const bar = $("chatSelectionBar");
-    const count = $("chatSelectionCount");
+    const count = $("chatMessageSelectionHeaderCount");
+    const header = $("chatMessageSelectionHeader");
     if (count) count.textContent = String(selectedChatMessageIds.size);
-    if (bar) bar.classList.toggle("hidden", selectedChatMessageIds.size === 0);
+    if (header) header.classList.toggle("hidden", selectedChatMessageIds.size === 0);
 }
 
 function toggleChatMessageSelection(messageId) {
@@ -8231,6 +8231,14 @@ $("chatMessages")?.addEventListener("click", async event => {
 });
 
 $("clearChatSelectionButton")?.addEventListener("click", clearChatMessageSelection);
+$("chatMessageSelectionCancel")?.addEventListener("click", clearChatMessageSelection);
+$("chatHeaderReplySelected")?.addEventListener("click", replyToSelectedChatMessage);
+$("chatHeaderCopySelected")?.addEventListener("click", copySelectedChatMessages);
+$("chatHeaderDeleteSelected")?.addEventListener("click", deleteSelectedChatMessagesForEveryone);
+$("chatHeaderMoreSelected")?.addEventListener("click", () => {
+    const actions = $("chatSelectionHeaderMoreMenu");
+    if (actions) actions.classList.toggle("hidden");
+});
 $("copySelectedChatButton")?.addEventListener("click", copySelectedChatMessages);
 $("replySelectedChatButton")?.addEventListener("click", replyToSelectedChatMessage);
 $("deleteSelectedChatForMeButton")?.addEventListener("click", deleteSelectedChatMessagesForMe);
