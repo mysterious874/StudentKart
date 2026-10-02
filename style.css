@@ -13234,4 +13234,8 @@ body #editProfileModal .profile-floating-bar,
 body #editProfileModal .floating-bar,
 body #editProfileModal .edit-profile-floating-bar,
 body #editProfileModal .modal-floating-bar,
-body #editProfileModal .quick-action-bar { display:none !important; }
+body #editProfileModal .quick-action-bar,
+body.studentkart-modal-navigation-hidden #editProfileModal ~ .bottom-floating-nav,
+body.studentkart-modal-navigation-hidden #editProfileModal ~ .floating-bottom-nav,
+body:has(#editProfileModal:not(.hidden)) .bottom-floating-nav,
+body:has(#editProfileModal:not(.hidden)) .floating-bottom-nav { display:none !important; }
