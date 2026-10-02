@@ -8320,197 +8320,308 @@ async function settingsToggle(path) {
     return saveStudentKartSettings(settings);
 }
 
+function openSettingsActionModal({title, description="", fields=[], options=[], danger=false, confirmText="Save", onConfirm}) {
+    let modal = $("settingsActionModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "settingsActionModal";
+        modal.className = "modal hidden";
+        document.body.appendChild(modal);
+    }
+
+    const fieldHTML = fields.map(field => {
+        const type = field.type || "text";
+        if (type === "textarea") {
+            return `<label class="settings-action-field"><span>${escapeHTML(field.label)}</span><textarea id="settingsAction_${escapeHTML(field.id)}" placeholder="${escapeHTML(field.placeholder || "")}">${escapeHTML(field.value || "")}</textarea></label>`;
+        }
+        return `<label class="settings-action-field"><span>${escapeHTML(field.label)}</span><input id="settingsAction_${escapeHTML(field.id)}" type="${type}" value="${escapeHTML(field.value || "")}" placeholder="${escapeHTML(field.placeholder || "")}"></label>`;
+    }).join("");
+
+    const optionHTML = options.length
+        ? `<div class="settings-action-options">${options.map(option =>
+            `<button type="button" class="settings-action-option" data-settings-option="${escapeHTML(option.value)}"><i class="fas ${escapeHTML(option.icon || "fa-circle") }"></i><span><b>${escapeHTML(option.label)}</b><small>${escapeHTML(option.description || "")}</small></span><i class="fas fa-chevron-right"></i></button>`
+        ).join("")}</div>`
+        : "";
+
+    modal.innerHTML = `
+        <div class="modal-overlay" data-settings-action-close></div>
+        <div class="modal-content settings-action-modal-content">
+            <div class="settings-action-header">
+                <div>
+                    <span class="section-label">STUDENTKART</span>
+                    <h2>${escapeHTML(title)}</h2>
+                    <p>${escapeHTML(description)}</p>
+                </div>
+                <button type="button" class="modal-close" data-settings-action-close aria-label="Close">&times;</button>
+            </div>
+            <div class="settings-action-body">${fieldHTML}${optionHTML}</div>
+            <div class="settings-action-footer">
+                <button type="button" class="btn btn-outline" data-settings-action-close>Cancel</button>
+                ${fields.length ? `<button type="button" class="btn ${danger ? "btn-danger" : "btn-primary"}" id="settingsActionConfirm">${escapeHTML(confirmText)}</button>` : ""}
+            </div>
+        </div>`;
+
+    modal.querySelectorAll("[data-settings-action-close]").forEach(btn => {
+        btn.addEventListener("click", () => closeModal("settingsActionModal"));
+    });
+
+    modal.querySelectorAll("[data-settings-option]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const value = btn.dataset.settingsOption;
+            await onConfirm?.(value);
+            closeModal("settingsActionModal");
+        });
+    });
+
+    modal.querySelector("#settingsActionConfirm")?.addEventListener("click", async () => {
+        const values = {};
+        fields.forEach(field => {
+            const el = $(`settingsAction_${field.id}`);
+            values[field.id] = el?.value?.trim() || "";
+        });
+        const ok = await onConfirm?.(values);
+        if (ok !== false) closeModal("settingsActionModal");
+    });
+
+    openModal("settingsActionModal");
+}
+
 async function settingsEmail() {
     if (!currentUser) return;
-    const value = window.prompt("Enter your new email address:", currentUser.email || "");
-    if (!value || value.trim() === currentUser.email) return;
-    const email = value.trim().toLowerCase();
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
-        showToast("Please enter a valid email address", "warning");
-        return;
-    }
-    const { data, error } = await supabaseClient.auth.updateUser({ email });
-    if (error) {
-        console.error(error);
-        showToast(error.message || "Could not update email", "error");
-        return;
-    }
-    if (data?.user) currentUser = data.user;
-    showToast("Email update started. Check the confirmation email if required.", "success");
+    openSettingsActionModal({
+        title: "Change Email",
+        description: "Update the email connected to your StudentKart account.",
+        fields: [{id:"email", label:"New Email Address", type:"email", value:currentUser.email || "", placeholder:"you@example.com"}],
+        confirmText: "Update Email",
+        onConfirm: async values => {
+            if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(values.email)) {
+                showToast("Please enter a valid email address", "warning"); return false;
+            }
+            const {data,error}=await supabaseClient.auth.updateUser({email:values.email.toLowerCase()});
+            if(error){showToast(error.message||"Could not update email","error");return false;}
+            if(data?.user) currentUser=data.user;
+            showToast("Email update started. Check your confirmation email if required.","success");
+        }
+    });
 }
 
 async function settingsMobile() {
     if (!currentUser) return;
-    const value = window.prompt("Enter your mobile number with country code, e.g. +919876543210:", currentUser.phone || "");
-    if (!value) return;
-    const phone = value.trim().replace(/\\s+/g, "");
-    if (!/^\\+?[1-9]\\d{9,14}$/.test(phone)) {
-        showToast("Enter a valid mobile number with country code", "warning");
-        return;
-    }
-    const { data, error } = await supabaseClient.auth.updateUser({ phone });
-    if (error) {
-        console.error(error);
-        showToast(error.message || "Could not update mobile number", "error");
-        return;
-    }
-    if (data?.user) currentUser = data.user;
-    showToast("Mobile update started. OTP verification may be required by Supabase.", "success");
+    openSettingsActionModal({
+        title: "Change Mobile Number",
+        description: "Enter your mobile number with country code.",
+        fields: [{id:"phone", label:"Mobile Number", type:"tel", value:currentUser.phone || "", placeholder:"+919876543210"}],
+        confirmText: "Update Mobile",
+        onConfirm: async values => {
+            const phone=values.phone.replace(/\\s+/g,"");
+            if(!/^\\+?[1-9]\\d{9,14}$/.test(phone)){showToast("Enter a valid mobile number with country code","warning");return false;}
+            const {data,error}=await supabaseClient.auth.updateUser({phone});
+            if(error){showToast(error.message||"Could not update mobile number","error");return false;}
+            if(data?.user) currentUser=data.user;
+            showToast("Mobile update started. OTP verification may be required.","success");
+        }
+    });
 }
 
 function settingsCollege() {
     closeModal("settingsModal");
-    openModal("editProfileModal");
     openEditProfile?.();
 }
 
 async function settingsLocationCurrent() {
-    if (!navigator.geolocation) {
-        showToast("Location is not supported by this browser", "warning");
-        return;
-    }
-    showToast("Requesting your current location...", "info");
-    navigator.geolocation.getCurrentPosition(
-        async position => {
-            const settings = getStudentKartSettings();
-            settings.location.latitude = Number(position.coords.latitude.toFixed(6));
-            settings.location.longitude = Number(position.coords.longitude.toFixed(6));
-            await saveStudentKartSettings(settings, true);
-            showToast("Current location saved", "success");
-        },
-        error => {
-            console.warn("Geolocation error", error);
-            showToast("Location permission was denied or unavailable", "warning");
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
-    );
+    if (!navigator.geolocation) { showToast("Location is not supported by this browser","warning"); return; }
+    showToast("Requesting your current location...","info");
+    navigator.geolocation.getCurrentPosition(async position => {
+        const settings=getStudentKartSettings();
+        settings.location.latitude=Number(position.coords.latitude.toFixed(6));
+        settings.location.longitude=Number(position.coords.longitude.toFixed(6));
+        await saveStudentKartSettings(settings,true);
+        showToast("Current location saved","success");
+    }, error => {
+        console.warn("Geolocation error",error);
+        showToast("Location permission was denied or unavailable","warning");
+    }, {enableHighAccuracy:true,timeout:10000,maximumAge:300000});
 }
 
 async function settingsLocationDetails() {
-    const settings = getStudentKartSettings();
-    const state = window.prompt("State:", settings.location.state || "");
-    if (state === null) return;
-    const city = window.prompt("City:", settings.location.city || "");
-    if (city === null) return;
-    const area = window.prompt("Area:", settings.location.area || "");
-    if (area === null) return;
-    settings.location.state = state.trim();
-    settings.location.city = city.trim();
-    settings.location.area = area.trim();
-    await saveStudentKartSettings(settings);
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Change Location",
+        description:"Set the area you want StudentKart to use for local listings.",
+        fields:[
+            {id:"state",label:"State",value:settings.location.state},
+            {id:"city",label:"City",value:settings.location.city},
+            {id:"area",label:"Area",value:settings.location.area}
+        ],
+        confirmText:"Save Location",
+        onConfirm:async values=>{
+            settings.location.state=values.state;
+            settings.location.city=values.city;
+            settings.location.area=values.area;
+            await saveStudentKartSettings(settings);
+        }
+    });
 }
 
 async function settingsDistance() {
-    const settings = getStudentKartSettings();
-    const value = window.prompt("Nearby listings distance in km (5, 10, 25, 50, 100):", String(settings.location.distanceKm));
-    if (value === null) return;
-    const km = Number(value);
-    if (![5, 10, 25, 50, 100].includes(km)) {
-        showToast("Choose 5, 10, 25, 50 or 100 km", "warning");
-        return;
-    }
-    settings.location.distanceKm = km;
-    await saveStudentKartSettings(settings);
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Nearby Listings Distance",
+        description:"Choose how far StudentKart should search around your preferred location.",
+        options:[5,10,25,50,100].map(km=>({value:String(km),label:km+" km",description:"Show listings within "+km+" km",icon:"fa-route"})),
+        onConfirm:async value=>{
+            settings.location.distanceKm=Number(value);
+            await saveStudentKartSettings(settings);
+        }
+    });
 }
 
 async function settingsLocationPermission() {
-    if (!navigator.permissions?.query) {
-        showToast("Browser does not expose location permission status", "info");
-        return;
-    }
-    try {
-        const result = await navigator.permissions.query({ name: "geolocation" });
-        showToast(`Location permission: ${result.state}`, "info");
-    } catch (_) {
-        showToast("Open your browser site settings to manage location permission", "info");
-    }
+    openSettingsActionModal({
+        title:"Location Permission",
+        description:"StudentKart uses browser location access only when you request your current location.",
+        options:[
+            {value:"request",label:"Request Location Access",description:"Ask the browser for location permission",icon:"fa-location-crosshairs"},
+            {value:"status",label:"Check Permission Status",description:"See whether location access is allowed",icon:"fa-circle-info"}
+        ],
+        onConfirm:async value=>{
+            if(value==="request"){ settingsLocationCurrent(); return; }
+            try {
+                const result=await navigator.permissions.query({name:"geolocation"});
+                showToast("Location permission: "+result.state,"info");
+            } catch(_) { showToast("Manage location access from your browser site settings.","info"); }
+        }
+    });
 }
 
 async function settingsTheme() {
-    const settings = getStudentKartSettings();
-    settings.preferences.theme = settings.preferences.theme === "dark" ? "light" : "dark";
-    await saveStudentKartSettings(settings);
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Appearance",
+        description:"Choose how StudentKart should look on your device.",
+        options:[
+            {value:"light",label:"Light Mode",description:"Clean light StudentKart interface",icon:"fa-sun"},
+            {value:"dark",label:"Dark Mode",description:"Dark interface for low-light use",icon:"fa-moon"}
+        ],
+        onConfirm:async value=>{settings.preferences.theme=value;await saveStudentKartSettings(settings);}
+    });
 }
 
 async function settingsLanguage() {
-    const settings = getStudentKartSettings();
-    const value = window.prompt("Language: type EN for English or HI for Hindi:", settings.preferences.language === "hi" ? "HI" : "EN");
-    if (value === null) return;
-    const lang = value.trim().toLowerCase();
-    if (!["en", "hi"].includes(lang)) {
-        showToast("Choose EN or HI", "warning");
-        return;
-    }
-    settings.preferences.language = lang;
-    await saveStudentKartSettings(settings);
-    showToast(lang === "hi" ? "Hindi preference saved" : "English preference saved", "success");
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Language",
+        description:"Choose your preferred app language.",
+        options:[
+            {value:"en",label:"English",description:"Use English throughout the interface",icon:"fa-language"},
+            {value:"hi",label:"Hindi",description:"Hindi preference (interface translation can be expanded)",icon:"fa-language"}
+        ],
+        onConfirm:async value=>{settings.preferences.language=value;await saveStudentKartSettings(settings);}
+    });
 }
 
 async function settingsProfileVisibility() {
-    const settings = getStudentKartSettings();
-    const value = window.prompt("Profile visibility: public / students / private", settings.privacy.profileVisibility);
-    if (value === null) return;
-    const visibility = value.trim().toLowerCase();
-    if (!["public", "students", "private"].includes(visibility)) {
-        showToast("Choose public, students or private", "warning");
-        return;
-    }
-    settings.privacy.profileVisibility = visibility;
-    await saveStudentKartSettings(settings);
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Profile Visibility",
+        description:"Choose who can discover your StudentKart profile.",
+        options:[
+            {value:"public",label:"Public",description:"Anyone using StudentKart can see your profile",icon:"fa-earth-asia"},
+            {value:"students",label:"Students",description:"Keep your profile visible to the StudentKart community",icon:"fa-user-group"},
+            {value:"private",label:"Private",description:"Limit profile visibility",icon:"fa-lock"}
+        ],
+        onConfirm:async value=>{settings.privacy.profileVisibility=value;await saveStudentKartSettings(settings);}
+    });
 }
 
 async function settingsBlockedUsers() {
-    const settings = getStudentKartSettings();
-    const list = settings.privacy.blockedUsers || [];
-    const current = list.length ? list.join(", ") : "none";
-    const value = window.prompt("Blocked user IDs/emails, comma separated. Leave blank to clear all:", current);
-    if (value === null) return;
-    settings.privacy.blockedUsers = value.trim()
-        ? value.split(",").map(v => v.trim()).filter(Boolean)
-        : [];
-    await saveStudentKartSettings(settings);
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Blocked Users",
+        description:"Manage accounts you have blocked.",
+        fields:[{id:"users",label:"Blocked User IDs / Emails",type:"textarea",value:(settings.privacy.blockedUsers||[]).join(", "),placeholder:"Enter IDs or emails separated by commas"}],
+        confirmText:"Save Block List",
+        onConfirm:async values=>{
+            settings.privacy.blockedUsers=values.users?values.users.split(",").map(v=>v.trim()).filter(Boolean):[];
+            await saveStudentKartSettings(settings);
+        }
+    });
+}
+
+async function settingsReportProblem() {
+    openSettingsActionModal({
+        title:"Report a Problem",
+        description:"Tell us what went wrong. Your email app will open with the report ready to send.",
+        fields:[
+            {id:"subject",label:"Subject",value:"StudentKart Problem Report"},
+            {id:"message",label:"What happened?",type:"textarea",placeholder:"Describe the problem..."}
+        ],
+        confirmText:"Prepare Report",
+        onConfirm:async values=>{
+            const subject=encodeURIComponent(values.subject||"StudentKart Problem Report");
+            const body=encodeURIComponent(values.message||"");
+            window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
+        }
+    });
 }
 
 async function settingsLoginSessions() {
-    const { data, error } = await supabaseClient.auth.getSession();
-    if (error || !data?.session) {
-        showToast("No active session found", "info");
-        return;
-    }
-    const expires = data.session.expires_at
-        ? new Date(data.session.expires_at * 1000).toLocaleString("en-IN")
-        : "Unknown";
-    showToast(`Current session active · expires ${expires}`, "info");
+    const {data,error}=await supabaseClient.auth.getSession();
+    const expires=data?.session?.expires_at?new Date(data.session.expires_at*1000).toLocaleString("en-IN"):"Unknown";
+    openSettingsActionModal({
+        title:"Login Session",
+        description:error?"Could not read your current session.":"This browser currently has an active StudentKart session.",
+        options:error?[]:[{value:"current",label:"Current Session Active",description:"Session expiry: "+expires,icon:"fa-circle-check"}],
+        onConfirm:async()=>{}
+    });
 }
 
 async function settingsLogoutAll() {
-    if (!window.confirm("Logout from all devices and browsers?")) return;
-    const { error } = await supabaseClient.auth.signOut();
-    if (error) {
-        showToast(error.message || "Could not logout from all devices", "error");
-        return;
-    }
-    showToast("Logged out from all devices", "success");
+    openSettingsActionModal({
+        title:"Logout From All Devices",
+        description:"This will sign out the current account. Continue only if you want to end your StudentKart session.",
+        options:[
+            {value:"logout",label:"Logout From All Devices",description:"End the current Supabase session",icon:"fa-right-from-bracket"}
+        ],
+        onConfirm:async value=>{
+            if(value!=="logout")return;
+            const {error}=await supabaseClient.auth.signOut();
+            if(error){showToast(error.message||"Could not logout","error");return;}
+            showToast("Logged out successfully","success");
+        }
+    });
 }
 
 function settingsAccountSecurity() {
     if (!currentUser) return;
-    const phone = currentUser.phone || "Not added";
-    const email = currentUser.email || "Not added";
-    const emailState = currentUser.email_confirmed_at ? "verified" : "not verified";
-    const phoneState = currentUser.phone_confirmed_at ? "verified" : "not verified";
-    showToast(`Email: ${email} (${emailState}) · Mobile: ${phone} (${phoneState})`, "info");
+    openSettingsActionModal({
+        title:"Account Security",
+        description:"Review the security state of your StudentKart account.",
+        options:[
+            {value:"email",label:"Email",description:(currentUser.email||"Not added")+" · "+(currentUser.email_confirmed_at?"Verified":"Verification may be required"),icon:"fa-envelope"},
+            {value:"phone",label:"Mobile",description:(currentUser.phone||"Not added")+" · "+(currentUser.phone_confirmed_at?"Verified":"Verification may be required"),icon:"fa-mobile-screen"},
+            {value:"session",label:"Session",description:"Your current authenticated session is active",icon:"fa-shield-halved"}
+        ],
+        onConfirm:async()=>{}
+    });
 }
 
 function settingsDeleteAccount() {
-    const confirmed = window.confirm("Delete Account permanently? This cannot be undone.");
-    if (!confirmed) return;
-    const subject = encodeURIComponent("StudentKart account deletion request");
-    const body = encodeURIComponent(`Please delete my StudentKart account. Account ID: ${currentUser?.id || "unknown"}`);
-    window.location.href = `mailto:rathodharish004@gmail.com?subject=${subject}&body=${body}`;
-    showToast("Deletion request prepared. Server-side account deletion is required to permanently remove the Auth account.", "warning");
+    openSettingsActionModal({
+        title:"Delete Account",
+        description:"Account deletion is permanent. Send a deletion request so it can be processed safely on the server.",
+        fields:[{id:"confirm",label:"Type DELETE to continue",placeholder:"DELETE"}],
+        confirmText:"Request Deletion",
+        danger:true,
+        onConfirm:async values=>{
+            if(values.confirm!=="DELETE"){showToast("Type DELETE exactly to continue","warning");return false;}
+            const subject=encodeURIComponent("StudentKart account deletion request");
+            const body=encodeURIComponent("Please delete my StudentKart account. Account ID: "+(currentUser?.id||"unknown"));
+            window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
+            showToast("Deletion request prepared","warning");
+        }
+    });
 }
-
 async function handleSettingAction(action) {
     if (!currentUser) {
         closeModal("settingsModal");
