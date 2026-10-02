@@ -13239,3 +13239,54 @@ body.studentkart-modal-navigation-hidden #editProfileModal ~ .bottom-floating-na
 body.studentkart-modal-navigation-hidden #editProfileModal ~ .floating-bottom-nav,
 body:has(#editProfileModal:not(.hidden)) .bottom-floating-nav,
 body:has(#editProfileModal:not(.hidden)) .floating-bottom-nav { display:none !important; }
+
+/* Edit Profile city picker + current-location control */
+body:has(#editProfileModal:not(.hidden)) .mobile-bottom-nav {
+    display: none !important;
+}
+.profile-city-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.profile-city-input-wrap #editProfileCity {
+    width: 100%;
+    padding-right: 44px;
+}
+.profile-city-location-button {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: #e8f5f3;
+    color: #0f8b8d;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+}
+.profile-city-location-button:hover {
+    background: #d7eeeb;
+}
+.profile-city-location-button:disabled {
+    opacity: .55;
+    cursor: wait;
+}
+.profile-city-help {
+    display: block;
+    margin-top: 5px;
+    color: #7b8d92;
+    font-size: 10px;
+}
+body.studentkart-dark .profile-city-location-button {
+    background: #1b3b3e;
+    color: #8fe1dd;
+}
+body.studentkart-dark .profile-city-help {
+    color: #9db4c0;
+}
