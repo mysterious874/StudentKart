@@ -3022,6 +3022,37 @@ function updateChatSelectionUI() {
     document.querySelectorAll(".bulk-action-button").forEach(btn => {
         btn.classList.toggle("hidden", !chatSelectionMode || selectedChatIds.size === 0);
     });
+
+    const selectedCards = Array.from(
+        document.querySelectorAll(".whatsapp-inquiry-card")
+    ).filter(card =>
+        selectedChatIds.has(String(card.dataset.inquiryId))
+    );
+
+    const hasUnreadSelected = selectedCards.some(
+        card => card.dataset.chatUnread === "true"
+    );
+
+    const markReadButton = $("bulkMarkReadButton");
+    const markUnreadButton = $("bulkMarkUnreadButton");
+
+    if (markReadButton) {
+        markReadButton.classList.toggle(
+            "hidden",
+            !chatSelectionMode ||
+            selectedChatIds.size === 0 ||
+            !hasUnreadSelected
+        );
+    }
+
+    if (markUnreadButton) {
+        markUnreadButton.classList.toggle(
+            "hidden",
+            !chatSelectionMode ||
+            selectedChatIds.size === 0 ||
+            hasUnreadSelected
+        );
+    }
 }
 
 function exitChatSelectionMode() {
@@ -7300,6 +7331,89 @@ function updateBulkInquiryToolbar() {
     });
 }
 
+async function bulkMarkInquiriesRead() {
+    const ids = getSelectedInquiryIds();
+    if (!ids.length || !currentUser) return;
+
+    const { error } = await supabaseClient
+        .from("messages")
+        .update({ is_read: true })
+        .in("inquiry_id", ids)
+        .eq("receiver_id", currentUser.id)
+        .eq("is_read", false);
+
+    if (error) {
+        console.error("Bulk mark read error:", error);
+        showToast("Could not mark selected chats as read", "error");
+        return;
+    }
+
+    showToast(
+        ids.length + " chat" + (ids.length === 1 ? "" : "s") + " marked as read",
+        "success"
+    );
+
+    exitChatSelectionMode();
+    await updateChatUnreadCount();
+    await loadReceivedInquiries();
+}
+
+async function bulkMarkInquiriesUnread() {
+    const ids = getSelectedInquiryIds();
+    if (!ids.length || !currentUser) return;
+
+    const { data: receivedMessages, error: fetchError } =
+        await supabaseClient
+            .from("messages")
+            .select("id,inquiry_id,created_at")
+            .in("inquiry_id", ids)
+            .eq("receiver_id", currentUser.id)
+            .order("created_at", { ascending: false });
+
+    if (fetchError) {
+        console.error("Bulk mark unread fetch error:", fetchError);
+        showToast("Could not mark selected chats as unread", "error");
+        return;
+    }
+
+    const latestMessageIds = [];
+    const seenInquiryIds = new Set();
+
+    (receivedMessages || []).forEach(message => {
+        const inquiryId = String(message.inquiry_id);
+        if (!seenInquiryIds.has(inquiryId)) {
+            seenInquiryIds.add(inquiryId);
+            latestMessageIds.push(message.id);
+        }
+    });
+
+    if (!latestMessageIds.length) {
+        showToast("No received messages in the selected chats", "warning");
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("messages")
+        .update({ is_read: false })
+        .in("id", latestMessageIds)
+        .eq("receiver_id", currentUser.id);
+
+    if (error) {
+        console.error("Bulk mark unread error:", error);
+        showToast("Could not mark selected chats as unread", "error");
+        return;
+    }
+
+    showToast(
+        ids.length + " chat" + (ids.length === 1 ? "" : "s") + " marked as unread",
+        "success"
+    );
+
+    exitChatSelectionMode();
+    await updateChatUnreadCount();
+    await loadReceivedInquiries();
+}
+
 async function bulkMarkInquiriesReplied() {
     const ids = getSelectedInquiryIds();
     if (!ids.length || !currentUser) return;
@@ -8115,6 +8229,16 @@ document.addEventListener("change", event => {
         updateBulkInquiryToolbar();
     }
 });
+
+$("bulkMarkReadButton")?.addEventListener(
+    "click",
+    bulkMarkInquiriesRead
+);
+
+$("bulkMarkUnreadButton")?.addEventListener(
+    "click",
+    bulkMarkInquiriesUnread
+);
 
 $("bulkMarkRepliedButton")?.addEventListener(
     "click",
