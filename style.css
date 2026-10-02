@@ -14577,3 +14577,12 @@ body.studentkart-dark .product-image-file-name {
 body:has(#chatMessageSelectionHeader:not(.hidden)) #chatModal #chatProfileIntro {
     display: none !important;
 }
+
+
+/* Selection mode: replace the normal chat header (back, profile photo, user name) with selection toolbar. */
+body:has(#chatMessageSelectionHeader:not(.hidden)) #chatModal .chat-head {
+    display: none !important;
+}
+body:has(#chatMessageSelectionHeader:not(.hidden)) #chatModal .chat-message-selection-header {
+    display: flex !important;
+}
