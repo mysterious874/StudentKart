@@ -8125,6 +8125,56 @@ function saveHiddenChatMessageIds(ids) {
 }
 
 
+let chatSwipeStartX = 0;
+let chatSwipeStartY = 0;
+let chatSwipeMessageEl = null;
+let chatSwipeMoved = false;
+
+function startChatSwipeReply(event) {
+    const messageEl = event.target.closest(".chat-message");
+    if (!messageEl || selectedChatMessageIds.size > 0) return;
+    chatSwipeMessageEl = messageEl;
+    chatSwipeStartX = event.clientX;
+    chatSwipeStartY = event.clientY;
+    chatSwipeMoved = false;
+}
+
+function moveChatSwipeReply(event) {
+    if (!chatSwipeMessageEl || selectedChatMessageIds.size > 0) return;
+    const dx = event.clientX - chatSwipeStartX;
+    const dy = event.clientY - chatSwipeStartY;
+    if (Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < 8) return;
+    chatSwipeMoved = true;
+    if (dx > 0 && dx < 72) {
+        chatSwipeMessageEl.style.transform = "translateX(" + dx + "px)";
+    }
+}
+
+function endChatSwipeReply(event) {
+    if (!chatSwipeMessageEl) return;
+    const messageEl = chatSwipeMessageEl;
+    const dx = event.clientX - chatSwipeStartX;
+    const dy = event.clientY - chatSwipeStartY;
+    const shouldReply = chatSwipeMoved && dx >= 55 && Math.abs(dx) > Math.abs(dy) * 1.25;
+
+    messageEl.style.transform = "";
+    chatSwipeMessageEl = null;
+    chatSwipeMoved = false;
+
+    if (!shouldReply || selectedChatMessageIds.size > 0) return;
+
+    const bubble = messageEl.querySelector(".chat-message-bubble");
+    const text = bubble?.textContent?.trim() ||
+        (messageEl.dataset.messageType === "image" ? "Photo" :
+        messageEl.dataset.messageType === "video" ? "Video" : "Message");
+    const input = $("chatInput");
+    if (!input) return;
+
+    setChatReplyPreview(text, "Replying to message");
+    input.focus();
+    showToast("Reply ready", "success");
+}
+
 let chatLongPressTimer = null;
 let chatLongPressTriggered = false;
 
