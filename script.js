@@ -2899,8 +2899,49 @@ async function loadReceivedInquiries() {
             throw error;
         }
 
-        const inquiries =
-            data || [];
+        let inquiries = data || [];
+
+        // If the inquiry list is empty, rebuild the chat list from real messages.
+        // This keeps the Chat button usable even when an old/hidden inquiry row
+        // is missing while the messages themselves still exist.
+        if (!inquiries.length) {
+            const { data: messageRows, error: messageRowsError } = await supabaseClient
+                .from("messages")
+                .select("id,inquiry_id,sender_id,receiver_id,message,created_at,is_read")
+                .or("sender_id.eq." + currentUser.id + ",receiver_id.eq." + currentUser.id)
+                .order("created_at", { ascending: false })
+                .limit(500);
+
+            if (!messageRowsError && messageRows?.length) {
+                const grouped = new Map();
+
+                messageRows.forEach(row => {
+                    const inquiryId = String(row.inquiry_id || "");
+                    if (!inquiryId) return;
+
+                    const otherId = String(row.sender_id) === String(currentUser.id)
+                        ? row.receiver_id
+                        : row.sender_id;
+
+                    if (!grouped.has(inquiryId)) {
+                        grouped.set(inquiryId, {
+                            id: row.inquiry_id,
+                            buyer_id: currentUser.id,
+                            seller_id: otherId,
+                            product_id: null,
+                            created_at: row.created_at,
+                            message: row.message || ""
+                        });
+                    }
+                });
+
+                const fallbackInquiries = Array.from(grouped.values());
+
+                if (fallbackInquiries.length) {
+                    inquiries = fallbackInquiries;
+                }
+            }
+        }
 
         // Hidden-chat sync is optional. If the helper table is unavailable,
         // still show the user's real conversations instead of showing "No inquiries".
