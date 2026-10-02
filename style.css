@@ -17755,3 +17755,23 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
         padding: 25px 20px 20px !important;
     }
 }
+
+/* Product details mobile action polish */
+@media(max-width:600px){
+    #productModal .details-actions{
+        grid-template-columns:1fr 1fr!important;
+        gap:9px!important;
+        padding-bottom:4px;
+    }
+    #productModal .details-actions .btn{
+        min-height:48px!important;
+        padding:11px 10px!important;
+        font-size:13px!important;
+        line-height:1.2!important;
+    }
+}
+@media(max-width:390px){
+    #productModal .details-actions{
+        grid-template-columns:1fr!important;
+    }
+}
