@@ -5720,6 +5720,28 @@ body { font-weight: 400; }
     cursor: pointer;
 }
 
+.chat-selection-cancel {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef3f4;
+    color: #42555a;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.chat-selection-cancel:hover {
+    background: #e2eaec;
+}
+
+.chat-selection-cancel.hidden {
+    display: none !important;
+}
+
 .selected-inquiry-count {
     color: #0f8b8d;
     font-size: 11px;
