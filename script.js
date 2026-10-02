@@ -7268,6 +7268,67 @@ document.addEventListener("click", event => {
 
 
     /* -----------------------------------------
+       CATEGORY PAGE PRODUCTS
+       ----------------------------------------- */
+
+    $("categoryProductContainer")
+        ?.addEventListener(
+            "click",
+            event => {
+
+                const sellerButton =
+                    event.target.closest(
+                        "[data-seller-id]"
+                    );
+
+                if (sellerButton) {
+
+                    event.stopPropagation();
+
+                    openSellerProfile(
+                        sellerButton.dataset
+                            .sellerId
+                    );
+
+                    return;
+                }
+
+                const wishlistButton =
+                    event.target.closest(
+                        "[data-wishlist-id]"
+                    );
+
+                if (wishlistButton) {
+
+                    event.stopPropagation();
+
+                    toggleWishlist(
+                        wishlistButton.dataset
+                            .wishlistId
+                    );
+
+                    return;
+                }
+
+                const viewButton =
+                    event.target.closest(
+                        "[data-view-product]"
+                    );
+
+                if (viewButton) {
+
+                    event.stopPropagation();
+
+                    openProductDetails(
+                        viewButton.dataset
+                            .viewProduct
+                    );
+                }
+            }
+        );
+
+
+    /* -----------------------------------------
        MY LISTINGS
        ----------------------------------------- */
 
