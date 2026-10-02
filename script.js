@@ -494,7 +494,17 @@ window.addEventListener("popstate", event => {
     /*
      * System/browser Back uses this same navigation stack as the
      * visible Chat back arrow.
+     *
+     * Search is a lightweight navbar overlay, so its own history entry
+     * must be consumed before the rest of the website navigation runs.
      */
+    const searchPanel = $("navbarSearchPanel");
+    if (searchPanel && !searchPanel.classList.contains("hidden")) {
+        searchPanel.classList.add("hidden");
+        $("navbarFilterPanel")?.classList.add("hidden");
+        return;
+    }
+
     const state = event.state;
 
     if (state?.studentKart === true) {
@@ -11216,8 +11226,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navSearchButton.addEventListener("click", () => {
         const opening = searchPanel.classList.contains("hidden");
-        searchPanel.classList.toggle("hidden");
-        if (opening) setTimeout(() => searchInput.focus(), 80);
+
+        if (opening) {
+            // Treat the search panel as its own lightweight navigation state.
+            // Android/browser Back should close search first instead of leaving
+            // the StudentKart page.
+            const currentState = window.history.state || {};
+            if (!currentState.searchPanelOpen) {
+                window.history.pushState(
+                    {
+                        ...currentState,
+                        studentKart: true,
+                        searchPanelOpen: true
+                    },
+                    "",
+                    window.location.pathname + window.location.search + window.location.hash
+                );
+            }
+
+            searchPanel.classList.remove("hidden");
+            setTimeout(() => searchInput.focus(), 80);
+        } else {
+            searchPanel.classList.add("hidden");
+            filterPanel?.classList.add("hidden");
+
+            if (window.history.state?.searchPanelOpen) {
+                window.history.back();
+            }
+        }
     });
 
     searchInput.addEventListener("input", () => {
