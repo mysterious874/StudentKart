@@ -5108,7 +5108,7 @@ function openCategoryPage(category) {
 
     const title = $("categoryPageTitle");
     const subtitle = $("categoryPageSubtitle");
-    if (title) title.textContent = selected;
+    if (title) title.textContent = "";
     if (subtitle) subtitle.textContent = "Products listed in " + selected + " category";
 
     const filtered = currentProducts.filter(product =>
