@@ -17289,3 +17289,37 @@ html body header.navbar .logo-text {
   font-size:20px !important;
   font-weight:700 !important;
 }
+
+/* FINAL: REMOVE TOP NAVBAR COMPLETELY; BRAND LIVES ON HERO */
+html body header.navbar { display:none !important; }
+html body .hero { position:relative !important; padding-top:88px !important; }
+html body .hero-brand-only {
+  position:absolute !important;
+  top:18px !important;
+  left:24px !important;
+  z-index:20 !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  color:#102a43 !important;
+  text-decoration:none !important;
+  font-size:20px !important;
+  font-weight:800 !important;
+  letter-spacing:-.4px !important;
+}
+html body .hero-brand-mark {
+  width:38px !important;
+  height:38px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:10px !important;
+  background:#0f8b8d !important;
+  color:#fff !important;
+  box-shadow:0 6px 16px rgba(15,139,141,.18) !important;
+}
+@media(max-width:600px){
+  html body .hero { padding-top:78px !important; }
+  html body .hero-brand-only { top:14px !important; left:16px !important; font-size:18px !important; }
+  html body .hero-brand-mark { width:34px !important; height:34px !important; border-radius:9px !important; font-size:15px !important; }
+}
