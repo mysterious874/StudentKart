@@ -17,6 +17,13 @@ const supabaseClient =
 
 const STORAGE_BUCKET = "product-images";
 
+/* =========================================================
+   STUDENTKART APP INTRO / SPLASH
+   ========================================================= */
+const STUDENTKART_SPLASH_DURATION = 1450;
+function finishStudentKartSplash(){const splash=$("studentKartSplash");if(!splash||splash.classList.contains("is-leaving"))return;splash.classList.add("is-leaving");window.setTimeout(()=>splash.remove(),500);}
+function startStudentKartSplash(){const splash=$("studentKartSplash");if(!splash)return;window.setTimeout(finishStudentKartSplash,STUDENTKART_SPLASH_DURATION);}
+
 let currentUser = null;
 // ===============================
 // CHAT SYSTEM
@@ -41,27 +48,6 @@ let notificationRealtimeChannel = null;
 let productsRealtimeChannel = null;
 let toastTimer = null;
 
-
-
-/* =========================================================
-   STUDENTKART APP INTRO / SPLASH
-   ========================================================= */
-const STUDENTKART_SPLASH_DURATION = 1450;
-
-function finishStudentKartSplash() {
-    const splash = $("studentKartSplash");
-    if (!splash || splash.classList.contains("is-leaving")) return;
-
-    splash.classList.add("is-leaving");
-    window.setTimeout(() => splash.remove(), 500);
-}
-
-function startStudentKartSplash() {
-    const splash = $("studentKartSplash");
-    if (!splash) return;
-
-    window.setTimeout(finishStudentKartSplash, STUDENTKART_SPLASH_DURATION);
-}
 
 /* =========================================================
    BASIC HELPERS
@@ -2018,6 +2004,7 @@ function renderProducts(products, targetContainerId = "productContainer", target
 /* =========================================================
    PRODUCT DETAILS
    ========================================================= */
+
 async function openProductDetails(productId) {
 
     let product =
@@ -4018,6 +4005,7 @@ async function openEditProduct(
 
     editingProductId =
         product.id;
+
     if ($("sellModalTitle")) {
         $("sellModalTitle")
             .textContent =
@@ -6016,7 +6004,8 @@ function renderNotifications() {
                             <span class="notification-time">
                                 ${formatNotificationTime(
                         notification.created_at
-                    )}                            </span>
+                    )}
+                            </span>
 
                         </div>
                         <span class="notification-select-check" aria-hidden="true"><i class="fas fa-check"></i></span>
@@ -6700,20 +6689,10 @@ document.addEventListener("click", event => {
     });
 
 
-    // Legacy OTP handlers are optional. Guard them so a missing legacy
-    // function can never stop the rest of StudentKart initialization.
-    if (typeof verifyMobileOtp === "function") {
-        $("mobileOtpForm")?.addEventListener("submit", verifyMobileOtp);
-    }
-    if (typeof resendMobileOtp === "function") {
-        $("resendMobileOtpButton")?.addEventListener("click", resendMobileOtp);
-    }
-    if (typeof verifyOtp === "function") {
-        $("otpForm")?.addEventListener("submit", verifyOtp);
-    }
-    if (typeof resendOtp === "function") {
-        $("resendOtpButton")?.addEventListener("click", resendOtp);
-    }
+    if (typeof verifyMobileOtp === "function") $("mobileOtpForm")?.addEventListener("submit", verifyMobileOtp);
+    if (typeof resendMobileOtp === "function") $("resendMobileOtpButton")?.addEventListener("click", resendMobileOtp);
+    if (typeof verifyOtp === "function") $("otpForm")?.addEventListener("submit", verifyOtp);
+    if (typeof resendOtp === "function") $("resendOtpButton")?.addEventListener("click", resendOtp);
 
     ensureSellerProfileUI();
     ensureNotificationsUI();
@@ -7847,10 +7826,8 @@ async function initializeStudentKart() {
     startStudentKartSplash();
 
     try {
-
-        ensureSellerProfileUI();
-
-        ensureNotificationsUI();
+        try { ensureSellerProfileUI(); } catch (e) { console.error("Seller UI init error:", e); }
+        try { ensureNotificationsUI(); } catch (e) { console.error("Notifications UI init error:", e); }
 
         await getCurrentUser();
 
@@ -7865,23 +7842,9 @@ async function initializeStudentKart() {
             showNewUserGate();
         }
 
-        // UI event binding must never prevent the core app/product data
-        // from initializing. Keep this isolated so one optional listener
-        // cannot make the whole StudentKart interface appear dead.
-        try {
-            setupEventListeners();
-        } catch (uiError) {
-            console.error("StudentKart UI event setup error:", uiError);
-        }
+        try { setupEventListeners(); } catch (e) { console.error("UI event setup error:", e); }
+        try { setupAuthListener(); } catch (e) { console.error("Auth listener setup error:", e); }
 
-        try {
-            setupAuthListener();
-        } catch (authListenerError) {
-            console.error("StudentKart auth listener setup error:", authListenerError);
-        }
-
-        // Product loading is core functionality and must run even if an
-        // optional UI handler above throws.
         await loadProducts();
         startProductsRealtime();
 
@@ -8038,7 +8001,8 @@ startStudentKartAutoRefresh();
 // CHAT SYSTEM FUNCTIONS
 // ===============================
 
-async function openInquiryChat(inquiryId) {    if (!currentUser) {
+async function openInquiryChat(inquiryId) {
+    if (!currentUser) {
         openModal("loginModal");
         showToast("Please login to chat", "warning");
         return;
@@ -9595,7 +9559,6 @@ function startChatRealtime() {
     chatRealtimeChannel =
         supabaseClient
             .channel(channelName)
-            // New messages
             .on(
                 "postgres_changes",
                 {
@@ -9611,9 +9574,12 @@ function startChatRealtime() {
                         return;
                     }
 
+                    // RLS already limits which message rows this user can receive.
+                    // Keep a client-side guard so unrelated accessible rows never
+                    // affect the currently open conversation.
                     const isMyMessage =
-                        String(message.sender_id) === String(currentUser.id) ||
-                        String(message.receiver_id) === String(currentUser.id);
+                        message.sender_id === currentUser.id ||
+                        message.receiver_id === currentUser.id;
 
                     const isCurrentChat =
                         String(message.inquiry_id) ===
@@ -9628,7 +9594,7 @@ function startChatRealtime() {
                     await loadChatMessages();
 
                     if (
-                        String(message.receiver_id) === String(currentUser.id) &&
+                        message.receiver_id === currentUser.id &&
                         message.is_read === false
                     ) {
                         await markChatMessagesRead(
@@ -9639,77 +9605,7 @@ function startChatRealtime() {
                     await updateChatUnreadCount();
                 }
             )
-            // Message updates (read status, edited/deleted markers, etc.)
-            .on(
-                "postgres_changes",
-                {
-                    event: "UPDATE",
-                    schema: "public",
-                    table: "messages"
-                },
-                async payload => {
-
-                    const message = payload?.new;
-
-                    if (!message) {
-                        return;
-                    }
-
-                    const isParticipant =
-                        String(message.sender_id) === String(currentUser.id) ||
-                        String(message.receiver_id) === String(currentUser.id);
-
-                    const isCurrentChat =
-                        String(message.inquiry_id) ===
-                        String(currentChatInquiry?.id);
-
-                    if (!isParticipant || !isCurrentChat) {
-                        return;
-                    }
-
-                    console.log("✏️ Realtime chat message updated:", message);
-
-                    await loadChatMessages();
-                    await updateChatUnreadCount();
-                }
-            )
-            // Delete for Everyone removes the row from messages.
-            // The receiver must listen for DELETE as well, otherwise their
-            // already-open chat keeps rendering the deleted message.
-            .on(
-                "postgres_changes",
-                {
-                    event: "DELETE",
-                    schema: "public",
-                    table: "messages"
-                },
-                async payload => {
-
-                    const oldMessage = payload?.old;
-
-                    if (!oldMessage) {
-                        return;
-                    }
-
-                    const isParticipant =
-                        String(oldMessage.sender_id) === String(currentUser.id) ||
-                        String(oldMessage.receiver_id) === String(currentUser.id);
-
-                    const isCurrentChat =
-                        String(oldMessage.inquiry_id) ===
-                        String(currentChatInquiry?.id);
-
-                    if (!isParticipant || !isCurrentChat) {
-                        return;
-                    }
-
-                    console.log("🗑️ Realtime chat message deleted:", oldMessage);
-
-                    await loadChatMessages();
-                    await updateChatUnreadCount();
-                    await loadReceivedInquiries();
-                }
-            )
+            .on("postgres_changes",{event:"DELETE",schema:"public",table:"messages"},async payload=>{const oldMessage=payload?.old;if(!oldMessage)return;const isParticipant=String(oldMessage.sender_id)===String(currentUser.id)||String(oldMessage.receiver_id)===String(currentUser.id);const isCurrentChat=String(oldMessage.inquiry_id)===String(currentChatInquiry?.id);if(!isParticipant||!isCurrentChat)return;await loadChatMessages();await updateChatUnreadCount();await loadReceivedInquiries();})
             .subscribe(status => {
 
                 console.log(
@@ -10107,3 +10003,2262 @@ async function markChatMessagesRead(inquiryId) {
         // Force the visible chat badge/list state to match the verified
         // database state immediately.
         const badge = $("chatUnreadCount");
+        if (badge && unreadRemaining === 0) {
+            badge.textContent = "0";
+            badge.classList.add("hidden");
+        }
+
+        document
+            .querySelectorAll(".whatsapp-unread")
+            .forEach(element => {
+                element.remove();
+            });
+
+        await loadReceivedInquiries();
+    } catch (error) {
+        console.error("Mark chat messages read error:", error);
+        showToast("Could not sync chat read status", "error");
+    }
+}
+
+async function startChatUnreadRealtime() {
+    if (!currentUser) return;
+
+    if (window.chatUnreadChannel) {
+        await supabaseClient.removeChannel(window.chatUnreadChannel);
+    }
+
+    window.chatUnreadChannel = supabaseClient
+        .channel("chat-unread-" + currentUser.id)
+        .on(
+            "postgres_changes",
+            {
+                event: "INSERT",
+                schema: "public",
+                table: "messages",
+                filter: "receiver_id=eq." + currentUser.id
+            },
+            async payload => {
+                console.log("🔔 New unread chat message:", payload);
+
+                if (payload?.new?.inquiry_id) {
+                    await removeHiddenChat(payload.new.inquiry_id);
+                }
+
+                await updateChatUnreadCount();
+                await loadReceivedInquiries();
+
+                const isOpenChatMessage =
+                    currentChatInquiry &&
+                    payload?.new?.inquiry_id === currentChatInquiry.id;
+
+                if (!isOpenChatMessage) {
+                    showToast("💬 New chat message received", "success");
+                    showChatBrowserNotification(message);
+                }
+            }
+        )
+        .on(
+            "postgres_changes",
+            {
+                event: "UPDATE",
+                schema: "public",
+                table: "messages",
+                filter: "receiver_id=eq." + currentUser.id
+            },
+            async payload => {
+                const message = payload?.new;
+
+                if (!message) {
+                    return;
+                }
+
+                // Keep unread badges/inbox previews synchronized when a
+                // message is marked read from another tab or device.
+                if (
+                    message.receiver_id === currentUser.id &&
+                    payload?.old?.is_read !== message.is_read
+                ) {
+                    console.log("🔄 Chat read status synced:", message);
+
+                    await updateChatUnreadCount();
+                    await loadReceivedInquiries();
+                }
+            }
+        )
+        .on(
+            "postgres_changes",
+            {
+                event: "DELETE",
+                schema: "public",
+                table: "messages"
+            },
+            async payload => {
+                const oldMessage = payload?.old;
+
+                if (!oldMessage) {
+                    return;
+                }
+
+                const affectsCurrentUser =
+                    oldMessage.sender_id === currentUser.id ||
+                    oldMessage.receiver_id === currentUser.id;
+
+                if (!affectsCurrentUser) {
+                    return;
+                }
+
+                console.log("🗑️ Chat message deleted:", oldMessage);
+
+                // When a conversation is deleted for everyone, hide the
+                // conversation from this user's inbox as well.
+                if (oldMessage.inquiry_id) {
+                    const { error: hideError } = await supabaseClient
+                        .from("hidden_chats")
+                        .upsert(
+                            {
+                                user_id: currentUser.id,
+                                inquiry_id: oldMessage.inquiry_id
+                            },
+                            {
+                                onConflict: "user_id,inquiry_id"
+                            }
+                        );
+
+                    if (hideError) {
+                        console.error(
+                            "Sync deleted chat visibility error:",
+                            hideError
+                        );
+                    }
+                }
+
+                if (
+                    currentChatInquiry &&
+                    String(oldMessage.inquiry_id) ===
+                        String(currentChatInquiry.id)
+                ) {
+                    await loadChatMessages();
+                }
+
+                await updateChatUnreadCount();
+                await loadReceivedInquiries();
+            }
+        )
+        .subscribe(status => {
+            console.log("Chat unread realtime status:", status);
+
+            if (status === "SUBSCRIBED") {
+                updateChatUnreadCount();
+                loadReceivedInquiries();
+            }
+        });
+}
+
+
+
+/* =========================================================
+   MODAL BACK + HOME NAVIGATION
+   ========================================================= */
+function goToHomeFromModal() {
+    if (typeof closeAllModals === "function") {
+        closeAllModals();
+    }
+
+    // Return to the app's real Home state without creating another history entry.
+    setStudentKartModalHistory(null, []);
+
+    const homeSection = document.getElementById("home");
+    if (homeSection) {
+        homeSection.scrollIntoView({ behavior: "auto", block: "start" });
+    }
+}
+
+function addHomeButtonsToBackArrows(root = document) {
+    root.querySelectorAll(".modal-back-button").forEach(backButton => {
+        if (backButton.nextElementSibling?.classList.contains("modal-home-button")) {
+            return;
+        }
+
+        const homeButton = document.createElement("button");
+        homeButton.type = "button";
+        homeButton.className = "modal-close modal-home-button";
+        homeButton.setAttribute("aria-label", "Home");
+        homeButton.title = "Home";
+        homeButton.innerHTML = '<i class="fas fa-house"></i>';
+
+        homeButton.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            goToHomeFromModal();
+        });
+
+        backButton.insertAdjacentElement("afterend", homeButton);
+    });
+}
+
+/* India-wide dynamic location suggestions for marketplace filters */
+let studentKartLocationSearchTimer = null;
+let studentKartLocationSearchController = null;
+
+let studentKartVillageDuckDBPromise = null;
+let studentKartVillageDuckDB = null;
+let studentKartVillageDuckDBConnection = null;
+
+const STUDENTKART_LGD_VILLAGES_PARQUET =
+    "https://raw.githubusercontent.com/vanga/india-local-government-directory/main/data/lgd_villages.parquet";
+
+async function getStudentKartVillageDuckDB() {
+    if (studentKartVillageDuckDBConnection) {
+        return studentKartVillageDuckDBConnection;
+    }
+
+    if (studentKartVillageDuckDBPromise) {
+        return studentKartVillageDuckDBPromise;
+    }
+
+    studentKartVillageDuckDBPromise = (async () => {
+        const duckdb = await import(
+            "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.5.5/+esm"
+        );
+
+        const bundle = await duckdb.selectBundle(
+            duckdb.getJsDelivrBundles()
+        );
+
+        const workerURL = URL.createObjectURL(
+            new Blob(
+                [`importScripts("${bundle.mainWorker}");`],
+                { type: "text/javascript" }
+            )
+        );
+
+        const worker = new Worker(workerURL);
+        const logger = new duckdb.ConsoleLogger();
+        const db = new duckdb.AsyncDuckDB(logger, worker);
+
+        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+        URL.revokeObjectURL(workerURL);
+
+        await db.registerFileURL(
+            "studentkart-lgd-villages.parquet",
+            STUDENTKART_LGD_VILLAGES_PARQUET,
+            duckdb.DuckDBDataProtocol.HTTP,
+            false
+        );
+
+        const connection = await db.connect();
+
+        studentKartVillageDuckDB = db;
+        studentKartVillageDuckDBConnection = connection;
+
+        return connection;
+    })()
+        .catch(error => {
+            console.error("StudentKart LGD village database failed:", error);
+            studentKartVillageDuckDBPromise = null;
+            throw error;
+        });
+
+    return studentKartVillageDuckDBPromise;
+}
+
+async function searchStudentKartLGDVillages(query) {
+    const q = String(query || "").trim().toLowerCase();
+    if (q.length < 2) return [];
+
+    try {
+        const connection = await getStudentKartVillageDuckDB();
+
+        const statement = await connection.prepare(`
+            SELECT
+                village_name,
+                subdistrict_name,
+                district_name,
+                state_name
+            FROM "studentkart-lgd-villages.parquet"
+            WHERE
+                lower(village_name) LIKE ?
+                OR lower(subdistrict_name) LIKE ?
+                OR lower(district_name) LIKE ?
+                OR lower(state_name) LIKE ?
+            ORDER BY
+                CASE
+                    WHEN lower(village_name) = ? THEN 0
+                    WHEN lower(subdistrict_name) = ? THEN 1
+                    WHEN lower(district_name) = ? THEN 2
+                    WHEN lower(state_name) = ? THEN 3
+                    ELSE 4
+                END,
+                village_name
+            LIMIT 80
+        `);
+
+        const likeQuery = "%" + q + "%";
+
+        const result = await statement.query(
+            likeQuery,
+            likeQuery,
+            likeQuery,
+            likeQuery,
+            q,
+            q,
+            q,
+            q
+        );
+
+        await statement.close();
+
+        return result.toArray()
+            .map(row => {
+                const village = String(row.village_name || "").trim();
+                const subdistrict = String(row.subdistrict_name || "").trim();
+                const district = String(row.district_name || "").trim();
+                const state = String(row.state_name || "").trim();
+
+                if (!village) return "";
+
+                const hierarchy = [...new Set([
+                    subdistrict,
+                    district,
+                    state
+                ].filter(Boolean))];
+
+                return hierarchy.length
+                    ? village + " — " + hierarchy.join(", ")
+                    : village;
+            })
+            .filter(Boolean);
+    } catch (error) {
+        console.debug("LGD village search unavailable:", error);
+        return [];
+    }
+}
+
+function renderStudentKartLocationSuggestions(values) {
+    const box = $("studentkartLocationSuggestions");
+    if (!box) return;
+
+    const uniqueValues = [...new Set(values.filter(Boolean))].slice(0, 50);
+
+    if (!uniqueValues.length) {
+        box.innerHTML = '<div class="studentkart-location-empty">No matching Indian locations found</div>';
+        box.classList.remove("hidden");
+        return;
+    }
+
+    box.innerHTML = uniqueValues.map(value => {
+        const parts = String(value).split(" — ");
+        const place = parts[0] || value;
+        const hierarchyText = parts.slice(1).join(" — ");
+
+        const hierarchy = hierarchyText
+            .split(",")
+            .map(item => item.trim())
+            .filter(Boolean);
+
+        const subdistrict = hierarchy[0] || "";
+        const district = hierarchy[1] || "";
+        const state = hierarchy[2] || "";
+
+        return '<button type="button" class="studentkart-location-option" data-location-value="' +
+            escapeHTML(value) +
+            '">' +
+            '<span class="studentkart-location-place">' +
+                '<i class="fas fa-location-dot"></i> ' +
+                escapeHTML(place) +
+            '</span>' +
+            (subdistrict
+                ? '<span class="studentkart-location-level"><b>Sub-district:</b> ' +
+                    escapeHTML(subdistrict) + '</span>'
+                : '') +
+            (district
+                ? '<span class="studentkart-location-level"><b>District:</b> ' +
+                    escapeHTML(district) + '</span>'
+                : '') +
+            (state
+                ? '<span class="studentkart-location-level"><b>State:</b> ' +
+                    escapeHTML(state) + '</span>'
+                : '') +
+        '</button>';
+    }).join("");
+
+    box.classList.remove("hidden");
+
+    box.querySelectorAll(".studentkart-location-option").forEach(option => {
+        option.addEventListener("click", () => {
+            const input = $("locationFilter");
+            if (input) input.value = option.dataset.locationValue || "";
+            box.classList.add("hidden");
+            if (typeof applyMarketplaceFilters === "function") {
+                applyMarketplaceFilters();
+            }
+        });
+    });
+}
+async function searchStudentKartIndiaLocations(query) {
+    const list = $("studentkartLocationList");
+    const input = $("locationFilter");
+    if (!input) return;
+
+    const q = String(query || "").trim();
+    if (q.length < 2) {
+        $("studentkartLocationSuggestions")?.classList.add("hidden");
+        return;
+    }
+
+    if (studentKartLocationSearchController) {
+        studentKartLocationSearchController.abort();
+    }
+    studentKartLocationSearchController = new AbortController();
+
+    try {
+        const nominatimURL =
+            "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=20&dedupe=1&q=" +
+            encodeURIComponent(q);
+
+        const nominatimPromise = fetch(nominatimURL, {
+            signal: studentKartLocationSearchController.signal,
+            headers: { "Accept": "application/json" }
+        })
+            .then(response => response.ok ? response.json() : [])
+            .catch(error => {
+                if (error?.name !== "AbortError") {
+                    console.debug("Nominatim location search unavailable:", error);
+                }
+                return [];
+            });
+
+        const lgdPromise = searchStudentKartLGDVillages(q);
+
+        const [nominatimResults, lgdValues] = await Promise.all([
+            nominatimPromise,
+            lgdPromise
+        ]);
+
+        const nominatimValues = nominatimResults.map(item => {
+            const address = item?.address || {};
+
+            const place = String(
+                address.village ||
+                address.hamlet ||
+                address.town ||
+                address.city ||
+                address.municipality ||
+                address.suburb ||
+                address.neighbourhood ||
+                String(item?.display_name || "").split(",")[0] ||
+                ""
+            ).trim();
+
+            const subDistrict = String(
+                address.subdistrict ||
+                address.state_district ||
+                address.county ||
+                address.city_district ||
+                ""
+            ).trim();
+
+            const district = String(
+                address.district ||
+                address.state_district ||
+                address.county ||
+                address.city_district ||
+                ""
+            ).trim();
+
+            const state = String(address.state || "").trim();
+
+            if (!place) return "";
+
+            const hierarchy = [...new Set([
+                subDistrict,
+                district,
+                state
+            ].filter(Boolean))];
+
+            return hierarchy.length
+                ? place + " — " + hierarchy.join(", ")
+                : String(item.display_name || "").replace(/, India$/i, "").trim();
+        }).filter(Boolean);
+
+        const currentOptions = list
+            ? [...list.options].map(option => option.value)
+            : [];
+
+        const mergedValues = [...new Set([
+            ...lgdValues,
+            ...nominatimValues,
+            ...currentOptions
+        ])]
+            .filter(Boolean)
+            .slice(0, 100);
+
+        renderStudentKartLocationSuggestions(mergedValues);
+
+        if (list) {
+            list.innerHTML = mergedValues
+                .map(value => '<option value="' + escapeHTML(value) + '"></option>')
+                .join("");
+        }
+    } catch (error) {
+        if (error?.name !== "AbortError") {
+            console.debug("India location suggestions unavailable:", error);
+        }
+    }
+}
+function setupStudentKartIndiaLocationSearch() {
+    const input = $("locationFilter");
+    if (!input) return;
+
+    input.addEventListener("input", () => {
+        clearTimeout(studentKartLocationSearchTimer);
+        const query = input.value.trim();
+
+        if (query.length < 2) {
+            $("studentkartLocationSuggestions")?.classList.add("hidden");
+            return;
+        }
+
+        studentKartLocationSearchTimer = setTimeout(() => {
+            searchStudentKartIndiaLocations(query);
+        }, 250);
+    });
+
+    input.addEventListener("focus", () => {
+        if (input.value.trim().length >= 2) {
+            searchStudentKartIndiaLocations(input.value.trim());
+        }
+    });
+
+    document.addEventListener("click", event => {
+        const wrap = document.querySelector(".marketplace-location-search-wrap");
+        const box = $("studentkartLocationSuggestions");
+        if (wrap && box && !wrap.contains(event.target)) {
+            box.classList.add("hidden");
+        }
+    });
+}
+let studentKartAllIndiaCitiesCache = null;
+let studentKartAllIndiaInstitutionsCache = null;
+let studentKartInstitutionLoadPromise = null;
+
+async function loadAllIndiaCityDataset() {
+    if (studentKartAllIndiaCitiesCache) return studentKartAllIndiaCitiesCache;
+
+    try {
+        const response = await fetch("https://raw.githubusercontent.com/nshntarora/Indian-Cities-JSON/master/cities.json", {
+            headers: { "Accept": "application/json" },
+            cache: "force-cache"
+        });
+        if (!response.ok) throw new Error("City dataset request failed");
+
+        const data = await response.json();
+        const cities = Array.isArray(data)
+            ? data.map(item => item?.name).filter(Boolean)
+            : [];
+
+        studentKartAllIndiaCitiesCache = [...new Set([
+            ...STUDENTKART_INDIA_CITIES,
+            ...cities
+        ])].sort((a, b) => a.localeCompare(b, "en"));
+
+        return studentKartAllIndiaCitiesCache;
+    } catch (error) {
+        console.debug("All-India city dataset unavailable:", error);
+        studentKartAllIndiaCitiesCache = [...STUDENTKART_INDIA_CITIES];
+        return studentKartAllIndiaCitiesCache;
+    }
+}
+
+async function loadAllIndiaInstitutionDataset() {
+    if (studentKartAllIndiaInstitutionsCache) return studentKartAllIndiaInstitutionsCache;
+    if (studentKartInstitutionLoadPromise) return studentKartInstitutionLoadPromise;
+
+    studentKartInstitutionLoadPromise = fetch(
+        "https://raw.githubusercontent.com/brahmjotsingh0/aishe-institutions-list/main/data/institutions.json",
+        { headers: { "Accept": "application/json" }, cache: "force-cache" }
+    )
+        .then(response => {
+            if (!response.ok) throw new Error("Institution dataset request failed");
+            return response.json();
+        })
+        .then(data => {
+            const institutions = Array.isArray(data)
+                ? data.map(item => item?.name || item?.institutionName).filter(Boolean)
+                : [];
+
+            studentKartAllIndiaInstitutionsCache = [...new Set([
+                ...STUDENTKART_INSTITUTIONS,
+                ...institutions
+            ])].sort((a, b) => a.localeCompare(b, "en"));
+
+            return studentKartAllIndiaInstitutionsCache;
+        })
+        .catch(error => {
+            console.debug("All-India institution dataset unavailable:", error);
+            studentKartAllIndiaInstitutionsCache = [...STUDENTKART_INSTITUTIONS];
+            return studentKartAllIndiaInstitutionsCache;
+        })
+        .finally(() => {
+            studentKartInstitutionLoadPromise = null;
+        });
+
+    return studentKartInstitutionLoadPromise;
+}
+
+function setupEditProfileCityLocationPicker() {
+    const input = $("editProfileCity");
+    const list = $("studentkartCityList");
+    const locationButton = $("editProfileCityLocationButton");
+    const suggestions = $("editProfileCitySuggestions");
+    const collegeInput = $("editProfileCollege");
+    const institutionList = $("studentkartInstitutionList");
+    if (!input || !list) return;
+
+    let cityTimer = null;
+    let controller = null;
+    let institutionTimer = null;
+
+    const renderCities = values => {
+        const merged = [...new Set(
+            values.map(value => String(value || "").trim()).filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b, "en"));
+
+        list.innerHTML = merged
+            .map(city => '<option value="' + escapeHTML(city) + '"></option>')
+            .join("");
+    };
+
+    const renderCitySuggestions = values => {
+        if (!suggestions) return;
+
+        const merged = [...new Set(values.filter(Boolean))].slice(0, 50);
+
+        if (!merged.length) {
+            suggestions.innerHTML = '<div class="profile-city-suggestion-empty">' +
+                '<i class="fas fa-location-dot"></i> City not found in the selected State / Union Territory' +
+                '</div>';
+            suggestions.classList.remove("hidden");
+            return;
+        }
+
+        suggestions.innerHTML = merged.map(value => {
+            const parts = String(value).split(" — ");
+            const place = parts[0] || value;
+            const hierarchy = parts.slice(1).join(" — ").split(",").map(x => x.trim()).filter(Boolean);
+
+            return '<button type="button" class="profile-city-suggestion" data-city-value="' +
+                escapeHTML(value) + '">' +
+                '<span class="profile-city-suggestion-place"><i class="fas fa-location-dot"></i> ' +
+                    escapeHTML(place) + '</span>' +
+                (hierarchy[0] ? '<span><b>Sub-district:</b> ' + escapeHTML(hierarchy[0]) + '</span>' : '') +
+                (hierarchy[1] ? '<span><b>District:</b> ' + escapeHTML(hierarchy[1]) + '</span>' : '') +
+                (hierarchy[2] ? '<span><b>State:</b> ' + escapeHTML(hierarchy[2]) + '</span>' : '') +
+            '</button>';
+        }).join("");
+
+        suggestions.classList.remove("hidden");
+
+        suggestions.querySelectorAll(".profile-city-suggestion").forEach(option => {
+            option.addEventListener("click", () => {
+                input.value = option.dataset.cityValue || "";
+                suggestions.classList.add("hidden");
+            });
+        });
+    };
+
+    const renderInstitutions = values => {
+        if (!institutionList) return;
+        const merged = [...new Set(
+            values.map(value => String(value || "").trim()).filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b, "en"));
+
+        institutionList.innerHTML = merged
+            .map(name => '<option value="' + escapeHTML(name) + '"></option>')
+            .join("");
+    };
+
+    const stateInput = $("editProfileState");
+
+    const getSelectedState = () =>
+        String(stateInput?.value || "").trim();
+
+    const normalizeLocationState = value =>
+        String(value || "")
+            .trim()
+            .toLowerCase()
+            .replace(/&/g, "and")
+            .replace(/[^a-z0-9]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+    const isSameState = (value, selectedState) => {
+        if (!selectedState) return true;
+        const a = normalizeLocationState(value);
+        const b = normalizeLocationState(selectedState);
+        return a === b ||
+            a.includes(b) ||
+            b.includes(a);
+    };
+
+    const getStateFromLocationValue = value => {
+        const parts = String(value || "").split(" — ");
+        const hierarchy = parts.slice(1).join(" — ")
+            .split(",")
+            .map(item => item.trim())
+            .filter(Boolean);
+        return hierarchy[2] || "";
+    };
+
+    const filterCityValuesForState = (values, selectedState) => {
+        if (!selectedState) return values;
+        return values.filter(value =>
+            isSameState(getStateFromLocationValue(value), selectedState)
+        );
+    };
+
+    const searchCities = async query => {
+        const q = String(query || "").trim();
+        const selectedState = getSelectedState();
+
+        if (!selectedState) {
+            suggestions?.classList.add("hidden");
+            showToast("Please select a State / Union Territory first", "warning");
+            return;
+        }
+
+        if (controller) controller.abort();
+        controller = new AbortController();
+
+        try {
+            // Search Nominatim with the selected state in the query so
+            // results belong to the chosen State/UT.
+            const nominatimURL =
+                "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=40&dedupe=1&q=" +
+                encodeURIComponent((q || "") + ", " + selectedState + ", India");
+
+            const nominatimPromise = fetch(nominatimURL, {
+                signal: controller.signal,
+                headers: { "Accept": "application/json" }
+            })
+                .then(response => response.ok ? response.json() : [])
+                .catch(error => {
+                    if (error?.name !== "AbortError") {
+                        console.debug("City geocoding unavailable:", error);
+                    }
+                    return [];
+                });
+
+            const lgdPromise = q.length >= 2
+                ? searchStudentKartLGDVillages(q)
+                : Promise.resolve([]);
+
+            const [nominatimResults, lgdValues] = await Promise.all([
+                nominatimPromise,
+                lgdPromise
+            ]);
+
+            const geoValues = nominatimResults.map(item => {
+                const address = item?.address || {};
+                const place = String(
+                    address.village || address.hamlet || address.town ||
+                    address.city || address.municipality || address.suburb ||
+                    address.neighbourhood ||
+                    String(item?.display_name || "").split(",")[0] || ""
+                ).trim();
+
+                const subdistrict = String(
+                    address.subdistrict || address.state_district ||
+                    address.county || address.city_district || ""
+                ).trim();
+
+                const district = String(
+                    address.district || address.state_district ||
+                    address.county || address.city_district || ""
+                ).trim();
+
+                const state = String(address.state || selectedState).trim();
+
+                if (!place || !isSameState(state, selectedState)) return "";
+
+                const hierarchy = [...new Set([
+                    subdistrict,
+                    district,
+                    state
+                ].filter(Boolean))];
+
+                return hierarchy.length
+                    ? place + " — " + hierarchy.join(", ")
+                    : place;
+            }).filter(Boolean);
+
+            const stateSpecificLGDValues = q.length >= 2
+                ? lgdValues.filter(value =>
+                    isSameState(getStateFromLocationValue(value), selectedState)
+                )
+                : [];
+
+            const values = [...new Set([
+                ...stateSpecificLGDValues,
+                ...geoValues
+            ])].slice(0, 100);
+
+            if (!values.length && q.length >= 2) {
+                renderCitySuggestions([]);
+                renderCities([]);
+                return;
+            }
+
+            renderCitySuggestions(values);
+            renderCities(values);
+        } catch (error) {
+            if (error?.name !== "AbortError") {
+                console.debug("Edit profile city search unavailable:", error);
+            }
+            renderCitySuggestions([]);
+            renderCities([]);
+        }
+    };
+
+    const refreshCitiesForSelectedState = async () => {
+        const selectedState = getSelectedState();
+        input.value = "";
+        suggestions?.classList.add("hidden");
+
+        if (!selectedState) {
+            renderCities([]);
+            return;
+        }
+
+        // Fetch a state-scoped set immediately. Users can then type a
+        // city/district/village name to narrow the list further.
+        await searchCities("");
+    };
+
+    stateInput?.addEventListener("change", refreshCitiesForSelectedState);
+
+    input.addEventListener("focus", () => {
+        if (!getSelectedState()) {
+            suggestions?.classList.add("hidden");
+            return;
+        }
+        if (input.value.trim().length >= 1) {
+            searchCities(input.value.trim());
+        }
+    });
+
+    input.addEventListener("input", () => {
+        clearTimeout(cityTimer);
+        const query = input.value.trim();
+
+        if (!getSelectedState()) {
+            suggestions?.classList.add("hidden");
+            return;
+        }
+
+        if (query.length < 2) {
+            suggestions?.classList.add("hidden");
+            return;
+        }
+
+        cityTimer = setTimeout(() => searchCities(query), 180);
+    });
+
+    document.addEventListener("click", event => {
+        if (suggestions && !suggestions.parentElement?.contains(event.target)) {
+            suggestions.classList.add("hidden");
+        }
+    });
+
+    collegeInput?.addEventListener("focus", () => {
+        renderInstitutions(STUDENTKART_INSTITUTIONS);
+    });
+
+    collegeInput?.addEventListener("input", () => {
+        clearTimeout(institutionTimer);
+        institutionTimer = setTimeout(() => searchInstitutions(collegeInput.value), 180);
+    });
+
+    const searchInstitutions = async query => {
+        const dataset = await loadAllIndiaInstitutionDataset();
+        const q = String(query || "").trim().toLowerCase();
+
+        if (!q) {
+            renderInstitutions(dataset);
+            return;
+        }
+
+        const matches = dataset
+            .filter(name => name.toLowerCase().includes(q))
+            .slice(0, 200);
+
+        renderInstitutions(matches.length ? matches : dataset);
+    };
+
+    locationButton?.addEventListener("click", () => {
+        if (!navigator.geolocation) {
+            showToast("Location is not supported by this browser", "warning");
+            return;
+        }
+
+        locationButton.disabled = true;
+        showToast("Getting your current city...", "info");
+
+        navigator.geolocation.getCurrentPosition(async position => {
+            try {
+                const { latitude, longitude } = position.coords;
+                const url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&lat=" +
+                    encodeURIComponent(latitude) + "&lon=" + encodeURIComponent(longitude) + "&zoom=10";
+                const response = await fetch(url, { headers: { "Accept": "application/json" } });
+
+                if (!response.ok) throw new Error("Reverse geocoding failed");
+
+                const result = await response.json();
+                const address = result.address || {};
+                const city = address.city || address.town || address.municipality ||
+                    address.city_district || address.county || address.village || "";
+
+                if (city) {
+                    const hierarchy = [
+                        address.subdistrict || address.state_district || address.county || address.city_district,
+                        address.district || address.state_district || address.county || address.city_district,
+                        address.state
+                    ].filter(Boolean);
+
+                    input.value = hierarchy.length
+                        ? city + " — " + [...new Set(hierarchy)].join(", ")
+                        : city;
+
+                    suggestions?.classList.add("hidden");
+                    renderCities([input.value, ...(await loadAllIndiaCityDataset())]);
+                    showToast("Current city selected: " + city, "success");
+
+                    if ($("editProfileState") && address.state) {
+                        const stateOption = [...$("editProfileState").options]
+                            .find(option => option.value.toLowerCase() === String(address.state).toLowerCase());
+                        if (stateOption) $("editProfileState").value = stateOption.value;
+                    }
+                } else {
+                    showToast("Could not identify your city", "warning");
+                }
+            } catch (error) {
+                console.error("Edit profile location error:", error);
+                showToast("Could not get your current city", "error");
+            } finally {
+                locationButton.disabled = false;
+            }
+        }, error => {
+            console.warn("Edit profile geolocation error:", error);
+            locationButton.disabled = false;
+            showToast("Location permission was denied or unavailable", "warning");
+        }, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000
+        });
+    });
+
+    renderCities(STUDENTKART_INDIA_CITIES);
+    renderInstitutions(STUDENTKART_INSTITUTIONS);
+}
+
+function setupSellProductLocationPicker() {
+    const input = $("productLocation");
+    const button = $("productLocationButton");
+    const suggestions = $("productLocationSuggestions");
+    if (!input || !button || !suggestions) return;
+
+    let timer = null;
+    let controller = null;
+
+    const renderSuggestions = values => {
+        const unique = [...new Set(values.filter(Boolean))].slice(0, 80);
+
+        if (!unique.length) {
+            suggestions.innerHTML = '<div class="product-location-suggestion-empty"><i class="fas fa-location-dot"></i> No matching Indian locations found</div>';
+            suggestions.classList.remove("hidden");
+            return;
+        }
+
+        suggestions.innerHTML = unique.map(value => {
+            const parts = String(value).split(" — ");
+            const place = parts[0] || value;
+            const hierarchy = (parts.slice(1).join(" — ") || "")
+                .split(",")
+                .map(item => item.trim())
+                .filter(Boolean);
+
+            return '<button type="button" class="product-location-suggestion" data-location-value="' +
+                escapeHTML(value) + '">' +
+                '<span class="product-location-suggestion-place"><i class="fas fa-location-dot"></i> ' +
+                escapeHTML(place) + '</span>' +
+                hierarchy.map((item, index) =>
+                    '<span><b>' + (index === hierarchy.length - 1 ? "State" : index === hierarchy.length - 2 ? "District" : "Area") +
+                    ':</b> ' + escapeHTML(item) + '</span>'
+                ).join("") +
+                '</button>';
+        }).join("");
+
+        suggestions.classList.remove("hidden");
+
+        suggestions.querySelectorAll(".product-location-suggestion").forEach(option => {
+            option.addEventListener("click", () => {
+                input.value = option.dataset.locationValue || "";
+                suggestions.classList.add("hidden");
+            });
+        });
+    };
+
+    const searchLocations = async query => {
+        const q = String(query || "").trim();
+        if (q.length < 2) {
+            suggestions.classList.add("hidden");
+            return;
+        }
+
+        if (controller) controller.abort();
+        controller = new AbortController();
+
+        try {
+            const nominatimURL =
+                "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=30&dedupe=1&q=" +
+                encodeURIComponent(q + ", India");
+
+            const nominatimPromise = fetch(nominatimURL, {
+                signal: controller.signal,
+                headers: { "Accept": "application/json" }
+            }).then(response => response.ok ? response.json() : []).catch(error => {
+                if (error?.name !== "AbortError") console.debug("Sell location search unavailable:", error);
+                return [];
+            });
+
+            const lgdPromise = searchStudentKartLGDVillages(q);
+            const [nominatimResults, lgdValues] = await Promise.all([nominatimPromise, lgdPromise]);
+
+            const geoValues = nominatimResults.map(item => {
+                const address = item?.address || {};
+                const place = String(
+                    address.village || address.hamlet || address.town || address.city ||
+                    address.municipality || address.suburb || address.neighbourhood ||
+                    String(item?.display_name || "").split(",")[0] || ""
+                ).trim();
+                const area = String(address.subdistrict || address.state_district || address.county || address.city_district || "").trim();
+                const district = String(address.district || address.state_district || address.county || address.city_district || "").trim();
+                const state = String(address.state || "").trim();
+                if (!place) return "";
+                const hierarchy = [...new Set([area, district, state].filter(Boolean))];
+                return hierarchy.length ? place + " — " + hierarchy.join(", ") : place;
+            }).filter(Boolean);
+
+            renderSuggestions([...new Set([...lgdValues, ...geoValues])]);
+        } catch (error) {
+            if (error?.name !== "AbortError") console.debug("Sell location search error:", error);
+        }
+    };
+
+    input.addEventListener("input", () => {
+        clearTimeout(timer);
+        const query = input.value.trim();
+        if (query.length < 2) {
+            suggestions.classList.add("hidden");
+            return;
+        }
+        timer = setTimeout(() => searchLocations(query), 180);
+    });
+
+    input.addEventListener("focus", () => {
+        if (input.value.trim().length >= 2) searchLocations(input.value.trim());
+    });
+
+    button.addEventListener("click", () => {
+        if (!navigator.geolocation) {
+            showToast("Location is not supported by this browser", "warning");
+            return;
+        }
+
+        button.disabled = true;
+        showToast("Fetching your real location...", "info");
+
+        navigator.geolocation.getCurrentPosition(async position => {
+            try {
+                const { latitude, longitude } = position.coords;
+                const url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&lat=" +
+                    encodeURIComponent(latitude) + "&lon=" + encodeURIComponent(longitude) + "&zoom=10";
+                const response = await fetch(url, { headers: { "Accept": "application/json" } });
+                if (!response.ok) throw new Error("Reverse geocoding failed");
+
+                const result = await response.json();
+                const address = result.address || {};
+                const place = address.city || address.town || address.municipality ||
+                    address.village || address.suburb || address.city_district || "";
+                const area = address.subdistrict || address.state_district || address.county || address.city_district || "";
+                const district = address.district || address.state_district || address.county || address.city_district || "";
+                const state = address.state || "";
+
+                if (!place) throw new Error("Could not identify your location");
+
+                const hierarchy = [...new Set([area, district, state].filter(Boolean))];
+                input.value = hierarchy.length ? place + " — " + hierarchy.join(", ") : place;
+                suggestions.classList.add("hidden");
+                showToast("Real location fetched: " + place, "success");
+            } catch (error) {
+                console.error("Sell location error:", error);
+                showToast("Could not fetch your real location", "error");
+            } finally {
+                button.disabled = false;
+            }
+        }, error => {
+            console.warn("Sell geolocation error:", error);
+            button.disabled = false;
+            showToast("Location permission was denied or unavailable", "warning");
+        }, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000
+        });
+    });
+
+    document.addEventListener("click", event => {
+        if (!input.parentElement?.contains(event.target)) {
+            suggestions.classList.add("hidden");
+        }
+    });
+}
+
+function populateStudentKartIndiaData() {
+    const stateSelects = ["signupState","editProfileState"];
+    const cityLists = ["studentkartCityList"];
+    const institutionLists = ["studentkartInstitutionList"];
+    const locationList = $("studentkartLocationList");
+
+    stateSelects.forEach(id => {
+        const select = $(id);
+        if (!select) return;
+        const current = select.value;
+        select.innerHTML = '<option value="">Select state / UT</option>' +
+            STUDENTKART_INDIA_STATES.map(state =>
+                '<option value="' + escapeHTML(state) + '">' + escapeHTML(state) + '</option>'
+            ).join("");
+        if (current) select.value = current;
+    });
+
+    cityLists.forEach(id => {
+        const list = $(id);
+        if (!list) return;
+        list.innerHTML = STUDENTKART_INDIA_CITIES
+            .map(city => '<option value="' + escapeHTML(city) + '"></option>')
+            .join("");
+    });
+
+    institutionLists.forEach(id => {
+        const list = $(id);
+        if (!list) return;
+        list.innerHTML = STUDENTKART_INSTITUTIONS
+            .map(name => '<option value="' + escapeHTML(name) + '"></option>')
+            .join("");
+    });
+
+    // Searchable marketplace location list: India-wide cities + universities.
+    if (locationList) {
+        const locationOptions = [...new Set([
+            ...STUDENTKART_INDIA_CITIES,
+            ...STUDENTKART_INSTITUTIONS
+        ])].sort((a, b) => a.localeCompare(b, "en"));
+        locationList.innerHTML = locationOptions
+            .map(value => '<option value="' + escapeHTML(value) + '"></option>')
+            .join("");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    populateStudentKartIndiaData();
+    setupEditProfileCityLocationPicker();
+    setupSellProductLocationPicker();
+    setupStudentKartIndiaLocationSearch();
+    addHomeButtonsToBackArrows();
+
+    const modalObserver = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    addHomeButtonsToBackArrows(node);
+                }
+            });
+        });
+    });
+
+    modalObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
+
+
+/* Navbar search panel */
+document.addEventListener("DOMContentLoaded", () => {
+    const navSearchButton = document.getElementById("navSearchButton");
+    const searchPanel = document.getElementById("navbarSearchPanel");
+    const searchInput = document.getElementById("navbarSearchInput");
+    const searchSubmit = document.getElementById("navbarSearchSubmit");
+    const filterButton = document.getElementById("navbarFilterButton");
+    const filterPanel = document.getElementById("navbarFilterPanel");
+    const filterClose = document.getElementById("navbarFilterClose");
+    const marketplaceSearch = document.getElementById("marketplaceSearch");
+
+    if (!navSearchButton || !searchPanel || !searchInput) return;
+
+    const runSearch = () => {
+        if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
+        applyFilters();
+        document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
+    };
+
+    navSearchButton.addEventListener("click", () => {
+        const opening = searchPanel.classList.contains("hidden");
+        searchPanel.classList.toggle("hidden");
+        if (opening) setTimeout(() => searchInput.focus(), 80);
+    });
+
+    searchInput.addEventListener("input", () => {
+        if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
+    });
+
+    searchInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            runSearch();
+        } else if (event.key === "Escape") {
+            searchPanel.classList.add("hidden");
+        }
+    });
+
+    searchSubmit?.addEventListener("click", runSearch);
+
+    filterButton?.addEventListener("click", () => {
+        filterPanel?.classList.toggle("hidden");
+    });
+
+    filterClose?.addEventListener("click", () => {
+        filterPanel?.classList.add("hidden");
+    });
+
+    ["categoryFilter","minPrice","maxPrice","locationFilter","conditionFilter","sortFilter"].forEach(id => {
+        $(id)?.addEventListener("change", applyFilters);
+    });
+
+    ["minPrice","maxPrice"].forEach(id => {
+        $(id)?.addEventListener("input", applyFilters);
+    });
+
+    $("applyMarketplaceFilters")?.addEventListener("click", () => {
+        applyFilters();
+        filterPanel?.classList.add("hidden");
+        showToast("Filters applied", "success");
+    });
+
+    $("cancelMarketplaceFilters")?.addEventListener("click", () => {
+        const search = $("navbarSearchInput");
+        if (search) search.value = "";
+        ["minPrice","maxPrice","locationFilter"].forEach(id => { const el=$(id); if(el) el.value=""; });
+        const category=$("categoryFilter"); if(category) category.value="all";
+        const condition=$("conditionFilter"); if(condition) condition.value="all";
+        const sort=$("sortFilter"); if(sort) sort.value="newest";
+        selectedMarketplaceCategory="all";
+        applyFilters();
+        filterPanel?.classList.add("hidden");
+    });
+});
+
+
+/* =========================================================
+   STUDENTKART TOUCH RIPPLE
+   Replaces the browser's default blue tap flash with a
+   small teal ripple exactly where the user touches/clicks.
+   ========================================================= */
+/* =========================================================
+   STUDENTKART TOUCH FEEDBACK + SOFT CLICK SOUND
+   ========================================================= */
+/* Lightweight tap feedback: visual only.
+   Audio feedback was removed because creating/resuming WebAudio on every
+   tap adds unnecessary work on mobile and makes the UI feel delayed. */
+document.addEventListener("pointerdown", event => {
+    const target = event.target.closest(".btn, button, .category-card, a");
+    if (!target || target.disabled) return;
+
+    const rect = target.getBoundingClientRect();
+    const ripple = document.createElement("span");
+    ripple.className = "sk-ripple";
+
+    ripple.style.left = (event.clientX - rect.left) + "px";
+    ripple.style.top = (event.clientY - rect.top) + "px";
+
+    target.appendChild(ripple);
+
+    window.setTimeout(() => ripple.remove(), 170);
+
+
+});
+
+
+/* Footer information links */
+const bottomSettingsButton = $("bottomSettingsButton");
+if (bottomSettingsButton) {
+    bottomSettingsButton.addEventListener("click", () => {
+        if (currentUser) {
+            openModal("settingsModal");
+        } else {
+            openModal("loginModal");
+        }
+    });
+}
+
+const bottomWishlistButton = $("bottomWishlistButton");
+if (bottomWishlistButton) {
+    bottomWishlistButton.addEventListener("click", () => {
+        openWishlist();
+    });
+}
+
+/* =========================================================
+   SETTINGS — REAL USER PREFERENCES
+   Persisted in Supabase Auth user_metadata with local fallback.
+   ========================================================= */
+
+const STUDENTKART_INDIA_STATES = [
+"Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal",
+"Andaman and Nicobar Islands","Chandigarh","Dadra and Nagar Haveli and Daman and Diu","Delhi","Jammu and Kashmir","Ladakh","Lakshadweep","Puducherry"
+];
+
+const STUDENTKART_INDIA_CITIES = [
+"Agra","Ahmedabad","Ajmer","Aligarh","Allahabad","Amritsar","Aurangabad","Bengaluru","Bhopal","Bhubaneswar","Chandigarh","Chennai","Coimbatore","Cuttack","Dehradun","Delhi","Dhanbad","Dharwad","Dimapur","Faridabad","Gandhinagar","Ghaziabad","Gorakhpur","Gurugram","Guwahati","Gwalior","Hubballi","Hyderabad","Imphal","Indore","Jaipur","Jalandhar","Jammu","Jamshedpur","Jodhpur","Kanpur","Kochi","Kolkata","Kota","Kozhikode","Lucknow","Ludhiana","Madurai","Mangaluru","Meerut","Mumbai","Mysuru","Nagpur","Nashik","Navi Mumbai","Noida","Patna","Pimpri-Chinchwad","Pune","Raipur","Rajkot","Ranchi","Rourkela","Salem","Siliguri","Srinagar","Surat","Thane","Thiruvananthapuram","Tiruchirappalli","Udaipur","Vadodara","Varanasi","Vasai-Virar","Vijayawada","Visakhapatnam","Warangal"
+];
+
+const STUDENTKART_INSTITUTIONS = [
+"Indian Institute of Technology Bombay (IIT Bombay)","Indian Institute of Technology Delhi (IIT Delhi)","Indian Institute of Technology Madras (IIT Madras)","Indian Institute of Technology Kanpur (IIT Kanpur)","Indian Institute of Technology Kharagpur (IIT Kharagpur)","Indian Institute of Technology Roorkee (IIT Roorkee)","Indian Institute of Technology Guwahati (IIT Guwahati)","Indian Institute of Technology Hyderabad (IIT Hyderabad)","Indian Institute of Science Bengaluru (IISc)","Indian Institute of Information Technology Hyderabad (IIIT Hyderabad)","National Institute of Technology Karnataka (NITK)","National Institute of Technology Tiruchirappalli (NIT Trichy)","National Institute of Technology Warangal (NIT Warangal)","University of Delhi","Jawaharlal Nehru University (JNU)","University of Mumbai","Savitribai Phule Pune University","University of Hyderabad","Banaras Hindu University (BHU)","Aligarh Muslim University (AMU)","Jamia Millia Islamia","University of Calcutta","University of Madras","Anna University","Jadavpur University","Osmania University","Panjab University","University of Rajasthan","University of Lucknow","University of Kerala","University of Mysore","Andhra University","University of Allahabad","Gauhati University","Utkal University","Ranchi University","Patna University","Mahatma Gandhi University","Goa University","Manipal Academy of Higher Education (MAHE)","Manipal University Jaipur","G H Raisoni University","G H Raisoni College of Engineering","Symbiosis International University","Symbiosis Institute of Technology","Amity University","Lovely Professional University (LPU)","Chandigarh University","Sharda University","Ashoka University","Christ University","Jain University","PES University","RV University","Bangalore University","SRM Institute of Science and Technology","Vellore Institute of Technology (VIT)","Sathyabama Institute of Science and Technology","Kalinga Institute of Industrial Technology (KIIT)","Siksha 'O' Anusandhan","Amity University Noida","Bennett University","Galgotias University","Shiv Nadar University","Graphic Era University","UPES Dehradun","Thapar Institute of Engineering and Technology","Chitkara University","Lovely Professional University","MIT World Peace University","MIT Art Design and Technology University","Bharati Vidyapeeth","D Y Patil University","NMIMS University","K J Somaiya Institute of Engineering and Information Technology","Somaiya Vidyavihar University","Tata Institute of Social Sciences (TISS)","St. Xavier's College Mumbai","St. Xavier's College Kolkata","Fergusson College","Modern College of Arts Science and Commerce","Ramnarain Ruia Autonomous College","K J Somaiya College of Arts and Commerce","Wilson College Mumbai","Mithibai College","Jai Hind College","Hindu College Delhi","Hansraj College","Ramjas College","Sri Venkateswara College Delhi","Lady Shri Ram College for Women","St. Stephen's College Delhi","Christ University Bengaluru","Mount Carmel College Bengaluru","St Joseph's University Bengaluru","Maharaja Sayajirao University of Baroda","Nirma University","Gujarat University","Sardar Patel University","Manipal University Bengaluru","KIIT University","Amrita Vishwa Vidyapeetham","SRM University","PSG College of Technology","Loyola College Chennai","Madras Christian College","Coimbatore Institute of Technology","VIT Vellore","National Institute of Fashion Technology (NIFT)","National Law University Delhi","National Law School of India University","Indian Statistical Institute"
+];
+
+const STUDENTKART_SETTINGS_DEFAULTS = {
+    notifications: {
+        chat: true,
+        wishlist: true,
+        listings: true,
+        buyerSeller: true,
+        sold: true,
+        push: false
+    },
+    privacy: {
+        profileVisibility: "students",
+        hidePhone: false,
+        hideEmail: false,
+        blockedUsers: []
+    },
+    location: {
+        state: "",
+        city: "",
+        area: "",
+        latitude: null,
+        longitude: null,
+        distanceKm: 10
+    },
+    preferences: {
+        theme: "light",
+        language: "en",
+        vibration: true
+    }
+};
+
+function deepCloneSettings(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
+function mergeSettings(base, extra) {
+    if (!extra || typeof extra !== "object") return base;
+    Object.keys(extra).forEach(key => {
+        if (extra[key] && typeof extra[key] === "object" && !Array.isArray(extra[key])) {
+            base[key] = mergeSettings(base[key] || {}, extra[key]);
+        } else {
+            base[key] = extra[key];
+        }
+    });
+    return base;
+}
+
+function getStudentKartSettings() {
+    const metadata = currentUser?.user_metadata?.studentkart_settings;
+    let local = null;
+    try {
+        local = currentUser
+            ? JSON.parse(localStorage.getItem(`studentkart_settings_${currentUser.id}`) || "null")
+            : null;
+    } catch (_) {}
+    return mergeSettings(
+        deepCloneSettings(STUDENTKART_SETTINGS_DEFAULTS),
+        metadata || local || {}
+    );
+}
+
+async function saveStudentKartSettings(nextSettings, silent = false) {
+    if (!currentUser) return false;
+
+    const settings = mergeSettings(
+        deepCloneSettings(STUDENTKART_SETTINGS_DEFAULTS),
+        nextSettings
+    );
+
+    try {
+        localStorage.setItem(
+            `studentkart_settings_${currentUser.id}`,
+            JSON.stringify(settings)
+        );
+    } catch (_) {}
+
+    const { data, error } = await supabaseClient.auth.updateUser({
+        data: {
+            ...(currentUser.user_metadata || {}),
+            studentkart_settings: settings
+        }
+    });
+
+    if (error) {
+        console.error("Settings save error:", error);
+        if (!silent) showToast("Could not save setting to your account", "error");
+        return false;
+    }
+
+    if (data?.user) currentUser = data.user;
+    if (!silent) showToast("Setting saved", "success");
+    applyStudentKartSettings();
+    return true;
+}
+
+function applyStudentKartSettings() {
+    if (!currentUser) return;
+    const settings = getStudentKartSettings();
+    const theme = settings.preferences.theme === "dark";
+    document.body.classList.toggle("studentkart-dark", theme);
+    document.documentElement.lang = settings.preferences.language === "hi" ? "hi" : "en";
+
+    const rows = {
+        "chat-notifications": settings.notifications.chat,
+        "wishlist-notifications": settings.notifications.wishlist,
+        "listing-notifications": settings.notifications.listings,
+        "buyer-seller-notifications": settings.notifications.buyerSeller,
+        "sold-notifications": settings.notifications.sold,
+        "push-notifications": settings.notifications.push,
+        "vibration": settings.preferences.vibration,
+        "hide-phone": settings.privacy.hidePhone,
+        "hide-email": settings.privacy.hideEmail
+    };
+
+    Object.entries(rows).forEach(([action, enabled]) => {
+        const row = document.querySelector(`[data-setting-action="${action}"]`);
+        const sw = row?.querySelector(".settings-switch");
+        if (sw) {
+            sw.dataset.enabled = enabled ? "true" : "false";
+            sw.querySelector("span")?.style.setProperty("transform", enabled ? "translateX(18px)" : "translateX(0)");
+            sw.style.background = enabled ? "#0f8b8d" : "#d9e3e8";
+        }
+    });
+
+    const profileVisibilityRow = document.querySelector('[data-setting-action="profile-visibility"]');
+    const profileVisibilitySmall = profileVisibilityRow?.querySelector("small");
+    if (profileVisibilitySmall) {
+        const labels = { public: "Anyone can see your profile", students: "Visible to StudentKart users", private: "Profile visibility is limited" };
+        profileVisibilitySmall.textContent = labels[settings.privacy.profileVisibility] || "Control profile visibility";
+    }
+    const blockedRow = document.querySelector('[data-setting-action="blocked-users"]');
+    const blockedSmall = blockedRow?.querySelector("small");
+    if (blockedSmall) {
+        const count = Array.isArray(settings.privacy.blockedUsers) ? settings.privacy.blockedUsers.length : 0;
+        blockedSmall.textContent = count ? count + " blocked account" + (count === 1 ? "" : "s") : "No blocked accounts";
+    }
+
+    const themeRow = document.querySelector('[data-setting-action="theme"]');
+    const themeSmall = themeRow?.querySelector("small");
+    if (themeSmall) themeSmall.textContent = theme === "dark" ? "Dark mode is active" : "Light mode is active";
+}
+
+async function settingsToggle(path) {
+    const settings = getStudentKartSettings();
+    const parts = path.split(".");
+    let obj = settings;
+    for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
+    const key = parts[parts.length - 1];
+    obj[key] = !Boolean(obj[key]);
+    return saveStudentKartSettings(settings);
+}
+
+function openSettingsActionModal({title, description="", fields=[], options=[], danger=false, confirmText="Save", onConfirm}) {
+    let modal = $("settingsActionModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "settingsActionModal";
+        modal.className = "modal hidden";
+        document.body.appendChild(modal);
+    }
+
+    const fieldHTML = fields.map(field => {
+        const type = field.type || "text";
+        if (type === "textarea") {
+            return `<label class="settings-action-field"><span>${escapeHTML(field.label)}</span><textarea id="settingsAction_${escapeHTML(field.id)}" placeholder="${escapeHTML(field.placeholder || "")}">${escapeHTML(field.value || "")}</textarea></label>`;
+        }
+        return `<label class="settings-action-field"><span>${escapeHTML(field.label)}</span><input id="settingsAction_${escapeHTML(field.id)}" type="${type}" value="${escapeHTML(field.value || "")}" placeholder="${escapeHTML(field.placeholder || "")}"></label>`;
+    }).join("");
+
+    const optionHTML = options.length
+        ? `<div class="settings-action-options">${options.map(option =>
+            `<button type="button" class="settings-action-option" data-settings-option="${escapeHTML(option.value)}"><i class="fas ${escapeHTML(option.icon || "fa-circle") }"></i><span><b>${escapeHTML(option.label)}</b><small>${escapeHTML(option.description || "")}</small></span><i class="fas fa-chevron-right"></i></button>`
+        ).join("")}</div>`
+        : "";
+
+    modal.innerHTML = `
+        <div class="modal-overlay" data-settings-action-close></div>
+        <div class="modal-content settings-action-modal-content">
+            <div class="settings-action-header">
+                <div>
+                    <span class="section-label">STUDENTKART</span>
+                    <h2>${escapeHTML(title)}</h2>
+                    <p>${escapeHTML(description)}</p>
+                </div>
+                <button type="button" class="modal-close" data-settings-action-close aria-label="Close">&times;</button>
+            </div>
+            <div class="settings-action-body">${fieldHTML}${optionHTML}</div>
+            <div class="settings-action-footer">
+                <button type="button" class="btn btn-outline" data-settings-action-close>Cancel</button>
+                ${fields.length ? `<button type="button" class="btn ${danger ? "btn-danger" : "btn-primary"}" id="settingsActionConfirm">${escapeHTML(confirmText)}</button>` : ""}
+            </div>
+        </div>`;
+
+    modal.querySelectorAll("[data-settings-action-close]").forEach(btn => {
+        btn.addEventListener("click", () => closeModal("settingsActionModal"));
+    });
+
+    modal.querySelectorAll("[data-settings-option]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const value = btn.dataset.settingsOption;
+            await onConfirm?.(value);
+            closeModal("settingsActionModal");
+        });
+    });
+
+    modal.querySelector("#settingsActionConfirm")?.addEventListener("click", async () => {
+        const values = {};
+        fields.forEach(field => {
+            const el = $(`settingsAction_${field.id}`);
+            values[field.id] = el?.value?.trim() || "";
+        });
+        const ok = await onConfirm?.(values);
+        if (ok !== false) closeModal("settingsActionModal");
+    });
+
+    openModal("settingsActionModal");
+}
+
+async function settingsEmail() {
+    if (!currentUser) return;
+    openSettingsActionModal({
+        title: "Change Email",
+        description: "Update the email connected to your StudentKart account.",
+        fields: [{id:"email", label:"New Email Address", type:"email", value:currentUser.email || "", placeholder:"you@example.com"}],
+        confirmText: "Update Email",
+        onConfirm: async values => {
+            if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(values.email)) {
+                showToast("Please enter a valid email address", "warning"); return false;
+            }
+            const {data,error}=await supabaseClient.auth.updateUser({email:values.email.toLowerCase()});
+            if(error){showToast(error.message||"Could not update email","error");return false;}
+            if(data?.user) currentUser=data.user;
+            showToast("Email update started. Check your confirmation email if required.","success");
+        }
+    });
+}
+
+async function settingsMobile() {
+    if (!currentUser) return;
+    openSettingsActionModal({
+        title: "Change Mobile Number",
+        description: "Enter your mobile number with country code.",
+        fields: [{id:"phone", label:"Mobile Number", type:"tel", value:currentUser.phone || "", placeholder:"+919876543210"}],
+        confirmText: "Update Mobile",
+        onConfirm: async values => {
+            const phone=values.phone.replace(/\\s+/g,"");
+            if(!/^\\+?[1-9]\\d{9,14}$/.test(phone)){showToast("Enter a valid mobile number with country code","warning");return false;}
+            const {data,error}=await supabaseClient.auth.updateUser({phone});
+            if(error){showToast(error.message||"Could not update mobile number","error");return false;}
+            if(data?.user) currentUser=data.user;
+            showToast("Mobile update started. OTP verification may be required.","success");
+        }
+    });
+}
+
+function settingsCollege() {
+    closeModal("settingsModal");
+    openEditProfile?.();
+}
+
+async function settingsLocationCurrent() {
+    if (!navigator.geolocation) { showToast("Location is not supported by this browser","warning"); return; }
+    showToast("Requesting your current location...","info");
+    navigator.geolocation.getCurrentPosition(async position => {
+        const settings=getStudentKartSettings();
+        settings.location.latitude=Number(position.coords.latitude.toFixed(6));
+        settings.location.longitude=Number(position.coords.longitude.toFixed(6));
+        await saveStudentKartSettings(settings,true);
+        showToast("Current location saved","success");
+    }, error => {
+        console.warn("Geolocation error",error);
+        showToast("Location permission was denied or unavailable","warning");
+    }, {enableHighAccuracy:true,timeout:10000,maximumAge:300000});
+}
+
+async function settingsLocationDetails() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Change Location",
+        description:"Set the area you want StudentKart to use for local listings.",
+        fields:[
+            {id:"state",label:"State",value:settings.location.state},
+            {id:"city",label:"City",value:settings.location.city},
+            {id:"area",label:"Area",value:settings.location.area}
+        ],
+        confirmText:"Save Location",
+        onConfirm:async values=>{
+            settings.location.state=values.state;
+            settings.location.city=values.city;
+            settings.location.area=values.area;
+            await saveStudentKartSettings(settings);
+        }
+    });
+}
+
+async function settingsDistance() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Nearby Listings Distance",
+        description:"Choose how far StudentKart should search around your preferred location.",
+        options:[5,10,25,50,100].map(km=>({value:String(km),label:km+" km",description:"Show listings within "+km+" km",icon:"fa-route"})),
+        onConfirm:async value=>{
+            settings.location.distanceKm=Number(value);
+            await saveStudentKartSettings(settings);
+        }
+    });
+}
+
+async function settingsLocationPermission() {
+    openSettingsActionModal({
+        title:"Location Permission",
+        description:"StudentKart uses browser location access only when you request your current location.",
+        options:[
+            {value:"request",label:"Request Location Access",description:"Ask the browser for location permission",icon:"fa-location-crosshairs"},
+            {value:"status",label:"Check Permission Status",description:"See whether location access is allowed",icon:"fa-circle-info"}
+        ],
+        onConfirm:async value=>{
+            if(value==="request"){ settingsLocationCurrent(); return; }
+            try {
+                const result=await navigator.permissions.query({name:"geolocation"});
+                showToast("Location permission: "+result.state,"info");
+            } catch(_) { showToast("Manage location access from your browser site settings.","info"); }
+        }
+    });
+}
+
+async function settingsTheme() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Appearance",
+        description:"Choose how StudentKart should look on your device.",
+        options:[
+            {value:"light",label:"Light Mode",description:"Clean light StudentKart interface",icon:"fa-sun"},
+            {value:"dark",label:"Dark Mode",description:"Dark interface for low-light use",icon:"fa-moon"}
+        ],
+        onConfirm:async value=>{settings.preferences.theme=value;await saveStudentKartSettings(settings);}
+    });
+}
+
+async function settingsLanguage() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Language",
+        description:"Choose your preferred app language.",
+        options:[
+            {value:"en",label:"English",description:"Use English throughout the interface",icon:"fa-language"},
+            {value:"hi",label:"Hindi",description:"Hindi preference (interface translation can be expanded)",icon:"fa-language"}
+        ],
+        onConfirm:async value=>{settings.preferences.language=value;await saveStudentKartSettings(settings);}
+    });
+}
+
+async function settingsProfileVisibility() {
+    const settings=getStudentKartSettings();
+    openSettingsActionModal({
+        title:"Profile Visibility",
+        description:"Choose who can discover your StudentKart profile.",
+        options:[
+            {value:"public",label:"Public",description:"Anyone using StudentKart can see your profile",icon:"fa-earth-asia"},
+            {value:"students",label:"Students",description:"Keep your profile visible to the StudentKart community",icon:"fa-user-group"},
+            {value:"private",label:"Private",description:"Limit profile visibility",icon:"fa-lock"}
+        ],
+        onConfirm:async value=>{settings.privacy.profileVisibility=value;await saveStudentKartSettings(settings);}
+    });
+}
+
+async function settingsBlockedUsers() {
+    const settings = getStudentKartSettings();
+    const blocked = Array.isArray(settings.privacy?.blockedUsers)
+        ? settings.privacy.blockedUsers.map(String).filter(Boolean)
+        : [];
+
+    let profiles = [];
+    if (blocked.length) {
+        try {
+            const { data, error } = await supabaseClient
+                .from("profiles")
+                .select("id,name,username,email,phone,avatar_url,college,city")
+                .in("id", blocked);
+
+            if (!error && Array.isArray(data)) {
+                profiles = data;
+            }
+        } catch (error) {
+            console.error("Blocked users profile load error:", error);
+        }
+    }
+
+    const profileMap = new Map(
+        profiles.map(profile => [String(profile.id), profile])
+    );
+
+    const blockedOptions = blocked.map(id => {
+        const profile = profileMap.get(id);
+        const name =
+            profile?.name ||
+            profile?.username ||
+            "Blocked User";
+        const contact =
+            profile?.username
+                ? "@" + profile.username
+                : profile?.email ||
+                    profile?.phone ||
+                    "Blocked account";
+
+        return {
+            value: "unblock:" + id,
+            label: name,
+            description: contact,
+            icon: "fa-user-check"
+        };
+    });
+
+    openSettingsActionModal({
+        title: "Blocked Users",
+        description: blocked.length
+            ? "These accounts are blocked. Tap a user to unblock them."
+            : "You have not blocked any users yet.",
+        options: blockedOptions,
+        fields: [{
+            id: "user",
+            label: "Block another user",
+            placeholder: "Enter User ID"
+        }],
+        confirmText: "Block User",
+        onConfirm: async value => {
+            if (typeof value === "string" && value.startsWith("unblock:")) {
+                const id = value.slice(8);
+
+                settings.privacy = settings.privacy || {};
+                settings.privacy.blockedUsers =
+                    (Array.isArray(settings.privacy.blockedUsers)
+                        ? settings.privacy.blockedUsers.map(String)
+                        : []
+                    ).filter(x => x !== id);
+
+                const saved = await saveStudentKartSettings(settings, true);
+
+                if (!saved) {
+                    showToast("Could not unblock this user", "error");
+                    return false;
+                }
+
+                showToast("User unblocked", "success");
+                return;
+            }
+
+            if (value && value.user) {
+                const id = value.user.trim();
+
+                if (!id) {
+                    showToast("Enter a User ID", "warning");
+                    return false;
+                }
+
+                settings.privacy = settings.privacy || {};
+                const currentBlocked = Array.isArray(settings.privacy.blockedUsers)
+                    ? settings.privacy.blockedUsers.map(String)
+                    : [];
+
+                if (currentBlocked.includes(id)) {
+                    showToast("User is already blocked", "info");
+                    return false;
+                }
+
+                settings.privacy.blockedUsers = [...currentBlocked, id];
+
+                const saved = await saveStudentKartSettings(settings, true);
+
+                if (!saved) {
+                    showToast("Could not block this user", "error");
+                    return false;
+                }
+
+                showToast("User blocked", "success");
+            }
+        }
+    });
+}
+async function settingsReportProblem() {
+    openSettingsActionModal({
+        title:"Report a Problem",
+        description:"Tell us what went wrong. Your email app will open with the report ready to send.",
+        fields:[
+            {id:"subject",label:"Subject",value:"StudentKart Problem Report"},
+            {id:"message",label:"What happened?",type:"textarea",placeholder:"Describe the problem..."}
+        ],
+        confirmText:"Prepare Report",
+        onConfirm:async values=>{
+            const subject=encodeURIComponent(values.subject||"StudentKart Problem Report");
+            const body=encodeURIComponent(values.message||"");
+            window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
+        }
+    });
+}
+
+async function settingsLoginSessions() {
+    const {data,error}=await supabaseClient.auth.getSession();
+    const expires=data?.session?.expires_at?new Date(data.session.expires_at*1000).toLocaleString("en-IN"):"Unknown";
+    openSettingsActionModal({
+        title:"Login Session",
+        description:error?"Could not read your current session.":"This browser currently has an active StudentKart session.",
+        options:error?[]:[{value:"current",label:"Current Session Active",description:"Session expiry: "+expires,icon:"fa-circle-check"}],
+        onConfirm:async()=>{}
+    });
+}
+
+async function settingsLogoutAll() {
+    openSettingsActionModal({
+        title:"Logout From All Devices",
+        description:"This will sign out the current account. Continue only if you want to end your StudentKart session.",
+        options:[
+            {value:"logout",label:"Logout From All Devices",description:"End the current Supabase session",icon:"fa-right-from-bracket"}
+        ],
+        onConfirm:async value=>{
+            if(value!=="logout")return;
+            const {error}=await supabaseClient.auth.signOut();
+            if(error){showToast(error.message||"Could not logout","error");return;}
+            showToast("Logged out successfully","success");
+        }
+    });
+}
+
+function settingsAccountSecurity() {
+    if (!currentUser) return;
+    openSettingsActionModal({
+        title:"Account Security",
+        description:"Review the security state of your StudentKart account.",
+        options:[
+            {value:"email",label:"Email",description:(currentUser.email||"Not added")+" · "+(currentUser.email_confirmed_at?"Verified":"Verification may be required"),icon:"fa-envelope"},
+            {value:"phone",label:"Mobile",description:(currentUser.phone||"Not added")+" · "+(currentUser.phone_confirmed_at?"Verified":"Verification may be required"),icon:"fa-mobile-screen"},
+            {value:"session",label:"Session",description:"Your current authenticated session is active",icon:"fa-shield-halved"}
+        ],
+        onConfirm:async()=>{}
+    });
+}
+
+function settingsDeleteAccount() {
+    openSettingsActionModal({
+        title:"Delete Account",
+        description:"Account deletion is permanent. Send a deletion request so it can be processed safely on the server.",
+        fields:[{id:"confirm",label:"Type DELETE to continue",placeholder:"DELETE"}],
+        confirmText:"Request Deletion",
+        danger:true,
+        onConfirm:async values=>{
+            if(values.confirm!=="DELETE"){showToast("Type DELETE exactly to continue","warning");return false;}
+            const subject=encodeURIComponent("StudentKart account deletion request");
+            const body=encodeURIComponent("Please delete my StudentKart account. Account ID: "+(currentUser?.id||"unknown"));
+            window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
+            showToast("Deletion request prepared","warning");
+        }
+    });
+}
+async function handleSettingAction(action) {
+    if (!currentUser) {
+        closeModal("settingsModal");
+        openModal("loginModal");
+        return;
+    }
+
+    if (action === "edit-profile" || action === "college" || action === "profile-photo") {
+        closeModal("settingsModal");
+        openEditProfile?.();
+        return;
+    }
+
+    if (action === "email") return settingsEmail();
+    if (action === "mobile") return settingsMobile();
+
+    if (["chat-notifications", "wishlist-notifications", "listing-notifications", "buyer-seller-notifications", "sold-notifications"].includes(action)) {
+        const map = {
+            "chat-notifications": "chat",
+            "wishlist-notifications": "wishlist",
+            "listing-notifications": "listings",
+            "buyer-seller-notifications": "buyerSeller",
+            "sold-notifications": "sold"
+        };
+        return settingsToggle(`notifications.${map[action]}`);
+    }
+
+    if (action === "push-notifications") {
+        const settings = getStudentKartSettings();
+        if (!settings.notifications.push && "Notification" in window) {
+            const permission = await Notification.requestPermission();
+            if (permission !== "granted") {
+                showToast("Browser notification permission was not granted", "warning");
+                return;
+            }
+        }
+        return settingsToggle("notifications.push");
+    }
+
+    if (action === "profile-visibility") return settingsProfileVisibility();
+    if (action === "hide-phone") return settingsToggle("privacy.hidePhone");
+    if (action === "hide-email") return settingsToggle("privacy.hideEmail");
+    if (action === "blocked-users") return settingsBlockedUsers();
+
+    if (action === "report-problem") {
+        const body = encodeURIComponent("StudentKart problem report:\n\n");
+        window.location.href = `mailto:rathodharish004@gmail.com?subject=StudentKart%20Problem%20Report&body=${body}`;
+        return;
+    }
+
+    if (action === "safety-tips" || action === "safety-about" || action === "about" ||
+        action === "terms" || action === "privacy-policy" || action === "contact") {
+        const map = {
+            "safety-tips": "safety",
+            "safety-about": "safety",
+            about: "about",
+            terms: "terms",
+            "privacy-policy": "privacy",
+            contact: "contact"
+        };
+        closeModal("settingsModal");
+        document.querySelector(`[data-footer-info="${map[action]}"]`)?.click();
+        return;
+    }
+
+    if (action === "current-location") return settingsLocationCurrent();
+    if (action === "change-location" || action === "state-city-area") return settingsLocationDetails();
+    if (action === "nearby-distance") return settingsDistance();
+    if (action === "location-permission") return settingsLocationPermission();
+
+    if (action === "theme") return settingsTheme();
+    if (action === "language") return settingsLanguage();
+    if (action === "vibration") return settingsToggle("preferences.vibration");
+
+    if (action === "login-sessions") return settingsLoginSessions();
+    if (action === "logout-all") return settingsLogoutAll();
+    if (action === "account-security") return settingsAccountSecurity();
+    if (action === "delete-account") return settingsDeleteAccount();
+
+    if (action === "logout") {
+        $("logoutButton")?.click();
+        return;
+    }
+}
+
+const SETTINGS_SECTION_TEMPLATES = {
+    account: {
+        title: "Account", icon: "fa-user", subtitle: "Manage your profile and account details.",
+        html: `
+            <button class="settings-row" type="button" data-setting-action="edit-profile"><span><i class="fas fa-pen"></i><b>Edit Profile</b><small>Update your profile details</small></span><i class="fas fa-chevron-right"></i></button>
+        `
+    },
+    notifications: {
+        title: "Notifications", icon: "fa-bell", subtitle: "Manage all notification preferences.",
+        html: `
+            <button class="settings-row settings-toggle-row" type="button" data-setting-action="chat-notifications"><span><i class="fas fa-message"></i><b>New Chat Messages</b><small>Get notified about new chats</small></span><span class="settings-switch"><span></span></span></button>
+            <button class="settings-row settings-toggle-row" type="button" data-setting-action="wishlist-notifications"><span><i class="fa-regular fa-heart"></i><b>Wishlist Updates</b><small>Updates about saved listings</small></span><span class="settings-switch"><span></span></span></button>
+            <button class="settings-row settings-toggle-row" type="button" data-setting-action="listing-notifications"><span><i class="fas fa-box"></i><b>Listing Updates</b><small>Updates about your listings</small></span><span class="settings-switch"><span></span></span></button>
+            <button class="settings-row settings-toggle-row" type="button" data-setting-action="buyer-seller-notifications"><span><i class="fas fa-handshake"></i><b>Interested Buyer/Seller</b><small>Get notified about interest</small></span><span class="settings-switch"><span></span></span></button>
+            <button class="settings-row settings-toggle-row" type="button" data-setting-action="sold-notifications"><span><i class="fas fa-circle-check"></i><b>Sold Listing</b><small>Get notified when listings are sold</small></span><span class="settings-switch"><span></span></span></button>
+            <button class="settings-row settings-toggle-row" type="button" data-setting-action="push-notifications"><span><i class="fas fa-mobile-screen-button"></i><b>Push Notifications</b><small>Allow StudentKart notifications</small></span><span class="settings-switch"><span></span></span></button>`
+    },
+    privacy: {title:"Privacy & Safety",icon:"fa-shield-halved",subtitle:"Control your privacy and safety preferences.",html:`
+        <button class="settings-row" type="button" data-setting-action="profile-visibility"><span><i class="fas fa-eye"></i><b>Who Can See My Profile</b><small>Control profile visibility</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row settings-toggle-row" type="button" data-setting-action="hide-phone"><span><i class="fas fa-phone"></i><b>Hide Phone Number</b><small>Control phone visibility</small></span><span class="settings-switch"><span></span></span></button>
+        <button class="settings-row settings-toggle-row" type="button" data-setting-action="hide-email"><span><i class="fas fa-envelope"></i><b>Hide Email</b><small>Control email visibility</small></span><span class="settings-switch"><span></span></span></button>
+        <button class="settings-row" type="button" data-setting-action="blocked-users"><span><i class="fas fa-user-slash"></i><b>Blocked Users</b><small>Manage blocked accounts</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="report-problem"><span><i class="fas fa-flag"></i><b>Report a Problem</b><small>Tell us about an issue</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="safety-tips"><span><i class="fas fa-lock"></i><b>Safety Tips</b><small>Stay safe while buying and selling</small></span><i class="fas fa-chevron-right"></i></button>`},
+    location:{title:"Location",icon:"fa-location-dot",subtitle:"Manage location and nearby listing preferences.",html:`
+        <button class="settings-row" type="button" data-setting-action="current-location"><span><i class="fas fa-location-crosshairs"></i><b>Current Location</b><small>Use your current area</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="change-location"><span><i class="fas fa-map-pin"></i><b>Change Location</b><small>Choose a different location</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="state-city-area"><span><i class="fas fa-map"></i><b>State / City / Area</b><small>Set your preferred area</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="nearby-distance"><span><i class="fas fa-route"></i><b>Nearby Listings Distance</b><small>Choose your search radius</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="location-permission"><span><i class="fas fa-location-dot"></i><b>Location Permission</b><small>Manage location access</small></span><i class="fas fa-chevron-right"></i></button>`},
+    preferences:{title:"App Preferences",icon:"fa-palette",subtitle:"Customize how StudentKart looks and behaves.",html:`
+        <button class="settings-row" type="button" data-setting-action="theme"><span><i class="fas fa-moon"></i><b>Dark Mode / Light Mode</b><small>Choose your app appearance</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="language"><span><i class="fas fa-language"></i><b>Language</b><small>Choose your preferred language</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row settings-toggle-row" type="button" data-setting-action="vibration"><span><i class="fas fa-mobile-screen-button"></i><b>Vibration / Notification Preferences</b><small>Manage interaction feedback</small></span><span class="settings-switch"><span></span></span></button>`},
+    security:{title:"Security",icon:"fa-lock",subtitle:"Manage account sessions and security.",html:`
+        <button class="settings-row" type="button" data-setting-action="login-sessions"><span><i class="fas fa-laptop"></i><b>Login Sessions</b><small>View active sessions</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="logout-all"><span><i class="fas fa-right-from-bracket"></i><b>Logout from All Devices</b><small>Sign out of other sessions</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="account-security"><span><i class="fas fa-shield"></i><b>Account Security</b><small>Review account security</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row danger-row" type="button" data-setting-action="delete-account"><span><i class="fas fa-trash-can"></i><b>Delete Account</b><small>Permanently remove your account</small></span><i class="fas fa-chevron-right"></i></button>`},
+    about:{title:"About",icon:"fa-circle-info",subtitle:"StudentKart information and support.",html:`
+        <button class="settings-row" type="button" data-setting-action="about"><span><i class="fas fa-circle-info"></i><b>About StudentKart</b><small>Learn more about StudentKart</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="terms"><span><i class="fas fa-file-contract"></i><b>Terms & Conditions</b><small>Platform terms</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="privacy-policy"><span><i class="fas fa-user-shield"></i><b>Privacy Policy</b><small>How information is handled</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="safety-about"><span><i class="fas fa-shield-heart"></i><b>Safety</b><small>Safe buying and selling guidance</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="contact"><span><i class="fas fa-headset"></i><b>Contact Us</b><small>Get in touch with StudentKart</small></span><i class="fas fa-chevron-right"></i></button>
+        <div class="settings-version"><span>App Version</span><strong>1.0.0</strong></div>`},
+    "account-actions":{title:"Account Actions",icon:"fa-door-open",subtitle:"Manage your account session.",html:`
+        <button class="settings-row" type="button" data-setting-action="logout"><span><i class="fas fa-right-from-bracket"></i><b>Logout</b><small>Sign out of this account</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row danger-row" type="button" data-setting-action="delete-account"><span><i class="fas fa-trash-can"></i><b>Delete Account</b><small>This action cannot be undone</small></span><i class="fas fa-chevron-right"></i></button>`}
+};
+
+document.addEventListener("click", event => {
+    const sectionButton = event.target.closest("[data-settings-section]");
+    if (!sectionButton) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const key = sectionButton.dataset.settingsSection;
+    const config = SETTINGS_SECTION_TEMPLATES[key];
+    if (!config) return;
+    closeModal("settingsModal");
+    const title = $("settingsDetailTitle"), subtitle = $("settingsDetailSubtitle"), icon = $("settingsDetailIcon"), content = $("settingsDetailContent");
+    if (title) title.textContent = config.title;
+    if (subtitle) subtitle.textContent = config.subtitle;
+    if (icon) icon.className = "fas " + config.icon;
+    if (content) content.innerHTML = config.html;
+    openModal("settingsDetailModal");
+});
+
+document.addEventListener("click", event => {
+    const row = event.target.closest("[data-setting-action]");
+    if (!row) return;
+    event.preventDefault();
+    event.stopPropagation();
+    handleSettingAction(row.dataset.settingAction);
+});
+
+
+
+const footerInfoContent = {
+    about: {
+        title: "About StudentKart",
+        body: `
+            <div class="info-intro">StudentKart is a student-focused marketplace designed to make campus buying, selling, renting and discovering useful products easier.</div>
+            <div class="info-section">
+                <h3><i class="fas fa-store"></i> What is StudentKart?</h3>
+                <p>StudentKart brings student-to-student listings into one simple place. Students can browse products, compare listings, save favourites, chat with sellers and publish their own listings.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-bullseye"></i> Our Purpose</h3>
+                <p>Our goal is to make useful products and services around student communities easier to discover, while keeping the buying and selling process simple and organized.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-handshake"></i> How StudentKart Works</h3>
+                <p>StudentKart connects buyers and sellers. It does not act as the buyer or seller in a transaction. Users are responsible for checking products, sellers, prices and transaction details before making a deal.</p>
+            </div>
+        `
+    },
+    how: {
+        title: "How It Works",
+        body: `
+            <div class="info-section">
+                <h3><i class="fas fa-cart-shopping"></i> Buying on StudentKart</h3>
+                <ol class="info-steps">
+                    <li>Browse the marketplace or choose a category.</li>
+                    <li>Search and filter listings to find what you need.</li>
+                    <li>Open a listing and check its price, condition, location and seller details.</li>
+                    <li>Contact the seller through StudentKart chat.</li>
+                    <li>Discuss the product and agree on the transaction details before paying.</li>
+                </ol>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-tag"></i> Selling on StudentKart</h3>
+                <ol class="info-steps">
+                    <li>Sign in to your StudentKart account.</li>
+                    <li>Select <strong>Sell</strong> and add the product details.</li>
+                    <li>Add the name, category, price, location, condition, description and photos.</li>
+                    <li>Publish your listing.</li>
+                    <li>Respond to interested buyers through chat and complete the transaction safely.</li>
+                </ol>
+            </div>
+            <div class="info-note"><i class="fas fa-circle-info"></i><span>Always inspect an item and confirm the final price, payment method and meeting details before completing a transaction.</span></div>
+        `
+    },
+    safety: {
+        title: "Safety",
+        body: `
+            <div class="info-intro">A few simple precautions can help make buying and selling safer on StudentKart.</div>
+            <div class="info-section">
+                <h3><i class="fas fa-location-dot"></i> Meet Safely</h3>
+                <p>Whenever possible, meet in a safe, public and well-known place. If you are inspecting an item, check it carefully before completing the transaction.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-lock"></i> Protect Your Account</h3>
+                <ul class="info-list">
+                    <li>Never share your password, OTP or verification code.</li>
+                    <li>Do not give anyone access to your account.</li>
+                    <li>Avoid publishing sensitive personal information in listings, profiles or chats.</li>
+                </ul>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-triangle-exclamation"></i> Watch for Suspicious Activity</h3>
+                <ul class="info-list">
+                    <li>Be careful with requests for advance payments or unusual payment methods.</li>
+                    <li>Do not rush into urgent transfers without verifying the details.</li>
+                    <li>Be cautious of offers that seem unusually good or inconsistent with the listing.</li>
+                </ul>
+            </div>
+            <div class="info-note warning"><i class="fas fa-flag"></i><span>If a user or listing appears suspicious, stop the transaction and use the available reporting options.</span></div>
+        `
+    },
+    contact: {
+        title: "Contact Us",
+        body: `
+            <div class="info-intro">Need help, found a bug or have a feature suggestion? You can contact the StudentKart team directly.</div>
+            <div class="info-contact-card">
+                <div class="info-contact-icon"><i class="fas fa-envelope"></i></div>
+                <div><span>Email</span><a href="mailto:rathodharish004@gmail.com">rathodharish004@gmail.com</a></div>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-headset"></i> What You Can Contact Us About</h3>
+                <ul class="info-list">
+                    <li>General feedback and suggestions</li>
+                    <li>Bug or technical problem reports</li>
+                    <li>Account-related questions</li>
+                    <li>Ideas for improving StudentKart</li>
+                </ul>
+            </div>
+            <div class="info-note"><i class="fas fa-circle-info"></i><span>When reporting a problem, include a short description of what happened and the page or feature where you experienced it.</span></div>
+        `
+    },
+    privacy: {
+        title: "Privacy Policy",
+        body: `
+            <div class="info-intro">StudentKart uses information needed to provide account, marketplace and communication features.</div>
+            <div class="info-section">
+                <h3><i class="fas fa-database"></i> Information Used</h3>
+                <p>Account and profile information may be used for features such as authentication, profiles, listings, wishlist, chat and notifications. Information required for a feature may be stored or processed by the services used to operate StudentKart.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-eye"></i> Information You Share</h3>
+                <p>StudentKart aims to show only the information needed for marketplace and communication features. Please do not publish sensitive information in your profile, listing descriptions, chat messages or images.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-shield-halved"></i> Keep Your Account Secure</h3>
+                <p>Keep your login credentials and OTPs private. If you believe your account or personal information has been exposed, contact StudentKart support.</p>
+            </div>
+        `
+    },
+    terms: {
+        title: "Terms & Conditions",
+        body: `
+            <div class="info-intro">By using StudentKart, you agree to use the platform lawfully, honestly and respectfully.</div>
+            <div class="info-section">
+                <h3><i class="fas fa-user-check"></i> User Responsibilities</h3>
+                <ul class="info-list">
+                    <li>Provide genuine and accurate information in listings.</li>
+                    <li>Use StudentKart only for lawful activities.</li>
+                    <li>Do not use the platform for scams, impersonation, harassment or prohibited transactions.</li>
+                    <li>Do not intentionally misrepresent a product or service.</li>
+                </ul>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-receipt"></i> Transactions</h3>
+                <p>Buyers and sellers are responsible for verifying the listing, product condition, identity, price, payment details and other transaction terms before completing a deal.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-users"></i> StudentKart's Role</h3>
+                <p>StudentKart provides a platform for users to connect. StudentKart does not become a party to transactions between users. Users are responsible for their own buying and selling decisions.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-shield-halved"></i> Platform Protection</h3>
+                <p>StudentKart may restrict or remove content or accounts when necessary to protect users or maintain the platform.</p>
+            </div>
+        `
+    }
+}
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("[data-footer-info]").forEach(button => {
+        button.addEventListener("click", () => {
+            const key = button.dataset.footerInfo;
+            const info = footerInfoContent[key];
+            if (!info) return;
+
+            const title = document.getElementById("footerInfoTitle");
+            const body = document.getElementById("footerInfoBody");
+            if (title) title.textContent = info.title;
+            if (body) body.innerHTML = info.body.replace(/\n/g, "<br>");
+
+            openModal("footerInfoModal");
+        });
+    });
+});
+
+/* =========================================================
+   FINAL NAVBAR SCROLL BEHAVIOR
+   Hide navbar while scrolling down, reveal it while scrolling up.
+   Bottom floating navigation is intentionally untouched.
+   ========================================================= */
+(function initNavbarScrollBehavior() {
+    let lastScrollY = window.scrollY || 0;
+    let scrollTicking = false;
+    const DOWN_THRESHOLD = 8;
+    const TOP_OFFSET = 12;
+
+    function updateNavbarScrollState() {
+        const navbar = document.querySelector(".navbar");
+        if (!navbar) {
+            scrollTicking = false;
+            return;
+        }
+
+        const currentY = Math.max(0, window.scrollY || 0);
+        const hasBlockingView =
+            document.body.classList.contains("studentkart-modal-navigation-hidden") ||
+            document.body.classList.contains("studentkart-product-details-open") ||
+            document.body.classList.contains("studentkart-chat-open") ||
+            document.body.classList.contains("category-page-active") ||
+            !!document.querySelector(".modal:not(.hidden)") ||
+            !!document.querySelector("#categoryPage:not(.hidden)");
+
+        if (currentY <= TOP_OFFSET) {
+            navbar.classList.remove("navbar-scroll-hidden");
+        } else if (!hasBlockingView && currentY > lastScrollY + DOWN_THRESHOLD) {
+            navbar.classList.add("navbar-scroll-hidden");
+        } else if (currentY < lastScrollY - DOWN_THRESHOLD) {
+            navbar.classList.remove("navbar-scroll-hidden");
+        }
+
+        lastScrollY = currentY;
+        scrollTicking = false;
+    }
+
+    function onScroll() {
+        if (!scrollTicking) {
+            window.requestAnimationFrame(updateNavbarScrollState);
+            scrollTicking = true;
+        }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", () => {
+        lastScrollY = window.scrollY || 0;
+        if (lastScrollY <= TOP_OFFSET) {
+            document.querySelector(".navbar")?.classList.remove("navbar-scroll-hidden");
+        }
+    }, { passive: true });
+})();
