@@ -7788,6 +7788,12 @@ async function openChat(inquiry) {
         $("chatUserName").textContent = otherUser;
     }
 
+    // Store the other participant so the chat header can open their profile.
+    window.currentChatOtherUserId =
+        String(inquiry.seller_id) === String(currentUser.id)
+            ? inquiry.buyer_id
+            : inquiry.seller_id;
+
     openModal("chatModal");
 
     document.body.classList.add("studentkart-chat-open");
@@ -7804,6 +7810,29 @@ async function openChat(inquiry) {
     startChatRealtime();
 }
 
+
+
+// Open the other participant's profile by tapping the chat header.
+$("chatUserName")?.addEventListener("click", async () => {
+    if (!currentChatInquiry || !currentUser) return;
+
+    const otherUserId =
+        window.currentChatOtherUserId ||
+        (
+            String(currentChatInquiry.seller_id) === String(currentUser.id)
+                ? currentChatInquiry.buyer_id
+                : currentChatInquiry.seller_id
+        );
+
+    if (!otherUserId) {
+        showToast("User profile unavailable", "warning");
+        return;
+    }
+
+    await openSellerProfile(otherUserId);
+});
+
+$("chatUserName")?.style.setProperty("cursor", "pointer");
 
 let selectedChatMessageIds = new Set();
 let chatLongPressTimer = null;
