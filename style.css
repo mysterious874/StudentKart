@@ -12463,3 +12463,12 @@ body.studentkart-dark .filter-panel-grid input,body.studentkart-dark .filter-pan
         width: calc(100vw - 16px) !important;
     }
 }
+
+/* =========================================================
+   NOTIFICATION BELL — NAVBAR
+   ========================================================= */
+.nav-notification-button { position:relative; width:42px; min-width:42px; height:42px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+.nav-notification-button i { font-size:16px; }
+.notification-count { position:absolute; top:-5px; right:-5px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; background:#e53935; color:#fff; border:2px solid #fff; font-size:10px; font-weight:800; line-height:1; }
+body.studentkart-dark .notification-count { border-color:#102a43; }
+@media (max-width:720px) { .nav-notification-button { width:38px; min-width:38px; height:38px; } }
