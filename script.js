@@ -3716,7 +3716,7 @@ async function signupUser(event) {
             email,
             password,
             options: {
-                data: { name, college }
+                data: { name, college, state, city, area }
             }
         });
 
@@ -3927,6 +3927,10 @@ function openEditProfile() {
                 .user_metadata
                 ?.college ||
             "";
+
+        $("editProfileState") && ($("editProfileState").value = profile?.state || currentUser.user_metadata?.state || "");
+        $("editProfileCity") && ($("editProfileCity").value = profile?.city || currentUser.user_metadata?.city || "");
+        $("editProfileArea") && ($("editProfileArea").value = profile?.area || currentUser.user_metadata?.area || "");
     }
 
     if ($("editProfileEmail")) {
@@ -3997,6 +4001,9 @@ async function saveEditedProfile(
         $("editProfileCollege")
             ?.value
             ?.trim();
+    const state = $("editProfileState")?.value?.trim() || "";
+    const city = $("editProfileCity")?.value?.trim() || "";
+    const area = $("editProfileArea")?.value?.trim() || "";
 
     if (!name) {
 
@@ -8182,36 +8189,20 @@ if (bottomSettingsButton) {
    Persisted in Supabase Auth user_metadata with local fallback.
    ========================================================= */
 
-const STUDENTKART_SETTINGS_DEFAULTS = {
-    notifications: {
-        chat: true,
-        wishlist: true,
-        listings: true,
-        buyerSeller: true,
-        sold: true,
-        push: false
-    },
-    privacy: {
-        profileVisibility: "students",
-        hidePhone: false,
-        hideEmail: false,
-        blockedUsers: []
-    },
-    location: {
-        state: "",
-        city: "",
-        area: "",
-        latitude: null,
-        longitude: null,
-        distanceKm: 10
-    },
-    preferences: {
-        theme: "light",
-        language: "en",
-        vibration: true
-    }
-};
+const STUDENTKART_INDIA_STATES = [
+"Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal",
+"Andaman and Nicobar Islands","Chandigarh","Dadra and Nagar Haveli and Daman and Diu","Delhi","Jammu and Kashmir","Ladakh","Lakshadweep","Puducherry"
+];
 
+const STUDENTKART_INDIA_CITIES = [
+"Agra","Ahmedabad","Ajmer","Aligarh","Allahabad","Amritsar","Aurangabad","Bengaluru","Bhopal","Bhubaneswar","Chandigarh","Chennai","Coimbatore","Cuttack","Dehradun","Delhi","Dhanbad","Dharwad","Dimapur","Faridabad","Gandhinagar","Ghaziabad","Gorakhpur","Gurugram","Guwahati","Gwalior","Hubballi","Hyderabad","Imphal","Indore","Jaipur","Jalandhar","Jammu","Jamshedpur","Jodhpur","Kanpur","Kochi","Kolkata","Kota","Kozhikode","Lucknow","Ludhiana","Madurai","Mangaluru","Meerut","Mumbai","Mysuru","Nagpur","Nashik","Navi Mumbai","Noida","Patna","Pimpri-Chinchwad","Pune","Raipur","Rajkot","Ranchi","Rourkela","Salem","Siliguri","Srinagar","Surat","Thane","Thiruvananthapuram","Tiruchirappalli","Udaipur","Vadodara","Varanasi","Vasai-Virar","Vijayawada","Visakhapatnam","Warangal"
+];
+
+const STUDENTKART_INSTITUTIONS = [
+"Indian Institute of Technology Bombay (IIT Bombay)","Indian Institute of Technology Delhi (IIT Delhi)","Indian Institute of Technology Madras (IIT Madras)","Indian Institute of Technology Kanpur (IIT Kanpur)","Indian Institute of Technology Kharagpur (IIT Kharagpur)","Indian Institute of Technology Roorkee (IIT Roorkee)","Indian Institute of Technology Guwahati (IIT Guwahati)","Indian Institute of Technology Hyderabad (IIT Hyderabad)","Indian Institute of Science Bengaluru (IISc)","Indian Institute of Information Technology Hyderabad (IIIT Hyderabad)","National Institute of Technology Karnataka (NITK)","National Institute of Technology Tiruchirappalli (NIT Trichy)","National Institute of Technology Warangal (NIT Warangal)","University of Delhi","Jawaharlal Nehru University (JNU)","University of Mumbai","Savitribai Phule Pune University","University of Hyderabad","Banaras Hindu University (BHU)","Aligarh Muslim University (AMU)","Jamia Millia Islamia","University of Calcutta","University of Madras","Anna University","Jadavpur University","Osmania University","Panjab University","University of Rajasthan","University of Lucknow","University of Kerala","University of Mysore","Andhra University","University of Allahabad","Gauhati University","Utkal University","Ranchi University","Patna University","Mahatma Gandhi University","Goa University","Manipal Academy of Higher Education (MAHE)","Manipal University Jaipur","G H Raisoni University","G H Raisoni College of Engineering","Symbiosis International University","Symbiosis Institute of Technology","Amity University","Lovely Professional University (LPU)","Chandigarh University","Sharda University","Ashoka University","Christ University","Jain University","PES University","RV University","Bangalore University","SRM Institute of Science and Technology","Vellore Institute of Technology (VIT)","Sathyabama Institute of Science and Technology","Kalinga Institute of Industrial Technology (KIIT)","Siksha 'O' Anusandhan","Amity University Noida","Bennett University","Galgotias University","Shiv Nadar University","Graphic Era University","UPES Dehradun","Thapar Institute of Engineering and Technology","Chitkara University","Lovely Professional University","MIT World Peace University","MIT Art Design and Technology University","Bharati Vidyapeeth","D Y Patil University","NMIMS University","K J Somaiya Institute of Engineering and Information Technology","Somaiya Vidyavihar University","Tata Institute of Social Sciences (TISS)","St. Xavier's College Mumbai","St. Xavier's College Kolkata","Fergusson College","Modern College of Arts Science and Commerce","Ramnarain Ruia Autonomous College","K J Somaiya College of Arts and Commerce","Wilson College Mumbai","Mithibai College","Jai Hind College","Hindu College Delhi","Hansraj College","Ramjas College","Sri Venkateswara College Delhi","Lady Shri Ram College for Women","St. Stephen's College Delhi","Christ University Bengaluru","Mount Carmel College Bengaluru","St Joseph's University Bengaluru","Maharaja Sayajirao University of Baroda","Nirma University","Gujarat University","Sardar Patel University","Manipal University Bengaluru","KIIT University","Amrita Vishwa Vidyapeetham","SRM University","PSG College of Technology","Loyola College Chennai","Madras Christian College","Coimbatore Institute of Technology","VIT Vellore","National Institute of Fashion Technology (NIFT)","National Law University Delhi","National Law School of India University","Indian Statistical Institute"
+];
+
+const STUDENTKART_SETTINGS_DEFAULTS = {
 function deepCloneSettings(value) {
     return JSON.parse(JSON.stringify(value));
 }
