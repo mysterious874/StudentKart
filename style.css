@@ -20629,3 +20629,21 @@ body.category-page-active .category-page-container {
     padding-bottom:120px !important;
   }
 }
+
+/* MOBILE HOMEPAGE — header directly above hero, no oversized gap */
+@media (max-width:600px){
+  html body > header.navbar{
+    position:static !important;
+    height:auto !important;
+    min-height:0 !important;
+    padding:14px 0 0 !important;
+  }
+  html body > header.navbar > .nav-container{
+    height:104px !important;
+    min-height:104px !important;
+  }
+  html body > .hero{
+    margin-top:0 !important;
+    padding-top:32px !important;
+  }
+}
