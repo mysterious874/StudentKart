@@ -3210,9 +3210,88 @@ async function searchStudentKartUsers(query) {
         if (r.error) throw r.error;
         if (!r.data?.length) { box.innerHTML = '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No student found</strong><span>Try username, mobile or email.</span></div>'; return; }
         box.innerHTML = '<div class="chat-user-search-title"><span>STUDENTKART USERS</span><small>'+r.data.length+' result'+(r.data.length===1?"":"s")+'</small></div>'+r.data.map(x=>{const n=x.username||x.name||"Student";const s=x.username&&x.name?x.name:(x.email||x.phone||x.college||"");const a=x.avatar_url?'<img src="'+escapeHTML(x.avatar_url)+'" alt="">':'<span>'+escapeHTML(getInitials(n))+'</span>';return '<button type="button" class="chat-user-search-card" data-user-search-id="'+escapeHTML(x.id)+'"><span class="chat-user-search-avatar">'+a+'</span><span class="chat-user-search-main"><strong>'+escapeHTML(n)+'</strong><small>'+escapeHTML(s)+'</small></span><i class="fas fa-chevron-right"></i></button>';}).join("");
-        box.querySelectorAll("[data-user-search-id]").forEach(c=>c.addEventListener("click",()=>openStudentKartUserProfile(c.dataset.userSearchId)));
+        box.querySelectorAll("[data-user-search-id]").forEach(c => {
+            c.addEventListener("click", async () => {
+                const targetId = c.dataset.userSearchId;
+                box.classList.add("hidden");
+                box.innerHTML = "";
+                const searchInput = $("chatListSearchInput");
+                if (searchInput) searchInput.value = "";
+                await openStudentKartUserChat(targetId);
+            });
+        });
     } catch(e) { console.error("Student search error:",e); box.innerHTML='<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>Please try again.</span></div>'; }
 }
+
+async function openStudentKartUserChat(userId) {
+    if (!currentUser || !userId || String(userId) === String(currentUser.id)) return;
+
+    try {
+        // Reuse an existing conversation between these two students when possible.
+        const pairFilter =
+            "and(buyer_id.eq." + currentUser.id + ",seller_id.eq." + userId + ")," +
+            "and(buyer_id.eq." + userId + ",seller_id.eq." + currentUser.id + ")";
+
+        const { data: existingInquiries, error: lookupError } = await supabaseClient
+            .from("inquiries")
+            .select("*")
+            .or(pairFilter)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+        if (lookupError) throw lookupError;
+
+        let inquiry = existingInquiries?.[0] || null;
+
+        if (!inquiry) {
+            // Direct chats use a null product_id. The inquiry row is only the
+            // conversation container; actual messages live in messages.
+            const { data: createdInquiry, error: createError } = await supabaseClient
+                .from("inquiries")
+                .insert({
+                    product_id: null,
+                    buyer_id: currentUser.id,
+                    seller_id: userId,
+                    message: "Direct chat",
+                    status: "new"
+                })
+                .select("*")
+                .single();
+
+            if (createError) throw createError;
+            inquiry = createdInquiry;
+        }
+
+        inquiry.product_name = "Direct Chat";
+        inquiry.direct_user_name = "";
+
+        const otherId =
+            String(inquiry.seller_id) === String(currentUser.id)
+                ? inquiry.buyer_id
+                : inquiry.seller_id;
+
+        const { data: otherProfile } = await supabaseClient
+            .from("profiles")
+            .select("id,name,username,avatar_url")
+            .eq("id", otherId)
+            .maybeSingle();
+
+        inquiry.direct_user_name =
+            otherProfile?.username ||
+            otherProfile?.name ||
+            "Student";
+
+        await openChat(inquiry);
+
+    } catch (error) {
+        console.error("Open user chat error:", error);
+        showToast(
+            error?.message || "Could not open chat with this student",
+            "error"
+        );
+    }
+}
+
 async function openStudentKartUserProfile(id) {
     if (!id) return; if (String(id)===String(currentUser?.id)) return openProfile();
     const r=await supabaseClient.from("profiles").select("id,name,username,phone,email,college,avatar_url,city,area").eq("id",id).maybeSingle();
@@ -7699,9 +7778,12 @@ async function openChat(inquiry) {
 
     if ($("chatUserName")) {
         const otherUser =
-            inquiry.seller_id === currentUser.id
-                ? "Buyer"
-                : "Seller";
+            inquiry.direct_user_name ||
+            (
+                inquiry.seller_id === currentUser.id
+                    ? "Buyer"
+                    : "Seller"
+            );
 
         $("chatUserName").textContent = otherUser;
     }
