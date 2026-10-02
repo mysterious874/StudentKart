@@ -12428,3 +12428,24 @@ body.studentkart-dark .filter-panel-grid input,body.studentkart-dark .filter-pan
     .navbar-filter-panel { position:fixed; top:76px; left:9px; right:9px; width:auto; max-height:calc(100vh - 95px); overflow:auto; }
     .filter-panel-grid { grid-template-columns:1fr; }
 }
+
+
+/* =========================================================
+   FIXED NAVBAR SEARCH BAR
+   Keep the search panel locked directly below the navbar.
+   ========================================================= */
+.navbar-search-panel {
+    position: fixed !important;
+    top: 70px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: min(760px, calc(100vw - 40px)) !important;
+    z-index: 1200 !important;
+}
+@media (max-width: 600px) {
+    .navbar-search-panel {
+        top: 62px !important;
+        width: calc(100vw - 16px) !important;
+    }
+}
