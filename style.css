@@ -14377,3 +14377,88 @@ body #chatModal #chatLikeButton.chat-send-button i {
 .bottom-chat-unread-count.hidden {
     display: none !important;
 }
+
+
+/* Sell location picker */
+.product-location-input-wrap {
+    position: relative;
+    width: 100%;
+}
+.product-location-input-wrap #productLocation {
+    width: 100%;
+    padding-right: 46px;
+}
+.product-location-button {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: #e8f5f3;
+    color: #0f8b8d;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+}
+.product-location-button:hover {
+    background: #d7eeeb;
+}
+.product-location-button:disabled {
+    opacity: .55;
+    cursor: wait;
+}
+.product-location-suggestions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 5px);
+    max-height: 300px;
+    overflow-y: auto;
+    background: var(--card, #fff);
+    border: 1px solid rgba(15, 139, 141, .18);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.14);
+    z-index: 10000;
+    padding: 5px;
+}
+.product-location-suggestions.hidden {
+    display: none !important;
+}
+.product-location-suggestion {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 9px 11px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+.product-location-suggestion:hover {
+    background: rgba(15,139,141,.08);
+}
+.product-location-suggestion-place {
+    width: 100%;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+.product-location-suggestion > span:not(.product-location-suggestion-place) {
+    padding-left: 21px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--text-soft, #718187);
+}
+.product-location-suggestion-empty {
+    padding: 12px;
+    font-size: 12px;
+    color: var(--text-soft, #718187);
+}
