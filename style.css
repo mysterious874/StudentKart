@@ -15326,3 +15326,27 @@ body.category-page-active .category-page-container{
         padding-top:76px!important;
     }
 }
+
+/* CATEGORY PAGE — dark fixed navbar heading */
+body.category-page-active .category-page-navbar-title{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:2px!important;
+    line-height:1.15!important;
+}
+body.category-page-active .category-page-navbar-title span{
+    color:#172033!important;
+    font-size:13px!important;
+    font-weight:800!important;
+    letter-spacing:.65px!important;
+}
+body.category-page-active .category-page-navbar-title small{
+    color:#475569!important;
+    font-size:12px!important;
+    font-weight:500!important;
+    line-height:1.25!important;
+}
+@media(max-width:700px){
+    body.category-page-active .category-page-navbar-title span{font-size:12px!important}
+    body.category-page-active .category-page-navbar-title small{font-size:11px!important}
+}
