@@ -21739,3 +21739,21 @@ html body > .mobile-bottom-nav{
     padding-top:42px !important;
   }
 }
+
+
+/* =========================================================
+   STUDENTKART — MOVE HOMEPAGE CONTENT FURTHER UP
+   ========================================================= */
+.sk-home-container{
+  padding-top:28px !important;
+}
+@media(max-width:800px){
+  .sk-home-container{
+    padding-top:24px !important;
+  }
+}
+@media(max-width:600px){
+  .sk-home-container{
+    padding-top:18px !important;
+  }
+}
