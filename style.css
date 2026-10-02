@@ -20647,3 +20647,101 @@ body.category-page-active .category-page-container {
     padding-top:32px !important;
   }
 }
+
+/* =========================================================
+   ANDROID / MOBILE FINAL LAYOUT
+   One clean source of truth for the homepage navigation.
+   ========================================================= */
+@media screen and (max-width:600px){
+  /* TOP: StudentKart logo/search/sell/profile */
+  html body > header.navbar{
+    display:block !important;
+    position:relative !important;
+    inset:auto !important;
+    top:auto !important;
+    right:auto !important;
+    bottom:auto !important;
+    left:auto !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:10px 0 0 !important;
+    transform:none !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+    z-index:5000 !important;
+  }
+
+  html body > header.navbar.navbar-scroll-hidden{
+    position:relative !important;
+    top:auto !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+  }
+
+  html body > header.navbar > .nav-container{
+    position:relative !important;
+    inset:auto !important;
+    width:calc(100% - 28px) !important;
+    height:78px !important;
+    min-height:78px !important;
+    margin:0 auto !important;
+    padding:10px 12px !important;
+    transform:none !important;
+    border-radius:22px !important;
+  }
+
+  /* Remove any old mobile bottom-nav styling inherited from navbar rules. */
+  html body > header.navbar .mobile-bottom-nav{
+    display:none !important;
+    position:static !important;
+  }
+
+  /* HERO starts immediately after the top navbar. */
+  html body > .hero{
+    position:relative !important;
+    margin:0 !important;
+    padding:32px 18px 44px !important;
+    min-height:0 !important;
+    top:auto !important;
+    transform:none !important;
+  }
+
+  html body > .hero .hero-container{
+    position:relative !important;
+    margin:0 auto !important;
+    transform:none !important;
+  }
+
+  /* BOTTOM: six-item quick navigation */
+  html body > .mobile-bottom-nav{
+    display:grid !important;
+    position:fixed !important;
+    top:auto !important;
+    right:13px !important;
+    bottom:14px !important;
+    left:13px !important;
+    width:auto !important;
+    height:90px !important;
+    min-height:90px !important;
+    margin:0 !important;
+    padding:9px 7px !important;
+    transform:none !important;
+    grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+    z-index:99999 !important;
+  }
+
+  html body > .mobile-bottom-nav .bottom-nav-item{
+    min-width:0 !important;
+    min-height:70px !important;
+    height:70px !important;
+  }
+
+  html body{
+    padding-top:0 !important;
+    padding-bottom:120px !important;
+  }
+}
