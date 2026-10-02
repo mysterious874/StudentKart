@@ -2177,6 +2177,58 @@ async function openProductDetails(productId) {
         }
     }
 
+    const shareButton =
+        $("shareProductButton");
+
+    if (shareButton) {
+        shareButton.disabled = false;
+        shareButton.onclick = async event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const shareUrl =
+                window.location.origin +
+                window.location.pathname +
+                "#product-" +
+                encodeURIComponent(product.id);
+
+            const shareData = {
+                title: product.name || "StudentKart listing",
+                text: `Check out this listing on StudentKart: ${product.name || "Product"} — ${formatPrice(product.price)}`,
+                url: shareUrl
+            };
+
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                    return;
+                }
+
+                await navigator.clipboard.writeText(shareUrl);
+                showToast("Listing link copied");
+            } catch (error) {
+                if (error?.name === "AbortError") {
+                    return;
+                }
+
+                try {
+                    const fallbackInput = document.createElement("input");
+                    fallbackInput.value = shareUrl;
+                    fallbackInput.setAttribute("readonly", "");
+                    fallbackInput.style.position = "fixed";
+                    fallbackInput.style.opacity = "0";
+                    document.body.appendChild(fallbackInput);
+                    fallbackInput.select();
+                    document.execCommand("copy");
+                    fallbackInput.remove();
+                    showToast("Listing link copied");
+                } catch (_) {
+                    showToast("Could not share listing", "error");
+                }
+            }
+        };
+    }
+
     const contactButton =
         $("contactSellerButton");
 
@@ -7350,6 +7402,12 @@ document.addEventListener("click", event => {
             }
         );
 
+
+    $("shareProductButton")
+        ?.addEventListener("click", event => {
+            // The listing-specific handler is rebound in openProductDetails().
+            event.preventDefault();
+        });
 
     /* -----------------------------------------
        MARKETPLACE PRODUCTS
