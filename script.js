@@ -7376,7 +7376,18 @@ document.addEventListener("click", event => {
         document.body.classList.add("studentkart-modal-navigation-hidden");
 
         if (!studentKartHandlingPopState) {
-            setStudentKartModalHistory("categoryPickerModal", ["categoryPickerModal"]);
+            ensureStudentKartHistory();
+            const currentState = window.history.state || {};
+            window.history.pushState(
+                {
+                    ...currentState,
+                    studentKart: true,
+                    modalId: "categoryPickerModal",
+                    modalStack: ["categoryPickerModal"]
+                },
+                "",
+                window.location.pathname + window.location.search + "#categoryPickerModal"
+            );
         }
     });
 
@@ -8895,16 +8906,14 @@ function showChatsFromChat() {
 
     modalHistory = [];
 
-    ensureStudentKartHistory();
-    window.history.replaceState(
-        {
-            studentKart: true,
-            modalId: "inquiriesModal",
-            modalStack: ["inquiriesModal"]
-        },
-        "",
-        window.location.pathname + window.location.search + "#inquiriesModal"
-    );
+    // Do not replace the Chat history entry here. The visible Chat back arrow
+    // uses history.back(), which must restore the existing Chats-list state.
+    // If this function is reached without a StudentKart history state, create
+    // a safe Chats-list state without disturbing the browser's previous page.
+    if (window.history.state?.studentKart !== true) {
+        ensureStudentKartHistory();
+        setStudentKartModalHistory("inquiriesModal", ["inquiriesModal"]);
+    }
 }
 
 $("chatModal")?.querySelector(".chat-person")?.addEventListener("click", async () => {
@@ -14032,13 +14041,27 @@ document.addEventListener("click", event => {
     const key = sectionButton.dataset.settingsSection;
     const config = SETTINGS_SECTION_TEMPLATES[key];
     if (!config) return;
-    closeModal("settingsModal");
     const title = $("settingsDetailTitle"), subtitle = $("settingsDetailSubtitle"), icon = $("settingsDetailIcon"), content = $("settingsDetailContent");
     if (title) title.textContent = config.title;
     if (subtitle) subtitle.textContent = config.subtitle;
     if (icon) icon.className = "fas " + config.icon;
     if (content) { content.innerHTML = config.html; applyStudentKartLanguage(content); }
-    openModal("settingsDetailModal");
+
+    const settingsModal = $("settingsModal");
+    const settingsIsOpen = settingsModal && !settingsModal.classList.contains("hidden");
+
+    if (settingsIsOpen &&
+        window.history.state?.studentKart === true &&
+        window.history.state?.modalId === "settingsModal") {
+        // Consume the Settings entry first; once popstate restores the
+        // underlying page, open the detail page as a fresh navigation step.
+        window.history.back();
+        window.setTimeout(() => {
+            openModal("settingsDetailModal");
+        }, 140);
+    } else {
+        openModal("settingsDetailModal");
+    }
 });
 
 document.addEventListener("click", event => {
