@@ -2101,6 +2101,12 @@ async function openProductDetails(productId) {
             product.location;
     }
 
+    if ($("detailsPosted")) {
+        $("detailsPosted")
+            .textContent =
+            getRelativeDate(product.createdAt || product.created_at);
+    }
+
     if ($("detailsDescription")) {
         $("detailsDescription")
             .textContent =
