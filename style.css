@@ -15929,3 +15929,98 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
  #chatModal .chat-head{min-height:68px;padding-right:8px}
  #chatModal .chat-form{padding:8px 7px 9px}
 }
+
+
+/* CHAT HEADER — CATEGORY PAGE STYLE */
+#chatModal .chat-head{
+    min-height:70px !important;
+    height:70px !important;
+    padding:0 14px 0 8px !important;
+    background:#ffffff !important;
+    border-bottom:1px solid var(--border) !important;
+    box-shadow:0 4px 18px rgba(15,23,42,.06) !important;
+}
+#chatModal .chat-head > .chat-back-button{
+    position:static !important;
+    width:40px !important;
+    min-width:40px !important;
+    height:40px !important;
+    padding:0 !important;
+    border:1px solid #e2e9ea !important;
+    border-radius:11px !important;
+    background:#f8fbfb !important;
+    color:#829396 !important;
+    font-size:15px !important;
+}
+#chatModal .chat-head > .chat-back-button:hover{
+    background:#f1f6f6 !important;
+    color:#6f8589 !important;
+    border-color:#d8e3e4 !important;
+}
+#chatModal .chat-person h2{
+    color:#30484e !important;
+    font-size:15px !important;
+    font-weight:750 !important;
+}
+#chatModal .chat-person p,
+#chatModal .chat-user-status,
+#chatModal #chatUserStatus{
+    color:#91a1a4 !important;
+}
+#chatModal .chat-actions{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:4px !important;
+}
+#chatModal .chat-call-button,
+#chatModal .chat-delete-button{
+    width:38px !important;
+    height:38px !important;
+    min-width:38px !important;
+    padding:0 !important;
+    border:1px solid #e4ebec !important;
+    border-radius:10px !important;
+    background:#f8fbfb !important;
+    color:#9aa9ac !important;
+    display:grid !important;
+    place-items:center !important;
+    box-shadow:none !important;
+    font-size:15px !important;
+}
+#chatModal .chat-call-button:hover,
+#chatModal .chat-delete-button:hover{
+    background:#f1f6f6 !important;
+    border-color:#dbe5e6 !important;
+    color:#7f9397 !important;
+}
+#chatModal .chat-delete-button i,
+#chatModal .chat-call-button i{
+    color:#9aa9ac !important;
+    opacity:1 !important;
+}
+#chatModal .chat-delete-button:hover i,
+#chatModal .chat-call-button:hover i{
+    color:#7f9397 !important;
+}
+@media(max-width:600px){
+    #chatModal .chat-head{
+        height:62px !important;
+        min-height:62px !important;
+        grid-template-columns:50px minmax(0,1fr) auto !important;
+        padding:0 6px 0 0 !important;
+    }
+    #chatModal .chat-head > .chat-back-button{
+        width:40px !important;
+        min-width:40px !important;
+        height:40px !important;
+        margin-left:5px !important;
+    }
+    #chatModal .chat-call-button,
+    #chatModal .chat-delete-button{
+        width:36px !important;
+        min-width:36px !important;
+        height:36px !important;
+        border-radius:9px !important;
+    }
+}
