@@ -13640,7 +13640,7 @@ async function settingsLanguage() {
                 // screen starts cleanly in the newly selected language.
                 window.setTimeout(() => {
                     window.location.reload();
-                }, 450);
+                }, 120);
             }
             return saved;
         }
