@@ -20578,3 +20578,54 @@ body.category-page-active .category-page-container {
     padding-bottom:120px !important;
   }
 }
+
+/* DEFINITIVE FIX — header is in normal document flow at TOP; only quick nav is fixed at BOTTOM */
+@media (max-width:600px){
+  html body > header.navbar{
+    position:static !important;
+    inset:auto !important;
+    display:block !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:14px 0 0 !important;
+    transform:none !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+    z-index:5000 !important;
+  }
+  html body > header.navbar.navbar-scroll-hidden{
+    position:static !important;
+    top:auto !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+  }
+  html body > header.navbar > .nav-container{
+    position:relative !important;
+    top:auto !important;
+    left:auto !important;
+    right:auto !important;
+    width:calc(100vw - 28px) !important;
+    height:76px !important;
+    min-height:76px !important;
+    margin:0 auto !important;
+    transform:none !important;
+  }
+  html body > .mobile-bottom-nav{
+    position:fixed !important;
+    top:auto !important;
+    bottom:14px !important;
+    left:13px !important;
+    right:13px !important;
+    width:auto !important;
+    transform:none !important;
+    z-index:100001 !important;
+  }
+  html body{
+    padding-top:0 !important;
+    padding-bottom:120px !important;
+  }
+}
