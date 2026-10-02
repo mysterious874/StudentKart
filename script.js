@@ -6852,9 +6852,17 @@ document.addEventListener("click", event => {
     $("bottomCategoriesButton")?.addEventListener("click", () => {
         const modal = $("categoryPickerModal");
         if (!modal) return;
+
+        // Categories must work even when Settings, Chat, Profile, etc. is currently open.
+        closeAllModals({ fromPopState: true });
+        modal.classList.remove("modal-closing");
         modal.classList.remove("hidden");
         document.body.classList.add("modal-open");
         document.body.classList.add("studentkart-modal-navigation-hidden");
+
+        if (!studentKartHandlingPopState) {
+            setStudentKartModalHistory("categoryPickerModal", ["categoryPickerModal"]);
+        }
     });
 
     document.querySelectorAll(".category-picker-card").forEach(card => {
