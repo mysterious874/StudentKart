@@ -11859,3 +11859,24 @@ form {
     .chat-selection-actions { justify-content: stretch !important; }
     .chat-selection-actions button { flex: 1 1 0; }
 }
+
+
+/* Bottom navigation — match the main StudentKart dark theme */
+.mobile-bottom-nav {
+    background: #102a43 !important;
+    border-top: 1px solid rgba(255,255,255,.10) !important;
+    box-shadow: 0 -8px 24px rgba(16,42,67,.16) !important;
+}
+.mobile-bottom-nav .bottom-nav-item {
+    color: rgba(255,255,255,.62) !important;
+    background: transparent !important;
+}
+.mobile-bottom-nav .bottom-nav-item i {
+    color: inherit !important;
+}
+.mobile-bottom-nav .bottom-nav-item:hover,
+.mobile-bottom-nav .bottom-nav-item:focus,
+.mobile-bottom-nav .bottom-nav-item.active {
+    color: #73e8e5 !important;
+    background: rgba(15,139,141,.16) !important;
+}
