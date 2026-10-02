@@ -15387,3 +15387,8 @@ body.category-page-active .category-page-navbar-title small{
 .category-picker-grid{
     transform:translateY(-200px)!important;
 }
+
+/* CATEGORY PICKER — final grid position */
+.category-picker-grid{
+    transform:translateY(-50px)!important;
+}
