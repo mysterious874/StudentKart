@@ -11495,6 +11495,12 @@ async function handleSettingAction(action) {
 }
 
 const SETTINGS_SECTION_TEMPLATES = {
+    account: {
+        title: "Account", icon: "fa-user", subtitle: "Manage your profile and account details.",
+        html: `
+            <button class="settings-row" type="button" data-setting-action="edit-profile"><span><i class="fas fa-pen"></i><b>Edit Profile</b><small>Update your profile details</small></span><i class="fas fa-chevron-right"></i></button>
+        `
+    },
     notifications: {
         title: "Notifications", icon: "fa-bell", subtitle: "Manage all notification preferences.",
         html: `
