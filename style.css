@@ -20759,3 +20759,61 @@ body.category-page-active .category-page-container {
     pointer-events:auto !important;
   }
 }
+
+/* ROOT MOBILE HEADER — independent from all scroll/navigation rules */
+@media screen and (max-width:600px){
+  html body > header.navbar{
+    display:flex !important;
+    flex-direction:column !important;
+    position:relative !important;
+    float:none !important;
+    clear:both !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    overflow:visible !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    top:auto !important;
+    right:auto !important;
+    bottom:auto !important;
+    left:auto !important;
+    inset:auto !important;
+    transform:none !important;
+    margin:0 !important;
+    padding:10px 0 0 !important;
+    z-index:5000 !important;
+  }
+
+  html body > header.navbar > .nav-container{
+    display:flex !important;
+    position:relative !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    width:calc(100vw - 28px) !important;
+    height:78px !important;
+    min-height:78px !important;
+    max-height:none !important;
+    margin:0 auto !important;
+    transform:none !important;
+  }
+
+  html body > header.navbar .logo,
+  html body > header.navbar .nav-actions{
+    visibility:visible !important;
+    opacity:1 !important;
+  }
+
+  html body > .mobile-bottom-nav{
+    display:grid !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    position:fixed !important;
+    top:auto !important;
+    bottom:14px !important;
+    left:13px !important;
+    right:13px !important;
+    transform:none !important;
+    z-index:99999 !important;
+  }
+}
