@@ -8246,6 +8246,35 @@ const STUDENTKART_INSTITUTIONS = [
 ];
 
 const STUDENTKART_SETTINGS_DEFAULTS = {
+    notifications: {
+        chat: true,
+        wishlist: true,
+        listings: true,
+        buyerSeller: true,
+        sold: true,
+        push: false
+    },
+    privacy: {
+        profileVisibility: "students",
+        hidePhone: false,
+        hideEmail: false,
+        blockedUsers: []
+    },
+    location: {
+        state: "",
+        city: "",
+        area: "",
+        latitude: null,
+        longitude: null,
+        distanceKm: 10
+    },
+    preferences: {
+        theme: "light",
+        language: "en",
+        vibration: true
+    }
+};
+
 function deepCloneSettings(value) {
     return JSON.parse(JSON.stringify(value));
 }
