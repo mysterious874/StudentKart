@@ -7342,6 +7342,25 @@ async function bulkMarkInquiriesRead() {
     const ids = getSelectedInquiryIds();
     if (!ids.length || !currentUser) return;
 
+    // Update the visible UI immediately; sync Supabase in the background.
+    const selectedCards = Array.from(document.querySelectorAll(".whatsapp-inquiry-card"))
+        .filter(card => ids.includes(String(card.dataset.inquiryId)));
+
+    selectedCards.forEach(card => {
+        card.dataset.chatUnread = "false";
+        card.querySelector(".chat-unread-badge")?.remove();
+        card.querySelector(".whatsapp-inquiry-unread")?.remove();
+    });
+
+    exitChatSelectionMode();
+    applyChatListFilter();
+    updateChatUnreadCount();
+
+    showToast(
+        ids.length + " chat" + (ids.length === 1 ? "" : "s") + " marked as read",
+        "success"
+    );
+
     const { error } = await supabaseClient
         .from("messages")
         .update({ is_read: true })
@@ -7351,18 +7370,10 @@ async function bulkMarkInquiriesRead() {
 
     if (error) {
         console.error("Bulk mark read error:", error);
-        showToast("Could not mark selected chats as read", "error");
-        return;
+        showToast("Sync failed. Refreshing chat list...", "error");
+        await loadReceivedInquiries();
+        await updateChatUnreadCount();
     }
-
-    showToast(
-        ids.length + " chat" + (ids.length === 1 ? "" : "s") + " marked as read",
-        "success"
-    );
-
-    exitChatSelectionMode();
-    await updateChatUnreadCount();
-    await loadReceivedInquiries();
 }
 
 async function bulkMarkInquiriesUnread() {
@@ -7451,6 +7462,21 @@ async function bulkDeleteInquiriesForMe() {
 
     if (!confirmed) return;
 
+    // Hide selected chats immediately so the action feels instant.
+    const selectedCards = Array.from(document.querySelectorAll(".whatsapp-inquiry-card"))
+        .filter(card => ids.includes(String(card.dataset.inquiryId)));
+
+    selectedCards.forEach(card => card.remove());
+
+    exitChatSelectionMode();
+    applyChatListFilter();
+    updateChatUnreadCount();
+
+    showToast(
+        ids.length + " chat" + (ids.length === 1 ? "" : "s") + " deleted for you",
+        "success"
+    );
+
     const rows = ids.map(inquiryId => ({
         user_id: currentUser.id,
         inquiry_id: inquiryId
@@ -7462,12 +7488,10 @@ async function bulkDeleteInquiriesForMe() {
 
     if (error) {
         console.error("Bulk delete for me error:", error);
-        showToast("Could not delete selected chats", "error");
-        return;
+        showToast("Delete sync failed. Refreshing chat list...", "error");
+        await loadReceivedInquiries();
+        await updateChatUnreadCount();
     }
-
-    showToast(ids.length + " chat" + (ids.length === 1 ? "" : "s") + " deleted for you", "success");
-    await loadReceivedInquiries();
 }
 
 function closeChatDeleteMenu() {
