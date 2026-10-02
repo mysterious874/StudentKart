@@ -8720,12 +8720,54 @@ function addHomeButtonsToBackArrows(root = document) {
 let studentKartLocationSearchTimer = null;
 let studentKartLocationSearchController = null;
 
+function renderStudentKartLocationSuggestions(values) {
+    const box = $("studentkartLocationSuggestions");
+    if (!box) return;
+
+    const uniqueValues = [...new Set(values.filter(Boolean))].slice(0, 50);
+
+    if (!uniqueValues.length) {
+        box.innerHTML = '<div class="studentkart-location-empty">No matching Indian locations found</div>';
+        box.classList.remove("hidden");
+        return;
+    }
+
+    box.innerHTML = uniqueValues.map((value, index) => {
+        const parts = String(value).split(" — ");
+        const place = parts[0] || value;
+        const hierarchy = parts.slice(1).join(" — ");
+
+        return '<button type="button" class="studentkart-location-option" data-location-value="' +
+            escapeHTML(value) +
+            '">' +
+            '<span class="studentkart-location-place">' + escapeHTML(place) + '</span>' +
+            (hierarchy
+                ? '<span class="studentkart-location-hierarchy">' + escapeHTML(hierarchy) + '</span>'
+                : '') +
+            '</button>';
+    }).join("");
+
+    box.classList.remove("hidden");
+
+    box.querySelectorAll(".studentkart-location-option").forEach(option => {
+        option.addEventListener("click", () => {
+            const input = $("locationFilter");
+            if (input) input.value = option.dataset.locationValue || "";
+            box.classList.add("hidden");
+        });
+    });
+}
+
 async function searchStudentKartIndiaLocations(query) {
     const list = $("studentkartLocationList");
-    if (!list) return;
+    const input = $("locationFilter");
+    if (!input) return;
 
     const q = String(query || "").trim();
-    if (q.length < 2) return;
+    if (q.length < 2) {
+        $("studentkartLocationSuggestions")?.classList.add("hidden");
+        return;
+    }
 
     if (studentKartLocationSearchController) {
         studentKartLocationSearchController.abort();
@@ -8742,9 +8784,9 @@ async function searchStudentKartIndiaLocations(query) {
 
         const results = await response.json();
 
-        const getPlaceName = item => {
+        const values = results.map(item => {
             const address = item?.address || {};
-            return String(
+            const place = String(
                 address.village ||
                 address.hamlet ||
                 address.town ||
@@ -8755,68 +8797,53 @@ async function searchStudentKartIndiaLocations(query) {
                 String(item?.display_name || "").split(",")[0] ||
                 ""
             ).trim();
-        };
 
-        const getSubDistrict = item => {
-            const address = item?.address || {};
-            return String(
+            const subDistrict = String(
                 address.subdistrict ||
                 address.state_district ||
                 address.county ||
                 address.city_district ||
                 ""
             ).trim();
-        };
 
-        const getDistrict = item => {
-            const address = item?.address || {};
-            return String(
+            const district = String(
                 address.district ||
                 address.state_district ||
                 address.county ||
                 address.city_district ||
                 ""
             ).trim();
-        };
 
-        const getState = item => String(item?.address?.state || "").trim();
+            const state = String(address.state || "").trim();
 
-        const values = results
-            .map(item => {
-                const place = getPlaceName(item);
-                const subDistrict = getSubDistrict(item);
-                const district = getDistrict(item);
-                const state = getState(item);
+            if (!place) return "";
 
-                const hierarchy = [...new Set([
-                    subDistrict,
-                    district,
-                    state
-                ].filter(Boolean))];
+            const hierarchy = [...new Set([
+                subDistrict,
+                district,
+                state
+            ].filter(Boolean))];
 
-                if (!place) return "";
+            return hierarchy.length
+                ? place + " — " + hierarchy.join(", ")
+                : String(item.display_name || "").replace(/, India$/i, "").trim();
+        }).filter(Boolean);
 
-                return hierarchy.length
-                    ? place + " — " + hierarchy.join(", ")
-                    : String(item.display_name || "").replace(/, India$/i, "").trim();
-            })
-            .filter(Boolean);
+        renderStudentKartLocationSuggestions(values);
 
-        const currentOptions = [...list.options].map(option => option.value);
-        const merged = [...new Set([...values, ...currentOptions])]
-            .filter(Boolean)
-            .slice(0, 60);
-
-        list.innerHTML = merged
-            .map(value => '<option value="' + escapeHTML(value) + '"></option>')
-            .join("");
+        if (list) {
+            const currentOptions = [...list.options].map(option => option.value);
+            const merged = [...new Set([...values, ...currentOptions])].slice(0, 60);
+            list.innerHTML = merged
+                .map(value => '<option value="' + escapeHTML(value) + '"></option>')
+                .join("");
+        }
     } catch (error) {
         if (error?.name !== "AbortError") {
             console.debug("India location suggestions unavailable:", error);
         }
     }
 }
-
 function setupStudentKartIndiaLocationSearch() {
     const input = $("locationFilter");
     if (!input) return;
