@@ -4506,6 +4506,9 @@ async function logoutUser() {
 
         closeAllModals();
 
+        // After logout, return the user to the same Welcome / Login / Sign Up / Guest gate.
+        showNewUserGate();
+
         showToast(
             "Logged out successfully",
             "success"
