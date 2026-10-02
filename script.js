@@ -565,8 +565,14 @@ async function getUserProfile() {
                 .maybeSingle();
 
             if (!fallbackResult.error && fallbackResult.data) {
-                saveProfile(fallbackResult.data);
-                return fallbackResult.data;
+                // Merge locally/auth-saved newer fields when an older profiles
+                // table does not yet have the newer columns.
+                const mergedProfile = {
+                    ...(saved || {}),
+                    ...fallbackResult.data
+                };
+                saveProfile(mergedProfile);
+                return mergedProfile;
             }
         }
 
