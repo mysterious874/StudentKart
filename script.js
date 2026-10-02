@@ -440,6 +440,44 @@ function closeAllModals(options = {}) {
     }
 }
 
+// Chat navigation guard: when Chat is visible, Back always returns to the Chats list
+// in a single navigation step, regardless of stale modal/history entries.
+document.addEventListener("click", event => {
+    const button = event.target.closest("#chatBackButton");
+    if (!button) return;
+
+    const chatModal = $("chatModal");
+    const inquiriesModal = $("inquiriesModal");
+    if (!chatModal || chatModal.classList.contains("hidden")) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    chatModal.classList.remove("modal-closing");
+    chatModal.classList.add("hidden");
+
+    if (inquiriesModal) {
+        inquiriesModal.classList.remove("modal-closing");
+        inquiriesModal.classList.remove("hidden");
+    }
+
+    document.body.classList.add("modal-open");
+    document.body.classList.add("studentkart-modal-navigation-hidden");
+    document.body.classList.remove("studentkart-chat-open");
+
+    modalHistory = [];
+    ensureStudentKartHistory();
+    window.history.replaceState(
+        {
+            studentKart: true,
+            modalId: "inquiriesModal",
+            modalStack: ["inquiriesModal"]
+        },
+        "",
+        window.location.pathname + window.location.search + "#inquiriesModal"
+    );
+}, true);
+
 window.addEventListener("popstate", event => {
     /*
      * System/browser Back uses this same navigation stack as the
