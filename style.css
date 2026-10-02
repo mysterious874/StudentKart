@@ -17594,3 +17594,87 @@ body.new-user-gate-open {
 .new-user-gate-guest:hover {
     color: #102a43 !important;
 }
+\n
+/* =========================================================
+   LOGOUT CONFIRMATION — STUDENTKART THEME
+   ========================================================= */
+.logout-confirm-modal {
+    width: min(360px, calc(100% - 32px)) !important;
+    padding: 28px 24px 22px !important;
+    text-align: center !important;
+    border-radius: 20px !important;
+    background: #fff !important;
+    border: 1px solid #d9e7e9 !important;
+    box-shadow: 0 24px 70px rgba(0,0,0,.24) !important;
+}
+
+.logout-confirm-icon {
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 14px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: #e8f6f6;
+    color: #0f8b8d;
+    font-size: 22px;
+}
+
+.logout-confirm-modal h2 {
+    margin: 0;
+    color: #102a43;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.logout-confirm-modal p {
+    margin: 8px auto 21px;
+    max-width: 285px;
+    color: #718899;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.logout-confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.logout-confirm-actions button {
+    min-height: 44px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: .18s ease;
+}
+
+.logout-confirm-cancel {
+    color: #486581;
+    background: #f5f8f9;
+    border: 1px solid #d7e2e5;
+}
+
+.logout-confirm-cancel:hover {
+    background: #edf3f5;
+}
+
+.logout-confirm-continue {
+    color: #fff;
+    background: #0f8b8d;
+    border: 1px solid #0f8b8d;
+    box-shadow: 0 7px 16px rgba(15,139,141,.16);
+}
+
+.logout-confirm-continue:hover {
+    background: #0b6f71;
+    border-color: #0b6f71;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 480px) {
+    .logout-confirm-modal {
+        width: min(340px, calc(100% - 28px)) !important;
+        padding: 25px 20px 20px !important;
+    }
+}
