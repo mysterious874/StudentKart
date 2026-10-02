@@ -21082,3 +21082,36 @@ html body > .mobile-bottom-nav.splash-hidden{
   .sk-home-bottom{width:calc(100% - 24px);margin-top:24px}
   .sk-home-stat{padding:13px 7px}.sk-home-stat strong{font-size:12px}.sk-home-stat span{font-size:9px}
 }
+
+
+/* =========================================================
+   STUDENTKART — NAVBAR / FLOATING BAR REMOVED
+   Homepage owns the viewport without legacy navigation space.
+   ========================================================= */
+html body > header.navbar,
+html body > .mobile-bottom-nav{
+  display:none !important;
+}
+
+html body{
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+}
+
+html body > .hero,
+html body > .sk-home-v2{
+  transform:none !important;
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+}
+
+/* Keep the professional homepage flush to the top after removing navigation. */
+@media screen and (max-width:600px){
+  html body > .hero,
+  html body > .sk-home-v2{
+    transform:none !important;
+    margin-top:0 !important;
+    margin-bottom:0 !important;
+    padding-top:24px !important;
+  }
+}
