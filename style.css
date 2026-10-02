@@ -21651,3 +21651,32 @@ html body > .mobile-bottom-nav{
     bottom:11px !important;
   }
 }
+
+
+/* =========================================================
+   STUDENTKART — HOMEPAGE NAV BAR DARK THEME
+   ========================================================= */
+.sk-home-nav-bar{
+  background:#102f4b !important;
+  border-color:rgba(255,255,255,.10) !important;
+  box-shadow:0 14px 32px rgba(16,47,75,.22) !important;
+}
+.sk-home-nav-item{
+  color:#c9d7e1 !important;
+}
+.sk-home-nav-item + .sk-home-nav-item::before{
+  background:rgba(255,255,255,.14) !important;
+}
+.sk-home-nav-item:hover,
+.sk-home-nav-item:active{
+  background:#173f5d !important;
+  color:#fff !important;
+}
+.sk-home-nav-icon,
+.sk-home-nav-item:hover .sk-home-nav-icon{
+  background:rgba(255,255,255,.10) !important;
+  color:#fff !important;
+}
+.sk-home-nav-item .chat-unread-count{
+  border-color:#102f4b !important;
+}
