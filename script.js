@@ -4848,6 +4848,13 @@ function openEditProfile() {
                 );
     }
 
+    setupStudentKartUsernameAvailability();
+    setUsernameAvailability("", "");
+    const usernameInput = $("editProfileUsername");
+    if (usernameInput) {
+        usernameInput.classList.remove("username-available-input", "username-unavailable-input");
+    }
+
     openModal(
         "editProfileModal"
     );
@@ -4878,6 +4885,188 @@ function handleProfileImagePreview(
         `<img src="${url}" alt="">`;
 }
 
+/* =========================================================
+   USERNAME AVAILABILITY
+   ========================================================= */
+let studentKartUsernameCheckTimer = null;
+let studentKartUsernameCheckToken = 0;
+
+function normalizeStudentKartUsername(value) {
+    return String(value || "").trim().toLowerCase();
+}
+
+function setUsernameAvailability(type, message = "", suggestions = []) {
+    const box = $("editProfileUsernameAvailability");
+    if (!box) return;
+
+    if (!message && !suggestions.length) {
+        box.className = "username-availability hidden";
+        box.innerHTML = "";
+        return;
+    }
+
+    box.className = "username-availability " + type;
+    box.innerHTML = "";
+
+    if (message) {
+        const status = document.createElement("div");
+        status.className = "username-availability-status";
+        status.textContent = message;
+        box.appendChild(status);
+    }
+
+    if (suggestions.length) {
+        const label = document.createElement("div");
+        label.className = "username-suggestions-label";
+        label.textContent = "Available usernames";
+        box.appendChild(label);
+
+        const list = document.createElement("div");
+        list.className = "username-suggestions";
+        suggestions.forEach(username => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "username-suggestion";
+            button.textContent = username;
+            button.addEventListener("click", () => {
+                const input = $("editProfileUsername");
+                if (!input) return;
+                input.value = username;
+                checkStudentKartUsernameAvailability(true);
+            });
+            list.appendChild(button);
+        });
+        box.appendChild(list);
+    }
+}
+
+async function isStudentKartUsernameTaken(username) {
+    if (!username) return false;
+
+    const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("id")
+        .eq("username", username)
+        .neq("id", currentUser?.id || "")
+        .limit(1);
+
+    if (error) throw error;
+    return Array.isArray(data) && data.length > 0;
+}
+
+async function getStudentKartUsernameSuggestions(username) {
+    const base = normalizeStudentKartUsername(username)
+        .replace(/[^a-z0-9_]/g, "")
+        .slice(0, 24);
+
+    if (!base) return [];
+
+    const candidates = [];
+    for (let i = 1; candidates.length < 12 && i <= 99; i++) {
+        candidates.push(base + i);
+    }
+
+    const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("username")
+        .in("username", candidates);
+
+    if (error) throw error;
+
+    const taken = new Set(
+        (data || []).map(row => normalizeStudentKartUsername(row.username))
+    );
+
+    return candidates.filter(candidate => !taken.has(candidate)).slice(0, 5);
+}
+
+async function checkStudentKartUsernameAvailability(immediate = false) {
+    const input = $("editProfileUsername");
+    if (!input || !currentUser) return true;
+
+    const username = normalizeStudentKartUsername(input.value);
+    const currentUsername = normalizeStudentKartUsername(
+        getSavedProfile()?.username || currentUser.user_metadata?.username || ""
+    );
+
+    window.clearTimeout(studentKartUsernameCheckTimer);
+
+    if (!username || username === currentUsername) {
+        setUsernameAvailability(
+            username ? "available" : "",
+            username ? "Username is available" : ""
+        );
+        input.classList.toggle("username-available-input", Boolean(username));
+        input.classList.remove("username-unavailable-input");
+        return true;
+    }
+
+    if (username.length < 3) {
+        setUsernameAvailability("unavailable", "Username must be at least 3 characters.");
+        input.classList.remove("username-available-input");
+        input.classList.add("username-unavailable-input");
+        return false;
+    }
+
+    const token = ++studentKartUsernameCheckToken;
+    setUsernameAvailability("checking", "Checking username...");
+    input.classList.remove("username-available-input", "username-unavailable-input");
+
+    const run = async () => {
+        try {
+            const taken = await isStudentKartUsernameTaken(username);
+            if (token !== studentKartUsernameCheckToken) return false;
+
+            if (!taken) {
+                setUsernameAvailability("available", "✓ Username is available");
+                input.classList.add("username-available-input");
+                input.classList.remove("username-unavailable-input");
+                return true;
+            }
+
+            const suggestions = await getStudentKartUsernameSuggestions(username);
+            if (token !== studentKartUsernameCheckToken) return false;
+
+            setUsernameAvailability(
+                "unavailable",
+                "Username unavailable. Please choose another.",
+                suggestions
+            );
+            input.classList.add("username-unavailable-input");
+            input.classList.remove("username-available-input");
+            return false;
+        } catch (error) {
+            console.error("Username availability check error:", error);
+            if (token === studentKartUsernameCheckToken) {
+                setUsernameAvailability("checking", "Could not check username right now. Please try again.");
+                input.classList.remove("username-available-input", "username-unavailable-input");
+            }
+            return false;
+        }
+    };
+
+    if (immediate) return run();
+
+    return new Promise(resolve => {
+        studentKartUsernameCheckTimer = window.setTimeout(async () => {
+            resolve(await run());
+        }, 450);
+    });
+}
+
+function setupStudentKartUsernameAvailability() {
+    const input = $("editProfileUsername");
+    if (!input || input.dataset.availabilityBound === "true") return;
+
+    input.dataset.availabilityBound = "true";
+    input.addEventListener("input", () => {
+        checkStudentKartUsernameAvailability(false);
+    });
+    input.addEventListener("blur", () => {
+        checkStudentKartUsernameAvailability(true);
+    });
+}
+
 async function saveEditedProfile(
     event
 ) {
@@ -4899,6 +5088,18 @@ async function saveEditedProfile(
     if (!name) {
         showToast("Name is required", "warning");
         return;
+    }
+
+    const currentSavedUsername = normalizeStudentKartUsername(
+        getSavedProfile()?.username || currentUser.user_metadata?.username || ""
+    );
+
+    if (username && username !== currentSavedUsername) {
+        const usernameAvailable = await checkStudentKartUsernameAvailability(true);
+        if (!usernameAvailable) {
+            showToast("Please choose an available username", "warning");
+            return;
+        }
     }
 
     const file = $("editProfileImage")?.files?.[0];
