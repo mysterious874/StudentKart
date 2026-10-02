@@ -490,6 +490,42 @@ function closeAllModals(options = {}) {
 }
 
 
+
+
+/* =========================================================
+   STUDENTKART MODAL BACKGROUND TOUCH GUARD
+   Keep the page behind an open popup completely stationary on mobile.
+   The popup's own scroll containers remain scrollable.
+   ========================================================= */
+(function installStudentKartModalScrollGuard() {
+    const isModalOpen = () => !!document.querySelector(".modal:not(.hidden)");
+    const isInsideAllowedScrollArea = target => {
+        if (!(target instanceof Element)) return false;
+        return !!target.closest(
+            ".modal:not(.hidden) .modal-content, " +
+            ".modal:not(.hidden) .settings-detail-modal-content, " +
+            ".modal:not(.hidden) .studentkart-custom-scroll, " +
+            ".modal:not(.hidden) textarea, " +
+            ".modal:not(.hidden) input"
+        );
+    };
+
+    document.addEventListener("touchmove", event => {
+        if (!isModalOpen()) return;
+        if (!isInsideAllowedScrollArea(event.target)) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+
+    document.addEventListener("wheel", event => {
+        if (!isModalOpen()) return;
+        if (!(event.target instanceof Element)) return;
+        if (!event.target.closest(".modal:not(.hidden) .modal-content")) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+})();
+
 window.addEventListener("popstate", event => {
     /*
      * System/browser Back uses this same navigation stack as the
