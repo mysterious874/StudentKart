@@ -14282,3 +14282,25 @@ body #sellerProfileModal .seller-profile-report-button:hover {
         grid-template-columns: 1fr 1fr !important;
     }
 }
+
+
+/* Chat composer send button */
+body #chatModal .chat-send-button {
+    cursor: pointer !important;
+    background: #0f8b8d !important;
+    color: #ffffff !important;
+    border-color: #0f8b8d !important;
+    transition: transform .12s ease, background .15s ease, box-shadow .15s ease !important;
+}
+body #chatModal .chat-send-button:hover {
+    background: #0c7779 !important;
+    border-color: #0c7779 !important;
+    box-shadow: 0 4px 12px rgba(15,139,141,.2) !important;
+}
+body #chatModal .chat-send-button:active {
+    transform: scale(.93) !important;
+}
+body #chatModal .chat-send-button:disabled {
+    opacity: .72 !important;
+    cursor: wait !important;
+}
