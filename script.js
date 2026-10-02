@@ -440,29 +440,60 @@ window.addEventListener("popstate", event => {
     }
 
     /*
-     * IMPORTANT:
-     * Do not call pushState() from this handler.
+     * Browser/Android Back has already moved to the previous history
+     * entry. Restore exactly the modal represented by that entry.
      *
-     * Android/browser Back already moved the history pointer to the
-     * previous StudentKart state. Adding another state here was causing
-     * Back to jump to Home or require another Back press / exit the site.
+     * Example:
+     * Settings -> Change Email
+     * Back => Settings
+     * Back again => previous page
      *
-     * The modal is only a visual overlay. Back should simply close it and
-     * leave the browser at the page/hash it just navigated back to.
+     * Never push another history entry here.
      */
-    if (studentKartHistoryReady) {
-        const openModal = document.querySelector(".modal:not(.hidden)");
+    const state = event.state;
 
-        if (openModal) {
-            studentKartHandlingPopState = true;
-            closeAllModals({ fromPopState: true });
-            studentKartHandlingPopState = false;
+    if (state?.studentKart === true) {
+        studentKartHandlingPopState = true;
+
+        const targetModalId = state.modalId || null;
+        const targetModal = targetModalId ? $(targetModalId) : null;
+
+        document.querySelectorAll(".modal").forEach(modal => {
+            modal.classList.remove("modal-closing");
+            modal.classList.add("hidden");
+        });
+
+        modalHistory = Array.isArray(state.modalStack)
+            ? state.modalStack.filter(Boolean).slice(0, -1)
+            : [];
+
+        if (targetModal) {
+            targetModal.classList.remove("modal-closing");
+            targetModal.classList.remove("hidden");
+            document.body.classList.add("modal-open");
+            document.body.classList.add("studentkart-modal-navigation-hidden");
+
+            if (targetModal.id === "chatModal") {
+                document.body.classList.add("studentkart-chat-open");
+            } else {
+                document.body.classList.remove("studentkart-chat-open");
+            }
+        } else {
+            document.body.classList.remove("modal-open");
+            document.body.classList.remove("studentkart-modal-navigation-hidden");
+            document.body.classList.remove("studentkart-chat-open");
+            modalHistory = [];
         }
 
+        studentKartHandlingPopState = false;
         return;
     }
 
-    /* Fallback for an unexpected history state. */
+    /*
+     * If the browser moved to a non-StudentKart history entry,
+     * close any currently visible overlay without creating a new
+     * history entry.
+     */
     const openModal = document.querySelector(".modal:not(.hidden)");
     if (openModal) {
         closeAllModals({ fromPopState: true });
