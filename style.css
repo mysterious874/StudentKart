@@ -16027,11 +16027,11 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
 
 
 
-/* CHAT HEADER — DARK BAR, LIGHT ICONS */
+/* CHAT HEADER — MATCH BROWSE CATEGORIES HEADER */
 #chatModal .chat-head{
-    background:#173a40 !important;
-    border-bottom:1px solid #173a40 !important;
-    box-shadow:0 4px 18px rgba(15,23,42,.12) !important;
+    background:linear-gradient(135deg,#172033 0%,#243447 100%) !important;
+    border-bottom:1px solid rgba(255,255,255,.08) !important;
+    box-shadow:0 6px 22px rgba(15,23,42,.22) !important;
 }
 #chatModal .chat-head > .chat-back-button,
 #chatModal .chat-call-button,
@@ -16045,34 +16045,28 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
     border-radius:0 !important;
     background:transparent !important;
     box-shadow:none !important;
-    color:#dbe9e9 !important;
+    color:rgba(255,255,255,.78) !important;
     display:grid !important;
     place-items:center !important;
 }
 #chatModal .chat-head > .chat-back-button i,
 #chatModal .chat-call-button i,
 #chatModal .chat-delete-button i{
-    color:#dbe9e9 !important;
+    color:rgba(255,255,255,.78) !important;
     opacity:1 !important;
     font-size:16px !important;
 }
-#chatModal .chat-person h2{
-    color:#ffffff !important;
-}
+#chatModal .chat-person h2{color:#fff !important}
 #chatModal .chat-person p,
 #chatModal .chat-user-status,
-#chatModal #chatUserStatus{
-    color:#b9cecf !important;
-}
+#chatModal #chatUserStatus{color:rgba(255,255,255,.72) !important}
 #chatModal .chat-call-button:hover,
 #chatModal .chat-delete-button:hover,
 #chatModal .chat-head > .chat-back-button:hover{
     background:transparent !important;
     border:0 !important;
-    color:#ffffff !important;
+    color:#fff !important;
 }
 #chatModal .chat-call-button:hover i,
 #chatModal .chat-delete-button:hover i,
-#chatModal .chat-head > .chat-back-button:hover i{
-    color:#ffffff !important;
-}
+#chatModal .chat-head > .chat-back-button:hover i{color:#fff !important}
