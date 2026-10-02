@@ -5747,6 +5747,17 @@ function showNotificationPopup(
    ========================================================= */
 
 function setupEventListeners() {
+    /* Global wishlist delegation — works for dynamically rendered cards too. */
+    document.addEventListener("click", event => {
+        const wishlistButton = event.target.closest("[data-wishlist-id]");
+        if (!wishlistButton) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        toggleWishlist(wishlistButton.dataset.wishlistId);
+    });
+
 
     $("mobileOtpForm")?.addEventListener("submit", verifyMobileOtp);
     $("resendMobileOtpButton")?.addEventListener("click", resendMobileOtp);
