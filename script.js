@@ -4479,61 +4479,94 @@ async function saveEditedProfile(
                 new Date().toISOString()
         };
 
-        // The profile is normally created when the account is created.
-        // Update the existing row first so profile editing does not depend on
-        // the table's INSERT policy. If the row is missing, create it.
-        const {
-            data: updatedProfile,
-            error: updateError
-        } = await supabaseClient
-            .from("profiles")
-            .update(profile)
-            .eq("id", currentUser.id)
-            .select("id")
-            .maybeSingle();
+        // Save the complete profile first. If the database schema is still
+        // on the older StudentKart version, retry with the original columns
+        // so Edit Profile keeps working instead of failing completely.
+        let databaseSaved = false;
+        let firstDatabaseError = null;
 
-        if (updateError) {
+        const saveProfileRow = async row => {
+            const { data, error } = await supabaseClient
+                .from("profiles")
+                .update(row)
+                .eq("id", currentUser.id)
+                .select("id")
+                .maybeSingle();
+
+            if (error) return { data: null, error };
+            if (data) return { data, error: null };
+
+            const { data: inserted, error: insertError } =
+                await supabaseClient
+                    .from("profiles")
+                    .insert(row)
+                    .select("id")
+                    .maybeSingle();
+
+            return { data: inserted, error: insertError };
+        };
+
+        const fullResult = await saveProfileRow(profile);
+
+        if (!fullResult.error) {
+            databaseSaved = true;
+        } else {
+            firstDatabaseError = fullResult.error;
+
             if (
-                updateError.code === "23505" &&
-                String(updateError.message || "").toLowerCase().includes("username")
+                fullResult.error.code === "23505" &&
+                String(fullResult.error.message || "").toLowerCase().includes("username")
             ) {
                 showToast("That username is already taken", "warning");
                 return;
             }
-            throw updateError;
-        }
 
-        if (!updatedProfile) {
-            const { error: insertError } = await supabaseClient
-                .from("profiles")
-                .insert(profile);
+            // Older profiles tables may not yet contain username/phone/state/city/area.
+            // Keep the core profile editable while the migration is pending.
+            const legacyProfile = {
+                id: currentUser.id,
+                name,
+                college,
+                email: currentUser.email || "",
+                avatar_url: avatarUrl,
+                updated_at: new Date().toISOString()
+            };
 
-            if (insertError) {
-                if (
-                    insertError.code === "23505" &&
-                    String(insertError.message || "").toLowerCase().includes("username")
-                ) {
-                    showToast("That username is already taken", "warning");
-                    return;
-                }
-                throw insertError;
+            const legacyResult = await saveProfileRow(legacyProfile);
+
+            if (!legacyResult.error) {
+                databaseSaved = true;
+            } else {
+                // If RLS blocks the database write, surface the real Supabase
+                // message instead of hiding it behind a generic error.
+                throw legacyResult.error || firstDatabaseError;
             }
         }
 
-        saveProfile(profile);
+        // Keep all newly added fields available immediately through the
+        // authenticated user's metadata as well. This also lets the UI work
+        // while an older profiles schema is being migrated.
+        const authResult = await supabaseClient.auth.updateUser({
+            data: {
+                name,
+                username,
+                phone,
+                college,
+                state,
+                city,
+                area,
+                avatar_url: avatarUrl
+            }
+        });
 
-        await supabaseClient.auth
-            .updateUser({
-                data: {
-                    name,
-                    username,
-                    phone,
-                    college,
-                    state,
-                    city,
-                    area
-                }
-            });
+        if (authResult.error && !databaseSaved) {
+            throw authResult.error;
+        }
+
+        saveProfile({
+            ...profile,
+            ...(databaseSaved ? {} : { _databasePending: true })
+        });
 
         closeModal(
             "editProfileModal"
