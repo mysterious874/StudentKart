@@ -18193,3 +18193,29 @@ body.studentkart-dark .username-availability.available { background: rgba(143,22
 body.studentkart-dark .username-availability.unavailable { background: rgba(230,110,110,.10); color: #ffaaaa; }
 body.studentkart-dark .username-suggestion { background: #173438; color: #8fe1dd; border-color: rgba(143,225,221,.18); }
 body.studentkart-dark .username-suggestion:hover { background: #203c40; }
+
+/* PROFILE HEADER CONTENT CENTER FIX */
+body #profileModal:not(.hidden) .profile-header {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+    text-align: center !important;
+}
+
+body #profileModal:not(.hidden) .profile-header .profile-avatar {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+body #profileModal:not(.hidden) .profile-header h2,
+body #profileModal:not(.hidden) .profile-header p {
+    text-align: center !important;
+    width: 100% !important;
+}
+
+@media (max-width: 600px) {
+    body #profileModal:not(.hidden) .profile-header {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+        text-align: center !important;
+    }
+}
