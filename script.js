@@ -434,21 +434,9 @@ function closeAllModals(options = {}) {
 }
 
 window.addEventListener("popstate", event => {
-    if (studentKartSkipNextPopState) {
-        studentKartSkipNextPopState = false;
-        return;
-    }
-
     /*
-     * Browser/Android Back has already moved to the previous history
-     * entry. Restore exactly the modal represented by that entry.
-     *
-     * Example:
-     * Settings -> Change Email
-     * Back => Settings
-     * Back again => previous page
-     *
-     * Never push another history entry here.
+     * System/browser Back uses this same navigation stack as the
+     * visible Chat back arrow.
      */
     const state = event.state;
 
@@ -489,13 +477,8 @@ window.addEventListener("popstate", event => {
         return;
     }
 
-    /*
-     * If the browser moved to a non-StudentKart history entry,
-     * close any currently visible overlay without creating a new
-     * history entry.
-     */
-    const openModal = document.querySelector(".modal:not(.hidden)");
-    if (openModal) {
+    const openModalElement = document.querySelector(".modal:not(.hidden)");
+    if (openModalElement) {
         closeAllModals({ fromPopState: true });
     }
 });
