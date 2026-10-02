@@ -2902,6 +2902,8 @@ async function loadReceivedInquiries() {
         const inquiries =
             data || [];
 
+        // Hidden-chat sync is optional. If the helper table is unavailable,
+        // still show the user's real conversations instead of showing "No inquiries".
         const { data: hiddenChats, error: hiddenChatsError } =
             await supabaseClient
                 .from("hidden_chats")
@@ -2909,7 +2911,7 @@ async function loadReceivedInquiries() {
                 .eq("user_id", currentUser.id);
 
         if (hiddenChatsError) {
-            throw hiddenChatsError;
+            console.warn("Hidden chat filter unavailable; showing all conversations:", hiddenChatsError);
         }
 
         const hiddenInquiryIds = new Set(
