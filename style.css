@@ -18245,23 +18245,27 @@ body #profileModal:not(.hidden) .profile-info-row span {
 @keyframes studentKartMacOpen {
     0% {
         opacity: 0;
-        transform: translateY(34vh) scale(.16);
-        filter: blur(9px);
+        transform: translate3d(var(--sk-nav-origin-x, 0px), var(--sk-nav-origin-y, 38vh), 0) scale(.12);
+        filter: blur(10px);
+        border-radius: 22px;
     }
-    45% {
+    42% {
         opacity: .92;
-        transform: translateY(4vh) scale(.82);
+        transform: translate3d(calc(var(--sk-nav-origin-x, 0px) * .28), calc(var(--sk-nav-origin-y, 38vh) * .28), 0) scale(.76);
         filter: blur(2px);
+        border-radius: 18px;
     }
     72% {
         opacity: 1;
-        transform: translateY(-8px) scale(1.018);
+        transform: translate3d(-4px, -4px, 0) scale(1.018);
         filter: blur(0);
+        border-radius: 15px;
     }
     100% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translate3d(0, 0, 0) scale(1);
         filter: blur(0);
+        border-radius: inherit;
     }
 }
 
