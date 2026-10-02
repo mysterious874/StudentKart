@@ -20948,3 +20948,11 @@ body.category-page-active .category-page-container {
     transform:translateY(-20px) !important;
   }
 }
+
+
+/* MOBILE NAV CONTENT — MOVE 50PX UP */
+@media screen and (max-width:600px){
+  html body > header.navbar > .nav-container{
+    transform:translateY(-50px) !important;
+  }
+}
