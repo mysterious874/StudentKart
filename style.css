@@ -14829,3 +14829,58 @@ body.studentkart-dark #chatModal .chat-selection-delete-option {
 body #chatModal .chat-message {
     position: relative !important;
 }
+
+
+/* =========================================================
+   COMPACT HERO — keep listings visible on app open
+   ========================================================= */
+@media (min-width: 701px) {
+    .hero { padding: 42px 0 !important; }
+    .hero-badge { margin-bottom: 11px !important; }
+    .hero h1 { margin-bottom: 11px !important; }
+    .hero p { margin-bottom: 15px !important; }
+    .hero-trust { margin-top: 12px !important; }
+}
+@media (max-width: 700px) {
+    .hero { padding: 24px 0 22px !important; }
+    .hero-container {
+        width: min(1180px, calc(100% - 28px)) !important;
+        gap: 0 !important;
+    }
+    .hero-content { max-width: 100% !important; }
+    .hero-badge {
+        padding: 5px 9px !important;
+        font-size: 10px !important;
+        margin-bottom: 9px !important;
+    }
+    .hero h1 {
+        font-size: clamp(30px, 8.5vw, 38px) !important;
+        line-height: 1.08 !important;
+        letter-spacing: -1px !important;
+        margin-bottom: 9px !important;
+    }
+    .hero p {
+        font-size: 12px !important;
+        line-height: 1.45 !important;
+        margin-bottom: 11px !important;
+        max-width: 100% !important;
+    }
+    .hero-trust {
+        gap: 8px 13px !important;
+        margin-top: 8px !important;
+        font-size: 10px !important;
+    }
+    .hero-trust span { gap: 4px !important; }
+    .hero::before {
+        width: 220px !important;
+        height: 220px !important;
+        right: -120px !important;
+        top: -120px !important;
+    }
+    .hero::after {
+        width: 150px !important;
+        height: 150px !important;
+        left: -80px !important;
+        bottom: -90px !important;
+    }
+}
