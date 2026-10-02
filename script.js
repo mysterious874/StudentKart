@@ -2280,6 +2280,10 @@ function ensureSellerProfileUI() {
                     <i class="fas fa-message"></i>
                     Chat with Seller
                 </button>
+                <button type="button" class="btn btn-outline seller-profile-contact-button" id="sellerProfileContactButton">
+                    <i class="fas fa-paper-plane"></i>
+                    Contact with Seller
+                </button>
             </div>
 
             <div class="seller-profile-listings-header">
@@ -2428,6 +2432,9 @@ async function openSellerProfile(
     const chatButton =
         $("sellerProfileChatButton");
 
+    const contactButton =
+        $("sellerProfileContactButton");
+
     const blockButton = $("sellerProfileBlockButton");
     const reportButton = $("sellerProfileReportButton");
 
@@ -2483,38 +2490,45 @@ async function openSellerProfile(
         };
     }
 
+    const startSellerChat = async () => {
+        if (!currentUser) {
+            closeModal("sellerProfileModal");
+            openModal("loginModal");
+            showToast("Please login to contact the seller", "warning");
+            return;
+        }
+
+        if (String(currentUser.id) === String(sellerId)) {
+            showToast("You cannot contact yourself", "warning");
+            return;
+        }
+
+        const { data: inquiry } = await supabaseClient
+            .from("inquiries")
+            .select("*")
+            .eq("buyer_id", currentUser.id)
+            .eq("seller_id", sellerId)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+        if (!inquiry) {
+            showToast("Open a product and send an inquiry to start chatting with this seller.", "warning");
+            return;
+        }
+
+        await openChat(inquiry);
+    };
+
     if (chatButton) {
-        chatButton.onclick = async () => {
-            if (!currentUser) {
-                closeModal("sellerProfileModal");
-                openModal("loginModal");
-                showToast("Please login to chat with the seller", "warning");
-                return;
-            }
-
-            if (String(currentUser.id) === String(sellerId)) {
-                showToast("You cannot chat with yourself", "warning");
-                return;
-            }
-
-            const { data: inquiry } = await supabaseClient
-                .from("inquiries")
-                .select("*")
-                .eq("buyer_id", currentUser.id)
-                .eq("seller_id", sellerId)
-                .order("created_at", { ascending: false })
-                .limit(1)
-                .maybeSingle();
-
-            if (!inquiry) {
-                showToast("Open a product and send an inquiry to start chatting with this seller.", "warning");
-                return;
-            }
-
-            await openChat(inquiry);
-        };
+        chatButton.onclick = startSellerChat;
     }
 
+    if (contactButton) {
+        contactButton.onclick = startSellerChat;
+    }
+
+    /*
     if (avatar) {
         avatar.textContent = "S";
     }
