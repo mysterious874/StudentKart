@@ -37,6 +37,7 @@ let notificationLongPressTimer = null;
 let notificationLongPressTriggered = false;
 let notificationRefreshTimer = null;
 let notificationRealtimeChannel = null;
+let productsRealtimeChannel = null;
 let toastTimer = null;
 
 
@@ -1469,6 +1470,36 @@ function updateStats() {
 
     if (totalListings) {
         totalListings.textContent = total;
+    }
+}
+
+function startProductsRealtime() {
+    if (productsRealtimeChannel) {
+        supabaseClient.removeChannel(productsRealtimeChannel);
+        productsRealtimeChannel = null;
+    }
+
+    productsRealtimeChannel = supabaseClient
+        .channel("studentkart-products-realtime")
+        .on("postgres_changes", {
+            event: "*",
+            schema: "public",
+            table: "products"
+        }, async payload => {
+            console.log("Marketplace realtime update:", payload.eventType);
+            await loadProducts();
+        })
+        .subscribe(status => {
+            if (status === "SUBSCRIBED") {
+                console.log("Marketplace realtime connected");
+            }
+        });
+}
+
+function stopProductsRealtime() {
+    if (productsRealtimeChannel) {
+        supabaseClient.removeChannel(productsRealtimeChannel);
+        productsRealtimeChannel = null;
     }
 }
 
@@ -6691,13 +6722,6 @@ function setupEventListeners() {
             }
         );
 
-    $("refreshProducts")
-        ?.addEventListener(
-            "click",
-            loadProducts
-        );
-
-
     $("bottomCategoriesButton")?.addEventListener("click", () => {
         const modal = $("categoryPickerModal");
         if (!modal) return;
@@ -7374,6 +7398,7 @@ async function initializeStudentKart() {
         setupAuthListener();
 
         await loadProducts();
+        startProductsRealtime();
 
         if (currentUser) {
             await getWishlist();
