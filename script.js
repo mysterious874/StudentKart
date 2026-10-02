@@ -2572,37 +2572,99 @@ async function submitInquiry(event) {
 
     try {
 
+        let inquiry = null;
+
         const {
-            error
+            data: existingInquiry,
+            error: existingInquiryError
         } =
             await supabaseClient
                 .from("inquiries")
-                .insert({
-                    product_id:
-                        selectedInquiryProduct.id,
+                .select("*")
+                .eq("product_id", selectedInquiryProduct.id)
+                .eq("buyer_id", currentUser.id)
+                .eq("seller_id", selectedInquiryProduct.userId)
+                .order("created_at", { ascending: false })
+                .limit(1)
+                .maybeSingle();
 
-                    buyer_id:
-                        currentUser.id,
-
-                    seller_id:
-                        selectedInquiryProduct.userId,
-
-                    message,
-
-                    status:
-                        "new"
-                });
-
-        if (error) {
-            throw error;
+        if (existingInquiryError) {
+            throw existingInquiryError;
         }
 
-        closeModal(
-            "inquiryModal"
-        );
+        if (existingInquiry) {
+            inquiry = existingInquiry;
+
+            const { error: inquiryUpdateError } =
+                await supabaseClient
+                    .from("inquiries")
+                    .update({
+                        message,
+                        status: "new"
+                    })
+                    .eq("id", existingInquiry.id);
+
+            if (inquiryUpdateError) {
+                throw inquiryUpdateError;
+            }
+        } else {
+            const {
+                data: newInquiry,
+                error: inquiryInsertError
+            } =
+                await supabaseClient
+                    .from("inquiries")
+                    .insert({
+                        product_id:
+                            selectedInquiryProduct.id,
+
+                        buyer_id:
+                            currentUser.id,
+
+                        seller_id:
+                            selectedInquiryProduct.userId,
+
+                        message,
+
+                        status:
+                            "new"
+                    })
+                    .select("*")
+                    .single();
+
+            if (inquiryInsertError) {
+                throw inquiryInsertError;
+            }
+
+            inquiry = newInquiry;
+        }
+
+        const { error: messageError } =
+            await supabaseClient
+                .from("messages")
+                .insert({
+                    inquiry_id: inquiry.id,
+                    sender_id: currentUser.id,
+                    receiver_id: selectedInquiryProduct.userId,
+                    message,
+                    is_read: false
+                });
+
+        if (messageError) {
+            throw messageError;
+        }
+
+        inquiry.product_name =
+            selectedInquiryProduct.name || "Product Chat";
+
+        closeModal("inquiryModal");
+
+        await loadReceivedInquiries();
+        await updateChatUnreadCount();
+        await openChat(inquiry);
 
         showToast(
-            "Inquiry sent successfully",
+            "Inquiry sent — chat started",
             "success"
         );
 
@@ -2653,9 +2715,8 @@ async function loadReceivedInquiries() {
             await supabaseClient
                 .from("inquiries")
                 .select("*")
-                .eq(
-                    "seller_id",
-                    currentUser.id
+                .or(
+                    `seller_id.eq.${currentUser.id},buyer_id.eq.${currentUser.id}`
                 )
                 .order(
                     "created_at",
@@ -2695,7 +2756,7 @@ async function loadReceivedInquiries() {
                 <div class="empty-state">
                     <i class="fas fa-message"></i>
                     <h3>No inquiries yet</h3>
-                    <p>Buyer messages about your listings will appear here.</p>
+                    <p>Your buyer and seller conversations will appear here.</p>
                 </div>
             `;
 
@@ -2736,22 +2797,25 @@ async function loadReceivedInquiries() {
                 });
         }
 
-        const buyerIds = [
+        const participantIds = [
             ...new Set(
                 visibleInquiries
-                    .map(inquiry => inquiry.buyer_id)
+                    .flatMap(inquiry => [
+                        inquiry.buyer_id,
+                        inquiry.seller_id
+                    ])
                     .filter(Boolean)
             )
         ];
 
         let profilesMap = {};
 
-        if (buyerIds.length) {
+        if (participantIds.length) {
             const { data: profiles } =
                 await supabaseClient
                     .from("profiles")
                     .select("id,name,college,avatar_url")
-                    .in("id", buyerIds);
+                    .in("id", participantIds);
 
             (profiles || []).forEach(profile => {
                 profilesMap[String(profile.id)] = profile;
@@ -2797,17 +2861,27 @@ async function loadReceivedInquiries() {
                             )
                         ];
 
+                    const otherUserId =
+                        String(inquiry.buyer_id) === String(currentUser.id)
+                            ? inquiry.seller_id
+                            : inquiry.buyer_id;
+
                     const profile =
                         profilesMap[
-                            String(
-                                inquiry.buyer_id
-                            )
+                            String(otherUserId)
                         ];
 
-                    const buyerName =
+                    const participantName =
                         profile?.name ||
-                        inquiry.buyer_name ||
+                        (String(inquiry.buyer_id) === String(currentUser.id)
+                            ? inquiry.seller_name
+                            : inquiry.buyer_name) ||
                         "Student";
+
+                    const participantRole =
+                        String(inquiry.buyer_id) === String(currentUser.id)
+                            ? "Seller"
+                            : "Buyer";
 
                     const latest =
                         latestMessages[
@@ -2825,7 +2899,7 @@ async function loadReceivedInquiries() {
                         ] || 0;
 
                     const initials =
-                        buyerName
+                        participantName
                             .split(" ")
                             .filter(Boolean)
                             .slice(0, 2)
@@ -2857,7 +2931,8 @@ async function loadReceivedInquiries() {
 
                             <div class="whatsapp-inquiry-main">
                                 <div class="whatsapp-inquiry-top">
-                                    <strong>${escapeHTML(buyerName)}</strong>
+                                    <strong>${escapeHTML(participantName)}</strong>
+                                    <span class="whatsapp-inquiry-role">${escapeHTML(participantRole)}</span>
                                     <time>${escapeHTML(getRelativeDate(timeText))}</time>
                                 </div>
 
@@ -2880,7 +2955,7 @@ async function loadReceivedInquiries() {
                                             class="whatsapp-chat-button"
                                             data-inquiry-action="chat"
                                             data-inquiry-id="${escapeHTML(inquiry.id)}"
-                                            aria-label="Open chat with ${escapeHTML(buyerName)}"
+                                            aria-label="Open chat with ${escapeHTML(participantName)}"
                                         >
                                             <i class="fas fa-message"></i>
                                         </button>
@@ -6588,15 +6663,22 @@ function setupEventListeners() {
                         "[data-inquiry-action]"
                     );
 
-                if (!button) {
+                const card =
+                    event.target.closest(
+                        ".whatsapp-inquiry-card"
+                    );
+
+                if (!button && !card) {
                     return;
                 }
 
                 const action =
-                    button.dataset.inquiryAction;
+                    button?.dataset.inquiryAction ||
+                    "chat";
 
                 const inquiryId =
-                    button.dataset.inquiryId;
+                    button?.dataset.inquiryId ||
+                    card?.dataset.inquiryId;
 
                 if (action === "chat") {
 
