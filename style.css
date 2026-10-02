@@ -17323,3 +17323,15 @@ html body .hero-brand-mark {
   html body .hero-brand-only { top:14px !important; left:16px !important; font-size:18px !important; }
   html body .hero-brand-mark { width:34px !important; height:34px !important; border-radius:9px !important; font-size:15px !important; }
 }
+
+/* TOP BRAND CLEANUP */
+html body header.navbar,
+html body .hero-nav-rail,
+html body .site-side-nav { display:none !important; }
+html body .hero {
+  padding-top: 78px !important;
+}
+html body .hero-brand-only {
+  top: 18px !important;
+  left: 16px !important;
+}
