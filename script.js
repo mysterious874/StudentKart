@@ -3006,6 +3006,13 @@ let chatHoldTimer = null;
 let chatHoldTriggered = false;
 
 function updateChatSelectionUI() {
+    const cancelButton = $("cancelChatSelectionButton");
+    if (cancelButton) {
+        cancelButton.classList.toggle(
+            "hidden",
+            !chatSelectionMode
+        );
+    }
     const container = $("inquiriesContainer");
     if (!container) return;
     container.classList.toggle("chat-selection-mode", chatSelectionMode);
@@ -8229,6 +8236,11 @@ document.addEventListener("change", event => {
         updateBulkInquiryToolbar();
     }
 });
+
+$("cancelChatSelectionButton")?.addEventListener(
+    "click",
+    () => exitChatSelectionMode()
+);
 
 $("bulkMarkReadButton")?.addEventListener(
     "click",
