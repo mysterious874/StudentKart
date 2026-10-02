@@ -18238,3 +18238,54 @@ body #profileModal:not(.hidden) .profile-info-row small,
 body #profileModal:not(.hidden) .profile-info-row span {
     text-align: center !important;
 }
+
+/* =========================================================
+   MACOS-STYLE BOTTOM NAV APP OPENING
+   ========================================================= */
+@keyframes studentKartMacOpen {
+    0% {
+        opacity: 0;
+        transform: translateY(28px) scale(0.88);
+        filter: blur(7px);
+        transform-origin: 50% 100%;
+    }
+    55% {
+        opacity: 1;
+        transform: translateY(-3px) scale(1.015);
+        filter: blur(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+body .modal.studentkart-bottom-nav-opening .modal-content {
+    animation: studentKartMacOpen 0.46s cubic-bezier(.22,.8,.2,1) both;
+    transform-origin: 50% 100%;
+}
+
+@keyframes studentKartMacSectionOpen {
+    0% {
+        opacity: 0.35;
+        transform: translateY(24px) scale(0.985);
+        filter: blur(3px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+.studentkart-bottom-nav-section-opening {
+    animation: studentKartMacSectionOpen 0.42s cubic-bezier(.22,.8,.2,1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body .modal.studentkart-bottom-nav-opening .modal-content,
+    .studentkart-bottom-nav-section-opening {
+        animation: none !important;
+    }
+}
