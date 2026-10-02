@@ -4842,6 +4842,30 @@ body { font-weight: 400; }
     line-height: 1.25;
 }
 
+.chat-person p#chatPresenceStatus {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #7a8a91;
+}
+
+.chat-status-dot {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: #a8b3b8;
+}
+
+.chat-presence-online .chat-status-dot {
+    background: #25d366;
+    box-shadow: 0 0 0 2px rgba(37, 211, 102, .12);
+}
+
+.chat-presence-online #chatUserStatus {
+    color: #20a85a;
+}
+
 .chat-actions {
     display: flex;
     align-items: center;
