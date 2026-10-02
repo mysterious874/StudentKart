@@ -448,32 +448,22 @@ window.addEventListener("popstate", event => {
     if (state?.studentKart === true) {
         studentKartHandlingPopState = true;
 
-        const desiredStack = Array.isArray(state.modalStack)
-            ? state.modalStack.filter(Boolean)
-            : (state.modalId ? [state.modalId] : []);
+        /*
+         * Android/browser Back should close the current StudentKart
+         * overlay in one tap. Do not reopen an older modal from the
+         * modal stack, because that makes users press Back repeatedly.
+         */
+        const openModalElement = document.querySelector(".modal:not(.hidden)");
+        const hasModalState = Boolean(state.modalId);
 
-        document
-            .querySelectorAll(".modal")
-            .forEach(modal => {
-                modal.classList.remove("modal-closing");
-                modal.classList.add("hidden");
-            });
+        closeAllModals({ fromPopState: true });
 
-        if (state.modalId) {
-            document.body.classList.add("studentkart-modal-navigation-hidden");
-            const targetModal = $(state.modalId);
-
-            if (targetModal) {
-                modalHistory = desiredStack.slice(0, -1);
-                targetModal.classList.remove("hidden");
-                targetModal.classList.remove("modal-closing");
-                document.body.classList.add("modal-open");
-                document.body.classList.add("studentkart-modal-navigation-hidden");
-            }
-        } else {
-            modalHistory = [];
-            document.body.classList.remove("modal-open");
-            document.body.classList.remove("studentkart-modal-navigation-hidden");
+        if (openModalElement || hasModalState) {
+            window.history.pushState(
+                { studentKart: true, modalId: null, modalStack: [] },
+                "",
+                window.location.pathname + window.location.search
+            );
         }
 
         studentKartHandlingPopState = false;
