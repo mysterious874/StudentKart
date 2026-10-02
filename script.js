@@ -11829,20 +11829,54 @@ function studentKartBottomNavPrepare(modalId) {
     const content = modal.querySelector(".modal-content");
     if (!content) return false;
 
-    // IMPORTANT: put the opening class on the still-hidden modal first.
-    // This prevents the generic .modal-content animation from being painted
-    // for one frame before the macOS-style animation takes over.
+    // Fully disable the browser/CSS default modal animation before the modal
+    // becomes visible. The bottom-nav animation is applied only afterwards.
     modal.classList.remove("modal-closing");
     modal.classList.remove("studentkart-bottom-nav-opening");
-    content.style.animation = "";
-    modal.style.animation = "";
+
+    content.style.animation = "none";
+    modal.style.animation = "none";
     content.style.transform = "";
     content.style.opacity = "";
     content.style.filter = "";
     content.style.transformOrigin = "";
 
-    modal.classList.add("studentkart-bottom-nav-opening");
+    // Force the browser to commit the disabled-animation state while hidden.
+    void modal.offsetWidth;
+    void content.offsetWidth;
+
     return true;
+}
+
+function studentKartBottomNavOpen(modalId, sourceButtonId = "") {
+    const modal = $(modalId);
+    if (!modal) return;
+
+    const content = modal.querySelector(".modal-content");
+    if (!content) return;
+
+    const source = sourceButtonId ? $(sourceButtonId) : null;
+
+    if (source) {
+        source.classList.remove("studentkart-nav-launching");
+        void source.offsetWidth;
+        source.classList.add("studentkart-nav-launching");
+        window.setTimeout(() => source.classList.remove("studentkart-nav-launching"), 520);
+    }
+
+    // The modal is now visible with the default animation already disabled.
+    // Start the macOS-style animation on the next frame, so there is no
+    // default-animation flash.
+    requestAnimationFrame(() => {
+        modal.classList.add("studentkart-bottom-nav-opening");
+        void modal.offsetWidth;
+
+        window.setTimeout(() => {
+            modal.classList.remove("studentkart-bottom-nav-opening");
+            content.style.animation = "";
+            modal.style.animation = "";
+        }, 620);
+    });
 }
 
 function studentKartBottomNavOpen(modalId, sourceButtonId = "") {
