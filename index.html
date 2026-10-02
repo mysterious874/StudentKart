@@ -574,7 +574,20 @@
     </div>
     <div id="chatSelectionBar" class="chat-selection-bar hidden">
       <span><strong id="chatSelectionCount">0</strong> selected</span>
-      <button type="button" id="clearChatSelectionButton">Cancel</button>
+      <div class="chat-selection-actions">
+        <button type="button" id="copySelectedChatButton" title="Copy selected messages">
+          <i class="fas fa-copy"></i><span>Copy</span>
+        </button>
+        <button type="button" id="replySelectedChatButton" title="Reply to selected message">
+          <i class="fas fa-reply"></i><span>Reply</span>
+        </button>
+        <button type="button" id="deleteSelectedChatButton" class="danger" title="Delete selected messages you sent">
+          <i class="fas fa-trash"></i><span>Delete Mine</span>
+        </button>
+        <button type="button" id="clearChatSelectionButton" title="Cancel selection">
+          <i class="fas fa-xmark"></i><span>Cancel</span>
+        </button>
+      </div>
     </div>
     <div id="chatMessages" class="chat-messages">
       <div class="chat-empty"><i class="fas fa-comment-dots"></i><p>No messages yet.</p><span>Start the conversation below.</span></div>
