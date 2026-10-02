@@ -8496,7 +8496,11 @@ async function sendChatMessage(event) {
             sendButton.disabled = false;
             sendButton.innerHTML = originalSendHtml || '<i class="fas fa-paper-plane"></i>';
         }
-        input?.focus();
+        // Do not refocus the input after sending.
+        // Keeping focus here makes the mobile keyboard reopen/stay visible.
+        if (document.activeElement === input) {
+            input?.blur();
+        }
     }
 }
 
