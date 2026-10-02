@@ -505,10 +505,29 @@
         <div class="modal-overlay" data-close-modal></div>
         <div class="modal-content wide-modal">
             
-            <div class="modal-header inquiries-whatsapp-header">
-                <div>
-                    <span class="section-label">CHATS</span>
-                    <p>Conversations with students interested in your listings.</p>
+            <div class="chat-list-header">
+                <div class="chat-list-title-row">
+                    <div>
+                        <span class="section-label">MESSAGES</span>
+                        <h2>Chats</h2>
+                    </div>
+                    <div class="chat-list-header-actions">
+                        <button type="button" class="chat-list-icon-button" id="chatListRefreshButton" title="Refresh chats" aria-label="Refresh chats">
+                            <i class="fas fa-rotate"></i>
+                        </button>
+                        <button type="button" class="chat-list-icon-button" id="chatListCloseButton" title="Close" aria-label="Close chats">
+                            <i class="fas fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chat-list-search">
+                    <i class="fas fa-search"></i>
+                    <input type="search" id="chatListSearchInput" placeholder="Search chats" autocomplete="off">
+                    <button type="button" id="chatListSearchClear" class="hidden" aria-label="Clear chat search"><i class="fas fa-xmark"></i></button>
+                </div>
+                <div class="chat-list-tabs" role="tablist" aria-label="Chat filters">
+                    <button type="button" class="chat-list-tab active" data-chat-filter="all" role="tab" aria-selected="true">All</button>
+                    <button type="button" class="chat-list-tab" data-chat-filter="unread" role="tab" aria-selected="false">Unread</button>
                 </div>
                 <div class="inquiry-bulk-tools">
                     <span id="selectedInquiryCount" class="selected-inquiry-count hidden">0 selected</span>
