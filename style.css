@@ -21680,3 +21680,44 @@ html body > .mobile-bottom-nav{
 .sk-home-nav-item .chat-unread-count{
   border-color:#102f4b !important;
 }
+
+
+/* =========================================================
+   STUDENTKART — COMPACT HOME AFTER SHOWCASE REMOVAL
+   ========================================================= */
+.sk-home-container{
+  min-height:auto !important;
+  grid-template-columns:1fr !important;
+  gap:0 !important;
+  align-items:start !important;
+  padding-top:78px !important;
+  padding-bottom:24px !important;
+}
+.sk-home-copy{
+  max-width:760px !important;
+}
+.sk-home-nav-bar{
+  margin-top:20px !important;
+}
+.sk-home-bottom{
+  display:none !important;
+}
+@media(max-width:800px){
+  .sk-home-container{
+    min-height:auto !important;
+    gap:0 !important;
+    padding-top:72px !important;
+    padding-bottom:20px !important;
+  }
+}
+@media(max-width:600px){
+  .sk-home-container{
+    min-height:auto !important;
+    gap:0 !important;
+    padding-top:62px !important;
+    padding-bottom:16px !important;
+  }
+  .sk-home-nav-bar{
+    margin-top:17px !important;
+  }
+}
