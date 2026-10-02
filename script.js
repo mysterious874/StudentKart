@@ -10961,6 +10961,13 @@ if (bottomSettingsButton) {
     });
 }
 
+const bottomWishlistButton = $("bottomWishlistButton");
+if (bottomWishlistButton) {
+    bottomWishlistButton.addEventListener("click", () => {
+        openWishlist();
+    });
+}
+
 /* =========================================================
    SETTINGS — REAL USER PREFERENCES
    Persisted in Supabase Auth user_metadata with local fallback.
