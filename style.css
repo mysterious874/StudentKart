@@ -17056,3 +17056,78 @@ main,
   }
   .hero { padding-top:145px !important; }
 }
+
+/* PRODUCT DETAILS — SINGLE SELLER ROW + STICKY ACTIONS */
+#productModal .seller-box {
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+  min-height:58px !important;
+  padding:10px 13px !important;
+  box-sizing:border-box !important;
+}
+#productModal .seller-box-label { flex:0 0 auto !important; }
+#productModal .seller-box-label small {
+  display:block !important;
+  margin:0 !important;
+  font-size:10px !important;
+  font-weight:700 !important;
+  color:var(--muted) !important;
+  text-transform:uppercase !important;
+  letter-spacing:.06em !important;
+}
+#productModal .seller-box-seller {
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+#productModal .seller-box-seller .seller-trigger {
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  color:var(--text) !important;
+  font-weight:700 !important;
+}
+#productModal .seller-box-seller .seller-avatar-small {
+  width:34px !important;
+  height:34px !important;
+  min-width:34px !important;
+  border-radius:50% !important;
+  overflow:hidden !important;
+  display:grid !important;
+  place-items:center !important;
+}
+#productModal .seller-box-seller .seller-avatar-small img {
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+}
+#productModal .seller-box .seller-verified {
+  margin-left:auto !important;
+  flex:0 0 auto !important;
+}
+#productModal .product-details-content .details-actions {
+  position:sticky !important;
+  bottom:0 !important;
+  z-index:20 !important;
+  margin:16px -32px -30px !important;
+  padding:12px 32px 14px !important;
+  background:rgba(255,255,255,.96) !important;
+  border-top:1px solid var(--border) !important;
+  backdrop-filter:blur(10px) !important;
+}
+@media(max-width:760px){
+  #productModal .product-details-content .details-actions {
+    margin:16px -20px -22px !important;
+    padding:10px 20px 12px !important;
+  }
+}
+@media(max-width:430px){
+  #productModal .product-details-content .details-actions {
+    margin:16px -16px -18px !important;
+    padding:10px 16px 12px !important;
+  }
+}
