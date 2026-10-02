@@ -12451,6 +12451,14 @@ function applyStudentKartLanguage(root = document) {
     studentKartLanguageApplying = true;
 
     const translateNode = node => {
+        // Document/DocumentFragment roots do not have an Element parent,
+        // so explicitly walk their children. Without this, the default
+        // document-wide language pass scanned nothing.
+        if (node.nodeType === Node.DOCUMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+            [...node.childNodes].forEach(translateNode);
+            return;
+        }
+
         if (node.nodeType === Node.TEXT_NODE) {
             if (!node.parentElement || node.parentElement.closest("script,style,noscript,[data-sk-lang-skip='true']")) return;
 
