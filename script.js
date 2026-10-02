@@ -7786,12 +7786,6 @@ async function loadChatContactProfile() {
             headerIcon.style.display = avatarUrl ? "none" : "";
         }
 
-        const profileImg = $("chatProfileAvatarImage");
-        const profileIcon = $("chatProfileAvatarIcon");
-        if (profileImg && profileIcon) {
-            profileImg.src = avatarUrl;
-            profileIcon.style.display = avatarUrl ? "none" : "";
-        }
     } catch (error) {
         console.warn("Chat contact profile refresh error:", error);
     }
