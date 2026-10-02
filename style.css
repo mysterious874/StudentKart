@@ -18245,13 +18245,17 @@ body #profileModal:not(.hidden) .profile-info-row span {
 @keyframes studentKartMacOpen {
     0% {
         opacity: 0;
-        transform: translateY(28px) scale(0.88);
-        filter: blur(7px);
-        transform-origin: 50% 100%;
+        transform: translateY(34vh) scale(.16);
+        filter: blur(9px);
     }
-    55% {
+    45% {
+        opacity: .92;
+        transform: translateY(4vh) scale(.82);
+        filter: blur(2px);
+    }
+    72% {
         opacity: 1;
-        transform: translateY(-3px) scale(1.015);
+        transform: translateY(-8px) scale(1.018);
         filter: blur(0);
     }
     100% {
@@ -18261,9 +18265,19 @@ body #profileModal:not(.hidden) .profile-info-row span {
     }
 }
 
+body .modal.studentkart-bottom-nav-opening {
+    animation: studentKartMacBackdrop 0.46s ease-out both;
+}
+
 body .modal.studentkart-bottom-nav-opening .modal-content {
-    animation: studentKartMacOpen 0.46s cubic-bezier(.22,.8,.2,1) both;
-    transform-origin: 50% 100%;
+    animation: studentKartMacOpen 0.52s cubic-bezier(.16,.82,.18,1) both !important;
+    transform-origin: 50% 115% !important;
+    will-change: transform, opacity, filter;
+}
+
+@keyframes studentKartMacBackdrop {
+    0% { background: rgba(12,18,14,0); backdrop-filter: blur(0); }
+    100% { background: rgba(12,18,14,.62); backdrop-filter: blur(4px); }
 }
 
 @keyframes studentKartMacSectionOpen {
