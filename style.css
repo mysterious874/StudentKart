@@ -14571,3 +14571,9 @@ body.studentkart-dark .product-image-choose-button {
 body.studentkart-dark .product-image-file-name {
     color: #a9bcc2;
 }
+
+
+/* WhatsApp-style message selection: hide the chat profile intro while selecting messages. */
+body:has(#chatMessageSelectionHeader:not(.hidden)) #chatModal #chatProfileIntro {
+    display: none !important;
+}
