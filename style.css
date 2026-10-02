@@ -15081,3 +15081,18 @@ body.studentkart-modal-navigation-hidden #productModal .product-details-close{
         grid-template-columns:1fr!important;
     }
 }
+
+
+/* FINAL: listing details owns the viewport — hide floating navigation */
+html body.studentkart-product-details-open .navbar,
+html body.studentkart-product-details-open .mobile-bottom-nav,
+body.studentkart-product-details-open .navbar,
+body.studentkart-product-details-open .mobile-bottom-nav{
+    display:none!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+}
+html body.studentkart-product-details-open{
+    padding-top:0!important;
+    padding-bottom:0!important;
+}
