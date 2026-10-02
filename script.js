@@ -3195,11 +3195,26 @@ async function loadReceivedInquiries() {
                         inquiry.message ||
                         "Started a conversation";
 
-                    // Keep the chat-list preview compact. The full message is
-                    // only shown after opening the conversation.
-                    const normalizedPreview = String(rawPreview).replace(/\s+/g, " ").trim();
-                    const preview = normalizedPreview.slice(0, 52) +
-                        (normalizedPreview.length > 52 ? "…" : "");
+                    // Media messages are stored as encoded data in the message
+                    // field. Never expose that internal payload in the chat list.
+                    // Show a simple WhatsApp-style media preview instead.
+                    const previewReply = parseChatReplyMessage(rawPreview);
+                    const previewMessage = previewReply ? previewReply.content : rawPreview;
+                    const previewMedia = parseChatMediaMessage(previewMessage);
+
+                    let preview = "";
+                    if (previewMedia) {
+                        preview = previewMedia.mediaType === "video"
+                            ? "Video"
+                            : "Photo";
+                    } else {
+                        const normalizedPreview = String(previewMessage || "")
+                            .replace(/\s+/g, " ")
+                            .trim();
+
+                        preview = normalizedPreview.slice(0, 52) +
+                            (normalizedPreview.length > 52 ? "…" : "");
+                    }
 
                     const unread =
                         unreadCounts[
