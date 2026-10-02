@@ -14073,6 +14073,32 @@ const footerInfoContent = {
     how: {
         title: "How It Works",
         body: `
+            <div class="how-info-intro">
+                <div class="how-info-kicker">SIMPLE PROCESS</div>
+                <p>Buying and selling should be simple.</p>
+            </div>
+            <div class="how-info-steps">
+                <div class="how-info-step">
+                    <span class="how-info-number">01</span>
+                    <div class="how-info-icon"><i class="fas fa-user-plus"></i></div>
+                    <div><h3>Create an Account</h3><p>Sign up and create your student profile.</p></div>
+                </div>
+                <div class="how-info-step">
+                    <span class="how-info-number">02</span>
+                    <div class="how-info-icon"><i class="fas fa-camera"></i></div>
+                    <div><h3>List Your Product</h3><p>Add photos, price, condition and details.</p></div>
+                </div>
+                <div class="how-info-step">
+                    <span class="how-info-number">03</span>
+                    <div class="how-info-icon"><i class="fas fa-magnifying-glass"></i></div>
+                    <div><h3>Find What You Need</h3><p>Browse products and contact sellers directly.</p></div>
+                </div>
+                <div class="how-info-step">
+                    <span class="how-info-number">04</span>
+                    <div class="how-info-icon"><i class="fas fa-handshake"></i></div>
+                    <div><h3>Connect &amp; Deal</h3><p>Discuss the product and complete your deal.</p></div>
+                </div>
+            </div>
             <div class="info-section">
                 <h3><i class="fas fa-cart-shopping"></i> Buying on StudentKart</h3>
                 <ol class="info-steps">
