@@ -20217,3 +20217,36 @@ body.category-page-active .category-page-container {
     background: #102f4b !important;
   }
 }
+
+
+/* STEP 1 — Move the floating StudentKart top bar to the bottom on mobile */
+@media (max-width: 600px) {
+  html body:not(.studentkart-modal-navigation-hidden) > .navbar {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 14px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 26px) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 99998 !important;
+  }
+
+  html body:not(.studentkart-modal-navigation-hidden) > .navbar > .nav-container {
+    width: 100% !important;
+    height: 90px !important;
+    min-height: 90px !important;
+    margin: 0 !important;
+    padding: 9px 12px !important;
+    border-radius: 25px !important;
+  }
+
+  html body:not(.studentkart-modal-navigation-hidden) > .navbar .mobile-bottom-nav {
+    display: none !important;
+  }
+
+  body:not(.studentkart-modal-navigation-hidden) {
+    padding-bottom: 120px !important;
+  }
+}
