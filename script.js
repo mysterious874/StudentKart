@@ -11822,6 +11822,29 @@ document.addEventListener("pointerdown", event => {
 /* =========================================================
    MACOS-STYLE BOTTOM NAV OPENING
    ========================================================= */
+function studentKartBottomNavPrepare(modalId) {
+    const modal = $(modalId);
+    if (!modal) return false;
+
+    const content = modal.querySelector(".modal-content");
+    if (!content) return false;
+
+    // IMPORTANT: put the opening class on the still-hidden modal first.
+    // This prevents the generic .modal-content animation from being painted
+    // for one frame before the macOS-style animation takes over.
+    modal.classList.remove("modal-closing");
+    modal.classList.remove("studentkart-bottom-nav-opening");
+    content.style.animation = "";
+    modal.style.animation = "";
+    content.style.transform = "";
+    content.style.opacity = "";
+    content.style.filter = "";
+    content.style.transformOrigin = "";
+
+    modal.classList.add("studentkart-bottom-nav-opening");
+    return true;
+}
+
 function studentKartBottomNavOpen(modalId, sourceButtonId = "") {
     const modal = $(modalId);
     if (!modal) return;
@@ -11831,30 +11854,26 @@ function studentKartBottomNavOpen(modalId, sourceButtonId = "") {
 
     const source = sourceButtonId ? $(sourceButtonId) : null;
 
-    // Use the StudentKart macOS-style dock animation consistently.
-    // The previous implementation relied only on Web Animations API; on some
-    // mobile browsers that could produce only the tap flash while the popup
-    // itself appeared without the dock-to-popup animation.
-    modal.classList.remove("studentkart-bottom-nav-opening");
-    content.style.animation = "";
-    modal.style.animation = "";
-    content.style.transform = "";
-    content.style.opacity = "";
-    content.style.filter = "";
-    content.style.transformOrigin = "";
+    // If the modal was already prepared while hidden, keep that class so the
+    // first visible frame is the macOS opening animation itself.
+    const alreadyPrepared = modal.classList.contains("studentkart-bottom-nav-opening");
+
+    if (!alreadyPrepared) {
+        studentKartBottomNavPrepare(modalId);
+    }
 
     if (source) {
         source.classList.remove("studentkart-nav-launching");
+        // Keep the dock icon movement subtle; it must not create a visible
+        // blink while the modal is opening.
         void source.offsetWidth;
         source.classList.add("studentkart-nav-launching");
         window.setTimeout(() => source.classList.remove("studentkart-nav-launching"), 520);
     }
 
-    // Force a fresh animation frame so every bottom-nav action gets the
-    // same macOS-style open transition, including Categories, Chat,
-    // Wishlist and Settings.
+    // If this function is called after openModal(), force a fresh layout
+    // without briefly exposing the base modal animation.
     void modal.offsetWidth;
-    modal.classList.add("studentkart-bottom-nav-opening");
 
     window.setTimeout(() => {
         modal.classList.remove("studentkart-bottom-nav-opening");
@@ -11891,13 +11910,22 @@ if (bottomSettingsButton) {
 const bottomWishlistButton = $("bottomWishlistButton");
 if (bottomWishlistButton) {
     bottomWishlistButton.addEventListener("click", async () => {
-        // Wait for wishlist data + modal opening before starting the dock
-        // animation. Starting it before the async render completes causes
-        // a one-frame blink/flicker on mobile browsers.
-        const opened = await openWishlist();
-        if (opened) {
-            studentKartBottomNavOpen("wishlistModal", "bottomWishlistButton");
+        if (!currentUser) {
+            openModal("loginModal");
+            showToast("Please login to use wishlist", "warning");
+            return;
         }
+
+        // Render while the modal is still hidden.
+        await renderWishlist();
+
+        // Prepare the macOS animation BEFORE openModal removes .hidden.
+        // This removes the one-frame generic modalOpen blink on mobile.
+        studentKartBottomNavPrepare("wishlistModal");
+        openModal("wishlistModal");
+
+        // The opening class is already active, so do not restart it.
+        studentKartBottomNavOpen("wishlistModal", "bottomWishlistButton");
     });
 }
 
