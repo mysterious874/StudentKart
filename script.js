@@ -7829,6 +7829,7 @@ async function openChat(inquiry) {
         }
     })();
 
+    void startChatPresence(window.currentChatOtherUserId);
     startChatRealtime();
 }
 
@@ -8402,6 +8403,162 @@ function setChatReplyPreview(text, label = "Replying") {
     preview.classList.remove("hidden");
 }
 
+
+
+let chatPresenceChannel = null;
+let chatPresenceHeartbeat = null;
+let chatPresenceOtherUserId = null;
+
+function formatChatLastSeen(value) {
+    if (!value) return "Offline";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "Offline";
+
+    const diff = Date.now() - date.getTime();
+    if (diff < 60 * 1000) return "Last seen just now";
+    if (diff < 60 * 60 * 1000) {
+        return "Last seen " + Math.max(1, Math.floor(diff / 60000)) + "m ago";
+    }
+    if (diff < 24 * 60 * 60 * 1000) {
+        return "Last seen " + Math.floor(diff / 3600000) + "h ago";
+    }
+
+    return "Last seen " + date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short"
+    });
+}
+
+function setChatPresenceStatus(online, lastSeen = null) {
+    const status = $("chatUserStatus");
+    const wrapper = $("chatPresenceStatus");
+    if (!status || !wrapper) return;
+
+    wrapper.classList.toggle("chat-presence-online", Boolean(online));
+
+    if (online) {
+        status.textContent = "Online";
+        return;
+    }
+
+    status.textContent = formatChatLastSeen(lastSeen);
+}
+
+function getStoredChatLastSeen(userId) {
+    if (!userId) return null;
+    try {
+        return localStorage.getItem("studentkart_last_seen_" + userId);
+    } catch {
+        return null;
+    }
+}
+
+function saveChatLastSeen(userId, value) {
+    if (!userId || !value) return;
+    try {
+        localStorage.setItem("studentkart_last_seen_" + userId, value);
+    } catch {}
+}
+
+async function stopChatPresence() {
+    if (chatPresenceHeartbeat) {
+        clearInterval(chatPresenceHeartbeat);
+        chatPresenceHeartbeat = null;
+    }
+
+    if (chatPresenceChannel) {
+        try {
+            await supabaseClient.removeChannel(chatPresenceChannel);
+        } catch (error) {
+            console.warn("Chat presence cleanup error:", error);
+        }
+        chatPresenceChannel = null;
+    }
+
+    chatPresenceOtherUserId = null;
+}
+
+async function startChatPresence(otherUserId) {
+    await stopChatPresence();
+
+    if (!currentUser || !otherUserId) return;
+
+    chatPresenceOtherUserId = String(otherUserId);
+    setChatPresenceStatus(
+        false,
+        getStoredChatLastSeen(chatPresenceOtherUserId)
+    );
+
+    const ids = [
+        String(currentUser.id),
+        String(otherUserId)
+    ].sort();
+
+    const channel = supabaseClient.channel(
+        "studentkart-presence-" + ids.join("-"),
+        {
+            config: {
+                presence: {
+                    key: String(currentUser.id)
+                }
+            }
+        }
+    );
+
+    chatPresenceChannel = channel;
+
+    channel.on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const other = state[chatPresenceOtherUserId];
+
+        if (other && other.length) {
+            setChatPresenceStatus(true);
+            return;
+        }
+
+        const lastSeen = getStoredChatLastSeen(chatPresenceOtherUserId);
+        setChatPresenceStatus(false, lastSeen);
+    });
+
+    channel.on("presence", { event: "leave" }, event => {
+        const leftUserId = String(event?.key || "");
+        if (leftUserId !== chatPresenceOtherUserId) return;
+
+        const now = new Date().toISOString();
+        saveChatLastSeen(chatPresenceOtherUserId, now);
+        setChatPresenceStatus(false, now);
+    });
+
+    channel.on("presence", { event: "join" }, event => {
+        const joinedUserId = String(event?.key || "");
+        if (joinedUserId === chatPresenceOtherUserId) {
+            setChatPresenceStatus(true);
+        }
+    });
+
+    channel.subscribe(async status => {
+        if (status !== "SUBSCRIBED") return;
+
+        try {
+            await channel.track({
+                user_id: String(currentUser.id),
+                online_at: new Date().toISOString()
+            });
+        } catch (error) {
+            console.warn("Chat presence track error:", error);
+        }
+    });
+
+    chatPresenceHeartbeat = window.setInterval(async () => {
+        if (!chatPresenceChannel) return;
+        try {
+            await chatPresenceChannel.track({
+                user_id: String(currentUser.id),
+                online_at: new Date().toISOString()
+            });
+        } catch {}
+    }, 30000);
+}
 
 function startChatRealtime() {
 
