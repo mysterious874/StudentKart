@@ -439,57 +439,33 @@ window.addEventListener("popstate", event => {
         return;
     }
 
-    if (!studentKartHistoryReady) {
-        return;
-    }
+    /*
+     * IMPORTANT:
+     * Do not call pushState() from this handler.
+     *
+     * Android/browser Back already moved the history pointer to the
+     * previous StudentKart state. Adding another state here was causing
+     * Back to jump to Home or require another Back press / exit the site.
+     *
+     * The modal is only a visual overlay. Back should simply close it and
+     * leave the browser at the page/hash it just navigated back to.
+     */
+    if (studentKartHistoryReady) {
+        const openModal = document.querySelector(".modal:not(.hidden)");
 
-    const state = event.state;
-
-    if (state?.studentKart === true) {
-        studentKartHandlingPopState = true;
-
-        /*
-         * Android/browser Back should close the current StudentKart
-         * overlay in one tap. Do not reopen an older modal from the
-         * modal stack, because that makes users press Back repeatedly.
-         */
-        const openModalElement = document.querySelector(".modal:not(.hidden)");
-        const hasModalState = Boolean(state.modalId);
-
-        closeAllModals({ fromPopState: true });
-
-        if (openModalElement || hasModalState) {
-            /*
-             * Preserve the page/hash the user was actually on.
-             * Stripping the hash here makes the app fall back to Home.
-             */
-            window.history.pushState(
-                {
-                    ...(event.state || {}),
-                    studentKart: true,
-                    modalId: null,
-                    modalStack: []
-                },
-                "",
-                window.location.href
-            );
+        if (openModal) {
+            studentKartHandlingPopState = true;
+            closeAllModals({ fromPopState: true });
+            studentKartHandlingPopState = false;
         }
 
-        studentKartHandlingPopState = false;
         return;
     }
 
-    /* Keep one StudentKart history entry so Android/browser Back
-       does not immediately leave the app when a page is open. */
-    if (document.querySelector(".modal:not(.hidden)")) {
-        studentKartHandlingPopState = true;
+    /* Fallback for an unexpected history state. */
+    const openModal = document.querySelector(".modal:not(.hidden)");
+    if (openModal) {
         closeAllModals({ fromPopState: true });
-        window.history.pushState(
-            { studentKart: true, modalId: null },
-            "",
-            window.location.pathname + window.location.search
-        );
-        studentKartHandlingPopState = false;
     }
 });
 
