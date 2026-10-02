@@ -6876,7 +6876,7 @@ function setupEventListeners() {
     $("chatButton")
         ?.addEventListener(
             "click",
-            async () => {
+            () => {
 
                 if (!currentUser) {
                     openModal("loginModal");
@@ -6884,9 +6884,14 @@ function setupEventListeners() {
                     return;
                 }
 
-                await loadReceivedInquiries();
+                // Open the Chat section immediately on the first tap.
                 setupChatListControls();
                 openModal("inquiriesModal");
+
+                // Refresh chat list silently after the section is visible.
+                void loadReceivedInquiries().catch(error => {
+                    console.error("Chat section background refresh error:", error);
+                });
             }
         );
 
