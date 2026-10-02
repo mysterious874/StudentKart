@@ -8911,6 +8911,21 @@ $("chatForm")?.addEventListener(
     sendChatMessage
 );
 
+$("chatInput")?.addEventListener("keydown", event => {
+    if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+
+    event.preventDefault();
+
+    const form = $("chatForm");
+    if (!form) return;
+
+    if (typeof form.requestSubmit === "function") {
+        form.requestSubmit();
+    } else {
+        sendChatMessage(event);
+    }
+});
+
 $("chatCameraButton")?.addEventListener("click", () => {
     const input = $("chatImageInput");
     if (!input) return;
