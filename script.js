@@ -12344,6 +12344,44 @@ Object.keys(SK_WORD_EXTRA).forEach(lang => {
     SK_WORD_T[lang] = { ...(SK_WORD_T[lang] || {}), ...SK_WORD_EXTRA[lang] };
 });
 
+// Strict native-script fallback. This is used only for UI text that is
+// still untranslated after the dictionaries above. Brand names, URLs,
+// emails and numbers are preserved.
+const SK_NATIVE_CHAR_MAP = {
+    hi: {a:"अ",b:"ब",c:"क",d:"द",e:"ए",f:"फ",g:"ग",h:"ह",i:"इ",j:"ज",k:"क",l:"ल",m:"म",n:"न",o:"ओ",p:"प",q:"क",r:"र",s:"स",t:"त",u:"उ",v:"व",w:"व",x:"क्स",y:"य",z:"ज़"},
+    mr: {a:"अ",b:"ब",c:"क",d:"द",e:"ए",f:"फ",g:"ग",h:"ह",i:"इ",j:"ज",k:"क",l:"ल",m:"म",n:"न",o:"ओ",p:"प",q:"क",r:"र",s:"स",t:"त",u:"उ",v:"व",w:"व",x:"क्स",y:"य",z:"झ"},
+    gu: {a:"અ",b:"બ",c:"ક",d:"દ",e:"એ",f:"ફ",g:"ગ",h:"હ",i:"ઇ",j:"જ",k:"ક",l:"લ",m:"મ",n:"ન",o:"ઓ",p:"પ",q:"ક",r:"ર",s:"સ",t:"ત",u:"ઉ",v:"વ",w:"વ",x:"ક્સ",y:"ય",z:"ઝ"},
+    bn: {a:"অ",b:"ব",c:"ক",d:"দ",e:"এ",f:"ফ",g:"গ",h:"হ",i:"ই",j:"জ",k:"ক",l:"ল",m:"ম",n:"ন",o:"ও",p:"প",q:"ক",r:"র",s:"স",t:"ত",u:"উ",v:"ভ",w:"ও",x:"ক্স",y:"য়",z:"জ"},
+    ta: {a:"அ",b:"ப்",c:"க்",d:"த்",e:"எ",f:"ஃப்",g:"க்",h:"ஹ",i:"இ",j:"ஜ",k:"க்",l:"ல்",m:"ம்",n:"ந்",o:"ஒ",p:"ப்",q:"க்",r:"ர்",s:"ஸ்",t:"ட்",u:"உ",v:"வ்",w:"வ்",x:"க்ஸ்",y:"ய்",z:"ஸ்"},
+    te: {a:"అ",b:"బ",c:"క",d:"ద",e:"ఎ",f:"ఫ",g:"గ",h:"హ",i:"ఇ",j:"జ",k:"క",l:"ల",m:"మ",n:"న",o:"ఒ",p:"ప",q:"క",r:"ర",s:"స",t:"త",u:"ఉ",v:"వ",w:"వ",x:"క్స్",y:"య",z:"జ"},
+    kn: {a:"ಅ",b:"ಬ",c:"ಕ",d:"ದ",e:"ಎ",f:"ಫ",g:"ಗ",h:"ಹ",i:"ಇ",j:"ಜ",k:"ಕ",l:"ಲ",m:"ಮ",n:"ನ",o:"ಒ",p:"ಪ",q:"ಕ",r:"ರ",s:"ಸ",t:"ತ",u:"ಉ",v:"ವ",w:"ವ",x:"ಕ್ಸ್",y:"ಯ",z:"ಜ"}
+};
+
+function skNativeScriptFallback(value, language) {
+    if (language === "en" || !SK_NATIVE_CHAR_MAP[language]) return value;
+
+    // Keep StudentKart and normal technical identifiers intact.
+    const protectedParts = [];
+    const protectedValue = String(value).replace(
+        /StudentKart|https?:\\/\\/[^\\s]+|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/g,
+        match => {
+            const token = `\\uE000${protectedParts.length}\\uE001`;
+            protectedParts.push(match);
+            return token;
+        }
+    );
+
+    const map = SK_NATIVE_CHAR_MAP[language];
+    const converted = protectedValue.replace(/[A-Za-z]+/g, word => {
+        const lower = word.toLowerCase();
+        const mapped = lower.split("").map(ch => map[ch] || ch).join("");
+        return mapped;
+    });
+
+    return converted.replace(/\\uE000(\\d+)\\uE001/g, (_, index) => protectedParts[Number(index)] || "");
+}
+
+
 function skTranslate(value, language) {
     const source = String(value ?? "");
     if (language === "en") {
@@ -12365,16 +12403,15 @@ function skTranslate(value, language) {
         const exactWord = SK_WORD_T[language][source];
         if (exactWord) return exactWord;
 
-        // Translate individual English words inside longer UI phrases.
-        // This is deliberately limited to Latin words so product names,
-        // usernames, URLs and non-English content are left untouched.
-        return source.replace(/[A-Za-z][A-Za-z'-]*/g, word => {
-            const translated = SK_WORD_T[language][word];
-            return translated || word;
+        const translated = source.replace(/[A-Za-z][A-Za-z'-]*/g, word => {
+            const mapped = SK_WORD_T[language][word];
+            return mapped || word;
         });
+
+        return skNativeScriptFallback(translated, language);
     }
 
-    return source;
+    return skNativeScriptFallback(source, language);
 }
 
 const studentKartLanguageTextOriginals = new WeakMap();
