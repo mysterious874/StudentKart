@@ -16348,3 +16348,24 @@ body #chatModal:not(.hidden) #chatMessages video {
 body #chatModal:not(.hidden) #chatMessages .chat-message {
     touch-action: manipulation !important;
 }
+
+
+/* =========================================================
+   FINAL HOME NAVIGATION RECOVERY FIX
+   Navbar + bottom navigation must be visible on the real home
+   screen even if an old navigation-state class remains on body.
+   Actual open modals/category pages still keep them hidden.
+   ========================================================= */
+body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) .navbar {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) .mobile-bottom-nav {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
