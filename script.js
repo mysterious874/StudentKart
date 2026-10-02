@@ -7813,7 +7813,7 @@ async function openChat(inquiry) {
 
 
 // Open the other participant's profile by tapping the chat header.
-$("chatUserName")?.addEventListener("click", async () => {
+$("chatModal")?.querySelector(".chat-person")?.addEventListener("click", async () => {
     if (!currentChatInquiry || !currentUser) return;
 
     const otherUserId =
@@ -7832,7 +7832,7 @@ $("chatUserName")?.addEventListener("click", async () => {
     await openSellerProfile(otherUserId);
 });
 
-$("chatUserName")?.style.setProperty("cursor", "pointer");
+$("chatModal")?.querySelector(".chat-person")?.style.setProperty("cursor", "pointer");
 
 let selectedChatMessageIds = new Set();
 let chatLongPressTimer = null;
