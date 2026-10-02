@@ -5081,6 +5081,16 @@ function showHomePageFromCategory() {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function closeCategoryPage() {
+    document.body.classList.remove("category-page-active");
+    $("categoryPage")?.classList.add("hidden");
+    document.querySelector("main")?.classList.remove("category-page-active");
+    $("home")?.classList.remove("hidden");
+    $("marketplace")?.classList.remove("hidden");
+    $("how-it-works")?.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function openCategoryPage(category) {
     const selected = String(category || "Other").trim() || "Other";
     selectedMarketplaceCategory = selected;
@@ -6862,7 +6872,21 @@ document.addEventListener("click", event => {
         card.addEventListener("click", () => openCategoryPage(card.dataset.category));
     });
 
-    $("categoryPageBack")?.addEventListener("click", showHomePageFromCategory);
+    $("categoryPageBack")?.addEventListener("click", () => {
+    $("categoryPage")?.classList.add("hidden");
+    document.body.classList.remove("category-page-active");
+    document.querySelector("main")?.classList.remove("category-page-active");
+    $("home")?.classList.remove("hidden");
+    $("marketplace")?.classList.remove("hidden");
+    $("how-it-works")?.classList.remove("hidden");
+    const modal = $("categoryPickerModal");
+    if (modal) {
+        modal.classList.remove("hidden");
+        document.body.classList.add("modal-open");
+        document.body.classList.add("studentkart-modal-navigation-hidden");
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
     $("categoryPageBrowseAll")?.addEventListener("click", () => {
         showHomePageFromCategory();
