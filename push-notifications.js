@@ -41,9 +41,9 @@
         });
       }
 
-      if (window.currentUser && window.supabaseClient) {
+      if (typeof currentUser !== "undefined" && currentUser && typeof supabaseClient !== "undefined") {
         const json = subscription.toJSON();
-        const { error } = await window.supabaseClient
+        const { error } = await supabaseClient
           .from("push_subscriptions")
           .upsert({
             user_id: window.currentUser.id,
