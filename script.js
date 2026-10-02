@@ -5110,6 +5110,8 @@ function openCategoryPage(category) {
     const subtitle = $("categoryPageSubtitle");
     if (title) title.textContent = "";
     if (subtitle) subtitle.textContent = "Products listed in " + selected + " category";
+    const navbarSubtitle = $("categoryPageNavbarSubtitle");
+    if (navbarSubtitle) navbarSubtitle.textContent = "Products listed in " + selected + " category";
 
     const filtered = currentProducts.filter(product =>
         String(product.category || "").toLowerCase() === selected.toLowerCase()
