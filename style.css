@@ -16208,3 +16208,45 @@ body #chatModal:not(.hidden) .chat-form .chat-send-button{
         height:42px !important;
     }
 }
+
+
+/* FINAL CHAT FULL-SCREEN EDGE-TO-EDGE */
+body #chatModal:not(.hidden){
+    position:fixed !important;
+    inset:0 !important;
+    width:100vw !important;
+    height:100dvh !important;
+    padding:0 !important;
+    margin:0 !important;
+    align-items:stretch !important;
+    justify-content:stretch !important;
+}
+body #chatModal:not(.hidden) .chat-modal-content{
+    width:100vw !important;
+    max-width:none !important;
+    height:100dvh !important;
+    max-height:none !important;
+    margin:0 !important;
+    border-radius:0 !important;
+    border:0 !important;
+    box-shadow:none !important;
+}
+body #chatModal:not(.hidden) .chat-form .chat-media-button{
+    flex:0 0 40px !important;
+    width:40px !important;
+    min-width:40px !important;
+    height:40px !important;
+    color:#7d8f93 !important;
+}
+body #chatModal:not(.hidden) .chat-form .chat-media-button i{
+    color:#7d8f93 !important;
+    font-size:17px !important;
+}
+@media(max-width:560px){
+    body #chatModal:not(.hidden) .chat-form .chat-media-button{
+        flex-basis:38px !important;
+        width:38px !important;
+        min-width:38px !important;
+        height:40px !important;
+    }
+}
