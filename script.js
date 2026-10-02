@@ -57,6 +57,21 @@ function $(id) {
     return document.getElementById(id);
 }
 
+/* STUDENTKART THEMED CONFIRM DIALOG */
+let studentKartConfirmResolver = null;
+function studentKartConfirm({title="Confirm action",message="",confirmText="Continue",danger=false}={}) {
+    return new Promise(resolve => {
+        const modal=$("studentKartNativeConfirmModal"), titleEl=$("studentKartNativeConfirmTitle"), messageEl=$("studentKartNativeConfirmMessage"), ok=$("studentKartNativeConfirmOk"), cancel=$("studentKartNativeConfirmCancel");
+        if(!modal||!ok||!cancel){resolve(false);return;}
+        if(studentKartConfirmResolver) studentKartConfirmResolver(false);
+        studentKartConfirmResolver=value=>{studentKartConfirmResolver=null;resolve(Boolean(value));};
+        titleEl.textContent=title; messageEl.textContent=message; ok.textContent=confirmText; ok.classList.toggle("is-danger",danger);
+        const finish=value=>{const resolver=studentKartConfirmResolver;if(typeof resolver==="function")resolver(value);closeModal("studentKartNativeConfirmModal");};
+        ok.onclick=()=>finish(true); cancel.onclick=()=>finish(false);
+        openModal("studentKartNativeConfirmModal");
+    });
+}
+
 function escapeHTML(value) {
 
     if (value === null || value === undefined) {
@@ -4440,14 +4455,13 @@ async function deleteProduct(
         return;
     }
 
-    const confirmed =
-        window.confirm(
-            "Delete this listing?"
-        );
-
-    if (!confirmed) {
-        return;
-    }
+    const confirmed = await studentKartConfirm({
+        title: "Delete listing?",
+        message: "This listing will be removed from StudentKart.",
+        confirmText: "Delete",
+        danger: true
+    });
+    if (!confirmed) return;
 
     try {
 
@@ -8214,10 +8228,12 @@ async function deleteChatForEveryone() {
 
     const inquiryId = currentChatInquiry.id;
 
-    const confirmed = window.confirm(
-        "Delete this entire conversation for everyone? This cannot be undone."
-    );
-
+    const confirmed = await studentKartConfirm({
+        title: "Delete conversation?",
+        message: "This will delete the entire conversation for everyone. This cannot be undone.",
+        confirmText: "Delete",
+        danger: true
+    });
     if (!confirmed) return;
 
     const { error } = await supabaseClient
@@ -8395,10 +8411,12 @@ async function bulkDeleteInquiriesForMe() {
     const ids = getSelectedInquiryIds();
     if (!ids.length || !currentUser) return;
 
-    const confirmed = window.confirm(
-        "Delete " + ids.length + " selected chat" + (ids.length === 1 ? "" : "s") + " for you?"
-    );
-
+    const confirmed = await studentKartConfirm({
+        title: "Delete selected chats?",
+        message: "Delete " + ids.length + " selected chat" + (ids.length === 1 ? "" : "s") + " for you?",
+        confirmText: "Delete",
+        danger: true
+    });
     if (!confirmed) return;
 
     // Keep auto-refresh from restoring the chats before the database sync finishes.
@@ -11468,7 +11486,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* StudentKart custom filter dropdowns: avoid native Chrome/Android select popups. */
-    const studentkartCustomFilterSelects = ["categoryFilter", "conditionFilter", "sortFilter"];
+    const studentkartCustomFilterSelects = ["categoryFilter", "conditionFilter", "sortFilter", "productCategory", "productCondition", "signupState", "editProfileState"];
     const studentkartCustomSelectRefresh = {};
     const studentkartCloseCustomSelects = (except = null) => {
         document.querySelectorAll(".studentkart-custom-select.is-open").forEach(menu => {
@@ -11529,6 +11547,9 @@ document.addEventListener("DOMContentLoaded", () => {
             trigger.setAttribute("aria-expanded", opening ? "true" : "false");
         });
         select.addEventListener("change", refresh);
+
+        const observer = new MutationObserver(refresh);
+        observer.observe(select, { childList: true, subtree: true });
     });
     document.addEventListener("click", event => {
         if (!event.target.closest(".studentkart-custom-select-wrap")) studentkartCloseCustomSelects();
