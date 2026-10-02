@@ -14938,3 +14938,146 @@ body #chatModal .chat-message {
 .product-details-content{min-width:0;padding:34px 32px 30px;overflow-y:auto}.details-eyebrow{margin-bottom:10px}.details-eyebrow .section-label{font-size:10px;letter-spacing:.12em}.product-details-top{gap:7px;flex-wrap:wrap}.product-details-content h2{font-size:clamp(25px,3vw,32px);letter-spacing:-.025em;margin:14px 46px 0 0}.details-price{font-size:30px;line-height:1.1;margin-top:9px}.details-meta{margin-top:20px}.details-meta-card{display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid var(--border);border-radius:13px;background:#f8fbfb}.details-meta-card>i{width:34px;height:34px;display:grid;place-items:center;flex:0 0 34px;border-radius:10px;background:var(--primary-light)}.details-meta-card span{display:flex;flex-direction:column;min-width:0}.details-meta-card small{color:var(--muted);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.details-meta-card strong{color:var(--text);font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis}.details-description{margin-top:22px}.details-section-heading{display:flex;align-items:center;gap:8px;margin-bottom:8px}.details-section-heading i{color:var(--primary);font-size:12px}.details-description h3{margin:0;font-size:14px}#detailsDescription{padding:13px 14px;border:1px solid #e8eef2;border-radius:13px;background:#fafcfc;font-size:12px;line-height:1.7;max-height:150px;overflow-y:auto}.seller-box{position:relative;margin-top:18px;padding:14px;border:1px solid var(--border);border-radius:14px;background:#fff}.seller-box .seller-avatar{width:44px;height:44px}.seller-verified{margin-left:auto;color:var(--primary2);font-size:10px;font-weight:700;white-space:nowrap}.seller-verified i{margin-right:3px}.details-actions{display:grid;grid-template-columns:1fr 1.2fr;gap:9px;margin-top:14px}.details-actions .btn{min-height:46px}#contactSellerButton{margin-top:0}
 @media(max-width:760px){.product-details-modal{width:min(94vw,620px);max-height:calc(100vh - 20px);grid-template-columns:1fr;overflow-y:auto;border-radius:20px}.details-image-container,.details-image-container img{min-height:300px;height:300px}.product-details-content{padding:24px 20px 22px;overflow:visible}.product-details-content h2{font-size:25px;margin-right:38px}.details-price{font-size:27px}.details-actions{grid-template-columns:1fr}.seller-verified{display:none}}
 @media(max-width:430px){.product-details-modal{width:calc(100vw - 12px);max-height:calc(100vh - 12px);border-radius:18px}.details-image-container,.details-image-container img{min-height:245px;height:245px}.product-details-content{padding:20px 16px 18px}.details-image-overlay{left:10px;bottom:10px}}
+
+
+/* =========================================================
+   LISTING DETAILS PAGE — FINAL POLISH
+   The View Details screen is treated as a dedicated page.
+   ========================================================= */
+body.studentkart-modal-navigation-hidden #productModal{
+    background:linear-gradient(180deg,#f7faf9 0%,#eef4f2 100%)!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .product-details-modal{
+    display:grid!important;
+    grid-template-columns:minmax(420px,1.08fr) minmax(380px,.92fr)!important;
+    width:min(1120px,calc(100vw - 48px))!important;
+    height:min(820px,calc(100vh - 48px))!important;
+    min-height:0!important;
+    margin:24px auto!important;
+    overflow:hidden!important;
+    border:1px solid rgba(15,23,42,.08)!important;
+    border-radius:26px!important;
+    background:#fff!important;
+    box-shadow:0 24px 70px rgba(15,23,42,.18)!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .details-image-container{
+    height:100%!important;
+    min-height:0!important;
+    background:#eef3f1!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .details-image-container img{
+    height:100%!important;
+    min-height:0!important;
+    object-fit:contain!important;
+    background:#f4f7f6!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .product-details-content{
+    height:100%!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    padding:42px 40px 34px!important;
+    scrollbar-width:thin;
+}
+body.studentkart-modal-navigation-hidden #productModal .details-eyebrow{
+    margin-bottom:14px!important;
+}
+body.studentkart-modal-navigation-hidden #productModal #detailsName{
+    margin:16px 0 8px!important;
+    font-size:clamp(28px,3vw,40px)!important;
+    line-height:1.08!important;
+    letter-spacing:-.7px!important;
+}
+body.studentkart-modal-navigation-hidden #productModal #detailsPrice{
+    margin:0 0 24px!important;
+    font-size:30px!important;
+    font-weight:800!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .details-meta-card{
+    min-height:62px!important;
+    padding:12px 14px!important;
+    border-radius:14px!important;
+    background:#f7faf9!important;
+    border:1px solid #e4ebe8!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .details-description{
+    margin-top:24px!important;
+    padding-top:22px!important;
+    border-top:1px solid #e8eeec!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .details-description p{
+    color:#475569!important;
+    line-height:1.7!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .seller-box{
+    margin-top:24px!important;
+    padding:15px!important;
+    border-radius:16px!important;
+    background:#f8fafb!important;
+    border:1px solid #e4e9ee!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .details-actions{
+    margin-top:22px!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:10px!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .details-actions .btn{
+    min-height:48px!important;
+    border-radius:13px!important;
+}
+body.studentkart-modal-navigation-hidden #productModal .product-details-close{
+    top:16px!important;
+    right:16px!important;
+    width:42px!important;
+    height:42px!important;
+    border-radius:13px!important;
+    background:rgba(255,255,255,.94)!important;
+    backdrop-filter:blur(10px)!important;
+}
+@media(max-width:900px){
+    body.studentkart-modal-navigation-hidden #productModal .product-details-modal{
+        grid-template-columns:1fr!important;
+        width:calc(100vw - 28px)!important;
+        height:calc(100vh - 28px)!important;
+        margin:14px auto!important;
+        overflow-y:auto!important;
+    }
+    body.studentkart-modal-navigation-hidden #productModal .details-image-container{
+        height:42vh!important;
+        min-height:260px!important;
+    }
+    body.studentkart-modal-navigation-hidden #productModal .details-image-container img{
+        height:42vh!important;
+        min-height:260px!important;
+    }
+    body.studentkart-modal-navigation-hidden #productModal .product-details-content{
+        height:auto!important;
+        overflow:visible!important;
+        padding:28px 24px 30px!important;
+    }
+}
+@media(max-width:600px){
+    body.studentkart-modal-navigation-hidden #productModal .product-details-modal{
+        width:100vw!important;
+        height:100dvh!important;
+        margin:0!important;
+        border-radius:0!important;
+    }
+    body.studentkart-modal-navigation-hidden #productModal .details-image-container,
+    body.studentkart-modal-navigation-hidden #productModal .details-image-container img{
+        height:34dvh!important;
+        min-height:220px!important;
+    }
+    body.studentkart-modal-navigation-hidden #productModal .product-details-content{
+        padding:24px 18px 28px!important;
+    }
+    body.studentkart-modal-navigation-hidden #productModal #detailsName{
+        font-size:27px!important;
+    }
+    body.studentkart-modal-navigation-hidden #productModal #detailsPrice{
+        font-size:26px!important;
+    }
+    body.studentkart-modal-navigation-hidden #productModal .details-actions{
+        grid-template-columns:1fr!important;
+    }
+}
