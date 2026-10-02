@@ -12054,3 +12054,35 @@ body.studentkart-modal-navigation-hidden {
         grid-column: auto;
     }
 }
+
+
+/* Footer information popups — larger, easier-to-read text */
+.footer-info-modal-content {
+    width: min(620px, calc(100vw - 32px));
+}
+.footer-info-modal-content .page-popup-header {
+    padding: 20px 24px 14px !important;
+}
+.footer-info-modal-content .page-popup-header h2 {
+    font-size: 24px !important;
+}
+.footer-info-body {
+    padding: 10px 26px 30px !important;
+    color: #486581;
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+    min-height: 110px;
+}
+@media (max-width: 600px) {
+    .footer-info-modal-content {
+        width: calc(100vw - 24px);
+    }
+    .footer-info-modal-content .page-popup-header h2 {
+        font-size: 21px !important;
+    }
+    .footer-info-body {
+        padding: 8px 20px 24px !important;
+        font-size: 15px !important;
+        line-height: 1.75 !important;
+    }
+}
