@@ -3190,10 +3190,16 @@ async function loadReceivedInquiries() {
                             String(inquiry.id)
                         ];
 
-                    const preview =
+                    const rawPreview =
                         latest?.message ||
                         inquiry.message ||
                         "Started a conversation";
+
+                    // Keep the chat-list preview compact. The full message is
+                    // only shown after opening the conversation.
+                    const normalizedPreview = String(rawPreview).replace(/\s+/g, " ").trim();
+                    const preview = normalizedPreview.slice(0, 52) +
+                        (normalizedPreview.length > 52 ? "…" : "");
 
                     const unread =
                         unreadCounts[
@@ -3237,13 +3243,9 @@ async function loadReceivedInquiries() {
 
                                 <div class="whatsapp-inquiry-bottom">
                                     <div class="whatsapp-inquiry-preview">
-                                        <span class="whatsapp-product-name">
-                                            ${escapeHTML(product?.name || "Product")}
-                                        </span>
                                         <span class="whatsapp-message-preview">
                                             ${escapeHTML(preview)}
-                                        </span>
-                                    </div>
+                                        </span>                                    </div>
 
                                     <div class="whatsapp-inquiry-meta">
                                         ${unread
