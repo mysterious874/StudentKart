@@ -20420,3 +20420,39 @@ body.category-page-active .category-page-container {
     padding-bottom: 120px !important;
   }
 }
+
+
+/* NAV POSITION LOCK — mobile: main header TOP, quick navigation BOTTOM */
+@media (max-width: 600px) {
+  body > header.navbar {
+    position: relative !important;
+    top: 0 !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    z-index: 5000 !important;
+  }
+
+  body > header.navbar > .nav-container {
+    position: relative !important;
+    width: calc(100% - 28px) !important;
+    margin: 0 auto !important;
+  }
+
+  body > .mobile-bottom-nav {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 14px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 26px) !important;
+    height: 90px !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    z-index: 99999 !important;
+  }
+}
