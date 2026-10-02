@@ -12849,3 +12849,25 @@ body.studentkart-dark .chat-image-caption { color:#e9edef; }
 }
 .chat-image-viewer button:hover { background:rgba(255,255,255,.24); }
 @keyframes chatViewerIn { from { opacity:0; } to { opacity:1; } }
+
+
+.chat-message-video {
+    display:block;
+    width:min(360px,100%);
+    max-height:360px;
+    border-radius:8px;
+    background:#000;
+    cursor:pointer;
+}
+.chat-message-video::-webkit-media-controls-panel { border-radius:8px; }
+.chat-image-preview video {
+    width:58px;
+    height:58px;
+    object-fit:cover;
+    border-radius:8px;
+    display:block;
+    background:#000;
+}
+@media(max-width:600px) {
+    .chat-message-video { max-height:300px; }
+}
