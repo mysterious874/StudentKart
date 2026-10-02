@@ -16106,3 +16106,105 @@ body #chatModal:not(.hidden) .chat-messages{
 body #chatModal:not(.hidden) .chat-security-notice{
     margin-top:0 !important;
 }
+
+/* FINAL CHAT COMPOSER — CLEAN SINGLE ROW */
+body #chatModal:not(.hidden) .chat-form{
+    position:relative !important;
+    display:flex !important;
+    align-items:center !important;
+    flex-wrap:nowrap !important;
+    width:100% !important;
+    min-height:64px !important;
+    height:auto !important;
+    box-sizing:border-box !important;
+    padding:9px 10px !important;
+    gap:7px !important;
+    background:#fff !important;
+    border-top:1px solid #e2ebec !important;
+    overflow:visible !important;
+}
+body #chatModal:not(.hidden) .chat-form .chat-media-button{
+    flex:0 0 36px !important;
+    width:36px !important;
+    height:36px !important;
+    min-width:36px !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:grid !important;
+    place-items:center !important;
+}
+body #chatModal:not(.hidden) .chat-form .chat-input-pill{
+    position:relative !important;
+    flex:1 1 auto !important;
+    width:auto !important;
+    min-width:0 !important;
+    min-height:43px !important;
+    height:43px !important;
+    margin:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+}
+body #chatModal:not(.hidden) .chat-form #chatInput{
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    width:100% !important;
+    height:41px !important;
+    margin:0 !important;
+    padding:0 42px 0 15px !important;
+    box-sizing:border-box !important;
+    border:0 !important;
+    outline:0 !important;
+    background:transparent !important;
+}
+body #chatModal:not(.hidden) .chat-form .chat-emoji-inside{
+    position:absolute !important;
+    right:5px !important;
+    top:50% !important;
+    transform:translateY(-50%) !important;
+    width:32px !important;
+    height:32px !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:grid !important;
+    place-items:center !important;
+}
+body #chatModal:not(.hidden) .chat-form .chat-send-button{
+    flex:0 0 43px !important;
+    width:43px !important;
+    height:43px !important;
+    min-width:43px !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:grid !important;
+    place-items:center !important;
+}
+@media(max-width:560px){
+    body #chatModal:not(.hidden) .chat-form{
+        min-height:62px !important;
+        padding:8px 7px !important;
+        gap:5px !important;
+    }
+    body #chatModal:not(.hidden) .chat-form .chat-media-button{
+        flex-basis:34px !important;
+        width:34px !important;
+        min-width:34px !important;
+        height:36px !important;
+    }
+    body #chatModal:not(.hidden) .chat-form .chat-input-pill{
+        min-height:42px !important;
+        height:42px !important;
+    }
+    body #chatModal:not(.hidden) .chat-form #chatInput{
+        height:40px !important;
+        padding-left:13px !important;
+        padding-right:39px !important;
+    }
+    body #chatModal:not(.hidden) .chat-form .chat-send-button{
+        flex-basis:42px !important;
+        width:42px !important;
+        min-width:42px !important;
+        height:42px !important;
+    }
+}
