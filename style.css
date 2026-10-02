@@ -17889,3 +17889,38 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
     .studentkart-splash-line { animation: none; }
     .studentkart-splash-card { opacity: 1; transform: none; }
 }
+
+/* Mobile navbar search: keep a single compact search row visible. */
+@media (max-width: 600px) {
+  #navbarSearchPanel {
+    top: 72px !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+    padding: 6px !important;
+  }
+
+  #navbarSearchPanel .navbar-search-inner {
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 6px !important;
+  }
+
+  #navbarSearchPanel .navbar-search-field {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    height: 40px !important;
+  }
+
+  #navbarSearchPanel .navbar-filter-button {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    height: 40px !important;
+    padding: 0 !important;
+  }
+
+  #navbarSearchPanel .navbar-filter-button span {
+    display: none !important;
+  }
+}
