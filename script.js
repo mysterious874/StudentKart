@@ -8084,9 +8084,6 @@ $("chatCameraButton")?.addEventListener("click", () => {
     $("chatImageInput")?.click();
 });
 
-$("chatMicButton")?.addEventListener("click", () => {
-    showToast("Voice messages will be available soon.", "info");
-});
 
 // The send button is the chat form's submit button.
 // Do not intercept its click here; otherwise typed messages never reach
