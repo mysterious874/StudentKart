@@ -522,9 +522,10 @@
                 </div>
                 <div class="chat-list-search">
                     <i class="fas fa-search"></i>
-                    <input type="search" id="chatListSearchInput" placeholder="Search chats" autocomplete="off">
+                    <input type="search" id="chatListSearchInput" placeholder="Search username, mobile or email" autocomplete="off">
                     <button type="button" id="chatListSearchClear" class="hidden" aria-label="Clear chat search"><i class="fas fa-xmark"></i></button>
                 </div>
+                <div id="chatUserSearchResults" class="chat-user-search-results hidden" aria-live="polite"></div>
                 <div class="chat-list-tabs" role="tablist" aria-label="Chat filters">
                     <button type="button" class="chat-list-tab active" data-chat-filter="all" role="tab" aria-selected="true">All</button>
                     <button type="button" class="chat-list-tab" data-chat-filter="unread" role="tab" aria-selected="false">Unread</button>
@@ -649,11 +650,17 @@
                 <p id="profileCollege">College</p>
             </div>
             <div class="profile-info">
+                <div class="profile-info-row"><i class="fas fa-at"></i>
+                    <div><small>Username</small><span id="profileUsernameInfo">—</span></div>
+                </div>
                 <div class="profile-info-row"><i class="fas fa-graduation-cap"></i>
                     <div><small>College</small><span id="profileCollegeInfo">—</span></div>
                 </div>
                 <div class="profile-info-row"><i class="fas fa-envelope"></i>
                     <div><small>Email</small><span id="profileEmailInfo">—</span></div>
+                </div>
+                <div class="profile-info-row"><i class="fas fa-phone"></i>
+                    <div><small>Mobile</small><span id="profilePhoneInfo">—</span></div>
                 </div>
             </div>
             <div class="profile-actions"><button type="button" class="btn btn-outline" id="editProfileButton"><i
@@ -703,6 +710,9 @@
                 </div>
                 <div class="form-group"><label for="editProfileName">Name</label><input type="text" id="editProfileName"
                         required></div>
+                <div class="form-group"><label for="editProfileUsername">Username / Search ID</label><input type="text" id="editProfileUsername" placeholder="e.g. harish123, your email or mobile number" maxlength="80" autocomplete="username">
+                    <small class="form-help">Others can find you in Chat using this username, email or mobile number.</small></div>
+                <div class="form-group"><label for="editProfilePhone">Mobile Number</label><input type="tel" id="editProfilePhone" placeholder="10-digit mobile number" inputmode="numeric" maxlength="15" autocomplete="tel"></div>
                 <div class="form-group"><label for="editProfileCollege">College / University</label><input type="text"
                         id="editProfileCollege" list="studentkartInstitutionList" placeholder="Search your college or university"></div>
                 <div class="form-group"><label for="editProfileState">State / Union Territory</label><select id="editProfileState"><option value="">Select state / UT</option></select></div>
