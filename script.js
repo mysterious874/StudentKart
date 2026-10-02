@@ -440,6 +440,9 @@ function closeModal(id, options = {}) {
 
 function closeAllModals(options = {}) {
 
+    studentKartModalCloseTimers.forEach(timer => window.clearTimeout(timer));
+    studentKartModalCloseTimers.clear();
+
     document.body.classList.remove("studentkart-product-details-open");
     document.body.classList.remove("studentkart-chat-open");
 
@@ -461,6 +464,7 @@ function closeAllModals(options = {}) {
 }
 
 
+window.addEventListener("popstate", event => {
     /*
      * System/browser Back uses this same navigation stack as the
      * visible Chat back arrow.
