@@ -8547,7 +8547,7 @@ async function loadChatMessages() {
                     `;
                 }
             } else {
-                content = `<div class="chat-message-bubble">${escapeHtml(message.message)}</div>`;
+                content = `<div class="chat-message-bubble">${escapeHtml(actualMessage)}</div>`;
             }
 
             return `
