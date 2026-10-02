@@ -4489,8 +4489,14 @@ async function ensureProfileAfterPasswordSignup(user) {
     }
 }
 
+function openLogoutConfirmation() {
+    if (!currentUser) return;
+    openModal("logoutConfirmModal");
+}
+
 async function logoutUser() {
 
+    closeModal("logoutConfirmModal");
     stopNotificationRefresh();
 
     try {
@@ -7185,6 +7191,18 @@ document.addEventListener("click", event => {
         );
 
     $("logoutButton")
+        ?.addEventListener(
+            "click",
+            openLogoutConfirmation
+        );
+
+    $("logoutConfirmCancel")
+        ?.addEventListener(
+            "click",
+            () => closeModal("logoutConfirmModal")
+        );
+
+    $("logoutConfirmButton")
         ?.addEventListener(
             "click",
             logoutUser
