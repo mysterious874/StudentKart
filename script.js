@@ -12384,29 +12384,54 @@ function skNativeScriptFallback(value, language) {
 }
 
 
+function skNormalizeLanguageText(value) {
+    return String(value ?? "")
+        .replace(/\\u00a0/g, " ")
+        .replace(/\\s+/g, " ")
+        .trim()
+        .replace(/[：:]+$/g, "")
+        .toLowerCase();
+}
+
+function skFindExactTranslation(source, language) {
+    const normalized = skNormalizeLanguageText(source);
+    if (!normalized) return source;
+
+    const maps = [SK_T[language], SK_WORD_T[language]].filter(Boolean);
+
+    for (const map of maps) {
+        if (map[source]) return map[source];
+        const key = Object.keys(map).find(k => skNormalizeLanguageText(k) === normalized);
+        if (key) return map[key];
+    }
+
+    // A translated value from another language can be converted back to
+    // its English source and then into the requested language.
+    for (const map of Object.values(SK_T)) {
+        if (!map) continue;
+        const original = Object.keys(map).find(k => skNormalizeLanguageText(map[k]) === normalized);
+        if (original && SK_T[language]?.[original]) return SK_T[language][original];
+    }
+
+    return null;
+}
+
 function skTranslate(value, language) {
     const source = String(value ?? "");
     if (language === "en") {
         for (const map of Object.values(SK_T)) {
-            const original = Object.keys(map).find(key => map[key] === source);
+            const original = Object.keys(map).find(key => skNormalizeLanguageText(map[key]) === skNormalizeLanguageText(source));
             if (original) return original;
         }
         return source;
     }
 
-    if (SK_T[language]?.[source]) return SK_T[language][source];
-
-    for (const map of Object.values(SK_T)) {
-        const original = Object.keys(map).find(key => map[key] === source);
-        if (original && SK_T[language]?.[original]) return SK_T[language][original];
-    }
+    const exact = skFindExactTranslation(source, language);
+    if (exact) return exact;
 
     if (SK_WORD_T[language]) {
-        const exactWord = SK_WORD_T[language][source];
-        if (exactWord) return exactWord;
-
         const translated = source.replace(/[A-Za-z][A-Za-z'-]*/g, word => {
-            const mapped = SK_WORD_T[language][word];
+            const mapped = SK_WORD_T[language][word] || skFindExactTranslation(word, language);
             return mapped || word;
         });
 
