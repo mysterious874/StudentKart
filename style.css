@@ -12086,3 +12086,26 @@ body.studentkart-modal-navigation-hidden {
         line-height: 1.75 !important;
     }
 }
+
+
+/* Accessible footer contact links */
+.footer-contact-link {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #9cafbd;
+    text-decoration: none;
+    font-size: 10px;
+    line-height: 1.5;
+    transition: color .2s ease;
+}
+.footer-contact-link:hover,
+.footer-contact-link:focus-visible {
+    color: #73e8e5;
+    text-decoration: underline;
+    outline: none;
+}
+.footer-contact-link i {
+    width: 13px;
+    text-align: center;
+}
