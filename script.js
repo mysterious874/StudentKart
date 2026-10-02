@@ -8720,6 +8720,140 @@ function addHomeButtonsToBackArrows(root = document) {
 let studentKartLocationSearchTimer = null;
 let studentKartLocationSearchController = null;
 
+let studentKartVillageDuckDBPromise = null;
+let studentKartVillageDuckDB = null;
+let studentKartVillageDuckDBConnection = null;
+
+const STUDENTKART_LGD_VILLAGES_PARQUET =
+    "https://raw.githubusercontent.com/vanga/india-local-government-directory/main/data/lgd_villages.parquet";
+
+async function getStudentKartVillageDuckDB() {
+    if (studentKartVillageDuckDBConnection) {
+        return studentKartVillageDuckDBConnection;
+    }
+
+    if (studentKartVillageDuckDBPromise) {
+        return studentKartVillageDuckDBPromise;
+    }
+
+    studentKartVillageDuckDBPromise = (async () => {
+        const duckdb = await import(
+            "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.5.5/+esm"
+        );
+
+        const bundle = await duckdb.selectBundle(
+            duckdb.getJsDelivrBundles()
+        );
+
+        const workerURL = URL.createObjectURL(
+            new Blob(
+                [`importScripts("${bundle.mainWorker}");`],
+                { type: "text/javascript" }
+            )
+        );
+
+        const worker = new Worker(workerURL);
+        const logger = new duckdb.ConsoleLogger();
+        const db = new duckdb.AsyncDuckDB(logger, worker);
+
+        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+        URL.revokeObjectURL(workerURL);
+
+        await db.registerFileURL(
+            "studentkart-lgd-villages.parquet",
+            STUDENTKART_LGD_VILLAGES_PARQUET,
+            duckdb.DuckDBDataProtocol.HTTP,
+            false
+        );
+
+        const connection = await db.connect();
+
+        studentKartVillageDuckDB = db;
+        studentKartVillageDuckDBConnection = connection;
+
+        return connection;
+    })()
+        .catch(error => {
+            console.error("StudentKart LGD village database failed:", error);
+            studentKartVillageDuckDBPromise = null;
+            throw error;
+        });
+
+    return studentKartVillageDuckDBPromise;
+}
+
+async function searchStudentKartLGDVillages(query) {
+    const q = String(query || "").trim().toLowerCase();
+    if (q.length < 2) return [];
+
+    try {
+        const connection = await getStudentKartVillageDuckDB();
+
+        const statement = await connection.prepare(`
+            SELECT
+                village_name,
+                subdistrict_name,
+                district_name,
+                state_name
+            FROM "studentkart-lgd-villages.parquet"
+            WHERE
+                lower(village_name) LIKE ?
+                OR lower(subdistrict_name) LIKE ?
+                OR lower(district_name) LIKE ?
+                OR lower(state_name) LIKE ?
+            ORDER BY
+                CASE
+                    WHEN lower(village_name) = ? THEN 0
+                    WHEN lower(subdistrict_name) = ? THEN 1
+                    WHEN lower(district_name) = ? THEN 2
+                    WHEN lower(state_name) = ? THEN 3
+                    ELSE 4
+                END,
+                village_name
+            LIMIT 80
+        `);
+
+        const likeQuery = "%" + q + "%";
+
+        const result = await statement.query(
+            likeQuery,
+            likeQuery,
+            likeQuery,
+            likeQuery,
+            q,
+            q,
+            q,
+            q
+        );
+
+        await statement.close();
+
+        return result.toArray()
+            .map(row => {
+                const village = String(row.village_name || "").trim();
+                const subdistrict = String(row.subdistrict_name || "").trim();
+                const district = String(row.district_name || "").trim();
+                const state = String(row.state_name || "").trim();
+
+                if (!village) return "";
+
+                const hierarchy = [...new Set([
+                    subdistrict,
+                    district,
+                    state
+                ].filter(Boolean))];
+
+                return hierarchy.length
+                    ? village + " — " + hierarchy.join(", ")
+                    : village;
+            })
+            .filter(Boolean);
+    } catch (error) {
+        console.debug("LGD village search unavailable:", error);
+        return [];
+    }
+}
+
 function renderStudentKartLocationSuggestions(values) {
     const box = $("studentkartLocationSuggestions");
     if (!box) return;
