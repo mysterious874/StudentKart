@@ -453,7 +453,7 @@ function closeModal(id, options = {}) {
                 setStudentKartModalHistory(null, []);
             }
         }
-    }, 220);
+    }, 120);
     studentKartModalCloseTimers.set(id, closeTimer);
 }
 
@@ -5175,7 +5175,7 @@ function showHomePageFromCategory() {
     $("home")?.classList.remove("hidden");
     $("marketplace")?.classList.remove("hidden");
     $("how-it-works")?.classList.remove("hidden");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 function closeCategoryPage() {
@@ -5185,7 +5185,7 @@ function closeCategoryPage() {
     $("home")?.classList.remove("hidden");
     $("marketplace")?.classList.remove("hidden");
     $("how-it-works")?.classList.remove("hidden");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 function openCategoryPage(category, options = {}) {
@@ -5255,7 +5255,7 @@ function openCategoryPage(category, options = {}) {
     if (count) count.textContent = filtered.length + (filtered.length === 1 ? " listing" : " listings");
 
     renderProducts(filtered, "categoryProductContainer", "categoryEmptyState");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 function selectCategory(category) {
@@ -7029,7 +7029,7 @@ document.addEventListener("click", event => {
         showHomePageFromCategory();
         modalHistory = [];
         setStudentKartModalHistory(null, []);
-        $("marketplace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        $("marketplace")?.scrollIntoView({ behavior: "auto", block: "start" });
     });
 
     /* -----------------------------------------
@@ -7535,7 +7535,7 @@ document.addEventListener("click", event => {
                     // close the Edit modal again.
                     window.setTimeout(() => {
                         openEditProduct(productId);
-                    }, 260);
+                    }, 140);
 
                     return;
                 }
@@ -8575,29 +8575,16 @@ $("chatBackButton")?.addEventListener("click", event => {
     const chatModal = $("chatModal");
     if (!chatModal || chatModal.classList.contains("hidden")) return;
 
-    const parentId = modalHistory.length
-        ? modalHistory[modalHistory.length - 1]
-        : "inquiriesModal";
-
-    const parentModal = $(parentId) || $("inquiriesModal");
-
-    chatModal.classList.remove("modal-closing");
-    chatModal.classList.add("hidden");
-    document.body.classList.remove("studentkart-chat-open");
-
-    if (parentModal) {
-        parentModal.classList.remove("modal-closing");
-        parentModal.classList.remove("hidden");
-        document.body.classList.add("modal-open");
-        document.body.classList.add("studentkart-modal-navigation-hidden");
-        modalHistory = [];
-        setStudentKartModalHistory(parentModal.id, [parentModal.id]);
-    } else {
-        modalHistory = [];
-        document.body.classList.remove("modal-open");
-        document.body.classList.remove("studentkart-modal-navigation-hidden");
-        setStudentKartModalHistory(null, []);
+    if (
+        window.history.state?.studentKart === true &&
+        window.history.state?.modalId === "chatModal" &&
+        window.history.length > 1
+    ) {
+        window.history.back();
+        return;
     }
+
+    showChatsFromChat();
 });
 
 
@@ -10165,15 +10152,10 @@ function goToHomeFromModal() {
     // Return to the app's real Home state without creating another history entry.
     setStudentKartModalHistory(null, []);
 
-    window.setTimeout(() => {
-        const homeSection = document.getElementById("home");
-        if (homeSection) {
-            homeSection.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-        }
-    }, 20);
+    const homeSection = document.getElementById("home");
+    if (homeSection) {
+        homeSection.scrollIntoView({ behavior: "auto", block: "start" });
+    }
 }
 
 function addHomeButtonsToBackArrows(root = document) {
