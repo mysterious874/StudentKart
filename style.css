@@ -15397,3 +15397,15 @@ body.category-page-active .category-page-navbar-title small{
 .category-picker-grid{
     transform:translateY(50px)!important;
 }
+
+/* SETTINGS SECTION NAVIGATION */
+.settings-section-button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;border:1px solid var(--border);border-radius:14px;background:#fff;color:var(--text);cursor:pointer;text-align:left;transition:.18s ease}
+.settings-section-button:hover{border-color:var(--primary);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.settings-section-button>span{display:flex;align-items:center;gap:12px;min-width:0}
+.settings-section-button>span>i{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:var(--primary-light);color:var(--primary);flex:0 0 auto}
+.settings-section-button b,.settings-section-button small{display:block}
+.settings-section-button b{font-size:13px}.settings-section-button small{margin-top:3px;color:var(--muted);font-size:11px}.settings-section-button>i{color:var(--muted)}
+.settings-detail-modal-content{width:min(720px,calc(100vw - 32px));max-height:min(760px,calc(100vh - 32px));overflow:auto}
+.settings-detail-content{display:grid;gap:8px;padding:4px 0 2px}
+.settings-detail-content .settings-row{width:100%}
+@media(max-width:700px){.settings-detail-modal-content{width:calc(100vw - 20px);max-height:calc(100vh - 20px)}.settings-section-button{padding:14px}.settings-section-button>span>i{width:34px;height:34px}}
