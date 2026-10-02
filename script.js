@@ -11897,13 +11897,13 @@ document.addEventListener("click", event => {
 const bottomSettingsButton = $("bottomSettingsButton");
 if (bottomSettingsButton) {
     bottomSettingsButton.addEventListener("click", () => {
-        if (currentUser) {
-            openModal("settingsModal");
-            studentKartBottomNavOpen("settingsModal", "bottomSettingsButton");
-        } else {
-            openModal("loginModal");
-            studentKartBottomNavOpen("loginModal");
-        }
+        const targetModalId = currentUser ? "settingsModal" : "loginModal";
+
+        // Prepare the animation while the modal is still hidden. This prevents
+        // the base .modal-content animation from painting for one frame first.
+        studentKartBottomNavPrepare(targetModalId);
+        openModal(targetModalId);
+        studentKartBottomNavOpen(targetModalId, "bottomSettingsButton");
     });
 }
 
