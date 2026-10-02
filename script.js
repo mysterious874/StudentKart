@@ -7188,6 +7188,125 @@ function endChatMessageLongPress() {
     clearTimeout(chatLongPressTimer);
 }
 
+$("chatMessages")?.addEventListener("pointerdown", beginChatMessageLongPress);
+$("chatMessages")?.addEventListener("pointerup", endChatMessageLongPress);
+$("chatMessages")?.addEventListener("pointercancel", endChatMessageLongPress);
+$("chatMessages")?.addEventListener("pointerleave", endChatMessageLongPress);
+
+$("chatMessages")?.addEventListener("click", event => {
+    const messageEl = event.target.closest(".chat-message");
+    if (!messageEl) return;
+
+    if (chatLongPressTriggered) {
+        chatLongPressTriggered = false;
+        return;
+    }
+
+    if (selectedChatMessageIds.size > 0) {
+        toggleChatMessageSelection(messageEl.dataset.messageId);
+    }
+});
+
+$("clearChatSelectionButton")?.addEventListener("click", clearChatMessageSelection);
+$("copySelectedChatButton")?.addEventListener("click", copySelectedChatMessages);
+$("replySelectedChatButton")?.addEventListener("click", replyToSelectedChatMessage);
+$("deleteSelectedChatButton")?.addEventListener("click", deleteSelectedOwnChatMessages);
+
+function getSelectedChatMessageElements() {
+    return Array.from(
+        document.querySelectorAll("#chatMessages .chat-message")
+    ).filter(messageEl =>
+        selectedChatMessageIds.has(String(messageEl.dataset.messageId))
+    );
+}
+
+async function copySelectedChatMessages() {
+    const messages = getSelectedChatMessageElements()
+        .map(el => el.querySelector(".chat-message-bubble")?.textContent?.trim())
+        .filter(Boolean);
+
+    if (!messages.length) return;
+
+    const textToCopy = messages.join("\n");
+
+    try {
+        await navigator.clipboard.writeText(textToCopy);
+    } catch (error) {
+        const helper = document.createElement("textarea");
+        helper.value = textToCopy;
+        helper.style.position = "fixed";
+        helper.style.opacity = "0";
+        document.body.appendChild(helper);
+        helper.select();
+        document.execCommand("copy");
+        helper.remove();
+    }
+
+    showToast(
+        messages.length + " message" + (messages.length === 1 ? "" : "s") + " copied",
+        "success"
+    );
+}
+
+function replyToSelectedChatMessage() {
+    const messages = getSelectedChatMessageElements();
+    if (!messages.length) return;
+
+    const target = messages[messages.length - 1];
+    const bubble = target.querySelector(".chat-message-bubble");
+    const input = $("chatInput");
+
+    if (!bubble || !input) return;
+
+    const quoted = bubble.textContent.trim();
+    input.value = quoted ? "> " + quoted + "\n" : "";
+    input.focus();
+    clearChatMessageSelection();
+    showToast("Reply ready", "success");
+}
+
+async function deleteSelectedOwnChatMessages() {
+    if (!currentUser || !selectedChatMessageIds.size) return;
+
+    const ownIds = getSelectedChatMessageElements()
+        .filter(el => String(el.dataset.senderId) === String(currentUser.id))
+        .map(el => el.dataset.messageId)
+        .filter(Boolean);
+
+    if (!ownIds.length) {
+        showToast("Select messages you sent to delete them", "warning");
+        return;
+    }
+
+    if (!window.confirm(
+        "Delete " + ownIds.length + " selected message" +
+        (ownIds.length === 1 ? "" : "s") + "?"
+    )) {
+        return;
+    }
+
+    try {
+        const { error } = await supabaseClient
+            .from("messages")
+            .delete()
+            .in("id", ownIds)
+            .eq("sender_id", currentUser.id);
+
+        if (error) throw error;
+
+        selectedChatMessageIds.clear();
+        await loadChatMessages();
+        showToast(
+            ownIds.length + " message" +
+            (ownIds.length === 1 ? "" : "s") + " deleted",
+            "success"
+        );
+    } catch (error) {
+        console.error("Delete selected chat messages error:", error);
+        showToast("Could not delete selected messages", "error");
+    }
+}
+
 async function loadChatMessages() {
 
     if (!currentChatInquiry || !currentUser) {
@@ -7243,7 +7362,8 @@ async function loadChatMessages() {
                         ? "chat-message-own"
                         : "chat-message-other"
                     }"
-                        data-message-id="${escapeHtml(String(message.id))}">
+                        data-message-id="${escapeHtml(String(message.id))}"
+                        data-sender-id="${escapeHtml(String(message.sender_id || ""))}">
 
                         <div class="chat-message-bubble">
                             ${escapeHtml(message.message)}
