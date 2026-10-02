@@ -17131,3 +17131,50 @@ main,
     padding:10px 16px 12px !important;
   }
 }
+
+
+/* Seller profile contact actions */
+body #sellerProfileModal .seller-profile-actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+}
+
+body #sellerProfileModal .seller-profile-actions .btn {
+    flex: 1 1 210px !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    border-radius: 11px !important;
+    font-weight: 700 !important;
+    justify-content: center !important;
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease !important;
+}
+
+body #sellerProfileModal .seller-profile-actions .btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 7px 18px rgba(15,139,141,.16) !important;
+}
+
+body #sellerProfileModal .seller-profile-contact-button {
+    border: 1px solid rgba(15,139,141,.28) !important;
+    color: #0f7f82 !important;
+    background: #f5fbfb !important;
+}
+
+body #sellerProfileModal .seller-profile-contact-button:hover {
+    background: #eaf7f7 !important;
+}
+
+@media (max-width: 600px) {
+    body #sellerProfileModal .seller-profile-actions {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    body #sellerProfileModal .seller-profile-actions .btn {
+        width: 100% !important;
+        flex-basis: auto !important;
+    }
+}
