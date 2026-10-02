@@ -11880,3 +11880,18 @@ form {
     color: #73e8e5 !important;
     background: rgba(15,139,141,.16) !important;
 }
+
+
+/* Footer action buttons — prevent global white outline from breaking footer theme */
+.footer .footer-actions .btn-outline,
+.footer .footer-actions #footerProfileButton {
+    background: rgba(255,255,255,.045) !important;
+    color: #d5e1e6 !important;
+    border-color: rgba(255,255,255,.16) !important;
+}
+.footer .footer-actions .btn-outline:hover,
+.footer .footer-actions #footerProfileButton:hover {
+    background: rgba(255,255,255,.09) !important;
+    color: #ffffff !important;
+    border-color: rgba(115,232,229,.35) !important;
+}
