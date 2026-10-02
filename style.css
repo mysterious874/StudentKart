@@ -3801,7 +3801,7 @@ input[type="file"] {
     padding: 8px 8px 8px 2px;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 0;
     background: #061b3a;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12);
@@ -3809,19 +3809,20 @@ input[type="file"] {
     z-index: 10;
 }
 
-.chat-person {
+ .chat-person {
     min-width: 0;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     display: flex;
     align-items: center;
     gap: 8px;
     cursor: pointer;
+    margin-right: auto;
 }
 
 .chat-avatar {
-    width: 43px;
-    height: 43px;
-    flex: 0 0 43px;
+    width: 45px;
+    height: 45px;
+    flex: 0 0 45px;
     position: relative;
     display: grid;
     place-items: center;
@@ -13639,3 +13640,35 @@ body.studentkart-dark .profile-city-suggestion-empty {
 .chat-head > .chat-back-button { order: 0; flex: 0 0 38px; }
 .chat-head > .chat-person { order: 1; flex: 1 1 auto; }
 .chat-head > .chat-actions { order: 2; flex: 0 0 auto; }
+
+/* Exact mobile chat header alignment */
+.chat-head > .chat-back-button {
+    order: 1;
+    flex-shrink: 0;
+}
+.chat-head > .chat-person {
+    order: 2;
+    flex: 0 1 auto !important;
+    justify-content: flex-start !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+.chat-head > .chat-actions {
+    order: 3;
+    margin-left: auto !important;
+}
+.chat-head .chat-person-info {
+    text-align: left !important;
+}
+.chat-head .chat-avatar {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.chat-avatar img,
+.chat-profile-avatar-large img {
+    display: block;
+}
+.chat-avatar img[src=""],
+.chat-profile-avatar-large img[src=""] {
+    display: none;
+}
