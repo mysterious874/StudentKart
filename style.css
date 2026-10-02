@@ -20537,3 +20537,44 @@ body.category-page-active .category-page-container {
     padding-bottom:120px !important;
   }
 }
+/* EMERGENCY NAV — reset every conflicting mobile navbar rule */
+@media (max-width:600px){
+  html body header.navbar{
+    position:fixed !important;
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    top:0 !important;
+    bottom:auto !important;
+    left:0 !important;
+    right:0 !important;
+    transform:none !important;
+    width:100vw !important;
+    height:120px !important;
+    margin:0 !important;
+    padding:10px 0 !important;
+    z-index:100000 !important;
+  }
+  html body header.navbar .nav-container{
+    position:relative !important;
+    top:0 !important;
+    width:calc(100vw - 28px) !important;
+    height:100px !important;
+    margin:0 auto !important;
+  }
+  html body .mobile-bottom-nav{
+    position:fixed !important;
+    display:grid !important;
+    top:auto !important;
+    bottom:14px !important;
+    left:13px !important;
+    right:13px !important;
+    width:auto !important;
+    transform:none !important;
+    z-index:100001 !important;
+  }
+  html body{
+    padding-top:130px !important;
+    padding-bottom:120px !important;
+  }
+}
