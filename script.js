@@ -7209,33 +7209,27 @@ document.addEventListener("click", event => {
             }
         );
 
-    $("chatButton")
-        ?.addEventListener(
-            "click",
-            () => {
+    const openChatListFromNavigation = () => {
+        if (!currentUser) {
+            openModal("loginModal");
+            showToast("Please login to chat", "warning");
+            return;
+        }
 
-                if (!currentUser) {
-                    openModal("loginModal");
-                    showToast("Please login to chat", "warning");
-                    return;
-                }
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission().catch(() => {});
+        }
 
-                // The Chat button is a user gesture, so it is a safe place
-                // to request browser notification permission for incoming messages.
-                if ("Notification" in window && Notification.permission === "default") {
-                    Notification.requestPermission().catch(() => {});
-                }
+        setupChatListControls();
+        openModal("inquiriesModal");
 
-                // Open the Chat section immediately on the first tap.
-                setupChatListControls();
-                openModal("inquiriesModal");
+        void loadReceivedInquiries().catch(error => {
+            console.error("Chat section background refresh error:", error);
+        });
+    };
 
-                // Refresh chat list silently after the section is visible.
-                void loadReceivedInquiries().catch(error => {
-                    console.error("Chat section background refresh error:", error);
-                });
-            }
-        );
+    $("chatButton")?.addEventListener("click", openChatListFromNavigation);
+    $("bottomChatButton")?.addEventListener("click", openChatListFromNavigation);
 
     $("logoutButton")
         ?.addEventListener(
