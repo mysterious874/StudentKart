@@ -11095,3 +11095,33 @@ body .inquiries-whatsapp-header .inquiry-bulk-tools {
 }
 
 
+
+/* Chat multi-message selection */
+.chat-selection-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.04);
+    color: rgba(255,255,255,.82);
+    font-size: 13px;
+}
+.chat-selection-bar button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-weight: 600;
+}
+.chat-message {
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+.chat-message-selected .chat-message-bubble {
+    outline: 2px solid rgba(255,255,255,.72);
+    outline-offset: 2px;
+    filter: brightness(1.12);
+}
