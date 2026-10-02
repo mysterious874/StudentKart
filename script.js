@@ -7754,10 +7754,7 @@ async function loadChatContactProfile() {
         if (!profile) return;
 
         const name = profile.name || "Student";
-        const details = [
-            profile.college,
-            currentChatInquiry?.product_name ? "Product: " + currentChatInquiry.product_name : ""
-        ].filter(Boolean).join(" • ") || "StudentKart chat";
+        const college = profile.college || "College not added";
 
         const avatarUrl =
             profile.avatar_url ||
@@ -7772,8 +7769,8 @@ async function loadChatContactProfile() {
             if (el) el.textContent = name;
         });
 
-        const detailsEl = $("chatProfileDetails");
-        if (detailsEl) detailsEl.textContent = details;
+        const collegeEl = $("chatProfileCollege");
+        if (collegeEl) collegeEl.textContent = college;
 
         const headerImg = $("chatAvatarImage");
         const headerIcon = $("chatAvatarIcon");
@@ -8212,8 +8209,11 @@ async function loadChatMessages() {
         if (container.dataset.messageSignature === nextSignature) return;
         container.dataset.messageSignature = nextSignature;
 
+        const profileIntro = container.querySelector("#chatProfileIntro");
+        const profileIntroHtml = profileIntro ? profileIntro.outerHTML : "";
+
         if (!data || data.length === 0) {
-            container.innerHTML = `
+            container.innerHTML = profileIntroHtml + `
                 <div class="chat-empty">
                     <i class="fas fa-comment-dots"></i>
                     <p>No messages yet.</p>
@@ -8222,7 +8222,7 @@ async function loadChatMessages() {
             return;
         }
 
-        container.innerHTML = data.map(message => {
+        container.innerHTML = profileIntroHtml + data.map(message => {
             const isMine = message.sender_id === currentUser.id;
             const image = parseChatMediaMessage(message.message);
 
@@ -8273,7 +8273,8 @@ async function loadChatMessages() {
 
     } catch (error) {
         console.error("Load chat messages error:", error);
-        container.innerHTML = `
+        const profileIntro = container.querySelector("#chatProfileIntro");
+        container.innerHTML = (profileIntro ? profileIntro.outerHTML : "") + `
             <div class="chat-empty">
                 Could not load messages.
             </div>`;
