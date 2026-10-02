@@ -1840,6 +1840,12 @@ async function applyFilters() {
 
     let filtered = [...currentProducts];
 
+    // Home feed should show listings from other students only.
+    // Keep the user's own listings available elsewhere (profile/manage listings).
+    if (currentUser) {
+        filtered = filtered.filter(product => !isMyProduct(product));
+    }
+
     if (search) {
         filtered = filtered.filter(product => {
             const haystack =
