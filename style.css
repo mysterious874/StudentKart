@@ -20940,3 +20940,11 @@ body.category-page-active .category-page-container {
     padding-top:64px !important;
   }
 }
+
+
+/* MOBILE NAV CONTENT — FINAL 20PX UPWARD POSITION */
+@media screen and (max-width:600px){
+  html body > header.navbar > .nav-container{
+    transform:translateY(-20px) !important;
+  }
+}
