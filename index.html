@@ -150,7 +150,29 @@
 
 
 
-    <main>
+        <!-- NEW USER ENTRY GATE -->
+    <div id="newUserGate" class="new-user-gate hidden" aria-modal="true" role="dialog" aria-labelledby="newUserGateTitle">
+        <div class="new-user-gate-card">
+            <div class="new-user-gate-brand">
+                <div class="new-user-gate-logo">
+                    <span><i class="fas fa-graduation-cap"></i></span>
+                    <span><i class="fas fa-cart-shopping"></i></span>
+                </div>
+                <div class="new-user-gate-brand-name">StudentKart</div>
+            </div>
+            <div class="new-user-gate-icon"><i class="fas fa-user-circle"></i></div>
+            <h2 id="newUserGateTitle">Welcome to StudentKart</h2>
+            <p class="new-user-gate-subtitle">Your student marketplace for buying, selling and discovering around campus.</p>
+            <div class="new-user-gate-actions">
+                <button type="button" class="new-user-gate-button new-user-gate-primary" id="newUserLoginButton"><i class="fas fa-right-to-bracket"></i><span>Login</span></button>
+                <button type="button" class="new-user-gate-button new-user-gate-secondary" id="newUserSignupButton"><i class="fas fa-user-plus"></i><span>Sign Up</span></button>
+                <button type="button" class="new-user-gate-button new-user-gate-guest" id="newUserGuestButton"><i class="fas fa-user-secret"></i><span>Continue as Guest</span></button>
+            </div>
+            <p class="new-user-gate-note"><i class="fas fa-shield-halved"></i> You can explore StudentKart as a guest and create an account anytime.</p>
+        </div>
+    </div>
+
+<main>
         <section id="home" class="hero">
             
             <div class="hero-container">
