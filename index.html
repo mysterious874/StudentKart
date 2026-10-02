@@ -31,15 +31,15 @@
                 <button type="button" class="btn btn-primary" id="signupButton">Sign Up</button>
                 <button type="button" class="btn btn-outline nav-chat-button" id="chatButton"><i class="fas fa-message"></i>
                     <span class="chat-button-text">Chat</span><span class="chat-unread-count hidden" id="chatUnreadCount">0</span></button>
-                <button type="button" class="btn btn-outline nav-wishlist-button" id="wishlistButton" aria-label="Open Wishlist">
+                <button type="button" class="btn btn-outline hidden" id="wishlistButton" aria-label="Open Wishlist">
                     <i class="fa-regular fa-heart"></i>
                     <span class="wishlist-count hidden" id="wishlistCount">0</span>
                     <span class="wishlist-button-text">Wishlist</span>
                 </button>
+                <button type="button" class="btn btn-outline" id="profileButton"><i class="fas fa-user"></i>
+                    Profile</button>
                 <button type="button" class="btn btn-outline nav-search-button" id="navSearchButton"
                     aria-label="Search"><i class="fas fa-search"></i></button>
-                <button type="button" class="btn btn-outline hidden" id="profileButton"><i class="fas fa-user"></i>
-                    Profile</button>
                 <button type="button" class="btn btn-primary" id="sellButton"><i class="fas fa-plus"></i> Sell</button>
             </div>
         </div>
@@ -72,12 +72,6 @@
         </a>
         <button type="button" class="bottom-nav-item" onclick="document.getElementById('chatButton')?.click()">
             <i class="fas fa-message"></i><span>Chat</span>
-        </button>
-        <button type="button" class="bottom-nav-item" onclick="document.getElementById('wishlistButton')?.click()">
-            <i class="fa-regular fa-heart"></i><span>Wishlist</span>
-        </button>
-        <button type="button" class="bottom-nav-item" onclick="document.getElementById('profileButton')?.classList.contains('hidden') ? document.getElementById('loginButton')?.click() : document.getElementById('profileButton')?.click()">
-            <i class="fas fa-user"></i><span>Profile</span>
         </button>
     </nav>
 
