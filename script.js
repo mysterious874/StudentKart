@@ -11415,7 +11415,7 @@ async function settingsProfileVisibility() {
     });
 }
 
-async async function settingsBlockedUsers() {
+async function settingsBlockedUsers() {
     const settings = getStudentKartSettings();
     const blocked = Array.isArray(settings.privacy?.blockedUsers)
         ? settings.privacy.blockedUsers.map(String).filter(Boolean)
