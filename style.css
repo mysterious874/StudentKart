@@ -12393,3 +12393,38 @@ body.studentkart-dark .settings-action-field textarea {
     color:#e7f1f4 !important;
     border-color:rgba(255,255,255,.12) !important;
 }
+
+/* Navbar marketplace filter panel */
+.navbar-search-panel { position:relative; z-index:1200; }
+.navbar-filter-panel {
+    position:absolute;
+    top:calc(100% + 10px);
+    right:0;
+    width:min(620px, calc(100vw - 28px));
+    padding:16px;
+    background:#fff;
+    border:1px solid #e4ebef;
+    border-radius:16px;
+    box-shadow:0 18px 45px rgba(16,42,67,.16);
+}
+.filter-panel-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.filter-panel-header strong { display:block; color:#102a43; font-size:15px; }
+.filter-panel-header small { display:block; color:#829ab1; margin-top:3px; }
+.filter-panel-close { border:0; background:transparent; font-size:22px; color:#627d98; cursor:pointer; }
+.filter-panel-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.filter-panel-grid label { display:block; }
+.filter-panel-grid label>span { display:block; margin-bottom:6px; font-size:11px; font-weight:700; color:#486581; }
+.filter-panel-grid input,.filter-panel-grid select {
+    width:100%; box-sizing:border-box; padding:10px 11px; border:1px solid #d9e2e8;
+    border-radius:10px; background:#f8fafb; color:#102a43; outline:none;
+}
+.filter-panel-grid input:focus,.filter-panel-grid select:focus { border-color:#0f8b8d; box-shadow:0 0 0 3px rgba(15,139,141,.1); }
+.filter-panel-actions { display:flex; justify-content:flex-end; gap:9px; margin-top:15px; }
+body.studentkart-dark .navbar-filter-panel { background:#102a3a; border-color:rgba(255,255,255,.1); }
+body.studentkart-dark .filter-panel-header strong { color:#e7f1f4; }
+body.studentkart-dark .filter-panel-grid label>span { color:#9db4c0; }
+body.studentkart-dark .filter-panel-grid input,body.studentkart-dark .filter-panel-grid select { background:#0d2331; color:#e7f1f4; border-color:rgba(255,255,255,.12); }
+@media(max-width:600px){
+    .navbar-filter-panel { position:fixed; top:76px; left:9px; right:9px; width:auto; max-height:calc(100vh - 95px); overflow:auto; }
+    .filter-panel-grid { grid-template-columns:1fr; }
+}
