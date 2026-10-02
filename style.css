@@ -4205,17 +4205,9 @@ input[type="file"] {
     cursor: pointer;
 }
 
-.chat-mic-button {
-    color: #0b55c9;
-}
-
 .chat-like-button {
     color: #0b55c9;
     font-size: 18px;
-}
-
-.chat-send-button {
-    display: none !important;
 }
 
 .chat-form .chat-emoji-picker {
@@ -14373,7 +14365,6 @@ body #chatModal .chat-send-button:disabled {
 
 
 /* Final chat composer icon cleanup */
-body #chatModal #chatMicButton { display: none !important; }
 body #chatModal #chatLikeButton.chat-send-button {
     display: inline-flex !important;
     align-items: center !important;
