@@ -8178,6 +8178,17 @@ function openSignupFromNewUserGate() {
 
 async function initializeStudentKart() {
 
+    // Always start a fresh page load on Home. Category pages are internal
+    // navigation states and must not remain visible after a refresh/relaunch.
+    document.body.classList.remove("category-page-active");
+    document.querySelector("main")?.classList.remove("category-page-active");
+    $("categoryPage")?.classList.add("hidden");
+    $("home")?.classList.remove("hidden");
+    $("marketplace")?.classList.remove("hidden");
+    if (window.location.hash && window.location.hash !== "#home") {
+        history.replaceState({ studentKart: true, page: "home" }, "", "#home");
+    }
+
     startStudentKartSplash();
 
     try {
