@@ -15209,3 +15209,29 @@ html body.category-page-active{
     padding-top:0!important;
     padding-bottom:0!important;
 }
+
+
+/* CATEGORY PAGE — fixed Back button and no footer */
+body.category-page-active .category-page-back{
+    position:fixed!important;
+    top:18px!important;
+    left:20px!important;
+    z-index:10050!important;
+    margin:0!important;
+    box-shadow:0 8px 24px rgba(15,23,42,.14)!important;
+}
+body.category-page-active .category-page-container{
+    padding-top:58px!important;
+}
+body.category-page-active .footer{
+    display:none!important;
+}
+@media(max-width:700px){
+    body.category-page-active .category-page-back{
+        top:12px!important;
+        left:12px!important;
+    }
+    body.category-page-active .category-page-container{
+        padding-top:52px!important;
+    }
+}
