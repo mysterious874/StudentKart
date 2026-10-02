@@ -8141,3 +8141,49 @@ document.addEventListener("pointerdown", event => {
 
     playStudentKartClickSound();
 });
+
+
+/* Footer information links */
+const footerInfoContent = {
+    about: {
+        title: "About StudentKart",
+        body: "StudentKart is a student-focused marketplace built to make buying, selling and discovering useful products around student life simple and convenient."
+    },
+    how: {
+        title: "How It Works",
+        body: "Browse listings, search or filter what you need, open a listing to view its details, and contact the seller. Want to sell? Sign in, add your item details and publish your listing."
+    },
+    safety: {
+        title: "Safety Tips",
+        body: "Meet in a safe public place, inspect an item before paying, avoid sharing sensitive OTPs or passwords, and report suspicious listings or users through StudentKart."
+    },
+    contact: {
+        title: "Contact Us",
+        body: "For questions or feedback, email rathodharish004@gmail.com. StudentKart is based in Titwala, Kalyan, Maharashtra, India."
+    },
+    privacy: {
+        title: "Privacy Policy",
+        body: "StudentKart should only collect and use information needed to provide marketplace, account and communication features. Never share your password or OTP with anyone."
+    },
+    terms: {
+        title: "Terms & Conditions",
+        body: "Use StudentKart responsibly. Listings should be genuine and lawful, users should communicate respectfully, and transactions should be completed with appropriate care between buyer and seller."
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("[data-footer-info]").forEach(button => {
+        button.addEventListener("click", () => {
+            const key = button.dataset.footerInfo;
+            const info = footerInfoContent[key];
+            if (!info) return;
+
+            const title = document.getElementById("footerInfoTitle");
+            const body = document.getElementById("footerInfoBody");
+            if (title) title.textContent = info.title;
+            if (body) body.textContent = info.body;
+
+            openModal("footerInfoModal");
+        });
+    });
+});
