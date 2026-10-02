@@ -20817,3 +20817,39 @@ body.category-page-active .category-page-container {
     z-index:99999 !important;
   }
 }
+
+
+/* HOMEPAGE HEADER VISIBILITY — highest-priority mobile rule */
+@media screen and (max-width: 600px){
+  html body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) > header.navbar{
+    display:block !important;
+    position:relative !important;
+    top:auto !important;
+    right:auto !important;
+    bottom:auto !important;
+    left:auto !important;
+    inset:auto !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:10px 0 0 !important;
+    transform:none !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+    z-index:100000 !important;
+  }
+
+  html body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) > header.navbar > .nav-container{
+    display:flex !important;
+    position:relative !important;
+    width:calc(100vw - 28px) !important;
+    height:78px !important;
+    min-height:78px !important;
+    margin:0 auto !important;
+    transform:none !important;
+    visibility:visible !important;
+    opacity:1 !important;
+  }
+}
