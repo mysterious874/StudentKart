@@ -5170,6 +5170,26 @@ body { font-weight: 400; }
     gap: 8px;
 }
 
+.chat-back-button {
+    width: 38px;
+    height: 38px;
+    border: 1px solid #bfe9e7;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #0f8b8d;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform .12s ease, background .12s ease;
+}
+.chat-back-button:active {
+    transform: scale(.94);
+}
+.chat-back-button:hover {
+    background: #e7fbfa;
+}
+
 .chat-delete-button {
     display: inline-flex;
     align-items: center;
