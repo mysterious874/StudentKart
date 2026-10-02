@@ -3,7 +3,7 @@
   "short_name": "StudentKart",
   "start_url": "/",
   "scope": "/",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#f5fffe",
   "theme_color": "#27aaa6",
   "description": "Student marketplace for buying, selling, renting and discovering products and services.",
