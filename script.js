@@ -4381,114 +4381,103 @@ async function saveEditedProfile(
         return;
     }
 
-    const name =
-        $("editProfileName")
-            ?.value
-            ?.trim();
-
+    const name = $("editProfileName")?.value?.trim();
     const username = $("editProfileUsername")?.value?.trim()?.toLowerCase() || "";
     const phone = $("editProfilePhone")?.value?.trim() || "";
-
-    const college =
-        $("editProfileCollege")
-            ?.value
-            ?.trim();
+    const college = $("editProfileCollege")?.value?.trim();
     const state = $("editProfileState")?.value?.trim() || "";
     const city = $("editProfileCity")?.value?.trim() || "";
     const area = $("editProfileArea")?.value?.trim() || "";
 
     if (!name) {
-
-        showToast(
-            "Name is required",
-            "warning"
-        );
-
+        showToast("Name is required", "warning");
         return;
     }
 
-    const file =
-        $("editProfileImage")
-            ?.files?.[0];
+    const file = $("editProfileImage")?.files?.[0];
 
+    // Optimistic UI: close immediately and show the new photo/name locally.
+    // The Supabase upload/database sync continues in the background so the
+    // user does not have to wait 2-3 seconds for the modal to close.
+    const savedProfile = getSavedProfile() || {};
+    const oldAvatarUrl = savedProfile.avatar_url || currentUser.user_metadata?.avatar_url || "";
+    const previewAvatarUrl = file
+        ? URL.createObjectURL(file)
+        : oldAvatarUrl;
+
+    const optimisticProfile = {
+        ...savedProfile,
+        id: currentUser.id,
+        name,
+        username,
+        phone,
+        college,
+        state,
+        city,
+        area,
+        email: currentUser.email || "",
+        avatar_url: previewAvatarUrl,
+        updated_at: new Date().toISOString()
+    };
+
+    saveProfile(optimisticProfile);
+
+    // Update visible profile UI immediately without waiting for Supabase.
+    if ($("profileName")) $("profileName").textContent = name || "Student";
+    if ($("profileCollege")) $("profileCollege").textContent = college || "College not added";
+    if ($("profileUsernameInfo")) $("profileUsernameInfo").textContent = username || "Not added";
+    if ($("profileCollegeInfo")) $("profileCollegeInfo").textContent = college || "Not added";
+    if ($("profileEmailInfo")) $("profileEmailInfo").textContent = currentUser.email || "Not available";
+    if ($("profilePhoneInfo")) $("profilePhoneInfo").textContent = phone || currentUser.phone || "Not added";
+
+    if ($("profileAvatar")) {
+        if (previewAvatarUrl) {
+            $("profileAvatar").innerHTML = `<img src="${escapeHTML(previewAvatarUrl)}" alt="">`;
+        } else {
+            $("profileAvatar").textContent = getInitials(name);
+        }
+    }
+
+    closeModal("editProfileModal");
+    showToast(
+        file ? "Profile photo updating..." : "Profile updated",
+        "success"
+    );
+
+    // Everything below runs in the background.
     try {
 
-        const oldProfile =
-            await getUserProfile();
-
-        let avatarUrl =
-            oldProfile?.avatar_url ||
-            "";
+        let avatarUrl = oldAvatarUrl;
 
         if (file) {
+            const extension = file.name.split(".").pop().toLowerCase();
+            const path = `${currentUser.id}/avatar-${Date.now()}.${extension}`;
 
-            const extension =
-                file.name
-                    .split(".")
-                    .pop()
-                    .toLowerCase();
-
-            const path =
-                `${currentUser.id}/avatar-${Date.now()}.${extension}`;
-
-            const {
-                error:
-                uploadError
-            } =
-                await supabaseClient
-                    .storage
-                    .from(STORAGE_BUCKET)
-                    .upload(
-                        path,
-                        file,
-                        {
-                            upsert: true,
-                            contentType:
-                                file.type
-                        }
-                    );
+            const { error: uploadError } = await supabaseClient
+                .storage
+                .from(STORAGE_BUCKET)
+                .upload(path, file, {
+                    upsert: false,
+                    contentType: file.type
+                });
 
             if (uploadError) {
                 throw uploadError;
             }
 
-            const {
-                data
-            } =
-                supabaseClient.storage
-                    .from(STORAGE_BUCKET)
-                    .getPublicUrl(
-                        path
-                    );
+            const { data } = supabaseClient.storage
+                .from(STORAGE_BUCKET)
+                .getPublicUrl(path);
 
-            avatarUrl =
-                data?.publicUrl ||
-                avatarUrl;
+            avatarUrl = data?.publicUrl || avatarUrl;
         }
 
         const profile = {
-            id:
-                currentUser.id,
-            name,
-            username,
-            phone,
-            college,
-            state,
-            city,
-            area,
-            email:
-                currentUser.email ||
-                "",
-            avatar_url:
-                avatarUrl,
-            updated_at:
-                new Date().toISOString()
+            ...optimisticProfile,
+            avatar_url: avatarUrl,
+            updated_at: new Date().toISOString()
         };
 
-        // This account already has a profiles row. Update that row only.
-        // Do NOT fall back to INSERT when UPDATE returns no row: an INSERT
-        // fallback can trigger the profiles RLS policy and is unnecessary for
-        // an existing account.
         const { data: updatedProfile, error: profileUpdateError } =
             await supabaseClient
                 .from("profiles")
@@ -4502,10 +4491,8 @@ async function saveEditedProfile(
                 profileUpdateError.code === "23505" &&
                 String(profileUpdateError.message || "").toLowerCase().includes("username")
             ) {
-                showToast("That username is already taken", "warning");
-                return;
+                throw new Error("That username is already taken");
             }
-
             throw profileUpdateError;
         }
 
@@ -4515,12 +4502,8 @@ async function saveEditedProfile(
             );
         }
 
-        const databaseSaved = true;
-
-        // Keep all newly added fields available immediately through the
-        // authenticated user's metadata as well. This also lets the UI work
-        // while an older profiles schema is being migrated.
-        const authResult = await supabaseClient.auth.updateUser({
+        // Auth metadata is secondary; do not make the UI wait for it.
+        supabaseClient.auth.updateUser({
             data: {
                 name,
                 username,
@@ -4531,36 +4514,47 @@ async function saveEditedProfile(
                 area,
                 avatar_url: avatarUrl
             }
+        }).catch(error => {
+            console.debug("Profile auth metadata update skipped:", error);
         });
 
-        if (authResult.error && !databaseSaved) {
-            throw authResult.error;
+        saveProfile(profile);
+
+        // Replace the temporary blob URL with the permanent Supabase URL.
+        if ($("profileAvatar")) {
+            if (avatarUrl) {
+                $("profileAvatar").innerHTML =
+                    `<img src="${escapeHTML(avatarUrl)}" alt="">`;
+            } else {
+                $("profileAvatar").textContent = getInitials(name);
+            }
         }
 
-        saveProfile({
-            ...profile,
-            ...(databaseSaved ? {} : { _databasePending: true })
-        });
+        showToast("Profile updated successfully", "success");
 
-        closeModal(
-            "editProfileModal"
-        );
-
-        await updateProfileUI();
-
-        showToast(
-            "Profile updated successfully",
-            "success"
-        );
-
-        await loadProducts();
+        if (file && previewAvatarUrl.startsWith("blob:")) {
+            URL.revokeObjectURL(previewAvatarUrl);
+        }
 
     } catch (error) {
 
-        console.error(
-            "Profile update error:",
-            error
-        );
+        console.error("Profile update error:", error);
+
+        // Restore the previous saved avatar if the background save failed.
+        const rollbackProfile = {
+            ...optimisticProfile,
+            avatar_url: oldAvatarUrl
+        };
+        saveProfile(rollbackProfile);
+
+        if ($("profileAvatar")) {
+            if (oldAvatarUrl) {
+                $("profileAvatar").innerHTML =
+                    `<img src="${escapeHTML(oldAvatarUrl)}" alt="">`;
+            } else {
+                $("profileAvatar").textContent = getInitials(name);
+            }
+        }
 
         const message = String(
             error?.message ||
@@ -4569,10 +4563,11 @@ async function saveEditedProfile(
             "Unknown profile update error"
         );
 
-        showToast(
-            "Profile update failed: " + message,
-            "error"
-        );
+        showToast("Profile update failed: " + message, "error");
+
+        if (file && previewAvatarUrl.startsWith("blob:")) {
+            URL.revokeObjectURL(previewAvatarUrl);
+        }
     }
 }
 
