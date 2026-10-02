@@ -8424,7 +8424,7 @@ async function loadChatMessages() {
             return;
         }
 
-        container.innerHTML = profileIntroHtml + data.map(message => {
+        container.innerHTML = profileIntroHtml + visibleMessages.map(message => {
             const isMine = message.sender_id === currentUser.id;
             const image = parseChatMediaMessage(message.message);
 
