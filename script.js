@@ -12531,16 +12531,48 @@ function settingsAccountSecurity() {
 function settingsDeleteAccount() {
     openSettingsActionModal({
         title:"Delete Account",
-        description:"Account deletion is permanent. Send a deletion request so it can be processed safely on the server.",
+        description:"This permanently deletes your StudentKart account, profile, listings, chats and related account data. This cannot be undone.",
         fields:[{id:"confirm",label:"Type DELETE to continue",placeholder:"DELETE"}],
-        confirmText:"Request Deletion",
+        confirmText:"Delete Permanently",
         danger:true,
         onConfirm:async values=>{
-            if(values.confirm!=="DELETE"){showToast("Type DELETE exactly to continue","warning");return false;}
-            const subject=encodeURIComponent("StudentKart account deletion request");
-            const body=encodeURIComponent("Please delete my StudentKart account. Account ID: "+(currentUser?.id||"unknown"));
-            window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
-            showToast("Deletion request prepared","warning");
+            if(values.confirm!=="DELETE"){
+                showToast("Type DELETE exactly to continue","warning");
+                return false;
+            }
+
+            if(!currentUser?.id){
+                showToast("Please login again before deleting your account","warning");
+                return false;
+            }
+
+            const userId = currentUser.id;
+            const { data, error } = await supabaseClient.functions.invoke("delete-account", {
+                body: { confirmation: "DELETE" }
+            });
+
+            if(error || !data?.ok){
+                console.error("Delete account error:", error, data);
+                showToast(data?.error || error?.message || "Could not delete your account", "error");
+                return false;
+            }
+
+            closeModal("settingsActionModal");
+            closeAllModals?.({ fromPopState: true });
+
+            currentUser = null;
+            try {
+                localStorage.removeItem("studentkart_settings_" + userId);
+            } catch (_) {}
+
+            showToast("Your StudentKart account has been permanently deleted", "success");
+
+            setTimeout(() => {
+                window.location.hash = "home";
+                window.location.reload();
+            }, 700);
+
+            return true;
         }
     });
 }
