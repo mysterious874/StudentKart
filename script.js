@@ -2516,9 +2516,6 @@ async function openSellerProfile(
         chatButton.onclick = startSellerChat;
     }
 
-    if (contactButton) {
-        contactButton.onclick = startSellerChat;
-    }
 
     if (avatar) {
         avatar.textContent = "S";
