@@ -2695,10 +2695,11 @@ async function submitInquiry(event) {
 }
 
 let inquiriesLoading = false;
+let chatListOptimisticBusy = false;
 
 async function loadReceivedInquiries() {
 
-    if (!currentUser || inquiriesLoading) {
+    if (!currentUser || inquiriesLoading || chatListOptimisticBusy) {
         return;
     }
 
@@ -7343,6 +7344,8 @@ async function bulkMarkInquiriesRead() {
     if (!ids.length || !currentUser) return;
 
     // Update the visible UI immediately; sync Supabase in the background.
+    chatListOptimisticBusy = true;
+
     const selectedCards = Array.from(document.querySelectorAll(".whatsapp-inquiry-card"))
         .filter(card => ids.includes(String(card.dataset.inquiryId)));
 
@@ -7371,6 +7374,11 @@ async function bulkMarkInquiriesRead() {
     if (error) {
         console.error("Bulk mark read error:", error);
         showToast("Sync failed. Refreshing chat list...", "error");
+    }
+
+    chatListOptimisticBusy = false;
+
+    if (error) {
         await loadReceivedInquiries();
         await updateChatUnreadCount();
     }
@@ -7462,6 +7470,9 @@ async function bulkDeleteInquiriesForMe() {
 
     if (!confirmed) return;
 
+    // Keep auto-refresh from restoring the chats before the database sync finishes.
+    chatListOptimisticBusy = true;
+
     // Hide selected chats immediately so the action feels instant.
     const selectedCards = Array.from(document.querySelectorAll(".whatsapp-inquiry-card"))
         .filter(card => ids.includes(String(card.dataset.inquiryId)));
@@ -7489,6 +7500,11 @@ async function bulkDeleteInquiriesForMe() {
     if (error) {
         console.error("Bulk delete for me error:", error);
         showToast("Delete sync failed. Refreshing chat list...", "error");
+    }
+
+    chatListOptimisticBusy = false;
+
+    if (error) {
         await loadReceivedInquiries();
         await updateChatUnreadCount();
     }
