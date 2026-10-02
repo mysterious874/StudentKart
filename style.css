@@ -13290,3 +13290,83 @@ body.studentkart-dark .profile-city-location-button {
 body.studentkart-dark .profile-city-help {
     color: #9db4c0;
 }
+
+
+/* Marketplace location search dropdown */
+.marketplace-location-search-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.marketplace-location-search-wrap #locationFilter {
+    width: 100%;
+}
+
+.studentkart-location-suggestions {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    background: var(--card-bg, #fff);
+    border: 1px solid rgba(15, 139, 141, .18);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .14);
+    z-index: 9999;
+    padding: 5px;
+}
+
+.studentkart-location-suggestions.hidden {
+    display: none !important;
+}
+
+.studentkart-location-option {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 9px 11px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.studentkart-location-option:hover {
+    background: rgba(15, 139, 141, .08);
+}
+
+.studentkart-location-place {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-color, #243438);
+}
+
+.studentkart-location-hierarchy {
+    font-size: 11px;
+    color: var(--muted-text, #718187);
+    line-height: 1.35;
+}
+
+.studentkart-location-empty {
+    padding: 12px;
+    font-size: 12px;
+    color: var(--muted-text, #718187);
+}
+
+body.studentkart-dark .studentkart-location-suggestions {
+    background: #142126;
+    border-color: rgba(143, 225, 221, .18);
+}
+
+body.studentkart-dark .studentkart-location-place {
+    color: #edf7f7;
+}
+
+body.studentkart-dark .studentkart-location-hierarchy,
+body.studentkart-dark .studentkart-location-empty {
+    color: #a9bcc2;
+}
