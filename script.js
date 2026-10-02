@@ -11415,38 +11415,114 @@ async function settingsProfileVisibility() {
     });
 }
 
-async function settingsBlockedUsers() {
+async async function settingsBlockedUsers() {
     const settings = getStudentKartSettings();
-    const blocked = Array.isArray(settings.privacy.blockedUsers) ? settings.privacy.blockedUsers.map(String) : [];
+    const blocked = Array.isArray(settings.privacy?.blockedUsers)
+        ? settings.privacy.blockedUsers.map(String).filter(Boolean)
+        : [];
+
+    let profiles = [];
+    if (blocked.length) {
+        try {
+            const { data, error } = await supabaseClient
+                .from("profiles")
+                .select("id,name,username,email,phone,avatar_url,college,city")
+                .in("id", blocked);
+
+            if (!error && Array.isArray(data)) {
+                profiles = data;
+            }
+        } catch (error) {
+            console.error("Blocked users profile load error:", error);
+        }
+    }
+
+    const profileMap = new Map(
+        profiles.map(profile => [String(profile.id), profile])
+    );
+
+    const blockedOptions = blocked.map(id => {
+        const profile = profileMap.get(id);
+        const name =
+            profile?.name ||
+            profile?.username ||
+            "Blocked User";
+        const contact =
+            profile?.username
+                ? "@" + profile.username
+                : profile?.email ||
+                    profile?.phone ||
+                    "Blocked account";
+
+        return {
+            value: "unblock:" + id,
+            label: name,
+            description: contact,
+            icon: "fa-user-check"
+        };
+    });
 
     openSettingsActionModal({
         title: "Blocked Users",
-        description: blocked.length ? "These accounts are blocked from your StudentKart interactions." : "You have not blocked any users yet.",
-        options: blocked.map(id => ({
-            value: "unblock:" + id,
-            label: "Unblock User",
-            description: id,
-            icon: "fa-user-check"
-        })),
-        fields: [{ id: "user", label: "Block another user", placeholder: "Enter User ID or email" }],
+        description: blocked.length
+            ? "These accounts are blocked. Tap a user to unblock them."
+            : "You have not blocked any users yet.",
+        options: blockedOptions,
+        fields: [{
+            id: "user",
+            label: "Block another user",
+            placeholder: "Enter User ID"
+        }],
         confirmText: "Block User",
         onConfirm: async value => {
             if (typeof value === "string" && value.startsWith("unblock:")) {
                 const id = value.slice(8);
-                settings.privacy.blockedUsers = blocked.filter(x => x !== id);
-                await saveStudentKartSettings(settings);
+
+                settings.privacy = settings.privacy || {};
+                settings.privacy.blockedUsers =
+                    (Array.isArray(settings.privacy.blockedUsers)
+                        ? settings.privacy.blockedUsers.map(String)
+                        : []
+                    ).filter(x => x !== id);
+
+                const saved = await saveStudentKartSettings(settings, true);
+
+                if (!saved) {
+                    showToast("Could not unblock this user", "error");
+                    return false;
+                }
+
                 showToast("User unblocked", "success");
                 return;
             }
+
             if (value && value.user) {
                 const id = value.user.trim();
-                if (!id) return false;
-                if (blocked.includes(id)) {
+
+                if (!id) {
+                    showToast("Enter a User ID", "warning");
+                    return false;
+                }
+
+                settings.privacy = settings.privacy || {};
+                const currentBlocked = Array.isArray(settings.privacy.blockedUsers)
+                    ? settings.privacy.blockedUsers.map(String)
+                    : [];
+
+                if (currentBlocked.includes(id)) {
                     showToast("User is already blocked", "info");
                     return false;
                 }
-                settings.privacy.blockedUsers = [...blocked, id];
-                await saveStudentKartSettings(settings);
+
+                settings.privacy.blockedUsers = [...currentBlocked, id];
+
+                const saved = await saveStudentKartSettings(settings, true);
+
+                if (!saved) {
+                    showToast("Could not block this user", "error");
+                    return false;
+                }
+
                 showToast("User blocked", "success");
             }
         }
