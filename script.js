@@ -6800,11 +6800,16 @@ function setupEventListeners() {
             submitProduct
         );
 
-    $("productImage")
-        ?.addEventListener(
-            "change",
-            handleImagePreview
-        );
+    $("productImage")?.addEventListener("change", event => {
+        handleImagePreview(event);
+        const file = event.target.files?.[0];
+        const name = $("productImageFileName");
+        if (name) name.textContent = file ? file.name : "No image selected";
+    });
+
+    $("productImageChooseButton")?.addEventListener("click", () => {
+        $("productImage")?.click();
+    });
 
 
     /* -----------------------------------------
