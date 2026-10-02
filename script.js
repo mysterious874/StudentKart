@@ -8791,6 +8791,142 @@ function setupStudentKartIndiaLocationSearch() {
     });
 }
 
+function setupEditProfileCityLocationPicker() {
+    const input = $("editProfileCity");
+    const list = $("studentkartCityList");
+    const locationButton = $("editProfileCityLocationButton");
+    if (!input || !list) return;
+
+    let timer = null;
+    let controller = null;
+
+    const renderCities = values => {
+        const merged = [...new Set(
+            values.map(value => String(value || "").trim()).filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b, "en"));
+
+        list.innerHTML = merged
+            .map(city => '<option value="' + escapeHTML(city) + '"></option>')
+            .join("");
+    };
+
+    const searchCities = async query => {
+        const q = String(query || "").trim();
+        if (q.length < 2) {
+            renderCities(STUDENTKART_INDIA_CITIES);
+            return;
+        }
+
+        if (controller) controller.abort();
+        controller = new AbortController();
+
+        try {
+            const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=20&q=" + encodeURIComponent(q);
+            const response = await fetch(url, {
+                signal: controller.signal,
+                headers: { "Accept": "application/json" }
+            });
+            if (!response.ok) return;
+
+            const results = await response.json();
+            const cities = [];
+
+            results.forEach(item => {
+                const address = item.address || {};
+                [
+                    address.city,
+                    address.town,
+                    address.municipality,
+                    address.city_district,
+                    address.county,
+                    address.state_district,
+                    address.village
+                ].filter(Boolean).forEach(value => cities.push(String(value).trim()));
+
+                if (item.display_name) {
+                    const firstPart = String(item.display_name).split(",")[0].trim();
+                    if (firstPart) cities.push(firstPart);
+                }
+            });
+
+            renderCities([...cities, ...STUDENTKART_INDIA_CITIES.filter(city =>
+                city.toLowerCase().includes(q.toLowerCase())
+            )]);
+        } catch (error) {
+            if (error?.name !== "AbortError") {
+                console.debug("Edit profile city search unavailable:", error);
+            }
+        }
+    };
+
+    input.addEventListener("focus", () => {
+        renderCities(STUDENTKART_INDIA_CITIES);
+    });
+
+    input.addEventListener("input", () => {
+        clearTimeout(timer);
+        const q = input.value.trim();
+        timer = setTimeout(() => searchCities(q), 250);
+    });
+
+    locationButton?.addEventListener("click", () => {
+        if (!navigator.geolocation) {
+            showToast("Location is not supported by this browser", "warning");
+            return;
+        }
+
+        locationButton.disabled = true;
+        showToast("Getting your current city...", "info");
+
+        navigator.geolocation.getCurrentPosition(async position => {
+            try {
+                const { latitude, longitude } = position.coords;
+                const url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&lat=" +
+                    encodeURIComponent(latitude) + "&lon=" + encodeURIComponent(longitude) + "&zoom=10";
+                const response = await fetch(url, {
+                    headers: { "Accept": "application/json" }
+                });
+
+                if (!response.ok) throw new Error("Reverse geocoding failed");
+
+                const result = await response.json();
+                const address = result.address || {};
+                const city = address.city || address.town || address.municipality ||
+                    address.city_district || address.county || address.village || "";
+
+                if (city) {
+                    input.value = city;
+                    renderCities([city, ...STUDENTKART_INDIA_CITIES]);
+                    showToast("Current city selected: " + city, "success");
+
+                    if ($("editProfileState") && address.state) {
+                        const stateOption = [...$("editProfileState").options]
+                            .find(option => option.value.toLowerCase() === String(address.state).toLowerCase());
+                        if (stateOption) $("editProfileState").value = stateOption.value;
+                    }
+                } else {
+                    showToast("Could not identify your city", "warning");
+                }
+            } catch (error) {
+                console.error("Edit profile location error:", error);
+                showToast("Could not get your current city", "error");
+            } finally {
+                locationButton.disabled = false;
+            }
+        }, error => {
+            console.warn("Edit profile geolocation error:", error);
+            locationButton.disabled = false;
+            showToast("Location permission was denied or unavailable", "warning");
+        }, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000
+        });
+    });
+
+    renderCities(STUDENTKART_INDIA_CITIES);
+}
+
 function populateStudentKartIndiaData() {
     const stateSelects = ["signupState","editProfileState"];
     const cityLists = ["studentkartCityList"];
