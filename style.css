@@ -20745,3 +20745,17 @@ body.category-page-active .category-page-container {
     padding-bottom:120px !important;
   }
 }
+
+/* FORCE MAIN MOBILE NAVBAR TO STAY VISIBLE ON SCROLL */
+@media screen and (max-width:600px){
+  html body > header.navbar,
+  html body > header.navbar.navbar-scroll-hidden{
+    position:relative !important;
+    top:auto !important;
+    inset:auto !important;
+    transform:none !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+  }
+}
