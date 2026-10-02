@@ -8033,6 +8033,81 @@ function addHomeButtonsToBackArrows(root = document) {
     });
 }
 
+/* India-wide dynamic location suggestions for marketplace filters */
+let studentKartLocationSearchTimer = null;
+let studentKartLocationSearchController = null;
+
+async function searchStudentKartIndiaLocations(query) {
+    const list = $("studentkartLocationList");
+    if (!list) return;
+
+    const q = String(query || "").trim();
+    if (q.length < 2) return;
+
+    if (studentKartLocationSearchController) {
+        studentKartLocationSearchController.abort();
+    }
+    studentKartLocationSearchController = new AbortController();
+
+    try {
+        const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=10&q=" + encodeURIComponent(q);
+        const response = await fetch(url, {
+            signal: studentKartLocationSearchController.signal,
+            headers: { "Accept": "application/json" }
+        });
+        if (!response.ok) return;
+
+        const results = await response.json();
+        const values = results
+            .map(item => String(item.display_name || "").trim())
+            .filter(Boolean)
+            .map(name => name.replace(/, India$/i, ""));
+
+        const currentOptions = [...list.options].map(option => option.value);
+        const merged = [...new Set([...values, ...currentOptions])].slice(0, 30);
+
+        list.innerHTML = merged
+            .map(value => '<option value="' + escapeHTML(value) + '"></option>')
+            .join("");
+    } catch (error) {
+        if (error?.name !== "AbortError") {
+            console.debug("India location suggestions unavailable:", error);
+        }
+    }
+}
+
+function setupStudentKartIndiaLocationSearch() {
+    const input = $("locationFilter");
+    if (!input) return;
+
+    input.addEventListener("input", () => {
+        clearTimeout(studentKartLocationSearchTimer);
+        const query = input.value.trim();
+
+        if (query.length < 2) return;
+
+        studentKartLocationSearchTimer = setTimeout(() => {
+            searchStudentKartIndiaLocations(query);
+        }, 300);
+    });
+
+    input.addEventListener("focus", () => {
+        if (!input.value.trim()) {
+            const list = $("studentkartLocationList");
+            if (list) {
+                const starter = [...new Set([
+                    ...STUDENTKART_INDIA_STATES,
+                    ...STUDENTKART_INDIA_CITIES,
+                    ...STUDENTKART_INSTITUTIONS
+                ])].slice(0, 80);
+                list.innerHTML = starter
+                    .map(value => '<option value="' + escapeHTML(value) + '"></option>')
+                    .join("");
+            }
+        }
+    });
+}
+
 function populateStudentKartIndiaData() {
     const stateSelects = ["signupState","editProfileState"];
     const cityLists = ["studentkartCityList"];
@@ -8080,6 +8155,7 @@ function populateStudentKartIndiaData() {
 
 document.addEventListener("DOMContentLoaded", () => {
     populateStudentKartIndiaData();
+    setupStudentKartIndiaLocationSearch();
     addHomeButtonsToBackArrows();
 
     const modalObserver = new MutationObserver(mutations => {
