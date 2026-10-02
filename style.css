@@ -17412,4 +17412,33 @@ body #sellerProfileModal #sellerProfileCollege {
     .new-user-gate-card h2 { font-size: 22px; }
 }
 
-body.new-user-gate-open { overflow: hidden !important; }
+/* Lock the page completely while the Welcome gate is open.
+   Prevent mobile browsers from scrolling the document behind the fixed overlay. */
+html.new-user-gate-lock,
+html.new-user-gate-lock body {
+    overflow: hidden !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    overscroll-behavior: none !important;
+    touch-action: none !important;
+}
+
+body.new-user-gate-open {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    touch-action: none !important;
+}
+
+.new-user-gate,
+.new-user-gate * {
+    touch-action: none;
+}
+
+.new-user-gate-button {
+    touch-action: manipulation;
+}
+
