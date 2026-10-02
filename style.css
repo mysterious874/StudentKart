@@ -19982,3 +19982,238 @@ body.category-page-active .category-page-container {
     white-space: nowrap !important;
   }
 }
+
+
+/* =========================================================
+   FINAL MOBILE HOME REFERENCE — HIGH PRIORITY
+   ========================================================= */
+.how-home-section {
+  background: #f5fafb;
+  padding: 72px 0 110px;
+}
+.how-home-inner {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  text-align: center;
+}
+.how-home-label {
+  color: #17888a;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 18px;
+}
+.how-home-inner > h2 {
+  color: #102a43;
+  font-size: 36px;
+  line-height: 1.15;
+  margin: 0 0 10px;
+}
+.how-home-inner > p {
+  color: #8ca0af;
+  font-size: 18px;
+  margin: 0 0 34px;
+}
+.how-home-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 16px;
+}
+.how-home-card {
+  position: relative;
+  text-align: left;
+  padding: 28px 22px;
+  background: #fff;
+  border: 1px solid #dbe6e9;
+  border-radius: 20px;
+  box-shadow: 0 5px 18px rgba(16,42,67,.05);
+}
+.how-home-number {
+  display: block;
+  color: #aabac5;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 26px;
+}
+.how-home-icon {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 28px;
+  border-radius: 14px;
+  background: #e8f7f6;
+  color: #169596;
+  font-size: 28px;
+}
+.how-home-card h3 {
+  color: #102a43;
+  font-size: 19px;
+  margin: 0 0 8px;
+}
+.how-home-card p {
+  color: #8ca0af;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  /* Make the reference header impossible to be overridden by older
+     marketplace/mobile patches. */
+  html body:not(.studentkart-modal-navigation-hidden) .navbar {
+    display: block !important;
+    visibility: visible !important;
+    padding: 14px 0 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  html body:not(.studentkart-modal-navigation-hidden) .navbar > .nav-container {
+    width: calc(100% - 28px) !important;
+    height: 104px !important;
+    min-height: 104px !important;
+    margin: 0 auto !important;
+    padding: 16px 12px 16px 16px !important;
+    border-radius: 0 0 24px 24px !important;
+    background: linear-gradient(135deg,#111522,#1a1b2b) !important;
+    box-shadow: 0 12px 26px rgba(16,42,67,.20) !important;
+  }
+
+  html body:not(.studentkart-modal-navigation-hidden) .navbar .nav-actions {
+    margin-left: auto !important;
+  }
+
+  html body:not(.studentkart-modal-navigation-hidden) .navbar .nav-search-button,
+  html body:not(.studentkart-modal-navigation-hidden) .navbar .nav-profile-button {
+    display: inline-flex !important;
+  }
+
+  .hero {
+    width: 100% !important;
+    min-height: 410px !important;
+    padding: 118px 18px 54px !important;
+    display: flex !important;
+    align-items: center !important;
+    background:
+      radial-gradient(circle at 100% 0,rgba(22,163,159,.10) 0 135px,transparent 136px),
+      radial-gradient(circle at 0 100%,rgba(22,163,159,.08) 0 105px,transparent 106px),
+      #f5fafb !important;
+  }
+
+  .hero-container {
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  .hero-content {
+    width: 100% !important;
+    max-width: 680px !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+  }
+
+  .hero-badge {
+    display: inline-flex !important;
+    margin: 0 auto 18px !important;
+  }
+
+  .hero h1 {
+    font-size: 42px !important;
+    line-height: 1.08 !important;
+    letter-spacing: -1.8px !important;
+    margin: 0 auto 16px !important;
+  }
+
+  .hero-content > p {
+    max-width: 640px !important;
+    margin: 0 auto !important;
+    font-size: 15px !important;
+    line-height: 1.55 !important;
+  }
+
+  .hero-trust {
+    display: flex !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    margin-top: 20px !important;
+  }
+
+  .hero-trust span {
+    font-size: 12px !important;
+  }
+
+  #marketplace {
+    min-height: 202px !important;
+    padding: 0 16px !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    background: #edf6f8 !important;
+    border-top: 1px solid #e1edef !important;
+  }
+
+  #filterStatus {
+    width: 100% !important;
+    padding: 76px 0 100px !important;
+    text-align: center !important;
+    color: #8ca0af !important;
+    font-size: 18px !important;
+  }
+
+  .how-home-section {
+    padding: 72px 0 110px !important;
+  }
+  .how-home-inner {
+    width: calc(100% - 32px) !important;
+  }
+  .how-home-label {
+    font-size: 13px !important;
+    margin-bottom: 28px !important;
+  }
+  .how-home-inner > h2 {
+    font-size: 34px !important;
+    letter-spacing: -1.2px !important;
+    margin-bottom: 12px !important;
+  }
+  .how-home-inner > p {
+    font-size: 17px !important;
+    margin-bottom: 38px !important;
+  }
+  .how-home-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .how-home-card {
+    min-height: 270px !important;
+    padding: 28px 20px !important;
+    border-radius: 20px !important;
+  }
+  .how-home-card:not(:first-child) {
+    display: none !important;
+  }
+  .how-home-number {
+    margin-bottom: 28px !important;
+  }
+  .how-home-icon {
+    width: 72px !important;
+    height: 72px !important;
+    margin-bottom: 30px !important;
+  }
+  .how-home-card h3 {
+    font-size: 19px !important;
+  }
+
+  .navbar .mobile-bottom-nav {
+    display: grid !important;
+    grid-template-columns: repeat(6,minmax(0,1fr)) !important;
+    width: calc(100vw - 26px) !important;
+    height: 90px !important;
+    min-height: 90px !important;
+    bottom: 14px !important;
+    padding: 9px 7px !important;
+    border-radius: 25px !important;
+    background: #102f4b !important;
+  }
+}
