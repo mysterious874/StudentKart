@@ -19525,3 +19525,64 @@ body.category-page-active .category-page-container {
   border: 0 !important;
   background: transparent !important;
 }
+
+
+/* =========================================================
+   CATEGORY PAGE — FINAL MOBILE NAV + FLAT LISTING LAYOUT
+   ========================================================= */
+@media (max-width: 600px) {
+  /* The floating navigation must remain visible even while a category
+     page is open. */
+  html body.category-page-active .navbar {
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    position: relative !important;
+  }
+
+  html body.category-page-active .navbar .mobile-bottom-nav {
+    display: grid !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    position: fixed !important;
+    left: 50% !important;
+    bottom: 12px !important;
+    top: auto !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 24px) !important;
+    height: 62px !important;
+    min-height: 62px !important;
+    z-index: 99999 !important;
+  }
+
+  html body.category-page-active {
+    padding-bottom: 96px !important;
+  }
+
+  /* Remove the old card/box treatment from listings specifically on
+     the category page. */
+  #categoryPage #categoryProductContainer .product-card,
+  #categoryPage #categoryProductContainer .listing-card,
+  #categoryPage #categoryProductContainer .marketplace-card {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    transform: none !important;
+  }
+
+  #categoryPage #categoryProductContainer .product-card:hover,
+  #categoryPage #categoryProductContainer .listing-card:hover,
+  #categoryPage #categoryProductContainer .marketplace-card:hover {
+    border: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  /* Also remove any wrapper box around the category listing grid. */
+  #categoryPage #categoryProductContainer {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}
