@@ -8514,17 +8514,25 @@ async function loadChatMessages() {
         }
 
 function locateQuotedChatMessage(messageId) {
-    if (!messageId) return;
-    const target = document.querySelector('#chatMessages .chat-message[data-message-id="' + CSS.escape(String(messageId)) + '"]');
+    const id = String(messageId || "").trim();
+    if (!id) return;
+
+    const messages = Array.from(document.querySelectorAll("#chatMessages .chat-message"));
+    const target = messages.find(el => String(el.dataset.messageId || "") === id);
+
     if (!target) {
         showToast("Original message is not available", "warning");
         return;
     }
+
     target.scrollIntoView({ behavior: "smooth", block: "center" });
     target.classList.remove("chat-quoted-target-highlight");
-    void target.offsetWidth;
     target.classList.add("chat-quoted-target-highlight");
-    setTimeout(() => target.classList.remove("chat-quoted-target-highlight"), 1400);
+
+    window.clearTimeout(window.__studentKartQuotedHighlightTimer);
+    window.__studentKartQuotedHighlightTimer = window.setTimeout(() => {
+        target.classList.remove("chat-quoted-target-highlight");
+    }, 1600);
 }
 
         container.innerHTML = profileIntroHtml + visibleMessages.map(message => {
