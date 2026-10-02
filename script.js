@@ -8906,12 +8906,32 @@ $("chatForm")?.addEventListener(
     sendChatMessage
 );
 
+$("chatCameraButton")?.addEventListener("click", () => {
+    const input = $("chatImageInput");
+    if (!input) return;
+
+    input.value = "";
+    input.accept = "image/*";
+    input.setAttribute("capture", "environment");
+    input.click();
+});
+
 $("chatAttachButton")?.addEventListener("click", () => {
-    $("chatImageInput")?.click();
+    const input = $("chatImageInput");
+    if (!input) return;
+
+    input.value = "";
+    input.accept = "image/*,video/*";
+    input.removeAttribute("capture");
+    input.click();
 });
 
 $("chatImageInput")?.addEventListener("change", event => {
     const file = event.target.files?.[0];
+
+    event.target.removeAttribute("capture");
+    event.target.accept = "image/*,video/*";
+
     showChatImageSelection(file);
 });
 
