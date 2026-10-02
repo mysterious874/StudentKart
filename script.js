@@ -7865,10 +7865,23 @@ async function initializeStudentKart() {
             showNewUserGate();
         }
 
-        setupEventListeners();
+        // UI event binding must never prevent the core app/product data
+        // from initializing. Keep this isolated so one optional listener
+        // cannot make the whole StudentKart interface appear dead.
+        try {
+            setupEventListeners();
+        } catch (uiError) {
+            console.error("StudentKart UI event setup error:", uiError);
+        }
 
-        setupAuthListener();
+        try {
+            setupAuthListener();
+        } catch (authListenerError) {
+            console.error("StudentKart auth listener setup error:", authListenerError);
+        }
 
+        // Product loading is core functionality and must run even if an
+        // optional UI handler above throws.
         await loadProducts();
         startProductsRealtime();
 
