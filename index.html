@@ -757,7 +757,9 @@
 
       <div class="chat-person">
         <div class="chat-avatar" aria-hidden="true">
-          <i class="fas fa-user"></i>
+          <img id="chatAvatarImage" src="" alt="">
+          <i id="chatAvatarIcon" class="fas fa-user"></i>
+          <span id="chatHeaderOnlineDot" class="chat-header-online-dot hidden"></span>
         </div>
         <div class="chat-person-info">
           <h2 id="chatUserName">Conversation</h2>
@@ -766,6 +768,12 @@
       </div>
 
       <div class="chat-actions">
+        <button type="button" class="chat-call-button" id="chatVoiceCallButton" title="Voice call" aria-label="Voice call">
+          <i class="fas fa-phone"></i>
+        </button>
+        <button type="button" class="chat-call-button" id="chatVideoCallButton" title="Video call" aria-label="Video call">
+          <i class="fas fa-video"></i>
+        </button>
         <button type="button" class="chat-delete-button" id="chatDeleteButton" title="Chat options" aria-label="Chat options">
           <i class="fas fa-ellipsis-vertical"></i>
         </button>
@@ -798,8 +806,26 @@
         </button>
       </div>
     </div>
+    <div class="chat-profile-intro" id="chatProfileIntro">
+      <div class="chat-profile-avatar-large">
+        <img id="chatProfileAvatarImage" src="" alt="">
+        <i id="chatProfileAvatarIcon" class="fas fa-user"></i>
+      </div>
+      <h1 id="chatProfileName">Conversation</h1>
+      <p class="chat-profile-connection">You're connected on StudentKart</p>
+      <p id="chatProfileDetails" class="chat-profile-details">Product chat</p>
+      <button type="button" id="chatViewProfileButton" class="chat-view-profile-button">
+        View profile
+      </button>
+    </div>
+
     <div id="chatMessages" class="chat-messages">
       <div class="chat-empty"><i class="fas fa-comment-dots"></i><p>No messages yet.</p><span>Start the conversation below.</span></div>
+    </div>
+
+    <div class="chat-security-notice">
+      <i class="fas fa-lock"></i>
+      <span>Messages and calls are private between you and this user.</span>
     </div>
     <div id="chatReplyPreview" class="chat-reply-preview hidden">
       <div><strong id="chatReplyLabel">Replying</strong><span id="chatReplyText"></span></div>
@@ -813,14 +839,32 @@
       <span id="chatImagePreviewName"></span>
     </div>
     <form id="chatForm" class="chat-form">
-      <button type="button" class="chat-attach-button" id="chatEmojiButton" title="Emoji"><i class="far fa-face-smile"></i></button>
-      <button type="button" class="chat-attach-button" id="chatAttachButton" title="Photo or Video"><i class="fas fa-paperclip"></i></button>
+      <button type="button" class="chat-media-button" id="chatCameraButton" title="Camera" aria-label="Camera">
+        <i class="fas fa-camera"></i>
+      </button>
+      <button type="button" class="chat-media-button" id="chatAttachButton" title="Photo or Video" aria-label="Gallery">
+        <i class="far fa-image"></i>
+      </button>
       <input type="file" id="chatImageInput" accept="image/*,video/*" hidden>
+
+      <div class="chat-input-pill">
+        <input type="text" id="chatInput" placeholder="Message" autocomplete="off">
+        <button type="button" class="chat-emoji-inside" id="chatEmojiButton" title="Emoji" aria-label="Emoji">
+          <i class="far fa-face-smile"></i>
+        </button>
+      </div>
+
+      <button type="button" class="chat-media-button chat-mic-button" id="chatMicButton" title="Voice message" aria-label="Voice message">
+        <i class="fas fa-microphone"></i>
+      </button>
+
+      <button type="submit" class="chat-like-button" id="chatLikeButton" aria-label="Send like" title="Send like">
+        <i class="fas fa-thumbs-up"></i>
+      </button>
+
       <div id="chatEmojiPicker" class="chat-emoji-picker hidden">
         <button type="button">😀</button><button type="button">😂</button><button type="button">😍</button><button type="button">❤️</button><button type="button">👍</button><button type="button">🔥</button><button type="button">🎉</button><button type="button">😢</button><button type="button">😎</button><button type="button">🙏</button><button type="button">🤝</button><button type="button">💯</button>
       </div>
-      <input type="text" id="chatInput" placeholder="Write a message..." autocomplete="off">
-      <button type="submit" class="btn btn-primary chat-send-button" aria-label="Send"><i class="fas fa-paper-plane"></i><span>Send</span></button>
     </form>
   </div>
 </div>
