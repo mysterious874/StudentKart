@@ -8733,7 +8733,7 @@ async function searchStudentKartIndiaLocations(query) {
     studentKartLocationSearchController = new AbortController();
 
     try {
-        const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=10&q=" + encodeURIComponent(q);
+        const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=50&dedupe=1&q=" + encodeURIComponent(q);
         const response = await fetch(url, {
             signal: studentKartLocationSearchController.signal,
             headers: { "Accept": "application/json" }
@@ -8741,13 +8741,71 @@ async function searchStudentKartIndiaLocations(query) {
         if (!response.ok) return;
 
         const results = await response.json();
+
+        const getPlaceName = item => {
+            const address = item?.address || {};
+            return String(
+                address.village ||
+                address.hamlet ||
+                address.town ||
+                address.city ||
+                address.municipality ||
+                address.suburb ||
+                address.neighbourhood ||
+                String(item?.display_name || "").split(",")[0] ||
+                ""
+            ).trim();
+        };
+
+        const getSubDistrict = item => {
+            const address = item?.address || {};
+            return String(
+                address.subdistrict ||
+                address.state_district ||
+                address.county ||
+                address.city_district ||
+                ""
+            ).trim();
+        };
+
+        const getDistrict = item => {
+            const address = item?.address || {};
+            return String(
+                address.district ||
+                address.state_district ||
+                address.county ||
+                address.city_district ||
+                ""
+            ).trim();
+        };
+
+        const getState = item => String(item?.address?.state || "").trim();
+
         const values = results
-            .map(item => String(item.display_name || "").trim())
-            .filter(Boolean)
-            .map(name => name.replace(/, India$/i, ""));
+            .map(item => {
+                const place = getPlaceName(item);
+                const subDistrict = getSubDistrict(item);
+                const district = getDistrict(item);
+                const state = getState(item);
+
+                const hierarchy = [...new Set([
+                    subDistrict,
+                    district,
+                    state
+                ].filter(Boolean))];
+
+                if (!place) return "";
+
+                return hierarchy.length
+                    ? place + " — " + hierarchy.join(", ")
+                    : String(item.display_name || "").replace(/, India$/i, "").trim();
+            })
+            .filter(Boolean);
 
         const currentOptions = [...list.options].map(option => option.value);
-        const merged = [...new Set([...values, ...currentOptions])].slice(0, 30);
+        const merged = [...new Set([...values, ...currentOptions])]
+            .filter(Boolean)
+            .slice(0, 60);
 
         list.innerHTML = merged
             .map(value => '<option value="' + escapeHTML(value) + '"></option>')
