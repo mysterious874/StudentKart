@@ -15659,3 +15659,216 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
 .product-image-preview-close {
     display: none !important;
 }
+
+
+/* StudentKart information pages — mobile-first */
+.footer-info-modal-content,
+.settings-detail-modal-content {
+    box-sizing: border-box;
+}
+
+#footerInfoBody.settings-detail-content {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 4px 22px 26px;
+    color: var(--sk-text, #334e68);
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+#footerInfoBody .info-intro {
+    margin: 0 0 16px;
+    padding: 14px 15px;
+    border-radius: 14px;
+    background: rgba(39, 170, 166, .08);
+    color: #334e68;
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+#footerInfoBody .info-section {
+    margin: 0 0 18px;
+    padding: 0;
+}
+
+#footerInfoBody .info-section h3 {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin: 0 0 7px;
+    color: #183b56;
+    font-size: 16px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+#footerInfoBody .info-section h3 i {
+    flex: 0 0 18px;
+    width: 18px;
+    margin-top: 2px;
+    color: #27aaa6;
+    text-align: center;
+}
+
+#footerInfoBody .info-section p {
+    margin: 0;
+    color: #486581;
+    font-size: 14.5px;
+    line-height: 1.7;
+}
+
+#footerInfoBody .info-list,
+#footerInfoBody .info-steps {
+    margin: 7px 0 0;
+    padding-left: 22px;
+    color: #486581;
+    font-size: 14.5px;
+    line-height: 1.7;
+}
+
+#footerInfoBody .info-list li,
+#footerInfoBody .info-steps li {
+    margin: 0 0 7px;
+    padding-left: 3px;
+}
+
+#footerInfoBody .info-steps li::marker {
+    color: #27aaa6;
+    font-weight: 700;
+}
+
+#footerInfoBody .info-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 4px;
+    padding: 12px 13px;
+    border: 1px solid rgba(39, 170, 166, .2);
+    border-radius: 12px;
+    background: rgba(39, 170, 166, .06);
+    color: #486581;
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+
+#footerInfoBody .info-note i {
+    flex: 0 0 16px;
+    color: #27aaa6;
+    margin-top: 2px;
+}
+
+#footerInfoBody .info-note.warning {
+    border-color: rgba(217, 119, 6, .2);
+    background: rgba(217, 119, 6, .06);
+}
+
+#footerInfoBody .info-note.warning i {
+    color: #d97706;
+}
+
+#footerInfoBody .info-contact-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 20px;
+    padding: 13px 14px;
+    border: 1px solid rgba(72, 101, 129, .12);
+    border-radius: 13px;
+    background: #fff;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+#footerInfoBody .info-contact-icon {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    background: rgba(39, 170, 166, .1);
+    color: #27aaa6;
+}
+
+#footerInfoBody .info-contact-card div:last-child {
+    min-width: 0;
+}
+
+#footerInfoBody .info-contact-card span {
+    display: block;
+    margin-bottom: 2px;
+    color: #829ab1;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+#footerInfoBody .info-contact-card a {
+    display: block;
+    max-width: 100%;
+    color: #183b56;
+    font-size: 14px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    #footerInfoBody.settings-detail-content {
+        padding: 2px 14px 20px;
+    }
+
+    #footerInfoBody .info-intro {
+        margin-bottom: 14px;
+        padding: 12px 13px;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    #footerInfoBody .info-section {
+        margin-bottom: 16px;
+    }
+
+    #footerInfoBody .info-section h3 {
+        font-size: 15px;
+    }
+
+    #footerInfoBody .info-section p,
+    #footerInfoBody .info-list,
+    #footerInfoBody .info-steps {
+        font-size: 13.5px;
+        line-height: 1.65;
+    }
+
+    #footerInfoBody .info-list,
+    #footerInfoBody .info-steps {
+        padding-left: 20px;
+    }
+
+    #footerInfoBody .info-note {
+        padding: 11px 12px;
+        font-size: 12.5px;
+    }
+
+    #footerInfoBody .info-contact-card {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 380px) {
+    #footerInfoBody.settings-detail-content {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    #footerInfoBody .info-section h3 {
+        font-size: 14px;
+    }
+
+    #footerInfoBody .info-section p,
+    #footerInfoBody .info-list,
+    #footerInfoBody .info-steps {
+        font-size: 13px;
+    }
+}
