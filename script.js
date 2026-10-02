@@ -7775,8 +7775,6 @@ async function openChat(inquiry) {
     currentChatInquiry = inquiry;
     clearChatMessageSelection();
 
-    await removeHiddenChat(inquiry.id);
-
     if ($("chatProductName")) {
         $("chatProductName").textContent =
             inquiry.product_name || "Product Chat";
@@ -7830,14 +7828,20 @@ async function openChat(inquiry) {
 
     document.body.classList.add("studentkart-chat-open");
 
-    await markChatMessagesRead(inquiry.id);
-
-    // Refresh the inquiry list immediately so the unread badge
-    // disappears as soon as the conversation is opened/read.
-    await loadReceivedInquiries();
-    await updateChatUnreadCount();
-
-    await loadChatMessages();
+    // Open instantly; all database work continues silently in the background.
+    void (async () => {
+        try {
+            await removeHiddenChat(inquiry.id);
+            await markChatMessagesRead(inquiry.id);
+            await Promise.all([
+                loadReceivedInquiries(),
+                updateChatUnreadCount(),
+                loadChatMessages()
+            ]);
+        } catch (error) {
+            console.error("Background chat open refresh error:", error);
+        }
+    })();
 
     startChatRealtime();
 }
@@ -8134,6 +8138,16 @@ async function loadChatMessages() {
             .order("created_at", { ascending: true });
 
         if (error) throw error;
+
+        const nextSignature = JSON.stringify((data || []).map(message => [
+            message.id,
+            message.updated_at || message.created_at,
+            message.message,
+            message.is_read
+        ]));
+
+        if (container.dataset.messageSignature === nextSignature) return;
+        container.dataset.messageSignature = nextSignature;
 
         if (!data || data.length === 0) {
             container.innerHTML = `
