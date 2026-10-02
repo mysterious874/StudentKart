@@ -541,6 +541,26 @@ window.addEventListener("popstate", event => {
         return;
     }
 
+    // Transient popups get one history step of their own. Back closes only
+    // the popup and keeps the user on the exact page behind it.
+    const transientPopupId = event.state?.studentKartPopup || null;
+    if (transientPopupId === "productImagePreview") {
+        const preview = $("productImagePreviewModal");
+        preview?.classList.add("hidden");
+        preview?.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("product-image-preview-open");
+        const image = $("productImagePreview");
+        if (image) image.src = "";
+        return;
+    }
+
+    if (transientPopupId === "chatSelectionDelete") {
+        const popup = $("chatSelectionDeleteModal");
+        popup?.classList.add("hidden");
+        popup?.setAttribute("aria-hidden", "true");
+        return;
+    }
+
     const state = event.state;
 
     if (state?.studentKart === true) {
@@ -6649,7 +6669,7 @@ function setupEventListeners() {
     let longPressTriggered = false;
     let pressTarget = null;
 
-    function closeProductImagePreview() {
+    function closeProductImagePreview(options = {}) {
         const modal = $("productImagePreviewModal");
         if (!modal) return;
         modal.classList.add("hidden");
@@ -6659,6 +6679,11 @@ function setupEventListeners() {
         if (image) image.src = "";
         const detailsImage = $("detailsImage");
         if (detailsImage) detailsImage.style.removeProperty("user-select");
+
+        if (!options.fromPopState &&
+            window.history.state?.studentKartPopup === "productImagePreview") {
+            window.history.back();
+        }
     }
 
     function openProductImagePreview(source) {
@@ -6669,6 +6694,18 @@ function setupEventListeners() {
         modal.classList.remove("hidden");
         modal.setAttribute("aria-hidden", "false");
         document.body.classList.add("product-image-preview-open");
+
+        if (window.history.state?.studentKartPopup !== "productImagePreview") {
+            window.history.pushState(
+                {
+                    ...(window.history.state || {}),
+                    studentKart: true,
+                    studentKartPopup: "productImagePreview"
+                },
+                "",
+                window.location.href
+            );
+        }
     }
 
     function clearPress() {
@@ -8952,14 +8989,31 @@ function openSelectedChatDeletePopup() {
     if (modal) {
         modal.classList.remove("hidden");
         modal.setAttribute("aria-hidden", "false");
+
+        if (window.history.state?.studentKartPopup !== "chatSelectionDelete") {
+            window.history.pushState(
+                {
+                    ...(window.history.state || {}),
+                    studentKart: true,
+                    studentKartPopup: "chatSelectionDelete"
+                },
+                "",
+                window.location.href
+            );
+        }
     }
 }
 
-function closeSelectedChatDeletePopup() {
+function closeSelectedChatDeletePopup(options = {}) {
     const modal = $("chatSelectionDeleteModal");
     if (modal) {
         modal.classList.add("hidden");
         modal.setAttribute("aria-hidden", "true");
+    }
+
+    if (!options.fromPopState &&
+        window.history.state?.studentKartPopup === "chatSelectionDelete") {
+        window.history.back();
     }
 }
 
