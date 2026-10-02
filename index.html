@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="/icons/studentkart-icon.svg">
     <title>StudentKart — Student Marketplace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20261002-chat-bg-4">
+    <link rel="stylesheet" href="style.css?v=20261002-chat-select-1">
 </head>
 
 <body>
@@ -776,6 +776,25 @@
       </button>
     </div>
     <div id="chatSelectionBar" class="chat-selection-bar hidden" aria-hidden="true"></div>
+    <div id="chatSelectionDeleteModal" class="chat-selection-delete-modal hidden" aria-hidden="true">
+      <div class="chat-selection-delete-overlay" data-close-selection-delete></div>
+      <div class="chat-selection-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="chatSelectionDeleteTitle">
+        <div class="chat-selection-delete-icon"><i class="fas fa-trash-can"></i></div>
+        <h3 id="chatSelectionDeleteTitle">Delete selected messages?</h3>
+        <p id="chatSelectionDeleteText">Choose how you want to delete the selected messages.</p>
+        <div class="chat-selection-delete-actions">
+          <button type="button" id="deleteSelectedChatForMePopup" class="chat-selection-delete-option">
+            <i class="fas fa-eye-slash"></i>
+            <span><strong>Delete for Me</strong><small>Remove from your chat only</small></span>
+          </button>
+          <button type="button" id="deleteSelectedChatForEveryonePopup" class="chat-selection-delete-option danger">
+            <i class="fas fa-trash-can"></i>
+            <span><strong>Delete for Everyone</strong><small>Remove your sent messages for both users</small></span>
+          </button>
+        </div>
+        <button type="button" id="cancelSelectedChatDelete" class="chat-selection-delete-cancel">Cancel</button>
+      </div>
+    </div>
     <div id="chatMessages" class="chat-messages">
       <div class="chat-profile-intro" id="chatProfileIntro">
         <div class="chat-profile-avatar-large">
@@ -832,7 +851,7 @@
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=20261002-chat-ui-4"></script>
+    <script src="script.js?v=20261002-chat-select-1"></script>
     <script src="/push-notifications.js?v=20261002-push-1"></script>
     </body>
 
