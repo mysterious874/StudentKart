@@ -1,4 +1,5 @@
-/* StudentKart Web Push Service Worker */
+/* StudentKart Web Push Service Worker - v2026.10.02.2 */
+const STUDENTKART_SW_VERSION = "2026.10.02.2";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", event => event.waitUntil(self.clients.claim()));
 
