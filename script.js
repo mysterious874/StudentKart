@@ -8234,6 +8234,13 @@ $("chatMessages")?.addEventListener("pointercancel", endChatMessageLongPress);
 $("chatMessages")?.addEventListener("pointerleave", endChatMessageLongPress);
 
 $("chatMessages")?.addEventListener("click", async event => {
+    const quoted = event.target.closest(".chat-quoted-message");
+    if (quoted) {
+        event.preventDefault();
+        event.stopPropagation();
+        locateQuotedChatMessage(quoted.dataset.replyToId);
+        return;
+    }
     const profileButton = event.target.closest("#chatViewProfileButton");
     if (profileButton) {
         event.preventDefault();
@@ -8509,6 +8516,20 @@ async function loadChatMessages() {
             return;
         }
 
+function locateQuotedChatMessage(messageId) {
+    if (!messageId) return;
+    const target = document.querySelector('#chatMessages .chat-message[data-message-id="' + CSS.escape(String(messageId)) + '"]');
+    if (!target) {
+        showToast("Original message is not available", "warning");
+        return;
+    }
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    target.classList.remove("chat-quoted-target-highlight");
+    void target.offsetWidth;
+    target.classList.add("chat-quoted-target-highlight");
+    setTimeout(() => target.classList.remove("chat-quoted-target-highlight"), 1400);
+}
+
         container.innerHTML = profileIntroHtml + visibleMessages.map(message => {
             const isMine = message.sender_id === currentUser.id;
             const reply = parseChatReplyMessage(message.message);
@@ -8519,7 +8540,7 @@ async function loadChatMessages() {
             if (reply) {
                 const quoted = reply.replyTo || {};
                 const quotedText = quoted.text || (quoted.mediaType === "video" ? "Video" : quoted.mediaType === "image" ? "Photo" : "Message");
-                replyHtml = '<div class="chat-quoted-message"><span class="chat-quoted-line"></span><div class="chat-quoted-content"><strong>Replying to</strong><span>' + escapeHtml(quotedText).slice(0, 180) + '</span></div></div>';
+                replyHtml = '<div class="chat-quoted-message" data-reply-to-id="' + escapeHtml(String(quoted.id || "")) + '" role="button" tabindex="0"><span class="chat-quoted-line"></span><div class="chat-quoted-content"><strong>Replying to</strong><span>' + escapeHtml(quotedText).slice(0, 180) + '</span></div></div>';
             }
 
             if (image) {
