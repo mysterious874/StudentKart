@@ -40,6 +40,7 @@ let notificationRefreshTimer = null;
 let notificationRealtimeChannel = null;
 let productsRealtimeChannel = null;
 let toastTimer = null;
+const studentKartModalFocus = new Map();
 
 
 /* =========================================================
@@ -330,11 +331,22 @@ function openModal(id, options = {}) {
         }
     }
 
+    if (!options.fromPopState && document.activeElement instanceof HTMLElement) {
+        studentKartModalFocus.set(id, document.activeElement);
+    }
+
     modal.classList.remove("modal-closing");
     modal.classList.remove("hidden");
 
     document.body.classList.add("modal-open");
     document.body.classList.add("studentkart-modal-navigation-hidden");
+
+    const firstFocusable = modal.querySelector(
+        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    window.requestAnimationFrame(() => {
+        (firstFocusable || modal).focus?.();
+    });
 
     if (!options.fromPopState && !studentKartHandlingPopState) {
         window.history.pushState(
@@ -346,6 +358,15 @@ function openModal(id, options = {}) {
             "",
             window.location.pathname + window.location.search + "#" + id
         );
+    }
+}
+
+function restoreStudentKartModalFocus(id) {
+    const trigger = studentKartModalFocus.get(id);
+    studentKartModalFocus.delete(id);
+
+    if (trigger instanceof HTMLElement && document.contains(trigger)) {
+        window.requestAnimationFrame(() => trigger.focus());
     }
 }
 
@@ -394,6 +415,7 @@ function closeModal(id, options = {}) {
         const anyOpen = document.querySelector(".modal:not(.hidden)");
 
         if (!anyOpen) {
+            restoreStudentKartModalFocus(id);
             document.body.classList.remove("modal-open");
             document.body.classList.remove("studentkart-modal-navigation-hidden");
 
@@ -446,6 +468,7 @@ function closeModal(id, options = {}) {
             );
 
         if (!anyOpen) {
+            restoreStudentKartModalFocus(id);
             document.body.classList.remove("modal-open");
             document.body.classList.remove("studentkart-modal-navigation-hidden");
 
