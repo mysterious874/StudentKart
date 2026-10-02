@@ -6483,7 +6483,7 @@ function setupEventListeners() {
         if (event.key === "Escape") closeProductImagePreview();
     });
 })();
-\ndocument.addEventListener("click", event => {
+document.addEventListener("click", event => {
         const wishlistButton = event.target.closest("[data-wishlist-id]");
         if (!wishlistButton) return;
 
