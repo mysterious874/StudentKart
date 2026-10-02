@@ -8567,7 +8567,12 @@ $("chatMessages")?.addEventListener("click", async event => {
     }
 
     if (selectedChatMessageIds.size > 0) {
+        // Once selection mode is active, a normal tap only selects/deselects.
+        // It must never open the photo/video viewer.
+        event.preventDefault();
+        event.stopPropagation();
         toggleChatMessageSelection(messageEl.dataset.messageId);
+        return;
     }
 });
 
