@@ -1,4 +1,4 @@
-/* StudentKart app logic */
+/* App logic */
 
 const SUPABASE_URL =
     "https://yymzfjfkmsrymqhpnfqz.supabase.co";
@@ -14,7 +14,7 @@ const supabaseClient =
 
 const STORAGE_BUCKET = "product-images";
 
-/* STUDENTKART APP INTRO / SPLASH */
+/* App splash */
 const STUDENTKART_SPLASH_DURATION = 1450;
 function finishStudentKartSplash(){
     const splash = $("studentKartSplash");
@@ -12884,9 +12884,7 @@ Object.keys(SK_WORD_EXTRA).forEach(lang => {
     SK_WORD_T[lang] = { ...(SK_WORD_T[lang] || {}), ...SK_WORD_EXTRA[lang] };
 });
 
-// Strict native-script fallback. This is used only for UI text that is
-// still untranslated after the dictionaries above. Brand names, URLs,
-// emails and numbers are preserved.
+// Keep untranslated UI text readable in the selected script. Brand names, URLs, emails and numbers stay unchanged.
 const SK_NATIVE_CHAR_MAP = {
     hi: {a:"अ",b:"ब",c:"क",d:"द",e:"ए",f:"फ",g:"ग",h:"ह",i:"इ",j:"ज",k:"क",l:"ल",m:"म",n:"न",o:"ओ",p:"प",q:"क",r:"र",s:"स",t:"त",u:"उ",v:"व",w:"व",x:"क्स",y:"य",z:"ज़"},
     mr: {a:"अ",b:"ब",c:"क",d:"द",e:"ए",f:"फ",g:"ग",h:"ह",i:"इ",j:"ज",k:"क",l:"ल",m:"म",n:"न",o:"ओ",p:"प",q:"क",r:"र",s:"स",t:"त",u:"उ",v:"व",w:"व",x:"क्स",y:"य",z:"झ"},
