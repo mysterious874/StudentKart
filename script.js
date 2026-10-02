@@ -7689,9 +7689,15 @@ function enterStudentKartGuestMode() {
     showToast("Continuing as guest", "success");
 }
 
+let studentKartGateScrollY = 0;
+
 function showNewUserGate() {
     const gate = $("newUserGate");
     if (!gate || currentUser || isStudentKartGuestMode()) return;
+
+    studentKartGateScrollY = window.scrollY || window.pageYOffset || 0;
+    document.documentElement.classList.add("new-user-gate-lock");
+    document.body.style.top = `-${studentKartGateScrollY}px`;
     gate.classList.remove("hidden");
     document.body.classList.add("new-user-gate-open");
 }
@@ -7699,7 +7705,14 @@ function showNewUserGate() {
 function hideNewUserGate() {
     const gate = $("newUserGate");
     if (gate) gate.classList.add("hidden");
+
     document.body.classList.remove("new-user-gate-open");
+    document.documentElement.classList.remove("new-user-gate-lock");
+    document.body.style.top = "";
+
+    if (studentKartGateScrollY) {
+        window.scrollTo(0, studentKartGateScrollY);
+    }
 }
 
 function openLoginFromNewUserGate() {
