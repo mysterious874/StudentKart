@@ -540,7 +540,7 @@ async function getUserProfile() {
             await supabaseClient
                 .from("profiles")
                 .select(
-                    "id,name,username,phone,college,email,avatar_url,created_at,updated_at"
+                    "id,name,username,phone,college,state,city,area,email,avatar_url,created_at,updated_at"
                 )
                 .eq(
                     "id",
@@ -4479,21 +4479,45 @@ async function saveEditedProfile(
                 new Date().toISOString()
         };
 
+        // The profile is normally created when the account is created.
+        // Update the existing row first so profile editing does not depend on
+        // the table's INSERT policy. If the row is missing, create it.
         const {
-            error
-        } =
-            await supabaseClient
-                .from("profiles")
-                .upsert(
-                    profile
-                );
+            data: updatedProfile,
+            error: updateError
+        } = await supabaseClient
+            .from("profiles")
+            .update(profile)
+            .eq("id", currentUser.id)
+            .select("id")
+            .maybeSingle();
 
-        if (error) {
-            if (error.code === "23505" && String(error.message || "").toLowerCase().includes("username")) {
+        if (updateError) {
+            if (
+                updateError.code === "23505" &&
+                String(updateError.message || "").toLowerCase().includes("username")
+            ) {
                 showToast("That username is already taken", "warning");
                 return;
             }
-            throw error;
+            throw updateError;
+        }
+
+        if (!updatedProfile) {
+            const { error: insertError } = await supabaseClient
+                .from("profiles")
+                .insert(profile);
+
+            if (insertError) {
+                if (
+                    insertError.code === "23505" &&
+                    String(insertError.message || "").toLowerCase().includes("username")
+                ) {
+                    showToast("That username is already taken", "warning");
+                    return;
+                }
+                throw insertError;
+            }
         }
 
         saveProfile(profile);
