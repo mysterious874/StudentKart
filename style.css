@@ -12162,3 +12162,77 @@ body.studentkart-modal-navigation-hidden {
     .settings-title-wrap p { font-size:11px; }
     .settings-icon { width:42px; height:42px; }
 }
+
+
+/* =========================================================
+   REAL SETTINGS STATE + DARK MODE
+   ========================================================= */
+.settings-switch[data-enabled="true"] {
+    background: #0f8b8d !important;
+}
+.settings-switch[data-enabled="true"] span {
+    transform: translateX(18px);
+}
+
+body.studentkart-dark {
+    background: #081923 !important;
+    color: #e7f1f4 !important;
+}
+body.studentkart-dark .navbar,
+body.studentkart-dark .modal-content,
+body.studentkart-dark .settings-group,
+body.studentkart-dark .settings-row,
+body.studentkart-dark .stat-card,
+body.studentkart-dark .product-card,
+body.studentkart-dark .step-card,
+body.studentkart-dark .category-card,
+body.studentkart-dark .empty-state,
+body.studentkart-dark .marketplace-filters,
+body.studentkart-dark .form-group input,
+body.studentkart-dark .form-group select,
+body.studentkart-dark .form-group textarea {
+    background: #102a3a !important;
+    color: #e7f1f4 !important;
+    border-color: rgba(255,255,255,.10) !important;
+}
+body.studentkart-dark .settings-page-header,
+body.studentkart-dark .modal-header,
+body.studentkart-dark .page-popup-header,
+body.studentkart-dark .settings-grid {
+    background: #0d2331 !important;
+    border-color: rgba(255,255,255,.10) !important;
+}
+body.studentkart-dark .settings-title-wrap h2,
+body.studentkart-dark .settings-group h3,
+body.studentkart-dark .settings-row,
+body.studentkart-dark .settings-row b,
+body.studentkart-dark .settings-version strong,
+body.studentkart-dark .section-heading h2,
+body.studentkart-dark .section-heading p,
+body.studentkart-dark .product-card h3,
+body.studentkart-dark .step-card h3,
+body.studentkart-dark .stat-card strong {
+    color: #e7f1f4 !important;
+}
+body.studentkart-dark .settings-title-wrap p,
+body.studentkart-dark .settings-row small,
+body.studentkart-dark .settings-version,
+body.studentkart-dark .section-heading p,
+body.studentkart-dark .product-card p,
+body.studentkart-dark .step-card p {
+    color: #9db4c0 !important;
+}
+body.studentkart-dark .settings-row:hover,
+body.studentkart-dark .category-picker-card:hover {
+    background: #153446 !important;
+}
+body.studentkart-dark .settings-row {
+    border-bottom-color: rgba(255,255,255,.08) !important;
+}
+body.studentkart-dark .settings-icon {
+    background: rgba(115,232,229,.10) !important;
+}
+body.studentkart-dark .form-group input::placeholder,
+body.studentkart-dark .form-group textarea::placeholder {
+    color: #7892a0 !important;
+}
