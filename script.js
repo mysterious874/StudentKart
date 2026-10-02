@@ -8036,13 +8036,9 @@ $("chatMicButton")?.addEventListener("click", () => {
     showToast("Voice messages will be available soon.", "info");
 });
 
-$("chatLikeButton")?.addEventListener("click", event => {
-    event.preventDefault();
-    const input = $("chatInput");
-    if (!input || input.value.trim()) return;
-    input.value = "👍";
-    $("chatForm")?.requestSubmit();
-});
+// The send button is the chat form's submit button.
+// Do not intercept its click here; otherwise typed messages never reach
+// the form submit handler.
 
 
 
