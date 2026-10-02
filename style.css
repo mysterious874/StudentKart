@@ -20896,3 +20896,22 @@ body.category-page-active .category-page-container {
     padding-top:92px !important;
   }
 }
+
+/* NAVBAR HEIGHT / VERTICAL POSITION TUNING */
+@media screen and (max-width:600px){
+  html body > header.navbar,
+  html body > header.navbar.navbar-scroll-hidden{
+    height:72px !important;
+    min-height:72px !important;
+    max-height:72px !important;
+    padding:4px 0 0 !important;
+  }
+  html body > header.navbar > .nav-container{
+    height:64px !important;
+    min-height:64px !important;
+    max-height:64px !important;
+  }
+  html body{
+    padding-top:72px !important;
+  }
+}
