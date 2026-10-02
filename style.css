@@ -18746,3 +18746,100 @@ body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
     visibility: hidden !important;
     pointer-events: none !important;
 }
+
+
+/* =========================================================
+   TOP NAV MOBILE CONTROLS
+   Move the mobile navigation into the top navbar area.
+   No floating/fixed bottom dock.
+   ========================================================= */
+@media (max-width: 600px) {
+    .navbar {
+        height: auto !important;
+        min-height: 70px;
+    }
+
+    .navbar .nav-container {
+        width: 100% !important;
+        min-height: 70px;
+        height: auto !important;
+        padding: 10px 14px 8px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .navbar .mobile-bottom-nav {
+        position: static !important;
+        inset: auto !important;
+        width: 100% !important;
+        height: 48px !important;
+        min-height: 48px !important;
+        margin: 0 !important;
+        padding: 4px !important;
+        display: grid !important;
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+        align-items: stretch !important;
+        gap: 3px !important;
+        border: 0 !important;
+        border-radius: 10px !important;
+        background: rgba(20, 59, 74, .72) !important;
+        box-shadow: none !important;
+        z-index: 2 !important;
+    }
+
+    .navbar .mobile-bottom-nav .bottom-nav-item {
+        min-width: 0 !important;
+        min-height: 40px !important;
+        height: 40px !important;
+        padding: 4px 2px !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        border: 0 !important;
+        border-radius: 8px !important;
+        background: transparent !important;
+        color: #c9d9df !important;
+        font-size: 10px !important;
+        line-height: 1.1 !important;
+        box-shadow: none !important;
+    }
+
+    .navbar .mobile-bottom-nav .bottom-nav-item i {
+        font-size: 14px !important;
+        line-height: 1 !important;
+    }
+
+    .navbar .mobile-bottom-nav .bottom-nav-item.active,
+    .navbar .mobile-bottom-nav .bottom-nav-item:hover {
+        background: rgba(15, 139, 141, .22) !important;
+        color: #fff !important;
+    }
+
+    .navbar .mobile-bottom-nav .bottom-nav-icon-wrap {
+        line-height: 1 !important;
+    }
+
+    body {
+        padding-bottom: 0 !important;
+    }
+
+    body.studentkart-modal-navigation-hidden {
+        padding-bottom: 0 !important;
+    }
+
+    /* The dock is no longer floating, so remove dock-specific spacing. */
+    body .mobile-bottom-nav {
+        bottom: auto !important;
+        box-shadow: none !important;
+    }
+}
+
+@media (min-width: 601px) {
+    .navbar .mobile-bottom-nav {
+        display: none !important;
+    }
+}
