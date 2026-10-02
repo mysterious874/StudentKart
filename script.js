@@ -12363,9 +12363,9 @@ function skNativeScriptFallback(value, language) {
     // Keep StudentKart and normal technical identifiers intact.
     const protectedParts = [];
     const protectedValue = String(value).replace(
-        /StudentKart|https?:\\/\\/[^\\s]+|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/g,
+        /StudentKart|https?:\/\/[^\s]+|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g,
         match => {
-            const token = `\\uE000${protectedParts.length}\\uE001`;
+            const token = `\uE000${protectedParts.length}\uE001`;
             protectedParts.push(match);
             return token;
         }
@@ -12378,7 +12378,7 @@ function skNativeScriptFallback(value, language) {
         return mapped;
     });
 
-    return converted.replace(/\\uE000(\\d+)\\uE001/g, (_, index) => protectedParts[Number(index)] || "");
+    return converted.replace(/\uE000(\d+)\uE001/g, (_, index) => protectedParts[Number(index)] || "");
 }
 
 
