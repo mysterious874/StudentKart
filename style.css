@@ -12766,3 +12766,67 @@ body.studentkart-dark #chatInput::placeholder { color: #9aa8ad !important; }
     .chat-delete-button { width: 36px; height: 36px; justify-content: center; padding: 0 !important; }
     .chat-form { padding: 8px !important; }
 }
+
+
+/* =========================================================
+   CHAT COMPOSER — ATTACHMENTS / EMOJI / REPLY
+   ========================================================= */
+.chat-form { position:relative !important; }
+.chat-attach-button {
+    width:38px !important; height:38px !important; min-width:38px !important;
+    border:0 !important; border-radius:50% !important; background:transparent !important;
+    color:#54656f !important; cursor:pointer; display:grid; place-items:center;
+    font-size:15px !important;
+}
+.chat-attach-button:hover { background:#e1e6e9 !important; color:#0f8b8d !important; }
+.chat-emoji-picker {
+    position:absolute; left:10px; bottom:62px; z-index:50;
+    width:250px; padding:10px; display:grid; grid-template-columns:repeat(6,1fr);
+    gap:4px; background:#fff; border:1px solid #dfe5e8; border-radius:14px;
+    box-shadow:0 12px 35px rgba(16,42,67,.18);
+}
+.chat-emoji-picker button {
+    border:0; background:transparent; border-radius:8px; font-size:21px;
+    padding:6px; cursor:pointer;
+}
+.chat-emoji-picker button:hover { background:#f0f4f5; }
+.chat-reply-preview {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:8px 14px; background:#fff; border-left:4px solid #0f8b8d;
+    border-top:1px solid #d9e1e5;
+}
+.chat-reply-preview div { min-width:0; display:flex; flex-direction:column; gap:2px; }
+.chat-reply-preview strong { font-size:10px; color:#0f8b8d; }
+.chat-reply-preview span { font-size:11px; color:#627d98; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chat-reply-preview button {
+    border:0; background:transparent; color:#627d98; cursor:pointer; font-size:15px;
+}
+.chat-image-preview {
+    display:flex; align-items:center; gap:10px; padding:8px 12px;
+    background:#f0f2f5; border-top:1px solid #d8e0e4;
+}
+.chat-image-preview-card { position:relative; width:58px; height:58px; }
+.chat-image-preview img { width:100%; height:100%; object-fit:cover; border-radius:8px; display:block; }
+.chat-image-preview-card button {
+    position:absolute; top:-7px; right:-7px; width:22px; height:22px;
+    border:0; border-radius:50%; background:#263238; color:#fff; cursor:pointer;
+}
+#chatImagePreviewName { font-size:11px; color:#627d98; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chat-message-image {
+    display:block; width:min(330px,100%); max-height:360px; object-fit:cover;
+    border-radius:8px; cursor:pointer;
+}
+.chat-image-caption { margin-top:5px; font-size:12px; color:#263238; white-space:pre-wrap; overflow-wrap:anywhere; }
+.chat-message.sent .chat-image-caption { color:#29412d; }
+body.studentkart-dark .chat-attach-button { color:#aebbc2 !important; }
+body.studentkart-dark .chat-attach-button:hover { background:#2a3940 !important; }
+body.studentkart-dark .chat-emoji-picker,
+body.studentkart-dark .chat-reply-preview,
+body.studentkart-dark .chat-image-preview { background:#202c33; border-color:#2d3a40; }
+body.studentkart-dark .chat-reply-preview span,
+body.studentkart-dark #chatImagePreviewName { color:#aebbc2; }
+body.studentkart-dark .chat-image-caption { color:#e9edef; }
+@media(max-width:600px) {
+    .chat-emoji-picker { left:5px; bottom:58px; width:230px; }
+    .chat-message-image { max-height:300px; }
+}
