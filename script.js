@@ -4538,7 +4538,7 @@ async function updateProfileUI() {
     }
 
     if ($("profilePhoneInfo")) {
-        $("profilePhoneInfo").textContent = profile.phone || currentUser.phone || "Not added";
+        $("profilePhoneInfo").textContent = getStudentKartSettings().privacy.hidePhone ? "Hidden" : (profile.getStudentKartSettings().privacy.hidePhone ? "Hidden" : (phone || currentUser.phone || "Not added"));
     }
 
     if ($("profileAvatar")) {
@@ -4706,7 +4706,7 @@ async function saveEditedProfile(
     if ($("profileCollege")) $("profileCollege").textContent = college || "College not added";
     if ($("profileUsernameInfo")) $("profileUsernameInfo").textContent = username || "Not added";
     if ($("profileCollegeInfo")) $("profileCollegeInfo").textContent = college || "Not added";
-    if ($("profileEmailInfo")) $("profileEmailInfo").textContent = currentUser.email || "Not available";
+    if ($("profileEmailInfo")) $("profileEmailInfo").textContent = getStudentKartSettings().privacy.hideEmail ? "Hidden" : (currentUser.email || "Not available");
     if ($("profilePhoneInfo")) $("profilePhoneInfo").textContent = phone || currentUser.phone || "Not added";
 
     if ($("profileAvatar")) {
@@ -11109,6 +11109,19 @@ function applyStudentKartSettings() {
         }
     });
 
+    const profileVisibilityRow = document.querySelector('[data-setting-action="profile-visibility"]');
+    const profileVisibilitySmall = profileVisibilityRow?.querySelector("small");
+    if (profileVisibilitySmall) {
+        const labels = { public: "Anyone can see your profile", students: "Visible to StudentKart users", private: "Profile visibility is limited" };
+        profileVisibilitySmall.textContent = labels[settings.privacy.profileVisibility] || "Control profile visibility";
+    }
+    const blockedRow = document.querySelector('[data-setting-action="blocked-users"]');
+    const blockedSmall = blockedRow?.querySelector("small");
+    if (blockedSmall) {
+        const count = Array.isArray(settings.privacy.blockedUsers) ? settings.privacy.blockedUsers.length : 0;
+        blockedSmall.textContent = count ? count + " blocked account" + (count === 1 ? "" : "s") : "No blocked accounts";
+    }
+
     const themeRow = document.querySelector('[data-setting-action="theme"]');
     const themeSmall = themeRow?.querySelector("small");
     if (themeSmall) themeSmall.textContent = theme === "dark" ? "Dark mode is active" : "Light mode is active";
@@ -11339,19 +11352,42 @@ async function settingsProfileVisibility() {
 }
 
 async function settingsBlockedUsers() {
-    const settings=getStudentKartSettings();
+    const settings = getStudentKartSettings();
+    const blocked = Array.isArray(settings.privacy.blockedUsers) ? settings.privacy.blockedUsers.map(String) : [];
+
     openSettingsActionModal({
-        title:"Blocked Users",
-        description:"Manage accounts you have blocked.",
-        fields:[{id:"users",label:"Blocked User IDs / Emails",type:"textarea",value:(settings.privacy.blockedUsers||[]).join(", "),placeholder:"Enter IDs or emails separated by commas"}],
-        confirmText:"Save Block List",
-        onConfirm:async values=>{
-            settings.privacy.blockedUsers=values.users?values.users.split(",").map(v=>v.trim()).filter(Boolean):[];
-            await saveStudentKartSettings(settings);
+        title: "Blocked Users",
+        description: blocked.length ? "These accounts are blocked from your StudentKart interactions." : "You have not blocked any users yet.",
+        options: blocked.map(id => ({
+            value: "unblock:" + id,
+            label: "Unblock User",
+            description: id,
+            icon: "fa-user-check"
+        })),
+        fields: [{ id: "user", label: "Block another user", placeholder: "Enter User ID or email" }],
+        confirmText: "Block User",
+        onConfirm: async value => {
+            if (typeof value === "string" && value.startsWith("unblock:")) {
+                const id = value.slice(8);
+                settings.privacy.blockedUsers = blocked.filter(x => x !== id);
+                await saveStudentKartSettings(settings);
+                showToast("User unblocked", "success");
+                return;
+            }
+            if (value && value.user) {
+                const id = value.user.trim();
+                if (!id) return false;
+                if (blocked.includes(id)) {
+                    showToast("User is already blocked", "info");
+                    return false;
+                }
+                settings.privacy.blockedUsers = [...blocked, id];
+                await saveStudentKartSettings(settings);
+                showToast("User blocked", "success");
+            }
         }
     });
 }
-
 async function settingsReportProblem() {
     openSettingsActionModal({
         title:"Report a Problem",
