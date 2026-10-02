@@ -7272,9 +7272,8 @@ async function deleteChatForEveryone() {
 }
 
 function getSelectedInquiryIds() {
-    return Array.from(
-        document.querySelectorAll(".inquiry-select-checkbox:checked")
-    ).map(input => input.dataset.inquirySelect).filter(Boolean);
+    // Chat list now uses long-press selection instead of checkboxes.
+    return Array.from(selectedChatIds);
 }
 
 function updateBulkInquiryToolbar() {
@@ -7284,7 +7283,6 @@ function updateBulkInquiryToolbar() {
     const countEl = $("selectedInquiryCount");
     const markButton = $("bulkMarkRepliedButton");
     const deleteButton = $("bulkDeleteForMeButton");
-    const selectAll = $("selectAllInquiries");
 
     if (countEl) {
         countEl.textContent = count + (count === 1 ? " selected" : " selected");
@@ -7294,15 +7292,11 @@ function updateBulkInquiryToolbar() {
     if (markButton) markButton.classList.toggle("hidden", count === 0);
     if (deleteButton) deleteButton.classList.toggle("hidden", count === 0);
 
-    if (selectAll) {
-        const boxes = Array.from(document.querySelectorAll(".inquiry-select-checkbox"));
-        selectAll.checked = boxes.length > 0 && boxes.every(box => box.checked);
-        selectAll.indeterminate = count > 0 && count < boxes.length;
-    }
-
     document.querySelectorAll(".whatsapp-inquiry-card").forEach(card => {
-        const box = card.querySelector(".inquiry-select-checkbox");
-        card.classList.toggle("is-selected", !!box?.checked);
+        card.classList.toggle(
+            "is-selected",
+            selectedChatIds.has(String(card.dataset.inquiryId))
+        );
     });
 }
 
