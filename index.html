@@ -532,9 +532,21 @@
                         autocomplete="name" required>
                 </div>
                 <div class="form-group">
-                    <label for="signupCollege">College</label>
-                    <input type="text" id="signupCollege" placeholder="Your college"
-                        autocomplete="organization" required>
+                    <label for="signupCollege">College / University</label>
+                    <input type="text" id="signupCollege" list="studentkartInstitutionList"
+                        placeholder="Search your college or university" autocomplete="organization" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupState">State / Union Territory</label>
+                    <select id="signupState" required><option value="">Select state / UT</option></select>
+                </div>
+                <div class="form-group">
+                    <label for="signupCity">City</label>
+                    <input type="text" id="signupCity" list="studentkartCityList" placeholder="Search or enter city" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupArea">Area / Locality</label>
+                    <input type="text" id="signupArea" placeholder="Your area / locality"> 
                 </div>
                 <div class="form-group">
                     <label for="signupIdentifier">Email Address</label>
@@ -620,8 +632,11 @@
                 </div>
                 <div class="form-group"><label for="editProfileName">Name</label><input type="text" id="editProfileName"
                         required></div>
-                <div class="form-group"><label for="editProfileCollege">College</label><input type="text"
-                        id="editProfileCollege"></div>
+                <div class="form-group"><label for="editProfileCollege">College / University</label><input type="text"
+                        id="editProfileCollege" list="studentkartInstitutionList" placeholder="Search your college or university"></div>
+                <div class="form-group"><label for="editProfileState">State / Union Territory</label><select id="editProfileState"><option value="">Select state / UT</option></select></div>
+                <div class="form-group"><label for="editProfileCity">City</label><input type="text" id="editProfileCity" list="studentkartCityList" placeholder="Search or enter city"></div>
+                <div class="form-group"><label for="editProfileArea">Area / Locality</label><input type="text" id="editProfileArea" placeholder="Your area / locality"></div>
                 <div class="form-group"><label for="editProfileEmail">Email</label><input type="email"
                         id="editProfileEmail"></div><button type="submit" class="btn btn-primary btn-full"><i
                         class="fas fa-check"></i> Save Changes</button>
@@ -640,6 +655,10 @@
             <div id="myListingsContainer" class="products-grid"></div>
         </div>
     </div>
+
+    <!-- INDIA-WIDE EDUCATION & LOCATION DATA -->
+    <datalist id="studentkartInstitutionList"></datalist>
+    <datalist id="studentkartCityList"></datalist>
 
     <div id="toast" class="toast hidden">
         <div id="toastIcon" class="toast-icon"><i class="fas fa-check"></i></div>
