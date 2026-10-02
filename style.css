@@ -16316,3 +16316,20 @@ body #chatModal:not(.hidden) .chat-attachment-icon{
         bottom:50px !important;
     }
 }
+/* FINAL FIX — CHAT TYPING PANEL FOCUS */
+body #chatModal:not(.hidden) .chat-form #chatInput,
+body #chatModal:not(.hidden) .chat-form #chatInput:focus,
+body #chatModal:not(.hidden) .chat-form #chatInput:focus-visible {
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+body #chatModal:not(.hidden) .chat-form .chat-input-pill,
+body #chatModal:not(.hidden) .chat-form .chat-input-pill:focus-within {
+    border: 1px solid #dfe9e9 !important;
+    box-shadow: none !important;
+}
+body #chatModal:not(.hidden) .chat-form .chat-input-pill:focus-within {
+    border-color: rgba(15,139,141,.45) !important;
+}
