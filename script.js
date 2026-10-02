@@ -8390,16 +8390,57 @@ $("chatVideoCallButton")?.addEventListener("click", () => {
 
 $("chatBackButton")?.addEventListener("click", () => {
     /*
-     * Chat is a real navigation level. Use the browser history so the
-     * visible Back arrow and Android/browser Back always perform exactly
-     * the same single-step navigation.
+     * The Chat header arrow is an in-app navigation control. Do not use
+     * history.back() here: mobile browsers can have an extra history entry
+     * from the modal that makes the first tap appear to do nothing.
+     * Restore the parent screen directly in ONE tap and synchronize the
+     * current history entry with that visible screen.
      */
-    if (window.history.state?.studentKart) {
-        window.history.back();
-        return;
+    const chatModal = $("chatModal");
+    const inquiriesModal = $("inquiriesModal");
+
+    if (chatModal && !chatModal.classList.contains("hidden")) {
+        const state = window.history.state;
+        const stack = Array.isArray(state?.modalStack)
+            ? state.modalStack.filter(Boolean)
+            : [];
+
+        const parentId =
+            stack.length >= 2
+                ? stack[stack.length - 2]
+                : "inquiriesModal";
+
+        const parentModal =
+            $(parentId) || inquiriesModal;
+
+        chatModal.classList.remove("modal-closing");
+        chatModal.classList.add("hidden");
+
+        if (parentModal) {
+            parentModal.classList.remove("modal-closing");
+            parentModal.classList.remove("hidden");
+            document.body.classList.add("modal-open");
+            document.body.classList.add("studentkart-modal-navigation-hidden");
+            document.body.classList.remove("studentkart-chat-open");
+
+            modalHistory = [];
+            const parentStack = [parentModal.id];
+
+            ensureStudentKartHistory();
+            window.history.replaceState(
+                {
+                    studentKart: true,
+                    modalId: parentModal.id,
+                    modalStack: parentStack
+                },
+                "",
+                window.location.pathname + window.location.search + "#" + parentModal.id
+            );
+            return;
+        }
     }
 
-    // Safe fallback for an old/stale session without StudentKart history.
+    // Safe fallback for an old/stale session without a visible parent modal.
     const returnProduct = window.studentKartReturnToProductDetails;
     if (returnProduct) {
         window.studentKartReturnToProductDetails = null;
