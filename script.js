@@ -4485,69 +4485,37 @@ async function saveEditedProfile(
                 new Date().toISOString()
         };
 
-        // Save the complete profile first. If the database schema is still
-        // on the older StudentKart version, retry with the original columns
-        // so Edit Profile keeps working instead of failing completely.
-        let databaseSaved = false;
-        let firstDatabaseError = null;
-
-        const saveProfileRow = async row => {
-            const { data, error } = await supabaseClient
+        // This account already has a profiles row. Update that row only.
+        // Do NOT fall back to INSERT when UPDATE returns no row: an INSERT
+        // fallback can trigger the profiles RLS policy and is unnecessary for
+        // an existing account.
+        const { data: updatedProfile, error: profileUpdateError } =
+            await supabaseClient
                 .from("profiles")
-                .update(row)
+                .update(profile)
                 .eq("id", currentUser.id)
                 .select("id")
                 .maybeSingle();
 
-            if (error) return { data: null, error };
-            if (data) return { data, error: null };
-
-            const { data: inserted, error: insertError } =
-                await supabaseClient
-                    .from("profiles")
-                    .insert(row)
-                    .select("id")
-                    .maybeSingle();
-
-            return { data: inserted, error: insertError };
-        };
-
-        const fullResult = await saveProfileRow(profile);
-
-        if (!fullResult.error) {
-            databaseSaved = true;
-        } else {
-            firstDatabaseError = fullResult.error;
-
+        if (profileUpdateError) {
             if (
-                fullResult.error.code === "23505" &&
-                String(fullResult.error.message || "").toLowerCase().includes("username")
+                profileUpdateError.code === "23505" &&
+                String(profileUpdateError.message || "").toLowerCase().includes("username")
             ) {
                 showToast("That username is already taken", "warning");
                 return;
             }
 
-            // Older profiles tables may not yet contain username/phone/state/city/area.
-            // Keep the core profile editable while the migration is pending.
-            const legacyProfile = {
-                id: currentUser.id,
-                name,
-                college,
-                email: currentUser.email || "",
-                avatar_url: avatarUrl,
-                updated_at: new Date().toISOString()
-            };
-
-            const legacyResult = await saveProfileRow(legacyProfile);
-
-            if (!legacyResult.error) {
-                databaseSaved = true;
-            } else {
-                // If RLS blocks the database write, surface the real Supabase
-                // message instead of hiding it behind a generic error.
-                throw legacyResult.error || firstDatabaseError;
-            }
+            throw profileUpdateError;
         }
+
+        if (!updatedProfile) {
+            throw new Error(
+                "Your profile row could not be updated. Please sign out and sign in again."
+            );
+        }
+
+        const databaseSaved = true;
 
         // Keep all newly added fields available immediately through the
         // authenticated user's metadata as well. This also lets the UI work
