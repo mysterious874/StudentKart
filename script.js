@@ -9439,36 +9439,63 @@ $("chatInput")?.addEventListener("keydown", event => {
     }
 });
 
-$("chatCameraButton")?.addEventListener("click", () => {
-    const input = $("chatImageInput");
+function closeChatAttachmentMenu() {
+    const menu = $("chatAttachmentMenu");
+    const button = $("chatAttachButton");
+    menu?.classList.add("hidden");
+    button?.setAttribute("aria-expanded", "false");
+}
+
+function openChatFilePicker(inputId, accept, capture = null) {
+    const input = $(inputId);
     if (!input) return;
 
     input.value = "";
-    input.accept = "image/*";
-    input.setAttribute("capture", "environment");
+    input.accept = accept;
+
+    if (capture) input.setAttribute("capture", capture);
+    else input.removeAttribute("capture");
+
     input.click();
+    closeChatAttachmentMenu();
+}
+
+$("chatAttachButton")?.addEventListener("click", event => {
+    event.stopPropagation();
+    const menu = $("chatAttachmentMenu");
+    if (!menu) return;
+
+    const willOpen = menu.classList.contains("hidden");
+    menu.classList.toggle("hidden", !willOpen);
+    $("chatAttachButton")?.setAttribute("aria-expanded", String(willOpen));
 });
 
-$("chatAttachButton")?.addEventListener("click", () => {
-    const input = $("chatImageInput");
-    if (!input) return;
-
-    input.value = "";
-    input.accept = "image/*,video/*";
-    input.removeAttribute("capture");
-    input.click();
+$("chatCameraOption")?.addEventListener("click", () => {
+    openChatFilePicker("chatCameraInput", "image/*", "environment");
 });
 
-$("chatImageInput")?.addEventListener("change", event => {
+$("chatPhotoVideoOption")?.addEventListener("click", () => {
+    openChatFilePicker("chatImageInput", "image/*,video/*");
+});
+
+$("chatVideoOption")?.addEventListener("click", () => {
+    openChatFilePicker("chatVideoInput", "video/*", "environment");
+});
+
+document.addEventListener("click", event => {
+    const wrap = document.querySelector(".chat-attach-wrap");
+    if (wrap && !wrap.contains(event.target)) closeChatAttachmentMenu();
+});
+
+function handleChatMediaInput(event) {
     const file = event.target.files?.[0];
-
     event.target.removeAttribute("capture");
-    event.target.accept = "image/*,video/*";
-
     showChatImageSelection(file);
-});
+}
 
-$("removeChatImage")?.addEventListener("click", clearChatImageSelection);
+$("chatImageInput")?.addEventListener("change", handleChatMediaInput);
+$("chatCameraInput")?.addEventListener("change", handleChatMediaInput);
+$("chatVideoInput")?.addEventListener("change", handleChatMediaInput);
 
 $("chatEmojiButton")?.addEventListener("click", () => {
     $("chatEmojiPicker")?.classList.toggle("hidden");
