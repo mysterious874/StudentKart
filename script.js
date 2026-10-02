@@ -40,7 +40,7 @@ function startStudentKartSplash(){
 }
 
 let currentUser = null;
-// CHAT SYSTEM
+// Chat
 let currentChatInquiry = null;
 let chatReplyTarget = null;
 let chatRealtimeChannel = null;
@@ -61,13 +61,13 @@ let productsRealtimeChannel = null;
 let toastTimer = null;
 
 
-/* BASIC HELPERS */
+/* Helpers */
 
 function $(id) {
     return document.getElementById(id);
 }
 
-/* STUDENTKART THEMED CONFIRM DIALOG */
+/* Confirm dialog */
 let studentKartConfirmResolver = null;
 function studentKartConfirm({title="Confirm action",message="",confirmText="Continue",danger=false}={}) {
     return new Promise(resolve => {
@@ -212,7 +212,7 @@ function getPlaceholderImage(name = "StudentKart") {
 }
 
 
-/* TOAST */
+/* Toast */
 
 function showToast(message, type = "success") {
 
@@ -255,7 +255,7 @@ function showToast(message, type = "success") {
 }
 
 
-/* MODALS */
+/* Modals */
 
 let modalHistory = [];
 let studentKartHistoryReady = false;
@@ -513,7 +513,7 @@ function closeAllModals(options = {}) {
 
 
 
-/* STUDENTKART MODAL BACKGROUND TOUCH GUARD Keep the page behind an open popup completely stationary on mobile. The popup's own scroll containers remain scrollable. */
+/* Keep the page fixed while a mobile popup is open. */
 (function installStudentKartModalScrollGuard() {
     const isModalOpen = () => !!document.querySelector(".modal:not(.hidden)");
     const isInsideAllowedScrollArea = target => {
@@ -692,7 +692,7 @@ window.addEventListener("popstate", event => {
 ensureStudentKartHistory();
 
 
-/* LOCAL PROFILE */
+/* Profile data */
 
 function getProfileStorageKey() {
 
@@ -846,7 +846,7 @@ async function getUserProfile() {
 }
 
 
-/* WISHLIST — SUPABASE */
+/* Wishlist */
 
 let currentWishlist = [];
 
@@ -1330,7 +1330,7 @@ async function removeFromWishlist(productId) {
 }
 
 
-/* PRODUCT HELPERS */
+/* Product helpers */
 
 function normalizeProduct(product) {
 
@@ -1455,7 +1455,7 @@ function isMyProduct(product) {
 }
 
 
-/* AUTH */
+/* Authentication */
 
 async function getCurrentUser() {
 
@@ -1568,7 +1568,7 @@ function updateNavbar() {
 }
 
 
-/* LOAD PRODUCTS */
+/* Load products */
 
 async function loadProducts() {
 
@@ -1913,7 +1913,7 @@ function updateFilterStatus(count) {
 }
 
 
-/* SELLER TRIGGER */
+/* Seller actions */
 
 function sellerTrigger(
     product,
@@ -1958,7 +1958,7 @@ function sellerTrigger(
         </button>
     `;
 }
-/* RENDER PRODUCTS */
+/* Render products */
 
 function renderProducts(products, targetContainerId = "productContainer", targetEmptyId = "emptyState") {
 
@@ -2110,7 +2110,7 @@ function renderProducts(products, targetContainerId = "productContainer", target
 }
 
 
-/* PRODUCT DETAILS */
+/* Product details */
 
 async function openProductDetails(productId) {
 
@@ -2330,7 +2330,7 @@ async function openProductDetails(productId) {
 }
 
 
-/* SELLER PROFILE */
+/* Seller profile */
 
 function ensureSellerProfileUI() {
 
@@ -2835,7 +2835,7 @@ async function openSellerProfile(
 }
 
 
-/* INQUIRIES */
+/* Inquiries */
 
 function contactSeller() {
 
@@ -3834,7 +3834,7 @@ async function updateInquiryStatus(
 }
 
 
-/* IMAGE UPLOAD */
+/* Image upload */
 
 async function uploadProductImage(
     file
@@ -3974,7 +3974,7 @@ function handleImagePreview(event) {
 }
 
 
-/* SELL / EDIT PRODUCT */
+/* Sell and edit */
 
 function openSellModal() {
 
@@ -4488,7 +4488,7 @@ async function deleteProduct(
 }
 
 
-/* LOGIN / SIGNUP / LOGOUT */
+/* Login, signup and logout */
 
 function normalizeAuthEmail(raw) {
     const value = String(raw || "").trim().toLowerCase();
@@ -4674,7 +4674,7 @@ async function logoutUser() {
 }
 
 
-/* PROFILE */
+/* Profile */
 
 async function openProfile() {
 
@@ -4855,7 +4855,7 @@ function handleProfileImagePreview(
         `<img src="${url}" alt="">`;
 }
 
-/* USERNAME AVAILABILITY */
+/* Username availability */
 let studentKartUsernameCheckTimer = null;
 let studentKartUsernameCheckToken = 0;
 
@@ -5248,7 +5248,7 @@ async function saveEditedProfile(
 }
 
 
-/* MY LISTINGS */
+/* My listings */
 
 async function loadMyListings() {
 
@@ -5449,7 +5449,7 @@ async function loadMyListings() {
 }
 
 
-/* SEARCH */
+/* Search */
 
 function performSearch() {
 
@@ -5577,7 +5577,7 @@ function selectCategory(category) {
 }
 
 
-/* NOTIFICATIONS UI */
+/* Notifications */
 
 function ensureNotificationsUI() {
 
@@ -6038,7 +6038,7 @@ function injectNotificationStyles() {
 }
 
 
-/* NOTIFICATION HELPERS */
+/* Notification helpers */
 
 function formatNotificationTime(dateValue) {
 
@@ -6865,12 +6865,12 @@ function showNotificationPopup(
         );
 }
 
-/* EVENT LISTENERS */
+/* Event listeners */
 
 function setupEventListeners() {
-    /* Global wishlist delegation — works for dynamically rendered cards too. */
+    // Wishlist actions are delegated so dynamic cards work too.
     
-/* PRODUCT IMAGE LONG-PRESS PREVIEW */
+/* Product image preview */
 (() => {
     let pressTimer = null;
     let longPressTriggered = false;
@@ -8246,7 +8246,7 @@ function startStudentKartAutoRefresh() {
 
 startStudentKartAutoRefresh();
 
-// CHAT SYSTEM FUNCTIONS
+// Chat FUNCTIONS
 async function openInquiryChat(inquiryId) {
     if (!currentUser) {
         openModal("loginModal");
@@ -11658,7 +11658,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* STUDENTKART TOUCH RIPPLE Replaces the browser's default blue tap flash with a small teal ripple exactly where the user touches/clicks. */
 /* STUDENTKART TOUCH FEEDBACK + SOFT CLICK SOUND */
-/* Lightweight tap feedback: visual only.
+/* Tap feedback. Visual only.
    Audio feedback was removed because creating/resuming WebAudio on every
    tap adds unnecessary work on mobile and makes the UI feel delayed. */
 document.addEventListener("pointerdown", event => {
