@@ -12451,15 +12451,15 @@ body.studentkart-dark .filter-panel-grid input,body.studentkart-dark .filter-pan
 }
 
 
-/* FINAL FIX — search bar must sit clearly BELOW the navbar */
+/* FINAL FIX — 25px gap below navbar */
 .navbar-search-panel {
-    top: 88px !important;
+    top: 95px !important;
     z-index: 9999 !important;
 }
 
 @media (max-width: 600px) {
     .navbar-search-panel {
-        top: 80px !important;
+        top: 87px !important;
         width: calc(100vw - 16px) !important;
     }
 }
