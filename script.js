@@ -511,6 +511,8 @@ function closeAllModals(options = {}) {
 }
 
 
+
+
 /* STUDENTKART MODAL BACKGROUND TOUCH GUARD Keep the page behind an open popup completely stationary on mobile. The popup's own scroll containers remain scrollable. */
 (function installStudentKartModalScrollGuard() {
     const isModalOpen = () => !!document.querySelector(".modal:not(.hidden)");
@@ -1649,6 +1651,7 @@ async function loadProducts() {
 }
 
 
+
 function updateStats() {
     const total = currentProducts.length;
 
@@ -2552,6 +2555,7 @@ async function openSellerProfile(
 
     currentSellerProfile =
         sellerId;
+
 
 
     const avatar =
@@ -6689,6 +6693,7 @@ async function openNotification(
 }
 
 
+
 function startNotificationRefresh() {
 
     stopNotificationRefresh();
@@ -8062,6 +8067,7 @@ function setupAuthListener() {
 }
 
 
+
 /* NEW USER ENTRY GATE */
 const STUDENTKART_GUEST_MODE_KEY = "studentkart_guest_mode";
 
@@ -8823,6 +8829,7 @@ function openChat(inquiry) {
 }
 
 
+
 // Open the other participant's profile by tapping the chat header.
 function showChatsFromChat() {
     const chatModal = $("chatModal");
@@ -8874,6 +8881,7 @@ $("chatModal")?.querySelector(".chat-person")?.addEventListener("click", async (
 $("chatModal")?.querySelector(".chat-person")?.style.setProperty("cursor", "pointer");
 
 
+
 $("chatVoiceCallButton")?.addEventListener("click", () => {
     showToast("Voice calls will be available soon.", "info");
 });
@@ -8885,6 +8893,7 @@ $("chatVideoCallButton")?.addEventListener("click", () => {
 // The send button is the chat form's submit button.
 // Do not intercept its click here; otherwise typed messages never reach
 // the form submit handler.
+
 
 
 $("chatBackButton")?.addEventListener("click", event => {
@@ -9425,6 +9434,7 @@ async function loadChatMessages() {
         }
 
 
+
         container.innerHTML = profileIntroHtml + visibleMessages.map(message => {
             const isMine = message.sender_id === currentUser.id;
             const reply = parseChatReplyMessage(message.message);
@@ -9705,6 +9715,7 @@ function setChatReplyPreview(text, label = "Replying") {
     textEl.textContent = String(text || "").slice(0, 180);
     preview.classList.remove("hidden");
 }
+
 
 
 let chatPresenceChannel = null;
@@ -10044,7 +10055,191 @@ $("chatAttachButton")?.addEventListener("click", event => {
 });
 
 $("chatCameraOption")?.addEventListener("click", () => {
-    openChatFilePicker("chatCameraInput", "image
+    openChatFilePicker("chatCameraInput", "image/*", "environment");
+});
+
+$("chatPhotoVideoOption")?.addEventListener("click", () => {
+    openChatFilePicker("chatImageInput", "image/*,video/*");
+});
+
+$("chatVideoOption")?.addEventListener("click", () => {
+    openChatFilePicker("chatVideoInput", "video/*", "environment");
+});
+
+document.addEventListener("click", event => {
+    const wrap = document.querySelector(".chat-attach-wrap");
+    if (wrap && !wrap.contains(event.target)) closeChatAttachmentMenu();
+});
+
+function handleChatMediaInput(event) {
+    const file = event.target.files?.[0];
+    event.target.removeAttribute("capture");
+    showChatImageSelection(file);
+}
+
+$("chatImageInput")?.addEventListener("change", handleChatMediaInput);
+$("chatCameraInput")?.addEventListener("change", handleChatMediaInput);
+$("chatVideoInput")?.addEventListener("change", handleChatMediaInput);
+
+$("chatEmojiButton")?.addEventListener("click", () => {
+    $("chatEmojiPicker")?.classList.toggle("hidden");
+});
+
+$("chatEmojiPicker")?.addEventListener("click", event => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    const input = $("chatInput");
+    if (!input) return;
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    input.value = input.value.slice(0, start) + button.textContent + input.value.slice(end);
+    input.focus();
+    input.selectionStart = input.selectionEnd = start + button.textContent.length;
+});
+
+$("cancelChatReply")?.addEventListener("click", clearChatReplyPreview);
+
+document.addEventListener("click", event => {
+    const picker = $("chatEmojiPicker");
+    const button = $("chatEmojiButton");
+    if (picker && !picker.contains(event.target) && event.target !== button && !button?.contains(event.target)) {
+        picker.classList.add("hidden");
+    }
+});
+
+$("chatMessages")?.addEventListener("click", event => {
+    const image = event.target.closest("[data-chat-image]");
+    if (!image) return;
+
+    const url = image.getAttribute("data-chat-image");
+    if (!url) return;
+
+    const viewer = document.createElement("div");
+    viewer.className = "chat-image-viewer";
+    viewer.innerHTML = '<button type="button" aria-label="Close"><i class="fas fa-xmark"></i></button><img alt="Shared photo">';
+    viewer.querySelector("img").src = url;
+    document.body.appendChild(viewer);
+
+    // This viewer is outside the normal .modal stack, so give it exactly
+    // one temporary history entry. Android/browser Back now closes only the
+    // photo preview and does not navigate away from the chat.
+    if (window.history.state?.studentKartPopup !== "chatImageViewer") {
+        window.history.pushState(
+            {
+                ...(window.history.state || {}),
+                studentKart: true,
+                studentKartPopup: "chatImageViewer"
+            },
+            "",
+            window.location.href
+        );
+    }
+
+    const close = () => {
+        if (window.history.state?.studentKartPopup === "chatImageViewer") {
+            window.history.back();
+        } else {
+            viewer.remove();
+        }
+    };
+
+    viewer.addEventListener("click", event => {
+        if (event.target === viewer || event.target.closest("button")) {
+            close();
+        }
+    });
+});
+
+
+$("selectAllInquiries")?.addEventListener(
+    "change",
+    event => {
+        document.querySelectorAll(".inquiry-select-checkbox").forEach(box => {
+            box.checked = event.target.checked;
+        });
+        updateBulkInquiryToolbar();
+    }
+);
+
+document.addEventListener("change", event => {
+    if (event.target.matches(".inquiry-select-checkbox")) {
+        updateBulkInquiryToolbar();
+    }
+});
+
+$("cancelChatSelectionButton")?.addEventListener(
+    "click",
+    () => exitChatSelectionMode()
+);
+
+$("bulkMarkReadButton")?.addEventListener(
+    "click",
+    bulkMarkInquiriesRead
+);
+
+$("bulkMarkUnreadButton")?.addEventListener(
+    "click",
+    bulkMarkInquiriesUnread
+);
+
+$("bulkMarkRepliedButton")?.addEventListener(
+    "click",
+    bulkMarkInquiriesReplied
+);
+
+$("bulkDeleteForMeButton")?.addEventListener(
+    "click",
+    bulkDeleteInquiriesForMe
+);
+
+$("chatDeleteButton")?.addEventListener(
+    "click",
+    () => {
+        $("chatDeleteMenu")?.classList.toggle("hidden");
+    }
+);
+
+$("deleteChatForMeButton")?.addEventListener(
+    "click",
+    deleteChatForMe
+);
+
+$("deleteChatForEveryoneButton")?.addEventListener(
+    "click",
+    deleteChatForEveryone
+);
+
+$("blockChatUserButton")?.addEventListener(
+    "click",
+    blockCurrentChatUser
+);
+
+
+// Stop realtime when chat closes
+const originalCloseModal =
+    window.closeModal;
+
+if (typeof originalCloseModal === "function") {
+
+    window.closeModal =
+        function (modalId) {
+
+            if (modalId === "chatModal") {
+                stopChatRealtime();
+                currentChatInquiry = null;
+                closeChatDeleteMenu();
+            }
+
+            return originalCloseModal(modalId);
+        };
+}
+
+/* RECEIVED INQUIRIES ACTION HANDLER
+ *
+ * Chat actions are handled by the inquiriesContainer listener above.
+ * Do not add another document-level chat handler here: two handlers
+ * opening the same inquiry create duplicate Chat history entries.
+ */
 
 /* CHAT UNREAD NOTIFICATIONS */
 
@@ -10303,6 +10498,7 @@ async function startChatUnreadRealtime() {
             }
         });
 }
+
 
 
 /* MODAL BACK + HOME NAVIGATION */
