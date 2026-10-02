@@ -7759,7 +7759,13 @@ async function loadChatContactProfile() {
             currentChatInquiry?.product_name ? "Product: " + currentChatInquiry.product_name : ""
         ].filter(Boolean).join(" • ") || "StudentKart chat";
 
-        const avatarUrl = profile.avatar_url || "";
+        const avatarUrl =
+            profile.avatar_url ||
+            fallback?.avatarUrl ||
+            fallback?.avatar_url ||
+            "";
+
+        console.log("Chat avatar:", avatarUrl);
 
         ["chatProfileName"].forEach(id => {
             const el = $(id);
