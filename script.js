@@ -8147,9 +8147,50 @@ document.addEventListener("pointerdown", event => {
 const bottomSettingsButton = $("bottomSettingsButton");
 if (bottomSettingsButton) {
     bottomSettingsButton.addEventListener("click", () => {
-        showToast?.("Settings coming next");
+        if (currentUser) {
+            openModal("settingsModal");
+        } else {
+            openModal("loginModal");
+        }
     });
 }
+
+document.addEventListener("click", (event) => {
+    const row = event.target.closest("[data-setting-action]");
+    if (!row) return;
+
+    const action = row.dataset.settingAction;
+
+    if (action === "edit-profile") {
+        closeModal("settingsModal");
+        openModal("editProfileModal");
+        loadProfile?.();
+        return;
+    }
+
+    if (action === "logout") {
+        closeModal("settingsModal");
+        $("logoutButton")?.click();
+        return;
+    }
+
+    if (action === "about" || action === "terms" || action === "privacy-policy" ||
+        action === "safety-about" || action === "contact") {
+        const map = {
+            about: "about",
+            terms: "terms",
+            "privacy-policy": "privacy",
+            "safety-about": "safety",
+            contact: "contact"
+        };
+        closeModal("settingsModal");
+        const infoButton = document.querySelector(`[data-footer-info="${map[action]}"]`);
+        infoButton?.click();
+        return;
+    }
+
+    showToast?.("This setting will be available soon.");
+});
 
 const footerInfoContent = {
     about: {
