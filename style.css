@@ -20279,3 +20279,35 @@ body.category-page-active .category-page-container {
     display: none !important;
   }
 }
+
+
+/* STEP 4 FIX — Separate the top logo navbar from the bottom floating navigation */
+@media (max-width: 600px) {
+  body:not(.studentkart-modal-navigation-hidden) > .navbar {
+    position: sticky !important;
+    top: 0 !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    z-index: 5000 !important;
+  }
+
+  body:not(.studentkart-modal-navigation-hidden) > .navbar > .nav-container {
+    position: relative !important;
+    width: 100% !important;
+    min-height: 64px !important;
+    height: auto !important;
+    border-radius: 0 0 20px 20px !important;
+  }
+
+  /* The six-item navigation must remain the only bottom floating bar. */
+  body:not(.studentkart-modal-navigation-hidden) > .navbar .mobile-bottom-nav {
+    display: none !important;
+  }
+
+  body:not(.studentkart-modal-navigation-hidden) {
+    padding-bottom: 120px !important;
+  }
+}
