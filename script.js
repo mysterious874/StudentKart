@@ -7717,6 +7717,17 @@ function showNewUserGate() {
     document.documentElement.classList.add("new-user-gate-lock");
     document.body.style.top = `-${studentKartGateScrollY}px`;
     gate.classList.remove("hidden");
+
+    // Bind the welcome actions directly as a safety net so they still work
+    // even if another optional event listener fails during page initialization.
+    const loginButton = $("newUserLoginButton");
+    const signupButton = $("newUserSignupButton");
+    const guestButton = $("newUserGuestButton");
+
+    if (loginButton) loginButton.onclick = openLoginFromNewUserGate;
+    if (signupButton) signupButton.onclick = openSignupFromNewUserGate;
+    if (guestButton) guestButton.onclick = enterStudentKartGuestMode;
+
     document.body.classList.add("new-user-gate-open");
 }
 
