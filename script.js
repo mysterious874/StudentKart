@@ -11599,6 +11599,9 @@ function populateStudentKartIndiaData() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    startStudentKartLanguageObserver();
+    applyStudentKartLanguage();
+
     populateStudentKartIndiaData();
     setupEditProfileCityLocationPicker();
     setupSellProductLocationPicker();
@@ -12023,30 +12026,108 @@ function skTranslate(value, language) {
     return source;
 }
 
+const studentKartLanguageTextOriginals = new WeakMap();
+const studentKartLanguageAttributeOriginals = new WeakMap();
+let studentKartLanguageObserver = null;
+let studentKartLanguageApplying = false;
+
+function getStudentKartLanguageSource(node) {
+    if (node.nodeType !== Node.TEXT_NODE) return "";
+    if (!studentKartLanguageTextOriginals.has(node)) {
+        studentKartLanguageTextOriginals.set(node, node.nodeValue || "");
+    }
+    return studentKartLanguageTextOriginals.get(node) || "";
+}
+
+function getStudentKartAttributeSource(node, attr) {
+    if (!(node instanceof Element)) return "";
+    let values = studentKartLanguageAttributeOriginals.get(node);
+    if (!values) {
+        values = {};
+        studentKartLanguageAttributeOriginals.set(node, values);
+    }
+    if (!(attr in values)) {
+        values[attr] = node.getAttribute(attr) || "";
+    }
+    return values[attr] || "";
+}
+
 function applyStudentKartLanguage(root = document) {
     const settings = getStudentKartSettings();
-    const language = STUDENTKART_LANGUAGES[settings.preferences.language] ? settings.preferences.language : "en";
+    const language = STUDENTKART_LANGUAGES[settings.preferences.language]
+        ? settings.preferences.language
+        : "en";
+
     document.documentElement.lang = language;
 
-    const walk = node => {
+    if (studentKartLanguageApplying) return;
+    studentKartLanguageApplying = true;
+
+    const translateNode = node => {
         if (node.nodeType === Node.TEXT_NODE) {
-            const raw = node.nodeValue || "", value = raw.trim();
+            const source = getStudentKartLanguageSource(node);
+            const value = source.trim();
             if (!value) return;
+
             const translated = skTranslate(value, language);
             if (translated !== value) {
-                const pos = raw.indexOf(value);
-                node.nodeValue = raw.slice(0, pos) + translated + raw.slice(pos + value.length);
+                const raw = node.nodeValue || "";
+                const leading = raw.match(/^\\s*/)?.[0] || "";
+                const trailing = raw.match(/\\s*$/)?.[0] || "";
+                node.nodeValue = leading + translated + trailing;
+            } else if ((node.nodeValue || "").trim() !== value) {
+                const raw = node.nodeValue || "";
+                const leading = raw.match(/^\\s*/)?.[0] || "";
+                const trailing = raw.match(/\\s*$/)?.[0] || "";
+                node.nodeValue = leading + value + trailing;
             }
             return;
         }
-        if (node.nodeType !== Node.ELEMENT_NODE || node.closest("script,style,noscript") || node.dataset.skLangSkip === "true") return;
-        ["placeholder","title","aria-label"].forEach(attr => {
-            if (node.hasAttribute(attr)) node.setAttribute(attr, skTranslate(node.getAttribute(attr), language));
+
+        if (
+            node.nodeType !== Node.ELEMENT_NODE ||
+            node.closest("script,style,noscript") ||
+            node.dataset.skLangSkip === "true"
+        ) {
+            return;
+        }
+
+        ["placeholder", "title", "aria-label"].forEach(attr => {
+            if (!node.hasAttribute(attr)) return;
+            const source = getStudentKartAttributeSource(node, attr);
+            if (!source) return;
+            node.setAttribute(attr, skTranslate(source, language));
         });
-        [...node.childNodes].forEach(walk);
+
+        [...node.childNodes].forEach(translateNode);
     };
-    walk(root);
+
+    translateNode(root);
+    studentKartLanguageApplying = false;
 }
+
+function startStudentKartLanguageObserver() {
+    if (studentKartLanguageObserver || !document.body) return;
+
+    studentKartLanguageObserver = new MutationObserver(mutations => {
+        const settings = getStudentKartSettings();
+        if (!STUDENTKART_LANGUAGES[settings.preferences.language]) return;
+
+        for (const mutation of mutations) {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE) {
+                    applyStudentKartLanguage(node);
+                }
+            });
+        }
+    });
+
+    studentKartLanguageObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
 const STUDENTKART_SETTINGS_DEFAULTS = {
     notifications: {
         chat: true,
