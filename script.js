@@ -8513,10 +8513,27 @@ async function sendChatMessage(event) {
             sendButton.disabled = false;
             sendButton.innerHTML = originalSendHtml || '<i class="fas fa-paper-plane"></i>';
         }
-        // Keep the chat input focused after sending so the mobile
-        // keyboard stays open for rapid consecutive messages.
+        // Mobile browsers can dismiss the keyboard when the submit
+        // button finishes and the chat messages are re-rendered. Re-focus
+        // after the DOM update so the keyboard stays open for consecutive
+        // messages.
         if (input) {
-            input.focus({ preventScroll: true });
+            const keepChatInputFocused = () => {
+                const chatModal = $("chatModal");
+                const chatInput = $("chatInput");
+
+                if (
+                    chatInput &&
+                    chatModal &&
+                    !chatModal.classList.contains("hidden")
+                ) {
+                    chatInput.focus({ preventScroll: true });
+                }
+            };
+
+            keepChatInputFocused();
+            window.setTimeout(keepChatInputFocused, 50);
+            window.setTimeout(keepChatInputFocused, 180);
         }
     }
 }
