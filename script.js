@@ -11627,7 +11627,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const title = document.getElementById("footerInfoTitle");
             const body = document.getElementById("footerInfoBody");
             if (title) title.textContent = info.title;
-            if (body) body.textContent = info.body;
+            if (body) body.innerHTML = info.body.replace(/\n/g, "<br>");
 
             openModal("footerInfoModal");
         });
