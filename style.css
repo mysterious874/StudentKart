@@ -20967,3 +20967,12 @@ body:has(> #studentKartSplash) > .mobile-bottom-nav{
   opacity:0 !important;
   pointer-events:none !important;
 }
+
+
+/* MOBILE HERO — MOVE HERO SECTION 50PX UP */
+@media screen and (max-width:600px){
+  html body > .hero{
+    transform:translateY(-50px) !important;
+    margin-bottom:-50px !important;
+  }
+}
