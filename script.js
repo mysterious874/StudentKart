@@ -8147,29 +8147,29 @@ document.addEventListener("pointerdown", event => {
 const footerInfoContent = {
     about: {
         title: "About StudentKart",
-        body: "StudentKart is a student-focused marketplace built to make buying, selling and discovering useful products around student life simple and convenient."
+        body: "StudentKart is a student-focused marketplace created to make everyday buying, selling and discovering products simpler for students. From books and electronics to furniture, vehicles and useful services, the platform brings students and sellers together in one convenient place. Our goal is to make student-to-student transactions easier, more accessible and more organized."
     },
     how: {
         title: "How It Works",
-        body: "Browse listings, search or filter what you need, open a listing to view its details, and contact the seller. Want to sell? Sign in, add your item details and publish your listing."
+        body: "Using StudentKart is simple. Browse the marketplace, search for the product you need, and use filters to find relevant listings by category, price and location. Open any listing to view its details and contact the seller. If you want to sell something, sign in, add your product information and photos, set a price and publish the listing so other students can discover it."
     },
     safety: {
         title: "Safety Tips",
-        body: "Meet in a safe public place, inspect an item before paying, avoid sharing sensitive OTPs or passwords, and report suspicious listings or users through StudentKart."
+        body: "Your safety matters when buying or selling online. Meet other users in a safe and public place, inspect products carefully before completing a transaction, and avoid sharing passwords, OTPs or sensitive personal information. Be cautious of unusually cheap offers or requests for advance payments. If a listing or user seems suspicious, use the available reporting features and avoid continuing the transaction."
     },
     contact: {
         title: "Contact Us",
-        body: "For questions or feedback, email rathodharish004@gmail.com. StudentKart is based in Titwala, Kalyan, Maharashtra, India."
+        body: "Have a question, suggestion or feedback about StudentKart? You can reach us directly at rathodharish004@gmail.com. Whether you have found a problem, want to suggest a new feature or simply want to share your experience, your feedback can help improve StudentKart for students. StudentKart is based in Titwala, Kalyan, Maharashtra, India."
     },
     privacy: {
         title: "Privacy Policy",
-        body: "StudentKart should only collect and use information needed to provide marketplace, account and communication features. Never share your password or OTP with anyone."
+        body: "StudentKart is designed to use personal information only where it is needed to provide account, marketplace and communication features. We aim to keep user information handled responsibly and to avoid exposing unnecessary contact details publicly. Never share your password, OTP or other account credentials with another person, even if someone claims to be from StudentKart."
     },
     terms: {
         title: "Terms & Conditions",
-        body: "Use StudentKart responsibly. Listings should be genuine and lawful, users should communicate respectfully, and transactions should be completed with appropriate care between buyer and seller."
+        body: "By using StudentKart, users are expected to provide genuine listing information, communicate respectfully and use the platform only for lawful purposes. Buyers and sellers are responsible for checking products, agreeing on transaction details and completing payments safely. StudentKart is a platform that connects users and does not replace the user's responsibility to verify a listing, seller or transaction before proceeding."
     }
-};
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[data-footer-info]").forEach(button => {
