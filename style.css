@@ -20456,3 +20456,13 @@ body.category-page-active .category-page-container {
     z-index: 99999 !important;
   }
 }
+
+
+/* MOVE MAIN TOP NAVBAR UP */
+@media (max-width: 600px) {
+  body > header.navbar {
+    position: relative !important;
+    top: -300px !important;
+    margin-bottom: -300px !important;
+  }
+}
