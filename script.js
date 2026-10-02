@@ -7772,6 +7772,13 @@ async function loadChatContactProfile() {
         const collegeEl = $("chatProfileCollege");
         if (collegeEl) collegeEl.textContent = college;
 
+        const profileImg = $("chatProfileAvatarImage");
+        const profileIcon = $("chatProfileAvatarIcon");
+        if (profileImg && profileIcon) {
+            profileImg.src = avatarUrl;
+            profileIcon.style.display = avatarUrl ? "none" : "";
+        }
+
         const headerImg = $("chatAvatarImage");
         const headerIcon = $("chatAvatarIcon");
         if (headerImg && headerIcon) {
@@ -7939,8 +7946,22 @@ $("chatModal")?.querySelector(".chat-person")?.style.setProperty("cursor", "poin
 
 $("chatViewProfileButton")?.addEventListener("click", async event => {
     event.preventDefault();
+    event.stopPropagation();
+
     const otherUserId = window.currentChatOtherUserId;
-    if (otherUserId) await openSellerProfile(otherUserId);
+    const button = event.currentTarget;
+    if (!otherUserId || !button) return;
+
+    const originalHtml = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening...';
+
+    try {
+        await openSellerProfile(otherUserId);
+    } finally {
+        button.disabled = false;
+        button.innerHTML = originalHtml;
+    }
 });
 
 $("chatVoiceCallButton")?.addEventListener("click", () => {
