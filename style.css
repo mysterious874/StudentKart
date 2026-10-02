@@ -11587,6 +11587,55 @@ body .inquiries-whatsapp-header .inquiry-bulk-tools {
 
 
 /* Chat multi-message selection */
+.chat-message-selection-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 64px;
+    padding: 8px 12px;
+    background: var(--card, #fff);
+    border-bottom: 1px solid rgba(15,139,141,.12);
+}
+.chat-message-selection-header.hidden { display: none !important; }
+.chat-selection-header-icon,
+.chat-message-selection-header-actions button {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text, #193238);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.chat-selection-header-icon:hover,
+.chat-message-selection-header-actions button:hover {
+    background: rgba(15,139,141,.09);
+}
+.chat-message-selection-header > strong {
+    min-width: 28px;
+    font-size: 18px;
+}
+.chat-message-selection-header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.chat-message-selection-header + .chat-head {
+    display: none;
+}
+body.studentkart-dark .chat-message-selection-header {
+    background: #10272a;
+    border-bottom-color: rgba(143,225,221,.12);
+}
+body.studentkart-dark .chat-selection-header-icon,
+body.studentkart-dark .chat-message-selection-header-actions button {
+    color: #e7f7f5;
+}
+
 .chat-selection-bar {
     display: flex;
     align-items: center;
