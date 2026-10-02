@@ -18359,3 +18359,208 @@ body #settingsModal.modal.studentkart-bottom-nav-opening {
 body #settingsModal.modal.studentkart-bottom-nav-opening .modal-content {
     animation: studentKartMacOpen 0.52s cubic-bezier(.16,.82,.18,1) both !important;
 }
+
+
+/* =========================================================
+   STUDENTKART — FINAL VISUAL CLEANUP / CONSISTENCY PASS
+   Styling-only polish. No functionality changes.
+   ========================================================= */
+
+/* 1. Remove accidental legacy positioning from the category picker. */
+.category-picker-grid {
+    transform: none !important;
+}
+
+/* 2. One consistent surface language for cards and interactive panels. */
+.product-card,
+.category-card,
+.step-card,
+.empty-state,
+.settings-group,
+.settings-action-option {
+    border-radius: 14px;
+}
+
+.product-card,
+.category-card,
+.step-card {
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        border-color .18s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+}
+
+.category-card:hover,
+.step-card:hover {
+    transform: translateY(-2px);
+}
+
+/* 3. Improve marketplace readability — metadata was too tiny. */
+.product-body .product-meta {
+    font-size: 10.5px;
+    line-height: 1.35;
+}
+
+.product-card h3 {
+    line-height: 1.35;
+}
+
+.product-card .product-price {
+    line-height: 1.2;
+}
+
+/* 4. Keep form controls visually aligned across filters/forms. */
+.marketplace-filters input,
+.marketplace-filters select,
+.filter-search,
+.form-group input,
+.form-group select {
+    min-height: 44px;
+    box-sizing: border-box;
+}
+
+.marketplace-filters input,
+.marketplace-filters select,
+.filter-search {
+    border-radius: 11px;
+}
+
+/* 5. Consistent focus treatment without heavy glow. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid rgba(15,139,141,.45);
+    outline-offset: 2px;
+}
+
+/* 6. Make all modal close controls feel like the same component. */
+.modal-close,
+.product-details-close,
+.filter-panel-close {
+    transition:
+        background .16s ease,
+        color .16s ease,
+        transform .16s ease;
+}
+
+.modal-close:hover,
+.product-details-close:hover,
+.filter-panel-close:hover {
+    transform: scale(1.04);
+}
+
+/* 7. Cleaner modal spacing on compact screens. */
+@media (max-width: 600px) {
+    .modal {
+        padding: 8px;
+    }
+
+    .modal-content {
+        border-radius: 16px;
+    }
+
+    .product-body {
+        padding: 13px;
+    }
+
+    .product-image-wrap {
+        border-radius: 0;
+    }
+
+    .section-heading {
+        margin-bottom: 22px;
+    }
+}
+
+/* 8. Keep long text from making cards look uneven. */
+.product-card h3,
+.product-card p,
+.category-card strong,
+.category-card small,
+.step-card h3,
+.step-card p {
+    overflow-wrap: anywhere;
+}
+
+/* 9. Search panel should look like one clean control group. */
+.navbar-search-field,
+.navbar-filter-button,
+.navbar-search-submit {
+    transition:
+        border-color .16s ease,
+        box-shadow .16s ease,
+        background .16s ease,
+        transform .16s ease;
+}
+
+.navbar-filter-button:hover,
+.navbar-search-submit:hover {
+    transform: translateY(-1px);
+}
+
+/* 10. Prevent decorative shadows from becoming visually noisy. */
+.navbar,
+.mobile-bottom-nav,
+.modal-content,
+.chat-modal-content,
+.settings-modal-content {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* 11. Cleaner floating bottom navigation proportions. */
+.mobile-bottom-nav {
+    box-shadow: 0 10px 30px rgba(15,23,42,.14);
+}
+
+.bottom-nav-item {
+    transition:
+        color .16s ease,
+        background .16s ease,
+        transform .16s ease;
+}
+
+.bottom-nav-item:active {
+    transform: scale(.97);
+}
+
+/* 12. Footer content should breathe instead of looking compressed. */
+.footer-brand p {
+    line-height: 1.65;
+}
+
+.footer-link-group button {
+    min-height: 34px;
+}
+
+/* 13. Keep dark mode surfaces consistent with the same hierarchy. */
+body.studentkart-dark .product-card,
+body.studentkart-dark .category-card,
+body.studentkart-dark .step-card,
+body.studentkart-dark .empty-state {
+    box-shadow: 0 7px 22px rgba(0,0,0,.16);
+}
+
+body.studentkart-dark .product-card:hover,
+body.studentkart-dark .category-card:hover,
+body.studentkart-dark .step-card:hover {
+    box-shadow: 0 10px 28px rgba(0,0,0,.22);
+}
+
+/* 14. Respect users who disable motion. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
