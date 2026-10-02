@@ -8119,7 +8119,7 @@ async function loadChatContactProfile() {
     }
 }
 
-async function isChatUserBlocked(userId) {
+function isChatUserBlocked(userId) {
     if (!userId || !currentUser) return false;
     const blocked = getStudentKartSettings()?.privacy?.blockedUsers;
     return Array.isArray(blocked) && blocked.map(String).includes(String(userId));
