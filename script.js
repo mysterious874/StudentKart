@@ -540,7 +540,7 @@ async function getUserProfile() {
             await supabaseClient
                 .from("profiles")
                 .select(
-                    "id,name,college,email,avatar_url,created_at,updated_at"
+                    "id,name,username,phone,college,email,avatar_url,created_at,updated_at"
                 )
                 .eq(
                     "id",
@@ -572,6 +572,12 @@ async function getUserProfile() {
                 currentUser.email
                     ?.split("@")[0] ||
                 "Student",
+            username:
+                currentUser.user_metadata?.username ||
+                "",
+            phone:
+                currentUser.phone || currentUser.user_metadata?.phone ||
+                "",
             college:
                 currentUser.user_metadata
                     ?.college ||
@@ -2155,7 +2161,7 @@ async function getSellerProfileData(
             await supabaseClient
                 .from("profiles")
                 .select(
-                    "id,name,college,avatar_url,created_at"
+                    "id,name,username,phone,college,avatar_url,created_at"
                 )
                 .eq(
                     "id",
@@ -2821,7 +2827,7 @@ async function loadReceivedInquiries() {
             const { data: profiles } =
                 await supabaseClient
                     .from("profiles")
-                    .select("id,name,college,avatar_url")
+                    .select("id,name,username,phone,college,avatar_url")
                     .in("id", participantIds);
 
             (profiles || []).forEach(profile => {
@@ -2879,6 +2885,7 @@ async function loadReceivedInquiries() {
                         ];
 
                     const participantName =
+                        profile?.username ||
                         profile?.name ||
                         (String(inquiry.buyer_id) === String(currentUser.id)
                             ? inquiry.seller_name
@@ -2922,7 +2929,7 @@ async function loadReceivedInquiries() {
                         <div
                             class="whatsapp-inquiry-card"
                             data-inquiry-id="${escapeHTML(inquiry.id)}"
-                            data-chat-name="${escapeHTML(participantName)}"
+                            data-chat-name="${escapeHTML([participantName, profile?.username || "", profile?.email || "", profile?.phone || ""].filter(Boolean).join(" "))}"
                             data-chat-preview="${escapeHTML(preview)}"
                             data-chat-unread="${unread > 0 ? "true" : "false"}"
                         >
@@ -3131,6 +3138,31 @@ function bindChatLongPress() {
     });
 }
 
+async function searchStudentKartUsers(query) {
+    const box = $("chatUserSearchResults"); if (!box || !currentUser) return;
+    const q = String(query || "").trim();
+    if (q.length < 2) { box.innerHTML = ""; box.classList.add("hidden"); return; }
+    box.classList.remove("hidden"); box.innerHTML = '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding students...</span></div>';
+    try {
+        const p = "%" + q.replace(/%/g, "\\%").replace(/_/g, "\\_") + "%";
+        const r = await supabaseClient.from("profiles").select("id,name,username,phone,email,college,avatar_url,city,area").or("username.ilike."+p+",phone.ilike."+p+",email.ilike."+p+",name.ilike."+p).neq("id", currentUser.id).limit(20);
+        if (r.error) throw r.error;
+        if (!r.data?.length) { box.innerHTML = '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No student found</strong><span>Try username, mobile or email.</span></div>'; return; }
+        box.innerHTML = '<div class="chat-user-search-title"><span>STUDENTKART USERS</span><small>'+r.data.length+' result'+(r.data.length===1?"":"s")+'</small></div>'+r.data.map(x=>{const n=x.username||x.name||"Student";const s=x.username&&x.name?x.name:(x.email||x.phone||x.college||"");const a=x.avatar_url?'<img src="'+escapeHTML(x.avatar_url)+'" alt="">':'<span>'+escapeHTML(getInitials(n))+'</span>';return '<button type="button" class="chat-user-search-card" data-user-search-id="'+escapeHTML(x.id)+'"><span class="chat-user-search-avatar">'+a+'</span><span class="chat-user-search-main"><strong>'+escapeHTML(n)+'</strong><small>'+escapeHTML(s)+'</small></span><i class="fas fa-chevron-right"></i></button>';}).join("");
+        box.querySelectorAll("[data-user-search-id]").forEach(c=>c.addEventListener("click",()=>openStudentKartUserProfile(c.dataset.userSearchId)));
+    } catch(e) { console.error("Student search error:",e); box.innerHTML='<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>Please try again.</span></div>'; }
+}
+async function openStudentKartUserProfile(id) {
+    if (!id) return; if (String(id)===String(currentUser?.id)) return openProfile();
+    const r=await supabaseClient.from("profiles").select("id,name,username,phone,email,college,avatar_url,city,area").eq("id",id).maybeSingle();
+    if(r.error||!r.data){showToast("Could not open student profile","error");return;}
+    ensureStudentSearchProfileUI(); const x=r.data;
+    $("studentSearchProfileAvatar").innerHTML=x.avatar_url?'<img src="'+escapeHTML(x.avatar_url)+'" alt="">':escapeHTML(getInitials(x.username||x.name)); $("studentSearchProfileName").textContent=x.name||"Student"; $("studentSearchProfileUsername").textContent=x.username?"@"+x.username:"Username not added"; $("studentSearchProfileCollege").textContent=x.college||"College not added"; $("studentSearchProfileContact").textContent=x.email||x.phone||"Contact not added"; $("studentSearchProfileLocation").textContent=[x.area,x.city].filter(Boolean).join(", ")||"Location not added"; openModal("studentSearchProfileModal");
+}
+function ensureStudentSearchProfileUI(){
+    if($("studentSearchProfileModal"))return; const m=document.createElement("div"); m.id="studentSearchProfileModal";m.className="modal hidden";m.innerHTML='<div class="modal-overlay" data-close-modal></div><div class="modal-content student-search-profile-modal"><button type="button" class="modal-close modal-back-button" data-close-modal aria-label="Back"><i class="fas fa-arrow-left"></i></button><div class="student-search-profile-head"><div id="studentSearchProfileAvatar" class="student-search-profile-avatar"></div><span class="section-label">STUDENTKART USER</span><h2 id="studentSearchProfileName">Student</h2><p id="studentSearchProfileUsername">@username</p></div><div class="student-search-profile-info"><div><i class="fas fa-graduation-cap"></i><span id="studentSearchProfileCollege">College not added</span></div><div><i class="fas fa-location-dot"></i><span id="studentSearchProfileLocation">Location not added</span></div><div><i class="fas fa-address-card"></i><span id="studentSearchProfileContact">Contact not added</span></div></div></div>';document.body.appendChild(m);
+}
+
 function applyChatListFilter() {
     const container = $("inquiriesContainer");
     if (!container) return;
@@ -3167,6 +3199,7 @@ function setupChatListControls() {
         input.addEventListener("input", () => {
             clear?.classList.toggle("hidden", !input.value);
             applyChatListFilter();
+            searchStudentKartUsers(input.value);
         });
     }
 
@@ -3176,6 +3209,8 @@ function setupChatListControls() {
             if (!input) return;
             input.value = "";
             clear.classList.add("hidden");
+            $("chatUserSearchResults")?.classList.add("hidden");
+            $("chatUserSearchResults") && ($("chatUserSearchResults").innerHTML = "");
             applyChatListFilter();
             input.focus();
         });
@@ -4181,6 +4216,10 @@ async function updateProfileUI() {
             "College not added";
     }
 
+    if ($("profileUsernameInfo")) {
+        $("profileUsernameInfo").textContent = profile.username || "Not added";
+    }
+
     if ($("profileCollegeInfo")) {
 
         $("profileCollegeInfo")
@@ -4196,6 +4235,10 @@ async function updateProfileUI() {
             currentUser.email ||
             profile.email ||
             "Not available";
+    }
+
+    if ($("profilePhoneInfo")) {
+        $("profilePhoneInfo").textContent = profile.phone || currentUser.phone || "Not added";
     }
 
     if ($("profileAvatar")) {
@@ -4235,6 +4278,13 @@ function openEditProfile() {
                 .user_metadata
                 ?.name ||
             "";
+    }
+
+    if ($("editProfileUsername")) {
+        $("editProfileUsername").value = profile?.username || currentUser.user_metadata?.username || "";
+    }
+    if ($("editProfilePhone")) {
+        $("editProfilePhone").value = profile?.phone || currentUser.phone || currentUser.user_metadata?.phone || "";
     }
 
     if ($("editProfileCollege")) {
@@ -4314,6 +4364,9 @@ async function saveEditedProfile(
         $("editProfileName")
             ?.value
             ?.trim();
+
+    const username = $("editProfileUsername")?.value?.trim()?.toLowerCase() || "";
+    const phone = $("editProfilePhone")?.value?.trim() || "";
 
     const college =
         $("editProfileCollege")
@@ -4396,6 +4449,8 @@ async function saveEditedProfile(
             id:
                 currentUser.id,
             name,
+            username,
+            phone,
             college,
             state,
             city,
@@ -4428,6 +4483,8 @@ async function saveEditedProfile(
             .updateUser({
                 data: {
                     name,
+                    username,
+                    phone,
                     college,
                     state,
                     city,
