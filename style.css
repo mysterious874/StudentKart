@@ -13469,3 +13469,9 @@ body.studentkart-dark .profile-city-suggestion > span:not(.profile-city-suggesti
 body.studentkart-dark .profile-city-suggestion-empty {
     color: #a9bcc2;
 }
+
+
+/* Chat header: keep the back arrow on the far left. */
+.chat-head > .chat-back-button { order: 0; flex: 0 0 38px; }
+.chat-head > .chat-person { order: 1; flex: 1 1 auto; }
+.chat-head > .chat-actions { order: 2; flex: 0 0 auto; }
