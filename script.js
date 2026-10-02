@@ -11279,6 +11279,73 @@ document.addEventListener("DOMContentLoaded", () => {
         filterPanel?.classList.add("hidden");
     });
 
+    /* StudentKart custom filter dropdowns: avoid native Chrome/Android select popups. */
+    const studentkartCustomFilterSelects = ["categoryFilter", "conditionFilter", "sortFilter"];
+    const studentkartCustomSelectRefresh = {};
+    const studentkartCloseCustomSelects = (except = null) => {
+        document.querySelectorAll(".studentkart-custom-select.is-open").forEach(menu => {
+            if (menu !== except) menu.classList.remove("is-open");
+        });
+    };
+    studentkartCustomFilterSelects.forEach(id => {
+        const select = $(id);
+        if (!select || select.dataset.customized === "true") return;
+        const wrapper = document.createElement("div");
+        wrapper.className = "studentkart-custom-select-wrap";
+        select.parentNode.insertBefore(wrapper, select);
+        wrapper.appendChild(select);
+        select.dataset.customized = "true";
+        select.classList.add("studentkart-native-filter-select");
+
+        const trigger = document.createElement("button");
+        trigger.type = "button";
+        trigger.className = "studentkart-custom-select";
+        trigger.setAttribute("aria-haspopup", "listbox");
+        trigger.setAttribute("aria-expanded", "false");
+        const menu = document.createElement("div");
+        menu.className = "studentkart-custom-select-menu";
+        menu.setAttribute("role", "listbox");
+        menu.setAttribute("aria-label", select.previousElementSibling?.textContent?.trim() || "Select");
+        wrapper.append(trigger, menu);
+
+        const refresh = () => {
+            trigger.innerHTML = '<span class="studentkart-custom-select-value"></span><i class="fas fa-chevron-down"></i>';
+            trigger.querySelector(".studentkart-custom-select-value").textContent = select.options[select.selectedIndex]?.textContent || "";
+            menu.innerHTML = "";
+            Array.from(select.options).forEach(option => {
+                const item = document.createElement("button");
+                item.type = "button";
+                item.className = "studentkart-custom-select-option" + (option.value === select.value ? " is-selected" : "");
+                item.setAttribute("role", "option");
+                item.setAttribute("aria-selected", option.value === select.value ? "true" : "false");
+                item.innerHTML = '<span></span>' + (option.value === select.value ? '<i class="fas fa-check"></i>' : '');
+                item.querySelector("span").textContent = option.textContent;
+                item.addEventListener("click", () => {
+                    select.value = option.value;
+                    select.dispatchEvent(new Event("change", { bubbles: true }));
+                    refresh();
+                    menu.classList.remove("is-open");
+                    trigger.setAttribute("aria-expanded", "false");
+                    studentkartCloseCustomSelects(menu);
+                });
+                menu.appendChild(item);
+            });
+        };
+        refresh();
+        studentkartCustomSelectRefresh[id] = refresh;
+        trigger.addEventListener("click", event => {
+            event.preventDefault();
+            const opening = !menu.classList.contains("is-open");
+            studentkartCloseCustomSelects(menu);
+            menu.classList.toggle("is-open", opening);
+            trigger.setAttribute("aria-expanded", opening ? "true" : "false");
+        });
+        select.addEventListener("change", refresh);
+    });
+    document.addEventListener("click", event => {
+        if (!event.target.closest(".studentkart-custom-select-wrap")) studentkartCloseCustomSelects();
+    });
+
     ["categoryFilter","minPrice","maxPrice","locationFilter","conditionFilter","sortFilter"].forEach(id => {
         $(id)?.addEventListener("change", applyFilters);
     });
@@ -11300,6 +11367,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const category=$("categoryFilter"); if(category) category.value="all";
         const condition=$("conditionFilter"); if(condition) condition.value="all";
         const sort=$("sortFilter"); if(sort) sort.value="newest";
+        Object.values(studentkartCustomSelectRefresh).forEach(refresh => refresh());
         selectedMarketplaceCategory="all";
         applyFilters();
         filterPanel?.classList.add("hidden");
