@@ -555,6 +555,21 @@ async function getUserProfile() {
             return data;
         }
 
+        // Backward-compatible fallback while the new username/phone
+        // columns are being added to older StudentKart databases.
+        if (error) {
+            const fallbackResult = await supabaseClient
+                .from("profiles")
+                .select("id,name,college,email,avatar_url,created_at,updated_at")
+                .eq("id", currentUser.id)
+                .maybeSingle();
+
+            if (!fallbackResult.error && fallbackResult.data) {
+                saveProfile(fallbackResult.data);
+                return fallbackResult.data;
+            }
+        }
+
     } catch (error) {
 
         console.error(
@@ -4474,6 +4489,10 @@ async function saveEditedProfile(
                 );
 
         if (error) {
+            if (error.code === "23505" && String(error.message || "").toLowerCase().includes("username")) {
+                showToast("That username is already taken", "warning");
+                return;
+            }
             throw error;
         }
 
