@@ -1270,12 +1270,14 @@ async function openWishlist() {
             "warning"
         );
 
-        return;
+        return false;
     }
 
     await renderWishlist();
 
     openModal("wishlistModal");
+
+    return true;
 }
 
 async function removeFromWishlist(productId) {
@@ -11888,9 +11890,14 @@ if (bottomSettingsButton) {
 
 const bottomWishlistButton = $("bottomWishlistButton");
 if (bottomWishlistButton) {
-    bottomWishlistButton.addEventListener("click", () => {
-        openWishlist();
-        studentKartBottomNavOpen("wishlistModal", "bottomWishlistButton");
+    bottomWishlistButton.addEventListener("click", async () => {
+        // Wait for wishlist data + modal opening before starting the dock
+        // animation. Starting it before the async render completes causes
+        // a one-frame blink/flicker on mobile browsers.
+        const opened = await openWishlist();
+        if (opened) {
+            studentKartBottomNavOpen("wishlistModal", "bottomWishlistButton");
+        }
     });
 }
 
