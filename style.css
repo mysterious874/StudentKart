@@ -15382,3 +15382,8 @@ body.category-page-active .category-page-navbar-title small{
     justify-content:center!important;
     margin-top:12px!important;
 }
+
+/* CATEGORY PICKER — move category boxes upward */
+.category-picker-grid{
+    transform:translateY(-200px)!important;
+}
