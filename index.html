@@ -434,8 +434,15 @@
                 <div class="form-group"><label for="productDescription">Description</label><textarea
                         id="productDescription" placeholder="Tell buyers about your product..." required></textarea>
                 </div>
-                <div class="form-group"><label for="productImage">Product Image</label><input type="file"
-                        id="productImage" accept="image/*">
+                <div class="form-group"><label for="productImage">Product Image</label>
+                    <div class="product-image-picker">
+                        <input type="file" id="productImage" accept="image/*" hidden>
+                        <button type="button" class="product-image-choose-button" id="productImageChooseButton">
+                            <i class="fas fa-cloud-arrow-up"></i>
+                            <span>Choose Product Image</span>
+                        </button>
+                        <span class="product-image-file-name" id="productImageFileName">No image selected</span>
+                    </div>
                     <div id="imagePreview" class="image-preview"></div>
                 </div>
                 <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-check"></i><span
