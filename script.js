@@ -2668,11 +2668,12 @@ function contactSeller() {
         return;
     }
 
-    // Close View Details first so its full-screen navigation lock is removed.
-    closeModal("productModal");
+    // Keep View Details mounted underneath the chat so the Home screen never flashes.
+    // The Chat back button will return to this exact product details screen.
+    window.studentKartReturnToProductDetails = currentProduct;
 
     // Open the existing WhatsApp-style direct chat with this seller.
-    openStudentKartUserChat(currentProduct.userId);
+    void openStudentKartUserChat(currentProduct.userId);
 }
 
 async function submitInquiry(event) {
@@ -8192,6 +8193,23 @@ $("chatCameraButton")?.addEventListener("click", () => {
 
 
 $("chatBackButton")?.addEventListener("click", () => {
+    const returnProduct = window.studentKartReturnToProductDetails;
+
+    if (returnProduct) {
+        window.studentKartReturnToProductDetails = null;
+
+        // Close only the chat. View Details is still underneath, so there is
+        // no Home/chat-list flash during the transition.
+        closeModal("chatModal");
+
+        // Re-open the same seller's listing details immediately.
+        requestAnimationFrame(() => {
+            openProductDetails(returnProduct.id);
+        });
+
+        return;
+    }
+
     showChatsFromChat();
 });
 
