@@ -17142,3 +17142,57 @@ main,.footer { margin-left:0 !important; }
 .navbar.hero-nav-rail + .navbar-search-panel { left:0 !important; right:0 !important; top:68px !important; }
 @media (max-width:1050px) { .navbar.hero-nav-rail .nav-links a { padding:8px 7px !important; font-size:11px !important; } .navbar.hero-nav-rail .nav-actions { gap:5px !important; } .navbar.hero-nav-rail .nav-actions .btn { padding:0 8px !important; } .navbar.hero-nav-rail .nav-actions .btn span { display:none !important; } .navbar.hero-nav-rail .nav-actions #sellButton span,.navbar.hero-nav-rail .nav-actions #loginButton span,.navbar.hero-nav-rail .nav-actions #signupButton span { display:inline !important; } }
 @media (max-width:760px) { .navbar.hero-nav-rail { height:60px !important; min-height:60px !important; } .navbar.hero-nav-rail .nav-container { width:calc(100% - 18px) !important; gap:8px !important; } .navbar.hero-nav-rail .nav-container::before { font-size:15px; background-size:34px 34px; padding-left:41px; } .navbar.hero-nav-rail .nav-container::after { left:9px; width:34px; height:34px; font-size:15px; } .navbar.hero-nav-rail .nav-links { display:none !important; } .navbar.hero-nav-rail .nav-actions { margin-left:auto !important; } .navbar.hero-nav-rail .nav-actions .btn { width:36px !important; height:36px !important; min-height:36px !important; padding:0 !important; } .navbar.hero-nav-rail .nav-actions .btn span { display:none !important; } .navbar.hero-nav-rail .nav-actions #sellButton { width:68px !important; padding:0 8px !important; } .navbar.hero-nav-rail .nav-actions #sellButton span { display:inline !important; } }
+
+
+/* FINAL POLISHED TOP NAVBAR */
+.navbar:not(.site-side-nav):not(.hero-nav-rail) {
+  position:sticky !important; top:0 !important; width:100% !important; height:68px !important; min-height:68px !important;
+  background:var(--nav) !important; border-bottom:1px solid rgba(255,255,255,.08) !important;
+  box-shadow:0 4px 18px rgba(0,0,0,.14) !important;
+}
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-container {
+  width:min(1240px,calc(100% - 32px)) !important; height:100% !important; margin:auto !important;
+  display:flex !important; align-items:center !important; gap:18px !important;
+}
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .logo { flex:0 0 auto !important; gap:9px !important; }
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .logo-mark { width:38px !important; height:38px !important; border-radius:9px !important; }
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .logo-text { font-size:19px !important; font-weight:700 !important; }
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-links {
+  display:flex !important; align-items:center !important; gap:2px !important; margin-left:auto !important;
+}
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-links a {
+  padding:8px 11px !important; color:#c3d0db !important; font-size:12px !important; font-weight:600 !important; border-radius:7px !important;
+}
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions {
+  display:flex !important; align-items:center !important; gap:7px !important; margin-left:4px !important;
+}
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions .btn {
+  min-height:38px !important; height:38px !important; padding:0 11px !important; border-radius:7px !important; font-size:11px !important; gap:6px !important;
+}
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-search-button,
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-profile-button { width:38px !important; padding:0 !important; }
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-notification-button { width:38px !important; padding:0 !important; }
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-notification-button .notification-count,
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-chat-button .chat-unread-count { position:absolute !important; margin:0 !important; top:4px !important; right:4px !important; }
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-notification-button,
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-profile-button { position:relative !important; }
+.navbar:not(.site-side-nav):not(.hero-nav-rail) #sellButton { padding:0 14px !important; }
+@media (max-width:1100px) {
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-container { gap:10px !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-links a { padding:8px 7px !important; font-size:11px !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions { gap:5px !important; margin-left:0 !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions .btn { padding:0 8px !important; }
+}
+@media (max-width:760px) {
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) { height:60px !important; min-height:60px !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-container { width:calc(100% - 18px) !important; gap:7px !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .logo-text { font-size:15px !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .logo-mark { width:34px !important; height:34px !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-links { display:none !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions { margin-left:auto !important; gap:4px !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions .btn { width:36px !important; height:36px !important; min-height:36px !important; padding:0 !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions #sellButton { width:62px !important; padding:0 8px !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions #loginButton,
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions #signupButton { display:none !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions .nav-chat-button .chat-button-text { display:none !important; }
+}
