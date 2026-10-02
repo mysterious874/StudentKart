@@ -12009,6 +12009,231 @@ const SK_T = {
     kn: {"Home":"ಮುಖಪುಟ","Categories":"ವರ್ಗಗಳು","Chat":"ಚಾಟ್","Wishlist":"ವಿಶ್‌ಲಿಸ್ಟ್","Settings":"ಸೆಟ್ಟಿಂಗ್ಸ್","Sell":"ಮಾರಾಟ","Filters":"ಫಿಲ್ಟರ್‌ಗಳು","Category":"ವರ್ಗ","All Categories":"ಎಲ್ಲಾ ವರ್ಗಗಳು","Books":"ಪುಸ್ತಕಗಳು","Electronics":"ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್","Vehicles":"ವಾಹನಗಳು","Furniture":"ಫರ್ನಿಚರ್","Services":"ಸೇವೆಗಳು","Fashion":"ಫ್ಯಾಷನ್","Location":"ಸ್ಥಳ","Condition":"ಸ್ಥಿತಿ","New":"ಹೊಸದು","Used":"ಬಳಸಿದದು","Clear":"ತೆರವುಗೊಳಿಸಿ","Apply Filters":"ಫಿಲ್ಟರ್ ಅನ್ವಯಿಸಿ","Login":"ಲಾಗಿನ್","Sign Up":"ಸೈನ್ ಅಪ್","Continue as Guest":"ಅತಿಥಿಯಾಗಿ ಮುಂದುವರಿಸಿ","Browse Categories":"ವರ್ಗಗಳನ್ನು ನೋಡಿ","Welcome to StudentKart":"StudentKart ಗೆ ಸ್ವಾಗತ","Create a Listing":"ಲಿಸ್ಟಿಂಗ್ ರಚಿಸಿ","How It Works":"ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ","About Us":"ನಮ್ಮ ಬಗ್ಗೆ","Safety Tips":"ಸುರಕ್ಷತಾ ಸಲಹೆಗಳು","Contact Us":"ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ","Privacy Policy":"ಗೌಪ್ಯತಾ ನೀತಿ","Terms & Conditions":"ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು","Product Name":"ಉತ್ಪನ್ನದ ಹೆಸರು","Select category":"ವರ್ಗ ಆಯ್ಕೆಮಾಡಿ","Description":"ವಿವರಣೆ","Publish Listing":"ಲಿಸ್ಟಿಂಗ್ ಪ್ರಕಟಿಸಿ","Seller":"ಮಾರಾಟಗಾರ","View Seller Profile":"ಮಾರಾಟಗಾರರ ಪ್ರೊಫೈಲ್ ನೋಡಿ","Contact Seller":"ಮಾರಾಟಗಾರರನ್ನು ಸಂಪರ್ಕಿಸಿ","Your Message":"ನಿಮ್ಮ ಸಂದೇಶ","Send":"ಕಳುಹಿಸಿ","Messages":"ಸಂದೇಶಗಳು","Chats":"ಚಾಟ್‌ಗಳು","All":"ಎಲ್ಲಾ","Unread":"ಓದದವು","Delete":"ಅಳಿಸಿ","Welcome Back":"ಮತ್ತೆ ಸ್ವಾಗತ","Email Address":"ಇಮೇಲ್ ವಿಳಾಸ","Password":"ಪಾಸ್‌ವರ್ಡ್","Create Account":"ಅಕೌಂಟ್ ರಚಿಸಿ","Full Name":"ಪೂರ್ಣ ಹೆಸರು","City":"ನಗರ","Logout":"ಲಾಗ್ ಔಟ್","Cancel":"ರದ್ದುಮಾಡಿ","Save Changes":"ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ","Done":"ಮುಗಿದಿದೆ","Camera":"ಕ್ಯಾಮೆರಾ","Photo & Video":"ಫೋಟೋ ಮತ್ತು ವೀಡಿಯೋ","Record Video":"ವೀಡಿಯೋ ರೆಕಾರ್ಡ್"}
 };
 
+const SK_WORD_T = {
+    hi: {
+        Home:"होम",Category:"श्रेणी",Categories:"श्रेणियाँ",Marketplace:"मार्केटप्लेस",Market:"मार्केट",
+        Chat:"चैट",Chats:"चैट्स",Message:"संदेश",Messages:"संदेश",Send:"भेजें",Reply:"जवाब दें",
+        Wishlist:"विशलिस्ट",Settings:"सेटिंग्स",Profile:"प्रोफ़ाइल",Account:"अकाउंट",Security:"सुरक्षा",
+        Notifications:"नोटिफिकेशन",Notification:"सूचना",Search:"खोजें",Filter:"फ़िल्टर",Filters:"फ़िल्टर",
+        Sort:"क्रम",Clear:"साफ़ करें",Apply:"लागू करें",Save:"सेव करें",Cancel:"रद्द करें",Close:"बंद करें",
+        Back:"वापस",Next:"आगे",Done:"हो गया",Delete:"हटाएँ",Edit:"संपादित करें",Update:"अपडेट करें",
+        Add:"जोड़ें",Remove:"हटाएँ",Select:"चुनें",Choose:"चुनें",Continue:"जारी रखें",Confirm:"पुष्टि करें",
+        Login:"लॉग इन",Logout:"लॉग आउट","Sign Up":"साइन अप",Register:"रजिस्टर करें",Guest:"गेस्ट",
+        Sell:"बेचें",Buy:"खरीदें",Rent:"किराए पर लें",Listing:"लिस्टिंग",Listings:"लिस्टिंग्स",
+        Product:"प्रोडक्ट",Products:"प्रोडक्ट्स",Item:"आइटम",Items:"आइटम्स",Seller:"विक्रेता",Buyer:"खरीदार",
+        Student:"छात्र",Students:"छात्र",User:"यूज़र",Users:"यूज़र्स",College:"कॉलेज",Campus:"कैंपस",
+        Name:"नाम",Username:"यूज़रनेम",Email:"ईमेल",Phone:"फ़ोन",Mobile:"मोबाइल",Password:"पासवर्ड",
+        Address:"पता",Location:"स्थान",City:"शहर",State:"राज्य",Area:"क्षेत्र",Country:"देश",
+        Price:"कीमत",Condition:"स्थिति",Description:"विवरण",Details:"विवरण",Category:"श्रेणी",
+        New:"नया",Used:"इस्तेमाल किया हुआ",Good:"अच्छा",Excellent:"बहुत अच्छा",Fair:"ठीक",
+        Books:"किताबें",Electronics:"इलेक्ट्रॉनिक्स",Vehicles:"वाहन",Furniture:"फर्नीचर",Services:"सेवाएँ",
+        Fashion:"फैशन",Photo:"फोटो",Photos:"फोटो",Video:"वीडियो",Camera:"कैमरा",Upload:"अपलोड करें",
+        Download:"डाउनलोड करें",Loading:"लोड हो रहा है",Recently:"हाल ही में","Just now":"अभी-अभी",
+        Today:"आज",Yesterday:"कल",Online:"ऑनलाइन",Offline:"ऑफ़लाइन",Available:"उपलब्ध",
+        Unavailable:"उपलब्ध नहीं",Active:"सक्रिय",Inactive:"निष्क्रिय",Public:"सार्वजनिक",Private:"निजी",
+        Publicly:"सार्वजनिक रूप से",Privacy:"गोपनीयता",Terms:"नियम",Safety:"सुरक्षा",Support:"सहायता",
+        Contact:"संपर्क",About:"जानकारी",Help:"मदद",Report:"रिपोर्ट करें",Block:"ब्लॉक करें",
+        Unblock:"अनब्लॉक करें",Reason:"कारण",Status:"स्थिति",Read:"पढ़ा हुआ",Unread:"अपठित",
+        All:"सभी",None:"कोई नहीं",Yes:"हाँ",No:"नहीं",Save:"सेव करें",Success:"सफल",Error:"त्रुटि",
+        Warning:"चेतावनी",Please:"कृपया",Your:"आपका",You:"आप",My:"मेरा",Our:"हमारा",This:"यह",
+        That:"वह",With:"साथ",From:"से",To:"को",For:"के लिए",And:"और",Or:"या",In:"में",On:"पर",
+        Of:"का",At:"पर",By:"द्वारा",More:"अधिक",Less:"कम",Newest:"नवीनतम",Oldest:"सबसे पुराना",
+        "Price Low":"कम कीमत","Price High":"अधिक कीमत","View":"देखें","View All":"सभी देखें",
+        "View Profile":"प्रोफ़ाइल देखें","View Details":"विवरण देखें","View Seller":"विक्रेता देखें",
+        "Contact Seller":"विक्रेता से संपर्क करें","Create Account":"अकाउंट बनाएँ","Full Name":"पूरा नाम",
+        "Email Address":"ईमेल पता","Mobile Number":"मोबाइल नंबर","Product Name":"प्रोडक्ट का नाम",
+        "Select category":"श्रेणी चुनें","Publish Listing":"लिस्टिंग प्रकाशित करें","Save Changes":"बदलाव सेव करें",
+        "Welcome Back":"वापसी पर स्वागत है","Continue as Guest":"गेस्ट के रूप में जारी रखें",
+        "How It Works":"यह कैसे काम करता है","About Us":"हमारे बारे में","Safety Tips":"सुरक्षा सुझाव",
+        "Privacy Policy":"प्राइवेसी पॉलिसी","Terms & Conditions":"नियम और शर्तें","Contact Us":"हमसे संपर्क करें"
+    },
+    mr: {
+        Home:"होम",Category:"श्रेणी",Categories:"श्रेणी",Marketplace:"मार्केटप्लेस",Chat:"चॅट",Chats:"चॅट्स",
+        Message:"संदेश",Messages:"संदेश",Send:"पाठवा",Reply:"उत्तर द्या",Wishlist:"विशलिस्ट",Settings:"सेटिंग्ज",
+        Profile:"प्रोफाइल",Account:"अकाउंट",Security:"सुरक्षा",Notifications:"सूचना",Notification:"सूचना",
+        Search:"शोधा",Filter:"फिल्टर",Filters:"फिल्टर",Sort:"क्रम",Clear:"साफ करा",Apply:"लागू करा",
+        Save:"सेव्ह करा",Cancel:"रद्द करा",Close:"बंद करा",Back:"मागे",Next:"पुढे",Done:"पूर्ण",Delete:"हटवा",
+        Edit:"संपादित करा",Update:"अपडेट करा",Add:"जोडा",Remove:"काढा",Select:"निवडा",Choose:"निवडा",
+        Continue:"पुढे जा",Confirm:"पुष्टी करा",Login:"लॉग इन",Logout:"लॉग आउट","Sign Up":"साइन अप",Register:"नोंदणी करा",
+        Guest:"गेस्ट",Sell:"विका",Buy:"खरेदी करा",Rent:"भाड्याने घ्या",Listing:"लिस्टिंग",Listings:"लिस्टिंग्स",
+        Product:"प्रोडक्ट",Products:"प्रोडक्ट्स",Item:"आयटम",Items:"आयटम्स",Seller:"विक्रेता",Buyer:"खरेदीदार",
+        Student:"विद्यार्थी",Students:"विद्यार्थी",User:"वापरकर्ता",Users:"वापरकर्ते",College:"कॉलेज",Campus:"कॅम्पस",
+        Name:"नाव",Username:"युजरनेम",Email:"ईमेल",Phone:"फोन",Mobile:"मोबाइल",Password:"पासवर्ड",Address:"पत्ता",
+        Location:"स्थान",City:"शहर",State:"राज्य",Area:"परिसर",Country:"देश",Price:"किंमत",Condition:"स्थिती",
+        Description:"वर्णन",Details:"तपशील",New:"नवीन",Used:"वापरलेले",Good:"चांगले",Excellent:"उत्कृष्ट",Fair:"ठीक",
+        Books:"पुस्तके",Electronics:"इलेक्ट्रॉनिक्स",Vehicles:"वाहने",Furniture:"फर्निचर",Services:"सेवा",Fashion:"फॅशन",
+        Photo:"फोटो",Photos:"फोटो",Video:"व्हिडिओ",Camera:"कॅमेरा",Upload:"अपलोड करा",Download:"डाउनलोड करा",
+        Loading:"लोड होत आहे",Recently:"अलीकडे","Just now":"आत्ताच",Today:"आज",Yesterday:"काल",Online:"ऑनलाइन",
+        Offline:"ऑफलाइन",Available:"उपलब्ध",Unavailable:"उपलब्ध नाही",Active:"सक्रिय",Inactive:"निष्क्रिय",
+        Public:"सार्वजनिक",Private:"खाजगी",Privacy:"गोपनीयता",Terms:"अटी",Safety:"सुरक्षा",Support:"मदत",
+        Contact:"संपर्क",About:"माहिती",Help:"मदत",Report:"रिपोर्ट करा",Block:"ब्लॉक करा",Unblock:"अनब्लॉक करा",
+        Reason:"कारण",Status:"स्थिती",Read:"वाचलेले",Unread:"न वाचलेले",All:"सर्व",None:"काहीही नाही",
+        Yes:"होय",No:"नाही",Success:"यशस्वी",Error:"त्रुटी",Warning:"इशारा",Please:"कृपया",Your:"तुमचे",
+        You:"तुम्ही",My:"माझे",Our:"आमचे",This:"हे",That:"ते",With:"सोबत",From:"पासून",To:"ला",For:"साठी",
+        And:"आणि",Or:"किंवा",In:"मध्ये",On:"वर",Of:"चा",More:"अधिक",Less:"कमी",Newest:"नवीनतम",Oldest:"जुने",
+        View:"पहा","View All":"सर्व पहा","View Profile":"प्रोफाइल पहा","View Details":"तपशील पहा",
+        "View Seller":"विक्रेत्याची प्रोफाइल पहा","Contact Seller":"विक्रेत्याशी संपर्क करा","Create Account":"अकाउंट तयार करा",
+        "Full Name":"पूर्ण नाव","Email Address":"ईमेल पत्ता","Mobile Number":"मोबाइल नंबर","Product Name":"प्रोडक्टचे नाव",
+        "Select category":"श्रेणी निवडा","Publish Listing":"लिस्टिंग प्रकाशित करा","Save Changes":"बदल सेव्ह करा",
+        "Welcome Back":"पुन्हा स्वागत आहे","Continue as Guest":"गेस्ट म्हणून पुढे जा","How It Works":"हे कसे काम करते",
+        "About Us":"आमच्याबद्दल","Safety Tips":"सुरक्षा सूचना","Privacy Policy":"गोपनीयता धोरण",
+        "Terms & Conditions":"अटी व शर्ती","Contact Us":"संपर्क करा"
+    },
+    gu: {
+        Home:"હોમ",Category:"શ્રેણી",Categories:"શ્રેણીઓ",Marketplace:"માર્કેટપ્લેસ",Chat:"ચેટ",Chats:"ચેટ્સ",
+        Message:"સંદેશ",Messages:"સંદેશાઓ",Send:"મોકલો",Reply:"જવાબ આપો",Wishlist:"વિશલિસ્ટ",Settings:"સેટિંગ્સ",
+        Profile:"પ્રોફાઇલ",Account:"એકાઉન્ટ",Security:"સુરક્ષા",Notifications:"નોટિફિકેશન",Notification:"સૂચના",
+        Search:"શોધો",Filter:"ફિલ્ટર",Filters:"ફિલ્ટર્સ",Sort:"ક્રમ",Clear:"સાફ કરો",Apply:"લાગુ કરો",Save:"સેવ કરો",
+        Cancel:"રદ કરો",Close:"બંધ કરો",Back:"પાછળ",Next:"આગળ",Done:"થઈ ગયું",Delete:"કાઢી નાખો",Edit:"ફેરફાર કરો",
+        Update:"અપડેટ કરો",Add:"ઉમેરો",Remove:"દૂર કરો",Select:"પસંદ કરો",Choose:"પસંદ કરો",Continue:"ચાલુ રાખો",
+        Confirm:"પુષ્ટિ કરો",Login:"લૉગ ઇન",Logout:"લૉગ આઉટ","Sign Up":"સાઇન અપ",Register:"નોંધણી કરો",Guest:"ગેસ્ટ",
+        Sell:"વેચો",Buy:"ખરીદો",Rent:"ભાડે લો",Listing:"લિસ્ટિંગ",Listings:"લિસ્ટિંગ્સ",Product:"પ્રોડક્ટ",
+        Products:"પ્રોડક્ટ્સ",Item:"આઇટમ",Items:"આઇટમ્સ",Seller:"વેચનાર",Buyer:"ખરીદનાર",Student:"વિદ્યાર્થી",
+        Students:"વિદ્યાર્થીઓ",User:"યુઝર",Users:"યુઝર્સ",College:"કોલેજ",Campus:"કેમ્પસ",Name:"નામ",Username:"યુઝરનેમ",
+        Email:"ઇમેઇલ",Phone:"ફોન",Mobile:"મોબાઇલ",Password:"પાસવર્ડ",Address:"સરનામું",Location:"સ્થળ",City:"શહેર",
+        State:"રાજ્ય",Area:"વિસ્તાર",Country:"દેશ",Price:"કિંમત",Condition:"સ્થિતિ",Description:"વર્ણન",Details:"વિગતો",
+        New:"નવું",Used:"વપરાયેલ",Good:"સારું",Excellent:"ઉત્તમ",Fair:"ઠીક",Books:"પુસ્તકો",Electronics:"ઇલેક્ટ્રોનિક્સ",
+        Vehicles:"વાહનો",Furniture:"ફર્નિચર",Services:"સેવાઓ",Fashion:"ફેશન",Photo:"ફોટો",Photos:"ફોટા",Video:"વિડિયો",
+        Camera:"કેમેરા",Upload:"અપલોડ કરો",Download:"ડાઉનલોડ કરો",Loading:"લોડ થઈ રહ્યું છે",Recently:"તાજેતરમાં",
+        "Just now":"હમણાં જ",Today:"આજે",Yesterday:"ગઈકાલે",Online:"ઓનલાઇન",Offline:"ઓફલાઇન",Available:"ઉપલબ્ધ",
+        Unavailable:"ઉપલબ્ધ નથી",Active:"સક્રિય",Inactive:"નિષ્ક્રિય",Public:"જાહેર",Private:"ખાનગી",Privacy:"ગોપનીયતા",
+        Terms:"શરતો",Safety:"સુરક્ષા",Support:"મદદ",Contact:"સંપર્ક",About:"માહિતી",Help:"મદદ",Report:"રિપોર્ટ કરો",
+        Block:"બ્લોક કરો",Unblock:"અનબ્લોક કરો",Reason:"કારણ",Status:"સ્થિતિ",Read:"વાંચેલું",Unread:"ન વાંચેલું",
+        All:"બધા",None:"કંઈ નહીં",Yes:"હા",No:"ના",Success:"સફળ",Error:"ભૂલ",Warning:"ચેતવણી",Please:"કૃપા કરીને",
+        Your:"તમારું",You:"તમે",My:"મારું",Our:"અમારું",This:"આ",That:"તે",With:"સાથે",From:"થી",To:"ને",
+        For:"માટે",And:"અને",Or:"અથવા",In:"માં",On:"પર",Of:"નું",More:"વધુ",Less:"ઓછું",Newest:"સૌથી નવું",Oldest:"સૌથી જૂનું",
+        View:"જુઓ","View All":"બધું જુઓ","View Profile":"પ્રોફાઇલ જુઓ","View Details":"વિગતો જુઓ","View Seller":"વેચનાર જુઓ",
+        "Contact Seller":"વેચનારનો સંપર્ક કરો","Create Account":"એકાઉન્ટ બનાવો","Full Name":"પૂરું નામ","Email Address":"ઇમેઇલ સરનામું",
+        "Mobile Number":"મોબાઇલ નંબર","Product Name":"પ્રોડક્ટનું નામ","Select category":"શ્રેણી પસંદ કરો",
+        "Publish Listing":"લિસ્ટિંગ પ્રકાશિત કરો","Save Changes":"ફેરફારો સેવ કરો","Welcome Back":"ફરી સ્વાગત છે",
+        "Continue as Guest":"ગેસ્ટ તરીકે ચાલુ રાખો","How It Works":"આ કેવી રીતે કામ કરે છે","About Us":"અમારા વિશે",
+        "Safety Tips":"સુરક્ષા સૂચનો","Privacy Policy":"ગોપનીયતા નીતિ","Terms & Conditions":"નિયમો અને શરતો","Contact Us":"અમારો સંપર્ક કરો"
+    },
+    bn: {
+        Home:"হোম",Category:"বিভাগ",Categories:"বিভাগসমূহ",Marketplace:"মার্কেটপ্লেস",Chat:"চ্যাট",Chats:"চ্যাটসমূহ",
+        Message:"বার্তা",Messages:"বার্তাসমূহ",Send:"পাঠান",Reply:"উত্তর দিন",Wishlist:"উইশলিস্ট",Settings:"সেটিংস",
+        Profile:"প্রোফাইল",Account:"অ্যাকাউন্ট",Security:"নিরাপত্তা",Notifications:"নোটিফিকেশন",Notification:"বিজ্ঞপ্তি",
+        Search:"খুঁজুন",Filter:"ফিল্টার",Filters:"ফিল্টার",Sort:"সাজান",Clear:"পরিষ্কার",Apply:"প্রয়োগ করুন",Save:"সংরক্ষণ করুন",
+        Cancel:"বাতিল",Close:"বন্ধ করুন",Back:"পিছনে",Next:"পরবর্তী",Done:"সম্পন্ন",Delete:"মুছুন",Edit:"সম্পাদনা",
+        Update:"আপডেট করুন",Add:"যোগ করুন",Remove:"সরান",Select:"নির্বাচন করুন",Choose:"বেছে নিন",Continue:"চালিয়ে যান",
+        Confirm:"নিশ্চিত করুন",Login:"লগইন",Logout:"লগআউট","Sign Up":"সাইন আপ",Register:"নিবন্ধন করুন",Guest:"অতিথি",
+        Sell:"বিক্রি করুন",Buy:"কিনুন",Rent:"ভাড়া নিন",Listing:"লিস্টিং",Listings:"লিস্টিংসমূহ",Product:"পণ্য",
+        Products:"পণ্যসমূহ",Item:"আইটেম",Items:"আইটেমসমূহ",Seller:"বিক্রেতা",Buyer:"ক্রেতা",Student:"শিক্ষার্থী",
+        Students:"শিক্ষার্থীরা",User:"ব্যবহারকারী",Users:"ব্যবহারকারীরা",College:"কলেজ",Campus:"ক্যাম্পাস",Name:"নাম",
+        Username:"ইউজারনেম",Email:"ইমেইল",Phone:"ফোন",Mobile:"মোবাইল",Password:"পাসওয়ার্ড",Address:"ঠিকানা",
+        Location:"অবস্থান",City:"শহর",State:"রাজ্য",Area:"এলাকা",Country:"দেশ",Price:"দাম",Condition:"অবস্থা",
+        Description:"বিবরণ",Details:"বিস্তারিত",New:"নতুন",Used:"ব্যবহৃত",Good:"ভালো",Excellent:"চমৎকার",Fair:"ঠিকঠাক",
+        Books:"বই",Electronics:"ইলেকট্রনিক্স",Vehicles:"যানবাহন",Furniture:"আসবাবপত্র",Services:"সেবা",Fashion:"ফ্যাশন",
+        Photo:"ছবি",Photos:"ছবিগুলো",Video:"ভিডিও",Camera:"ক্যামেরা",Upload:"আপলোড করুন",Download:"ডাউনলোড করুন",
+        Loading:"লোড হচ্ছে",Recently:"সম্প্রতি","Just now":"এইমাত্র",Today:"আজ",Yesterday:"গতকাল",Online:"অনলাইন",
+        Offline:"অফলাইন",Available:"উপলব্ধ",Unavailable:"উপলব্ধ নয়",Active:"সক্রিয়",Inactive:"নিষ্ক্রিয়",
+        Public:"সর্বজনীন",Private:"ব্যক্তিগত",Privacy:"গোপনীয়তা",Terms:"শর্তাবলি",Safety:"নিরাপত্তা",Support:"সহায়তা",
+        Contact:"যোগাযোগ",About:"সম্পর্কে",Help:"সাহায্য",Report:"রিপোর্ট করুন",Block:"ব্লক করুন",Unblock:"আনব্লক করুন",
+        Reason:"কারণ",Status:"অবস্থা",Read:"পঠিত",Unread:"অপঠিত",All:"সব",None:"কিছুই নয়",Yes:"হ্যাঁ",No:"না",
+        Success:"সফল",Error:"ত্রুটি",Warning:"সতর্কতা",Please:"অনুগ্রহ করে",Your:"আপনার",You:"আপনি",My:"আমার",
+        Our:"আমাদের",This:"এটি",That:"সেটি",With:"সঙ্গে",From:"থেকে",To:"কে",For:"জন্য",And:"এবং",Or:"অথবা",
+        In:"মধ্যে",On:"উপর",Of:"এর",More:"আরও",Less:"কম",Newest:"নতুনতম",Oldest:"পুরনোতম",View:"দেখুন",
+        "View All":"সব দেখুন","View Profile":"প্রোফাইল দেখুন","View Details":"বিস্তারিত দেখুন","View Seller":"বিক্রেতাকে দেখুন",
+        "Contact Seller":"বিক্রেতার সাথে যোগাযোগ করুন","Create Account":"অ্যাকাউন্ট তৈরি করুন","Full Name":"পুরো নাম",
+        "Email Address":"ইমেইল ঠিকানা","Mobile Number":"মোবাইল নম্বর","Product Name":"পণ্যের নাম","Select category":"বিভাগ নির্বাচন করুন",
+        "Publish Listing":"লিস্টিং প্রকাশ করুন","Save Changes":"পরিবর্তন সংরক্ষণ করুন","Welcome Back":"আবার স্বাগতম",
+        "Continue as Guest":"অতিথি হিসেবে চালিয়ে যান","How It Works":"এটি কীভাবে কাজ করে","About Us":"আমাদের সম্পর্কে",
+        "Safety Tips":"নিরাপত্তা টিপস","Privacy Policy":"গোপনীয়তা নীতি","Terms & Conditions":"শর্তাবলি","Contact Us":"আমাদের সাথে যোগাযোগ করুন"
+    },
+    ta: {
+        Home:"முகப்பு",Category:"வகை",Categories:"வகைகள்",Marketplace:"சந்தை",Chat:"அரட்டை",Chats:"அரட்டைகள்",
+        Message:"செய்தி",Messages:"செய்திகள்",Send:"அனுப்பு",Reply:"பதில்",Wishlist:"விருப்பப்பட்டியல்",Settings:"அமைப்புகள்",
+        Profile:"சுயவிவரம்",Account:"கணக்கு",Security:"பாதுகாப்பு",Notifications:"அறிவிப்புகள்",Notification:"அறிவிப்பு",
+        Search:"தேடல்",Filter:"வடிகட்டி",Filters:"வடிகட்டிகள்",Sort:"வரிசைப்படுத்து",Clear:"அழி",Apply:"பயன்படுத்து",
+        Save:"சேமி",Cancel:"ரத்து செய்",Close:"மூடு",Back:"பின்",Next:"அடுத்து",Done:"முடிந்தது",Delete:"நீக்கு",
+        Edit:"திருத்து",Update:"புதுப்பி",Add:"சேர்",Remove:"நீக்கு",Select:"தேர்ந்தெடு",Choose:"தேர்ந்தெடு",
+        Continue:"தொடரவும்",Confirm:"உறுதிப்படுத்து",Login:"உள்நுழை",Logout:"வெளியேறு","Sign Up":"பதிவு செய்",
+        Register:"பதிவு",Guest:"விருந்தினர்",Sell:"விற்க",Buy:"வாங்க",Rent:"வாடகைக்கு",Listing:"பட்டியல்",Listings:"பட்டியல்கள்",
+        Product:"பொருள்",Products:"பொருட்கள்",Item:"உருப்படி",Items:"உருப்படிகள்",Seller:"விற்பனையாளர்",Buyer:"வாங்குபவர்",
+        Student:"மாணவர்",Students:"மாணவர்கள்",User:"பயனர்",Users:"பயனர்கள்",College:"கல்லூரி",Campus:"வளாகம்",
+        Name:"பெயர்",Username:"பயனர் பெயர்",Email:"மின்னஞ்சல்",Phone:"தொலைபேசி",Mobile:"மொபைல்",Password:"கடவுச்சொல்",
+        Address:"முகவரி",Location:"இடம்",City:"நகரம்",State:"மாநிலம்",Area:"பகுதி",Country:"நாடு",Price:"விலை",
+        Condition:"நிலை",Description:"விளக்கம்",Details:"விவரங்கள்",New:"புதியது",Used:"பயன்படுத்தப்பட்டது",Good:"நல்லது",
+        Excellent:"சிறந்தது",Fair:"சராசரி",Books:"புத்தகங்கள்",Electronics:"மின்னணுவியல்",Vehicles:"வாகனங்கள்",
+        Furniture:"தளபாடங்கள்",Services:"சேவைகள்",Fashion:"ஃபேஷன்",Photo:"புகைப்படம்",Photos:"புகைப்படங்கள்",Video:"வீடியோ",
+        Camera:"கேமரா",Upload:"பதிவேற்று",Download:"பதிவிறக்கு",Loading:"ஏற்றுகிறது",Recently:"சமீபத்தில்","Just now":"இப்போது",
+        Today:"இன்று",Yesterday:"நேற்று",Online:"ஆன்லைன்",Offline:"ஆஃப்லைன்",Available:"கிடைக்கிறது",Unavailable:"கிடைக்கவில்லை",
+        Active:"செயலில்",Inactive:"செயலில் இல்லை",Public:"பொது",Private:"தனிப்பட்ட",Privacy:"தனியுரிமை",Terms:"விதிமுறைகள்",
+        Safety:"பாதுகாப்பு",Support:"ஆதரவு",Contact:"தொடர்பு",About:"பற்றி",Help:"உதவி",Report:"புகாரளி",Block:"தடு",
+        Unblock:"தடையை நீக்கு",Reason:"காரணம்",Status:"நிலை",Read:"படித்தது",Unread:"படிக்காதது",All:"அனைத்தும்",None:"எதுவுமில்லை",
+        Yes:"ஆம்",No:"இல்லை",Success:"வெற்றி",Error:"பிழை",Warning:"எச்சரிக்கை",Please:"தயவுசெய்து",Your:"உங்கள்",You:"நீங்கள்",
+        My:"என்",Our:"எங்கள்",This:"இது",That:"அது",With:"உடன்",From:"இருந்து",To:"க்கு",For:"க்காக",And:"மற்றும்",Or:"அல்லது",
+        In:"இல்",On:"மீது",Of:"இன்",More:"மேலும்",Less:"குறைவு",Newest:"புதியது",Oldest:"பழையது",View:"பார்",
+        "View All":"அனைத்தையும் பார்","View Profile":"சுயவிவரத்தைப் பார்","View Details":"விவரங்களைப் பார்","View Seller":"விற்பனையாளரைப் பார்",
+        "Contact Seller":"விற்பனையாளரைத் தொடர்புகொள்","Create Account":"கணக்கை உருவாக்கு","Full Name":"முழு பெயர்",
+        "Email Address":"மின்னஞ்சல் முகவரி","Mobile Number":"மொபைல் எண்","Product Name":"பொருளின் பெயர்","Select category":"வகையைத் தேர்ந்தெடு",
+        "Publish Listing":"பட்டியலை வெளியிடு","Save Changes":"மாற்றங்களைச் சேமி","Welcome Back":"மீண்டும் வரவேற்கிறோம்",
+        "Continue as Guest":"விருந்தினராக தொடரவும்","How It Works":"இது எப்படி வேலை செய்கிறது","About Us":"எங்களைப் பற்றி",
+        "Safety Tips":"பாதுகாப்பு குறிப்புகள்","Privacy Policy":"தனியுரிமைக் கொள்கை","Terms & Conditions":"விதிமுறைகள் மற்றும் நிபந்தனைகள்","Contact Us":"எங்களைத் தொடர்புகொள்ளவும்"
+    },
+    te: {
+        Home:"హోమ్",Category:"వర్గం",Categories:"వర్గాలు",Marketplace:"మార్కెట్‌ప్లేస్",Chat:"చాట్",Chats:"చాట్‌లు",
+        Message:"సందేశం",Messages:"సందేశాలు",Send:"పంపండి",Reply:"ప్రత్యుత్తరం",Wishlist:"విష్‌లిస్ట్",Settings:"సెట్టింగ్స్",
+        Profile:"ప్రొఫైల్",Account:"ఖాతా",Security:"భద్రత",Notifications:"నోటిఫికేషన్లు",Notification:"నోటిఫికేషన్",
+        Search:"వెతకండి",Filter:"ఫిల్టర్",Filters:"ఫిల్టర్లు",Sort:"క్రమం",Clear:"క్లియర్",Apply:"వర్తింపజేయండి",Save:"సేవ్ చేయండి",
+        Cancel:"రద్దు చేయండి",Close:"మూసివేయండి",Back:"వెనుకకు",Next:"తదుపరి",Done:"పూర్తయింది",Delete:"తొలగించండి",
+        Edit:"సవరించండి",Update:"అప్‌డేట్ చేయండి",Add:"జోడించండి",Remove:"తొలగించండి",Select:"ఎంచుకోండి",Choose:"ఎంచుకోండి",
+        Continue:"కొనసాగించండి",Confirm:"నిర్ధారించండి",Login:"లాగిన్",Logout:"లాగ్ అవుట్","Sign Up":"సైన్ అప్",
+        Register:"నమోదు చేయండి",Guest:"అతిథి",Sell:"అమ్మండి",Buy:"కొనండి",Rent:"అద్దెకు తీసుకోండి",Listing:"లిస్టింగ్",
+        Listings:"లిస్టింగ్‌లు",Product:"ఉత్పత్తి",Products:"ఉత్పత్తులు",Item:"ఐటమ్",Items:"ఐటమ్‌లు",Seller:"విక్రేత",
+        Buyer:"కొనుగోలుదారు",Student:"విద్యార్థి",Students:"విద్యార్థులు",User:"వినియోగదారు",Users:"వినియోగదారులు",
+        College:"కాలేజ్",Campus:"క్యాంపస్",Name:"పేరు",Username:"యూజర్‌నేమ్",Email:"ఇమెయిల్",Phone:"ఫోన్",Mobile:"మొబైల్",
+        Password:"పాస్‌వర్డ్",Address:"చిరునామా",Location:"స్థానం",City:"నగరం",State:"రాష్ట్రం",Area:"ప్రాంతం",Country:"దేశం",
+        Price:"ధర",Condition:"స్థితి",Description:"వివరణ",Details:"వివరాలు",New:"కొత్తది",Used:"ఉపయోగించినది",Good:"మంచిది",
+        Excellent:"అద్భుతం",Fair:"సరే",Books:"పుస్తకాలు",Electronics:"ఎలక్ట్రానిక్స్",Vehicles:"వాహనాలు",Furniture:"ఫర్నిచర్",
+        Services:"సేవలు",Fashion:"ఫ్యాషన్",Photo:"ఫోటో",Photos:"ఫోటోలు",Video:"వీడియో",Camera:"కెమెరా",Upload:"అప్‌లోడ్ చేయండి",
+        Download:"డౌన్‌లోడ్ చేయండి",Loading:"లోడ్ అవుతోంది",Recently:"ఇటీవల","Just now":"ఇప్పుడే",Today:"ఈరోజు",Yesterday:"నిన్న",
+        Online:"ఆన్‌లైన్",Offline:"ఆఫ్‌లైన్",Available:"అందుబాటులో ఉంది",Unavailable:"అందుబాటులో లేదు",Active:"యాక్టివ్",
+        Inactive:"నిష్క్రియ",Public:"పబ్లిక్",Private:"ప్రైవేట్",Privacy:"గోప్యత",Terms:"నిబంధనలు",Safety:"భద్రత",
+        Support:"సహాయం",Contact:"సంప్రదించండి",About:"గురించి",Help:"సహాయం",Report:"రిపోర్ట్ చేయండి",Block:"బ్లాక్ చేయండి",
+        Unblock:"అన్‌బ్లాక్ చేయండి",Reason:"కారణం",Status:"స్థితి",Read:"చదివారు",Unread:"చదవలేదు",All:"అన్నీ",None:"ఏదీ లేదు",
+        Yes:"అవును",No:"కాదు",Success:"విజయం",Error:"లోపం",Warning:"హెచ్చరిక",Please:"దయచేసి",Your:"మీ",You:"మీరు",My:"నా",
+        Our:"మా",This:"ఇది",That:"అది",With:"తో",From:"నుండి",To:"కు",For:"కోసం",And:"మరియు",Or:"లేదా",In:"లో",On:"పై",
+        Of:"యొక్క",More:"మరింత",Less:"తక్కువ",Newest:"కొత్తవి",Oldest:"పాతవి",View:"చూడండి","View All":"అన్నీ చూడండి",
+        "View Profile":"ప్రొఫైల్ చూడండి","View Details":"వివరాలు చూడండి","View Seller":"విక్రేతను చూడండి",
+        "Contact Seller":"విక్రేతను సంప్రదించండి","Create Account":"ఖాతా సృష్టించండి","Full Name":"పూర్తి పేరు",
+        "Email Address":"ఇమెయిల్ చిరునామా","Mobile Number":"మొబైల్ నంబర్","Product Name":"ఉత్పత్తి పేరు","Select category":"వర్గాన్ని ఎంచుకోండి",
+        "Publish Listing":"లిస్టింగ్ ప్రచురించండి","Save Changes":"మార్పులను సేవ్ చేయండి","Welcome Back":"మళ్లీ స్వాగతం",
+        "Continue as Guest":"అతిథిగా కొనసాగండి","How It Works":"ఇది ఎలా పనిచేస్తుంది","About Us":"మా గురించి",
+        "Safety Tips":"భద్రతా సూచనలు","Privacy Policy":"గోప్యతా విధానం","Terms & Conditions":"నిబంధనలు మరియు షరతులు","Contact Us":"మమ్మల్ని సంప్రదించండి"
+    },
+    kn: {
+        Home:"ಮುಖಪುಟ",Category:"ವರ್ಗ",Categories:"ವರ್ಗಗಳು",Marketplace:"ಮಾರ್ಕೆಟ್‌ಪ್ಲೇಸ್",Chat:"ಚಾಟ್",Chats:"ಚಾಟ್‌ಗಳು",
+        Message:"ಸಂದೇಶ",Messages:"ಸಂದೇಶಗಳು",Send:"ಕಳುಹಿಸಿ",Reply:"ಉತ್ತರಿಸಿ",Wishlist:"ವಿಶ್‌ಲಿಸ್ಟ್",Settings:"ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
+        Profile:"ಪ್ರೊಫೈಲ್",Account:"ಖಾತೆ",Security:"ಭದ್ರತೆ",Notifications:"ಅಧಿಸೂಚನೆಗಳು",Notification:"ಅಧಿಸೂಚನೆ",
+        Search:"ಹುಡುಕಿ",Filter:"ಫಿಲ್ಟರ್",Filters:"ಫಿಲ್ಟರ್‌ಗಳು",Sort:"ವಿಂಗಡಿಸಿ",Clear:"ತೆರವುಗೊಳಿಸಿ",Apply:"ಅನ್ವಯಿಸಿ",Save:"ಉಳಿಸಿ",
+        Cancel:"ರದ್ದುಮಾಡಿ",Close:"ಮುಚ್ಚಿ",Back:"ಹಿಂದೆ",Next:"ಮುಂದೆ",Done:"ಮುಗಿದಿದೆ",Delete:"ಅಳಿಸಿ",Edit:"ತಿದ್ದು",Update:"ನವೀಕರಿಸಿ",
+        Add:"ಸೇರಿಸಿ",Remove:"ತೆಗೆದುಹಾಕಿ",Select:"ಆಯ್ಕೆಮಾಡಿ",Choose:"ಆಯ್ಕೆಮಾಡಿ",Continue:"ಮುಂದುವರಿಸಿ",Confirm:"ದೃಢೀಕರಿಸಿ",
+        Login:"ಲಾಗಿನ್",Logout:"ಲಾಗ್ ಔಟ್","Sign Up":"ಸೈನ್ ಅಪ್",Register:"ನೋಂದಣಿ",Guest:"ಅತಿಥಿ",Sell:"ಮಾರಾಟ ಮಾಡಿ",Buy:"ಖರೀದಿಸಿ",
+        Rent:"ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ",Listing:"ಲಿಸ್ಟಿಂಗ್",Listings:"ಲಿಸ್ಟಿಂಗ್‌ಗಳು",Product:"ಉತ್ಪನ್ನ",Products:"ಉತ್ಪನ್ನಗಳು",Item:"ವಸ್ತು",
+        Items:"ವಸ್ತುಗಳು",Seller:"ಮಾರಾಟಗಾರ",Buyer:"ಖರೀದಿದಾರ",Student:"ವಿದ್ಯಾರ್ಥಿ",Students:"ವಿದ್ಯಾರ್ಥಿಗಳು",User:"ಬಳಕೆದಾರ",
+        Users:"ಬಳಕೆದಾರರು",College:"ಕಾಲೇಜು",Campus:"ಕ್ಯಾಂಪಸ್",Name:"ಹೆಸರು",Username:"ಬಳಕೆದಾರ ಹೆಸರು",Email:"ಇಮೇಲ್",Phone:"ಫೋನ್",
+        Mobile:"ಮೊಬೈಲ್",Password:"ಪಾಸ್‌ವರ್ಡ್",Address:"ವಿಳಾಸ",Location:"ಸ್ಥಳ",City:"ನಗರ",State:"ರಾಜ್ಯ",Area:"ಪ್ರದೇಶ",Country:"ದೇಶ",
+        Price:"ಬೆಲೆ",Condition:"ಸ್ಥಿತಿ",Description:"ವಿವರಣೆ",Details:"ವಿವರಗಳು",New:"ಹೊಸದು",Used:"ಬಳಸಿದ",Good:"ಉತ್ತಮ",
+        Excellent:"ಅತ್ಯುತ್ತಮ",Fair:"ಸರಿ",Books:"ಪುಸ್ತಕಗಳು",Electronics:"ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್",Vehicles:"ವಾಹನಗಳು",Furniture:"ಪೀಠೋಪಕರಣಗಳು",
+        Services:"ಸೇವೆಗಳು",Fashion:"ಫ್ಯಾಷನ್",Photo:"ಫೋಟೋ",Photos:"ಫೋಟೋಗಳು",Video:"ವೀಡಿಯೊ",Camera:"ಕ್ಯಾಮೆರಾ",Upload:"ಅಪ್‌ಲೋಡ್ ಮಾಡಿ",
+        Download:"ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ",Loading:"ಲೋಡ್ ಆಗುತ್ತಿದೆ",Recently:"ಇತ್ತೀಚೆಗೆ","Just now":"ಈಗಷ್ಟೇ",Today:"ಇಂದು",Yesterday:"ನಿನ್ನೆ",
+        Online:"ಆನ್‌ಲೈನ್",Offline:"ಆಫ್‌ಲೈನ್",Available:"ಲಭ್ಯವಿದೆ",Unavailable:"ಲಭ್ಯವಿಲ್ಲ",Active:"ಸಕ್ರಿಯ",Inactive:"ನಿಷ್ಕ್ರಿಯ",
+        Public:"ಸಾರ್ವಜನಿಕ",Private:"ಖಾಸಗಿ",Privacy:"ಗೌಪ್ಯತೆ",Terms:"ನಿಯಮಗಳು",Safety:"ಸುರಕ್ಷತೆ",Support:"ಸಹಾಯ",Contact:"ಸಂಪರ್ಕ",
+        About:"ಕುರಿತು",Help:"ಸಹಾಯ",Report:"ವರದಿ ಮಾಡಿ",Block:"ನಿರ್ಬಂಧಿಸಿ",Unblock:"ಅನ್‌ಬ್ಲಾಕ್ ಮಾಡಿ",Reason:"ಕಾರಣ",Status:"ಸ್ಥಿತಿ",
+        Read:"ಓದಲಾಗಿದೆ",Unread:"ಓದಲಾಗಿಲ್ಲ",All:"ಎಲ್ಲಾ",None:"ಯಾವುದೂ ಇಲ್ಲ",Yes:"ಹೌದು",No:"ಇಲ್ಲ",Success:"ಯಶಸ್ವಿ",Error:"ದೋಷ",
+        Warning:"ಎಚ್ಚರಿಕೆ",Please:"ದಯವಿಟ್ಟು",Your:"ನಿಮ್ಮ",You:"ನೀವು",My:"ನನ್ನ",Our:"ನಮ್ಮ",This:"ಇದು",That:"ಅದು",With:"ಜೊತೆಗೆ",
+        From:"ಇಂದ",To:"ಗೆ",For:"ಗಾಗಿ",And:"ಮತ್ತು",Or:"ಅಥವಾ",In:"ನಲ್ಲಿ",On:"ಮೇಲೆ",Of:"ನ",More:"ಹೆಚ್ಚು",Less:"ಕಡಿಮೆ",
+        Newest:"ಹೊಸದಾದ",Oldest:"ಹಳೆಯದಾದ",View:"ನೋಡಿ","View All":"ಎಲ್ಲವನ್ನೂ ನೋಡಿ","View Profile":"ಪ್ರೊಫೈಲ್ ನೋಡಿ",
+        "View Details":"ವಿವರಗಳನ್ನು ನೋಡಿ","View Seller":"ಮಾರಾಟಗಾರರನ್ನು ನೋಡಿ","Contact Seller":"ಮಾರಾಟಗಾರರನ್ನು ಸಂಪರ್ಕಿಸಿ",
+        "Create Account":"ಖಾತೆ ರಚಿಸಿ","Full Name":"ಪೂರ್ಣ ಹೆಸರು","Email Address":"ಇಮೇಲ್ ವಿಳಾಸ","Mobile Number":"ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
+        "Product Name":"ಉತ್ಪನ್ನದ ಹೆಸರು","Select category":"ವರ್ಗವನ್ನು ಆಯ್ಕೆಮಾಡಿ","Publish Listing":"ಲಿಸ್ಟಿಂಗ್ ಪ್ರಕಟಿಸಿ",
+        "Save Changes":"ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ","Welcome Back":"ಮತ್ತೆ ಸ್ವಾಗತ","Continue as Guest":"ಅತಿಥಿಯಾಗಿ ಮುಂದುವರಿಸಿ",
+        "How It Works":"ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ","About Us":"ನಮ್ಮ ಬಗ್ಗೆ","Safety Tips":"ಸುರಕ್ಷತಾ ಸಲಹೆಗಳು",
+        "Privacy Policy":"ಗೌಪ್ಯತಾ ನೀತಿ","Terms & Conditions":"ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು","Contact Us":"ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ"
+    }
+};
+
 function skTranslate(value, language) {
     const source = String(value ?? "");
     if (language === "en") {
@@ -12018,11 +12243,27 @@ function skTranslate(value, language) {
         }
         return source;
     }
+
     if (SK_T[language]?.[source]) return SK_T[language][source];
+
     for (const map of Object.values(SK_T)) {
         const original = Object.keys(map).find(key => map[key] === source);
         if (original && SK_T[language]?.[original]) return SK_T[language][original];
     }
+
+    if (SK_WORD_T[language]) {
+        const exactWord = SK_WORD_T[language][source];
+        if (exactWord) return exactWord;
+
+        // Translate individual English words inside longer UI phrases.
+        // This is deliberately limited to Latin words so product names,
+        // usernames, URLs and non-English content are left untouched.
+        return source.replace(/[A-Za-z][A-Za-z'-]*/g, word => {
+            const translated = SK_WORD_T[language][word];
+            return translated || word;
+        });
+    }
+
     return source;
 }
 
