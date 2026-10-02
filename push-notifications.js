@@ -4,7 +4,7 @@
    ========================================================= */
 
 (() => {
-  const VAPID_PUBLIC_KEY = window.STUDENTKART_VAPID_PUBLIC_KEY || "";
+  const VAPID_PUBLIC_KEY = window.STUDENTKART_VAPID_PUBLIC_KEY || "BF50nHBqRCYR9Qi3KM8vbeePaI0u-PHQ2XKDKqv72-HnScp4s-JDG3a1jyuMz1hqZGYuAQIdqXsVEerVuxHVsQI";
 
   function urlBase64ToUint8Array(base64String) {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
