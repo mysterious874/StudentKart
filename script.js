@@ -9220,26 +9220,64 @@ function setupEditProfileCityLocationPicker() {
             .join("");
     };
 
+    const stateInput = $("editProfileState");
+
+    const getSelectedState = () =>
+        String(stateInput?.value || "").trim();
+
+    const normalizeLocationState = value =>
+        String(value || "")
+            .trim()
+            .toLowerCase()
+            .replace(/&/g, "and")
+            .replace(/[^a-z0-9]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+    const isSameState = (value, selectedState) => {
+        if (!selectedState) return true;
+        const a = normalizeLocationState(value);
+        const b = normalizeLocationState(selectedState);
+        return a === b ||
+            a.includes(b) ||
+            b.includes(a);
+    };
+
+    const getStateFromLocationValue = value => {
+        const parts = String(value || "").split(" — ");
+        const hierarchy = parts.slice(1).join(" — ")
+            .split(",")
+            .map(item => item.trim())
+            .filter(Boolean);
+        return hierarchy[2] || "";
+    };
+
+    const filterCityValuesForState = (values, selectedState) => {
+        if (!selectedState) return values;
+        return values.filter(value =>
+            isSameState(getStateFromLocationValue(value), selectedState)
+        );
+    };
+
     const searchCities = async query => {
         const q = String(query || "").trim();
-        const dataset = await loadAllIndiaCityDataset();
+        const selectedState = getSelectedState();
 
-        if (q.length < 2) {
+        if (!selectedState) {
             suggestions?.classList.add("hidden");
-            renderCities(dataset);
+            showToast("Please select a State / Union Territory first", "warning");
             return;
         }
-
-        const localMatches = dataset.filter(city =>
-            city.toLowerCase().includes(q.toLowerCase())
-        );
 
         if (controller) controller.abort();
         controller = new AbortController();
 
         try {
-            const nominatimURL = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=20&dedupe=1&q=" +
-                encodeURIComponent(q);
+            // Search Nominatim with the selected state in the query so
+            // results belong to the chosen State/UT.
+            const nominatimURL =
+                "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=40&dedupe=1&q=" +
+                encodeURIComponent((q || "") + ", " + selectedState + ", India");
 
             const nominatimPromise = fetch(nominatimURL, {
                 signal: controller.signal,
@@ -9247,47 +9285,71 @@ function setupEditProfileCityLocationPicker() {
             })
                 .then(response => response.ok ? response.json() : [])
                 .catch(error => {
-                    if (error?.name !== "AbortError") console.debug("City geocoding unavailable:", error);
+                    if (error?.name !== "AbortError") {
+                        console.debug("City geocoding unavailable:", error);
+                    }
                     return [];
                 });
 
-            const lgdPromise = searchStudentKartLGDVillages(q);
+            const lgdPromise = q.length >= 2
+                ? searchStudentKartLGDVillages(q)
+                : Promise.resolve([]);
 
-            const [nominatimResults, lgdValues] = await Promise.all([nominatimPromise, lgdPromise]);
+            const [nominatimResults, lgdValues] = await Promise.all([
+                nominatimPromise,
+                lgdPromise
+            ]);
 
             const geoValues = nominatimResults.map(item => {
                 const address = item?.address || {};
                 const place = String(
-                    address.village || address.hamlet || address.town || address.city ||
-                    address.municipality || address.suburb || address.neighbourhood ||
+                    address.village || address.hamlet || address.town ||
+                    address.city || address.municipality || address.suburb ||
+                    address.neighbourhood ||
                     String(item?.display_name || "").split(",")[0] || ""
                 ).trim();
 
                 const subdistrict = String(
-                    address.subdistrict || address.state_district || address.county ||
-                    address.city_district || ""
+                    address.subdistrict || address.state_district ||
+                    address.county || address.city_district || ""
                 ).trim();
 
                 const district = String(
-                    address.district || address.state_district || address.county ||
-                    address.city_district || ""
+                    address.district || address.state_district ||
+                    address.county || address.city_district || ""
                 ).trim();
 
-                const state = String(address.state || "").trim();
+                const state = String(address.state || selectedState).trim();
 
-                if (!place) return "";
-                const hierarchy = [...new Set([subdistrict, district, state].filter(Boolean))];
+                if (!place || !isSameState(state, selectedState)) return "";
+
+                const hierarchy = [...new Set([
+                    subdistrict,
+                    district,
+                    state
+                ].filter(Boolean))];
 
                 return hierarchy.length
                     ? place + " — " + hierarchy.join(", ")
                     : place;
             }).filter(Boolean);
 
+            const stateSpecificLGDValues = q.length >= 2
+                ? lgdValues.filter(value =>
+                    isSameState(getStateFromLocationValue(value), selectedState)
+                )
+                : [];
+
             const values = [...new Set([
-                ...lgdValues,
-                ...geoValues,
-                ...localMatches
+                ...stateSpecificLGDValues,
+                ...geoValues
             ])].slice(0, 100);
+
+            if (!values.length && q.length >= 2) {
+                renderCitySuggestions([]);
+                renderCities([]);
+                return;
+            }
 
             renderCitySuggestions(values);
             renderCities(values);
@@ -9295,18 +9357,46 @@ function setupEditProfileCityLocationPicker() {
             if (error?.name !== "AbortError") {
                 console.debug("Edit profile city search unavailable:", error);
             }
-            renderCitySuggestions(localMatches);
-            renderCities(localMatches);
+            renderCitySuggestions([]);
+            renderCities([]);
         }
     };
 
-    input.addEventListener("focus", async () => {
-        renderCities(await loadAllIndiaCityDataset());
+    const refreshCitiesForSelectedState = async () => {
+        const selectedState = getSelectedState();
+        input.value = "";
+        suggestions?.classList.add("hidden");
+
+        if (!selectedState) {
+            renderCities([]);
+            return;
+        }
+
+        // Fetch a state-scoped set immediately. Users can then type a
+        // city/district/village name to narrow the list further.
+        await searchCities("");
+    };
+
+    stateInput?.addEventListener("change", refreshCitiesForSelectedState);
+
+    input.addEventListener("focus", () => {
+        if (!getSelectedState()) {
+            suggestions?.classList.add("hidden");
+            return;
+        }
+        if (input.value.trim().length >= 1) {
+            searchCities(input.value.trim());
+        }
     });
 
     input.addEventListener("input", () => {
         clearTimeout(cityTimer);
         const query = input.value.trim();
+
+        if (!getSelectedState()) {
+            suggestions?.classList.add("hidden");
+            return;
+        }
 
         if (query.length < 2) {
             suggestions?.classList.add("hidden");
