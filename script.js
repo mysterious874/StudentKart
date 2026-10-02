@@ -6621,19 +6621,6 @@ document.addEventListener("click", event => {
        WISHLIST
        ----------------------------------------- */
 
-    $("profileButton")
-        ?.addEventListener(
-            "click",
-            () => {
-                if (currentUser) {
-                    openModal("profileModal");
-                    loadProfile?.();
-                } else {
-                    openModal("loginModal");
-                }
-            }
-        );
-
     $("wishlistButton")
         ?.addEventListener(
             "click",
@@ -7016,22 +7003,6 @@ document.addEventListener("click", event => {
         ?.addEventListener(
             "click",
             contactSeller
-        );
-
-    $("viewSellerProfileButton")
-        ?.addEventListener(
-            "click",
-            () => {
-
-                if (
-                    currentProduct?.userId
-                ) {
-
-                    openSellerProfile(
-                        currentProduct.userId
-                    );
-                }
-            }
         );
 
 
@@ -8311,11 +8282,6 @@ $("chatVoiceCallButton")?.addEventListener("click", () => {
 $("chatVideoCallButton")?.addEventListener("click", () => {
     showToast("Video calls will be available soon.", "info");
 });
-
-$("chatCameraButton")?.addEventListener("click", () => {
-    $("chatImageInput")?.click();
-});
-
 
 // The send button is the chat form's submit button.
 // Do not intercept its click here; otherwise typed messages never reach
