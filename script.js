@@ -7938,47 +7938,7 @@ $("chatModal")?.querySelector(".chat-person")?.addEventListener("click", async (
 
 $("chatModal")?.querySelector(".chat-person")?.style.setProperty("cursor", "pointer");
 
-$("chatViewProfileButton")?.addEventListener("click", async event => {
-    event.preventDefault();
-    event.stopPropagation();
 
-    const inquiry = currentChatInquiry;
-    const otherUserId =
-        window.currentChatOtherUserId ||
-        (
-            inquiry
-                ? (
-                    String(inquiry.seller_id) === String(currentUser?.id)
-                        ? inquiry.buyer_id
-                        : inquiry.seller_id
-                )
-                : null
-        );
-
-    if (!otherUserId) {
-        showToast("User profile unavailable", "warning");
-        return;
-    }
-
-    window.currentChatOtherUserId = String(otherUserId);
-
-    const button = event.currentTarget;
-    if (!button) return;
-
-    const originalHtml = button.innerHTML;
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening...';
-
-    try {
-        await openSellerProfile(String(otherUserId));
-    } catch (error) {
-        console.error("Chat View Profile error:", error);
-        showToast("Could not open profile. Please try again.", "error");
-    } finally {
-        button.disabled = false;
-        button.innerHTML = originalHtml;
-    }
-});
 
 $("chatVoiceCallButton")?.addEventListener("click", () => {
     showToast("Voice calls will be available soon.", "info");
@@ -8061,7 +8021,50 @@ $("chatMessages")?.addEventListener("pointerup", endChatMessageLongPress);
 $("chatMessages")?.addEventListener("pointercancel", endChatMessageLongPress);
 $("chatMessages")?.addEventListener("pointerleave", endChatMessageLongPress);
 
-$("chatMessages")?.addEventListener("click", event => {
+$("chatMessages")?.addEventListener("click", async event => {
+    const profileButton = event.target.closest("#chatViewProfileButton");
+    if (profileButton) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const inquiry = currentChatInquiry;
+        const otherUserId =
+            window.currentChatOtherUserId ||
+            (
+                inquiry
+                    ? (
+                        String(inquiry.seller_id) === String(currentUser?.id)
+                            ? inquiry.buyer_id
+                            : inquiry.seller_id
+                    )
+                    : null
+            );
+
+        if (!otherUserId) {
+            showToast("User profile unavailable", "warning");
+            return;
+        }
+
+        window.currentChatOtherUserId = String(otherUserId);
+
+        if (profileButton.disabled) return;
+
+        const originalHtml = profileButton.innerHTML;
+        profileButton.disabled = true;
+        profileButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening...';
+
+        try {
+            await openSellerProfile(String(otherUserId));
+        } catch (error) {
+            console.error("Chat View Profile error:", error);
+            showToast("Could not open profile. Please try again.", "error");
+        } finally {
+            profileButton.disabled = false;
+            profileButton.innerHTML = originalHtml;
+        }
+        return;
+    }
+
     const messageEl = event.target.closest(".chat-message");
     if (!messageEl) return;
 
