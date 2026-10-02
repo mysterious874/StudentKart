@@ -8619,6 +8619,7 @@ async function loadChatMessages() {
                      data-message-id="${escapeHtml(String(message.id))}"
                      data-sender-id="${escapeHtml(String(message.sender_id || ""))}"
                      data-message-type="${image ? image.mediaType : "text"}">
+                    <span class="chat-message-selection-check" aria-hidden="true"><i class="fas fa-check"></i></span>
                     ${replyHtml}
                     ${content}
                     <small class="chat-message-time">
