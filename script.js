@@ -317,6 +317,10 @@ function openModal(id, options = {}) {
 
 function closeModal(id, options = {}) {
 
+    if (id === "chatModal") {
+        document.body.classList.remove("studentkart-chat-open");
+    }
+
     const modal = $(id);
 
     if (!modal || modal.classList.contains("hidden")) {
@@ -369,6 +373,8 @@ function closeModal(id, options = {}) {
 }
 
 function closeAllModals(options = {}) {
+
+    document.body.classList.remove("studentkart-chat-open");
 
     modalHistory = [];
 
