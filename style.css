@@ -17678,3 +17678,36 @@ body.new-user-gate-open {
         padding: 25px 20px 20px !important;
     }
 }
+
+
+/* =========================================================
+   LOGOUT POPUP — FORCE CENTERED CARD
+   ========================================================= */
+#logoutConfirmModal {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 16px !important;
+}
+
+#logoutConfirmModal > .logout-confirm-modal {
+    position: relative !important;
+    width: min(360px, calc(100vw - 32px)) !important;
+    max-width: 360px !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 32px) !important;
+    margin: auto !important;
+    padding: 28px 24px 22px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    flex: 0 0 auto !important;
+}
+
+@media (max-width: 480px) {
+    #logoutConfirmModal > .logout-confirm-modal {
+        width: min(340px, calc(100vw - 28px)) !important;
+        max-width: 340px !important;
+        padding: 25px 20px 20px !important;
+    }
+}
