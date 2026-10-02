@@ -16027,34 +16027,52 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
 
 
 
-/* CHAT HEADER — DARK ACTION ICONS */
-#chatModal .chat-head > .chat-back-button{
-    color:#173a40 !important;
-    border-color:#d2dfe0 !important;
+/* CHAT HEADER — DARK BAR, LIGHT ICONS */
+#chatModal .chat-head{
+    background:#173a40 !important;
+    border-bottom:1px solid #173a40 !important;
+    box-shadow:0 4px 18px rgba(15,23,42,.12) !important;
 }
-#chatModal .chat-head > .chat-back-button i{
-    color:#173a40 !important;
-}
+#chatModal .chat-head > .chat-back-button,
 #chatModal .chat-call-button,
 #chatModal .chat-delete-button{
-    color:#173a40 !important;
-    border-color:#d2dfe0 !important;
-    background:#f5f9f9 !important;
+    width:auto !important;
+    min-width:0 !important;
+    height:auto !important;
+    padding:6px !important;
+    margin:0 !important;
+    border:0 !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    color:#dbe9e9 !important;
+    display:grid !important;
+    place-items:center !important;
 }
+#chatModal .chat-head > .chat-back-button i,
 #chatModal .chat-call-button i,
 #chatModal .chat-delete-button i{
-    color:#173a40 !important;
+    color:#dbe9e9 !important;
     opacity:1 !important;
+    font-size:16px !important;
+}
+#chatModal .chat-person h2{
+    color:#ffffff !important;
+}
+#chatModal .chat-person p,
+#chatModal .chat-user-status,
+#chatModal #chatUserStatus{
+    color:#b9cecf !important;
 }
 #chatModal .chat-call-button:hover,
 #chatModal .chat-delete-button:hover,
 #chatModal .chat-head > .chat-back-button:hover{
-    color:#087577 !important;
-    border-color:#b9cdce !important;
-    background:#edf5f5 !important;
+    background:transparent !important;
+    border:0 !important;
+    color:#ffffff !important;
 }
 #chatModal .chat-call-button:hover i,
 #chatModal .chat-delete-button:hover i,
 #chatModal .chat-head > .chat-back-button:hover i{
-    color:#087577 !important;
+    color:#ffffff !important;
 }
