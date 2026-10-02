@@ -17,7 +17,6 @@ create index if not exists profiles_username_search_idx on public.profiles (lowe
 create index if not exists profiles_name_search_idx on public.profiles (lower(name));
 
 -- Allow a logged-in student to manage only their own profile row.
--- These blocks are safe to run even if the policies already exist.
 do $$
 begin
     if not exists (
@@ -58,6 +57,64 @@ begin
         to authenticated
         using (auth.uid() = id)
         with check (auth.uid() = id);
+    end if;
+end
+$$;
+
+-- Profile photos use the existing "product-images" bucket.
+-- Files are stored inside a folder named with the authenticated user's id.
+do $$
+begin
+    if not exists (
+        select 1 from pg_policies
+        where schemaname = 'storage'
+          and tablename = 'objects'
+          and policyname = 'studentkart_profile_image_insert_own'
+    ) then
+        create policy studentkart_profile_image_insert_own
+        on storage.objects
+        for insert
+        to authenticated
+        with check (
+            bucket_id = 'product-images'
+            and (storage.foldername(name))[1] = (select auth.uid()::text)
+        );
+    end if;
+
+    if not exists (
+        select 1 from pg_policies
+        where schemaname = 'storage'
+          and tablename = 'objects'
+          and policyname = 'studentkart_profile_image_update_own'
+    ) then
+        create policy studentkart_profile_image_update_own
+        on storage.objects
+        for update
+        to authenticated
+        using (
+            bucket_id = 'product-images'
+            and (storage.foldername(name))[1] = (select auth.uid()::text)
+        )
+        with check (
+            bucket_id = 'product-images'
+            and (storage.foldername(name))[1] = (select auth.uid()::text)
+        );
+    end if;
+
+    if not exists (
+        select 1 from pg_policies
+        where schemaname = 'storage'
+          and tablename = 'objects'
+          and policyname = 'studentkart_profile_image_delete_own'
+    ) then
+        create policy studentkart_profile_image_delete_own
+        on storage.objects
+        for delete
+        to authenticated
+        using (
+            bucket_id = 'product-images'
+            and (storage.foldername(name))[1] = (select auth.uid()::text)
+        );
     end if;
 end
 $$;
