@@ -459,10 +459,19 @@ window.addEventListener("popstate", event => {
         closeAllModals({ fromPopState: true });
 
         if (openModalElement || hasModalState) {
+            /*
+             * Preserve the page/hash the user was actually on.
+             * Stripping the hash here makes the app fall back to Home.
+             */
             window.history.pushState(
-                { studentKart: true, modalId: null, modalStack: [] },
+                {
+                    ...(event.state || {}),
+                    studentKart: true,
+                    modalId: null,
+                    modalStack: []
+                },
                 "",
-                window.location.pathname + window.location.search
+                window.location.href
             );
         }
 
