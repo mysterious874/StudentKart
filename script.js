@@ -6763,6 +6763,10 @@ async function initializeStudentKart() {
 
         await getCurrentUser();
 
+        if (currentUser) {
+            applyStudentKartSettings();
+        }
+
         updateNavbar();
 
         setupEventListeners();
