@@ -16381,7 +16381,7 @@ body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) .mobil
 }
 
 .navbar.navbar-scroll-hidden {
-    transform: translate3d(0, -110%, 0) !important;
+    transform: translateY(-110%) !important;
     opacity: 0 !important;
     pointer-events: none !important;
 }
