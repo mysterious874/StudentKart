@@ -16024,3 +16024,37 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
         border-radius:9px !important;
     }
 }
+
+
+
+/* CHAT HEADER — DARK ACTION ICONS */
+#chatModal .chat-head > .chat-back-button{
+    color:#173a40 !important;
+    border-color:#d2dfe0 !important;
+}
+#chatModal .chat-head > .chat-back-button i{
+    color:#173a40 !important;
+}
+#chatModal .chat-call-button,
+#chatModal .chat-delete-button{
+    color:#173a40 !important;
+    border-color:#d2dfe0 !important;
+    background:#f5f9f9 !important;
+}
+#chatModal .chat-call-button i,
+#chatModal .chat-delete-button i{
+    color:#173a40 !important;
+    opacity:1 !important;
+}
+#chatModal .chat-call-button:hover,
+#chatModal .chat-delete-button:hover,
+#chatModal .chat-head > .chat-back-button:hover{
+    color:#087577 !important;
+    border-color:#b9cdce !important;
+    background:#edf5f5 !important;
+}
+#chatModal .chat-call-button:hover i,
+#chatModal .chat-delete-button:hover i,
+#chatModal .chat-head > .chat-back-button:hover i{
+    color:#087577 !important;
+}
