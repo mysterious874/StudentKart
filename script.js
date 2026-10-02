@@ -8470,7 +8470,12 @@ function beginChatMessageLongPress(event) {
     clearTimeout(chatLongPressTimer);
     chatLongPressTimer = setTimeout(() => {
         chatLongPressTriggered = true;
-        toggleChatMessageSelection(messageEl.dataset.messageId);
+        // A long-press enters selection mode; it must not immediately
+        // toggle an already-selected message back off.
+        if (!selectedChatMessageIds.has(String(messageEl.dataset.messageId))) {
+            toggleChatMessageSelection(messageEl.dataset.messageId);
+        }
+        if (navigator.vibrate) navigator.vibrate(35);
     }, 800);
 }
 
@@ -8496,6 +8501,7 @@ $("chatMessages")?.addEventListener("contextmenu", event => {
     event.preventDefault();
     event.stopPropagation();
     if (messageEl.dataset.messageId && !selectedChatMessageIds.has(String(messageEl.dataset.messageId))) {
+        chatLongPressTriggered = true;
         toggleChatMessageSelection(messageEl.dataset.messageId);
         if (navigator.vibrate) navigator.vibrate(35);
     }
