@@ -4777,14 +4777,15 @@ body { font-weight: 400; }
 }
 
 .chat-head {
-    min-height: 76px;
+    min-height: 82px;
     padding: 14px 18px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 14px;
-    background: #ffffff;
-    border-bottom: 1px solid #e8eef1;
+    background: linear-gradient(135deg, #e7fbfa 0%, #f7ffff 52%, #ffffff 100%);
+    border-bottom: 1px solid #bfe9e7;
+    box-shadow: 0 4px 14px rgba(15, 139, 141, 0.10);
 }
 
 .chat-person {
@@ -4792,18 +4793,20 @@ body { font-weight: 400; }
     display: flex;
     align-items: center;
     gap: 12px;
+    cursor: pointer;
 }
 
 .chat-avatar {
-    width: 44px;
-    height: 44px;
-    flex: 0 0 44px;
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
     display: grid;
     place-items: center;
-    border-radius: 12px;
-    background: #0f8b8d;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #13b8b5, #0f8b8d);
     color: #ffffff;
     font-size: 18px;
+    box-shadow: 0 5px 14px rgba(15, 139, 141, 0.22);
 }
 
 .chat-person > div:last-child {
@@ -4815,7 +4818,8 @@ body { font-weight: 400; }
     margin-bottom: 2px;
     font-size: 10px;
     letter-spacing: .08em;
-    color: #6b7c85;
+    color: #0f8b8d;
+    font-weight: 800;
 }
 
 .chat-person h2 {
