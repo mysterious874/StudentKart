@@ -4379,6 +4379,8 @@ async function loginUser(event) {
         if (error) throw error;
 
         closeModal("loginModal");
+        localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
+        updateNavbar();
         showToast("Logged in successfully", "success");
     } catch (error) {
         console.error("Login error:", error);
@@ -4425,6 +4427,8 @@ async function signupUser(event) {
         }
 
         closeModal("signupModal");
+        localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
+        updateNavbar();
 
         showToast(
             data?.session
@@ -4493,6 +4497,7 @@ async function logoutUser() {
 
         await supabaseClient.auth.signOut();
 
+        localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
         currentUser = null;
         currentNotifications = [];
 
@@ -7003,6 +7008,14 @@ document.addEventListener("click", event => {
 
 
     /* -----------------------------------------
+       NEW USER ENTRY GATE
+       ----------------------------------------- */
+
+    $("newUserLoginButton")?.addEventListener("click", openLoginFromNewUserGate);
+    $("newUserSignupButton")?.addEventListener("click", openSignupFromNewUserGate);
+    $("newUserGuestButton")?.addEventListener("click", enterStudentKartGuestMode);
+
+    /* -----------------------------------------
        AUTH FORMS
        ----------------------------------------- */
 
@@ -7657,6 +7670,45 @@ function setupAuthListener() {
 }
 
 
+
+/* =========================================================
+   NEW USER ENTRY GATE
+   ========================================================= */
+const STUDENTKART_GUEST_MODE_KEY = "studentkart_guest_mode";
+
+function isStudentKartGuestMode() {
+    return localStorage.getItem(STUDENTKART_GUEST_MODE_KEY) === "true";
+}
+
+function enterStudentKartGuestMode() {
+    localStorage.setItem(STUDENTKART_GUEST_MODE_KEY, "true");
+    hideNewUserGate();
+    showToast("Continuing as guest", "success");
+}
+
+function showNewUserGate() {
+    const gate = $("newUserGate");
+    if (!gate || currentUser || isStudentKartGuestMode()) return;
+    gate.classList.remove("hidden");
+    document.body.classList.add("new-user-gate-open");
+}
+
+function hideNewUserGate() {
+    const gate = $("newUserGate");
+    if (gate) gate.classList.add("hidden");
+    document.body.classList.remove("new-user-gate-open");
+}
+
+function openLoginFromNewUserGate() {
+    hideNewUserGate();
+    openModal("loginModal");
+}
+
+function openSignupFromNewUserGate() {
+    hideNewUserGate();
+    openModal("signupModal");
+}
+
 /* =========================================================
    INITIALIZE
    ========================================================= */
@@ -7672,10 +7724,15 @@ async function initializeStudentKart() {
         await getCurrentUser();
 
         if (currentUser) {
+            localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
             applyStudentKartSettings();
         }
 
         updateNavbar();
+
+        if (!currentUser && !isStudentKartGuestMode()) {
+            showNewUserGate();
+        }
 
         setupEventListeners();
 
