@@ -12513,13 +12513,18 @@ function settingsAccountSecurity() {
     if (!currentUser) return;
     openSettingsActionModal({
         title:"Account Security",
-        description:"Review the security state of your StudentKart account.",
+        description:"Review and manage the sign-in methods connected to your account.",
         options:[
             {value:"email",label:"Email",description:(currentUser.email||"Not added")+" · "+(currentUser.email_confirmed_at?"Verified":"Verification may be required"),icon:"fa-envelope"},
             {value:"phone",label:"Mobile",description:(currentUser.phone||"Not added")+" · "+(currentUser.phone_confirmed_at?"Verified":"Verification may be required"),icon:"fa-mobile-screen"},
-            {value:"session",label:"Session",description:"Your current authenticated session is active",icon:"fa-shield-halved"}
+            {value:"session",label:"Current Session",description:"View your active StudentKart session",icon:"fa-shield-halved"}
         ],
-        onConfirm:async()=>{}
+        onConfirm:async value=>{
+            closeModal("settingsActionModal");
+            if (value === "email") return settingsEmail();
+            if (value === "phone") return settingsMobile();
+            if (value === "session") return settingsLoginSessions();
+        }
     });
 }
 
@@ -12583,11 +12588,7 @@ async function handleSettingAction(action) {
     if (action === "hide-email") return settingsToggle("privacy.hideEmail");
     if (action === "blocked-users") return settingsBlockedUsers();
 
-    if (action === "report-problem") {
-        const body = encodeURIComponent("StudentKart problem report:\n\n");
-        window.location.href = `mailto:rathodharish004@gmail.com?subject=StudentKart%20Problem%20Report&body=${body}`;
-        return;
-    }
+    if (action === "report-problem") return settingsReportProblem();
 
     if (action === "safety-tips" || action === "safety-about" || action === "about" ||
         action === "terms" || action === "privacy-policy" || action === "contact") {
@@ -12611,7 +12612,13 @@ async function handleSettingAction(action) {
 
     if (action === "theme") return settingsTheme();
     if (action === "language") return settingsLanguage();
-    if (action === "vibration") return settingsToggle("preferences.vibration");
+    if (action === "vibration") {
+        const saved = await settingsToggle("preferences.vibration");
+        if (saved && getStudentKartSettings().preferences.vibration && navigator.vibrate) {
+            navigator.vibrate(25);
+        }
+        return saved;
+    }
 
     if (action === "login-sessions") return settingsLoginSessions();
     if (action === "logout-all") return settingsLogoutAll();
