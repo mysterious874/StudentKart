@@ -7338,6 +7338,7 @@ function replyToSelectedChatMessage() {
 
     const quoted = bubble.textContent.trim();
     input.value = quoted ? "> " + quoted + "\n" : "";
+    setChatReplyPreview(quoted, "Replying to message");
     input.focus();
     clearChatMessageSelection();
     showToast("Reply ready", "success");
@@ -7385,182 +7386,239 @@ async function deleteSelectedOwnChatMessages() {
     }
 }
 
+function parseChatImageMessage(value) {
+    const raw = String(value || "");
+    const prefix = "__STUDENTKART_IMAGE__";
+    if (!raw.startsWith(prefix)) return null;
+    try {
+        const data = JSON.parse(raw.slice(prefix.length));
+        if (!data?.url) return null;
+        return { url: data.url, caption: data.caption || "" };
+    } catch {
+        return null;
+    }
+}
+
+function createChatImageMessage(url, caption = "") {
+    return "__STUDENTKART_IMAGE__" + JSON.stringify({
+        url,
+        caption: String(caption || "").slice(0, 1000)
+    });
+}
+
 async function loadChatMessages() {
 
-    if (!currentChatInquiry || !currentUser) {
-        return;
-    }
+    if (!currentChatInquiry || !currentUser) return;
 
     const container = $("chatMessages");
-
-    if (!container) {
-        return;
-    }
+    if (!container) return;
 
     container.classList.add("chat-loading");
 
     try {
+        const { data, error } = await supabaseClient
+            .from("messages")
+            .select("*")
+            .eq("inquiry_id", currentChatInquiry.id)
+            .order("created_at", { ascending: true });
 
-        const { data, error } =
-            await supabaseClient
-                .from("messages")
-                .select("*")
-                .eq("inquiry_id", currentChatInquiry.id)
-                .order("created_at", {
-                    ascending: true
-                });
-
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         if (!data || data.length === 0) {
-
             container.innerHTML = `
                 <div class="chat-empty">
-                    No messages yet. Start the conversation.
-                </div>
-            `;
-
+                    <i class="fas fa-comment-dots"></i>
+                    <p>No messages yet.</p>
+                    <span>Start the conversation below.</span>
+                </div>`;
             return;
         }
 
-        container.innerHTML = data
-            .map(message => {
+        container.innerHTML = data.map(message => {
+            const isMine = message.sender_id === currentUser.id;
+            const image = parseChatImageMessage(message.message);
 
-                const isMine =
-                    message.sender_id === currentUser.id;
+            let content = "";
 
-                return `
-                    <div class="chat-message ${isMine
-                        ? "chat-message-own"
-                        : "chat-message-other"
-                    }"
-                        data-message-id="${escapeHtml(String(message.id))}"
-                        data-sender-id="${escapeHtml(String(message.sender_id || ""))}">
+            if (image) {
+                const safeUrl = escapeHtml(image.url);
+                const caption = image.caption
+                    ? `<div class="chat-image-caption">${escapeHtml(image.caption)}</div>`
+                    : "";
 
-                        <div class="chat-message-bubble">
-                            ${escapeHtml(message.message)}
-                        </div>
-
-                        <small>
-                            ${formatChatTime(message.created_at)}
-                        </small>
-
-                    </div>
+                content = `
+                    <img class="chat-message-image"
+                         src="${safeUrl}"
+                         alt="Shared photo"
+                         loading="lazy"
+                         data-chat-image="${safeUrl}">
+                    ${caption}
                 `;
+            } else {
+                content = `<div class="chat-message-bubble">${escapeHtml(message.message)}</div>`;
+            }
 
-            })
-            .join("");
+            return `
+                <div class="chat-message ${isMine ? "chat-message-own sent" : "chat-message-other received"}"
+                     data-message-id="${escapeHtml(String(message.id))}"
+                     data-sender-id="${escapeHtml(String(message.sender_id || ""))}"
+                     data-message-type="${image ? "image" : "text"}">
+                    ${content}
+                    <small class="chat-message-time">
+                        ${formatChatTime(message.created_at)}
+                    </small>
+                </div>`;
+        }).join("");
 
         updateChatMessageSelectionUI();
         scrollChatToBottom();
 
     } catch (error) {
-
-        console.error(
-            "Load chat messages error:",
-            error
-        );
-
+        console.error("Load chat messages error:", error);
         container.innerHTML = `
             <div class="chat-empty">
                 Could not load messages.
-            </div>
-        `;
+            </div>`;
     } finally {
         container.classList.remove("chat-loading");
     }
 }
 
-
 async function sendChatMessage(event) {
 
     event.preventDefault();
 
-    if (!currentUser || !currentChatInquiry) {
-        return;
-    }
+    if (!currentUser || !currentChatInquiry) return;
 
     const input = $("chatInput");
+    const imageInput = $("chatImageInput");
+    const selectedFile = imageInput?.files?.[0] || null;
+    const message = input?.value.trim() || "";
 
-    if (!input) {
-        return;
-    }
+    if (!message && !selectedFile) return;
 
-    const message = input.value.trim();
-
-    if (!message) {
-        return;
-    }
-
-    const isSeller =
-        currentChatInquiry.seller_id === currentUser.id;
-
-    const receiverId =
-        isSeller
-            ? currentChatInquiry.buyer_id
-            : currentChatInquiry.seller_id;
+    const isSeller = currentChatInquiry.seller_id === currentUser.id;
+    const receiverId = isSeller
+        ? currentChatInquiry.buyer_id
+        : currentChatInquiry.seller_id;
 
     if (!receiverId) {
-        showToast(
-            "Receiver information unavailable",
-            "error"
-        );
+        showToast("Receiver information unavailable", "error");
         return;
     }
 
-    const sendButton =
-        $("chatForm")?.querySelector(
-            'button[type="submit"]'
-        );
+    const sendButton = $("chatForm")?.querySelector('button[type="submit"]');
+    const originalSendHtml = sendButton?.innerHTML;
 
     if (sendButton) {
         sendButton.disabled = true;
+        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     }
 
     try {
-
         await removeHiddenChat(currentChatInquiry.id);
 
-        const { error } =
-            await supabaseClient
-                .from("messages")
-                .insert({
-                    inquiry_id: currentChatInquiry.id,
-                    sender_id: currentUser.id,
-                    receiver_id: receiverId,
-                    message
-                });
+        let messageToSend = message;
 
-        if (error) {
-            throw error;
+        if (selectedFile) {
+            if (!selectedFile.type.startsWith("image/")) {
+                throw new Error("Please select an image file.");
+            }
+
+            if (selectedFile.size > 8 * 1024 * 1024) {
+                throw new Error("Image must be 8 MB or smaller.");
+            }
+
+            showToast("Uploading photo…", "success");
+            const imageUrl = await uploadProductImage(selectedFile);
+
+            if (!imageUrl) throw new Error("Could not upload photo.");
+
+            messageToSend = createChatImageMessage(imageUrl, message);
         }
 
-        input.value = "";
+        const { error } = await supabaseClient
+            .from("messages")
+            .insert({
+                inquiry_id: currentChatInquiry.id,
+                sender_id: currentUser.id,
+                receiver_id: receiverId,
+                message: messageToSend
+            });
+
+        if (error) throw error;
+
+        if (input) input.value = "";
+        clearChatImageSelection();
+        clearChatReplyPreview();
 
         await loadChatMessages();
 
     } catch (error) {
-
-        console.error(
-            "Send chat message error:",
-            error
-        );
-
-        showToast(
-            "Could not send message",
-            "error"
-        );
-
+        console.error("Send chat message error:", error);
+        showToast(error?.message || "Could not send message", "error");
     } finally {
-
         if (sendButton) {
             sendButton.disabled = false;
+            sendButton.innerHTML = originalSendHtml || '<i class="fas fa-paper-plane"></i>';
         }
-
-        input.focus();
+        input?.focus();
     }
+}
+
+function clearChatImageSelection() {
+    const input = $("chatImageInput");
+    const preview = $("chatImagePreview");
+    const image = $("chatImagePreviewImg");
+    const name = $("chatImagePreviewName");
+
+    if (input) input.value = "";
+    if (image) image.src = "";
+    if (name) name.textContent = "";
+    preview?.classList.add("hidden");
+}
+
+function showChatImageSelection(file) {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+        showToast("Please select an image", "warning");
+        return;
+    }
+
+    if (file.size > 8 * 1024 * 1024) {
+        showToast("Image must be 8 MB or smaller", "warning");
+        clearChatImageSelection();
+        return;
+    }
+
+    const preview = $("chatImagePreview");
+    const image = $("chatImagePreviewImg");
+    const name = $("chatImagePreviewName");
+
+    if (!preview || !image) return;
+
+    const url = URL.createObjectURL(file);
+    image.onload = () => URL.revokeObjectURL(url);
+    image.src = url;
+    if (name) name.textContent = file.name;
+    preview.classList.remove("hidden");
+}
+
+function clearChatReplyPreview() {
+    $("chatReplyPreview")?.classList.add("hidden");
+    const text = $("chatReplyText");
+    if (text) text.textContent = "";
+}
+
+function setChatReplyPreview(text, label = "Replying") {
+    const preview = $("chatReplyPreview");
+    const labelEl = $("chatReplyLabel");
+    const textEl = $("chatReplyText");
+    if (!preview || !textEl) return;
+    if (labelEl) labelEl.textContent = label;
+    textEl.textContent = String(text || "").slice(0, 180);
+    preview.classList.remove("hidden");
 }
 
 
@@ -7706,6 +7764,60 @@ $("chatForm")?.addEventListener(
     "submit",
     sendChatMessage
 );
+
+$("chatAttachButton")?.addEventListener("click", () => {
+    $("chatImageInput")?.click();
+});
+
+$("chatImageInput")?.addEventListener("change", event => {
+    const file = event.target.files?.[0];
+    showChatImageSelection(file);
+});
+
+$("removeChatImage")?.addEventListener("click", clearChatImageSelection);
+
+$("chatEmojiButton")?.addEventListener("click", () => {
+    $("chatEmojiPicker")?.classList.toggle("hidden");
+});
+
+$("chatEmojiPicker")?.addEventListener("click", event => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    const input = $("chatInput");
+    if (!input) return;
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    input.value = input.value.slice(0, start) + button.textContent + input.value.slice(end);
+    input.focus();
+    input.selectionStart = input.selectionEnd = start + button.textContent.length;
+});
+
+$("cancelChatReply")?.addEventListener("click", clearChatReplyPreview);
+
+document.addEventListener("click", event => {
+    const picker = $("chatEmojiPicker");
+    const button = $("chatEmojiButton");
+    if (picker && !picker.contains(event.target) && event.target !== button && !button?.contains(event.target)) {
+        picker.classList.add("hidden");
+    }
+});
+
+$("chatMessages")?.addEventListener("click", event => {
+    const image = event.target.closest("[data-chat-image]");
+    if (!image) return;
+    const url = image.getAttribute("data-chat-image");
+    if (!url) return;
+    const viewer = document.createElement("div");
+    viewer.className = "chat-image-viewer";
+    viewer.innerHTML = '<button type="button" aria-label="Close"><i class="fas fa-xmark"></i></button><img alt="Shared photo">';
+    viewer.querySelector("img").src = url;
+    document.body.appendChild(viewer);
+    const close = () => viewer.remove();
+    viewer.addEventListener("click", event => {
+        if (event.target === viewer || event.target.closest("button")) close();
+    });
+});
+
 
 $("selectAllInquiries")?.addEventListener(
     "change",
