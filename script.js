@@ -12234,6 +12234,116 @@ const SK_WORD_T = {
     }
 };
 
+// Expanded UI vocabulary. These words cover the remaining hard-coded
+// navigation, form, marketplace, settings and empty-state copy.
+const SK_WORD_EXTRA = {
+    hi: {
+        Buy:"खरीदें",Discover:"खोजें",Your:"आपका",campus:"कैंपस",marketplace:"मार्केटप्लेस",
+        Any:"कोई भी",Min:"न्यूनतम",Max:"अधिकतम",Sort:"क्रम",By:"के अनुसार",First:"पहले",
+        Low:"कम",High:"अधिक",Simple:"सरल",Process:"प्रक्रिया",Buying:"खरीदना",selling:"बेचना",
+        should:"चाहिए",Create:"बनाएँ",Account:"अकाउंट",Sign:"साइन",profile:"प्रोफ़ाइल",
+        List:"सूचीबद्ध करें",Add:"जोड़ें",photos:"फोटो",price:"कीमत",details:"विवरण",
+        Find:"खोजें",What:"क्या",Need:"ज़रूरत",Browse:"देखें",products:"प्रोडक्ट",contact:"संपर्क",
+        sellers:"विक्रेताओं",directly:"सीधे",Connect:"जुड़ें",Deal:"सौदा",Discuss:"चर्चा करें",
+        complete:"पूरा करें",Built:"बनाया गया",focused:"केंद्रित",Easy:"आसान",use:"उपयोग",
+        Information:"जानकारी",policies:"नीतियाँ",support:"सहायता",Something:"कुछ",details:"विवरण",
+        Search:"खोजें",image:"इमेज",selected:"चयनित",Preview:"प्रीव्यू",Details:"विवरण",
+        Listed:"सूचीबद्ध",by:"द्वारा",saved:"सहेजे गए",later:"बाद के लिए",Inquiry:"पूछताछ",
+        Ask:"पूछें",buyer:"खरीदार",messages:"संदेश",Here:"यहाँ",Don't:"नहीं",have:"है",
+        already:"पहले से",Since:"से",Recently:"हाल ही में",Conversation:"बातचीत",Delete:"हटाएँ",
+        Everyone:"सभी",selected:"चयनित",Choose:"चुनें",want:"चाहते",how:"कैसे",No:"कोई नहीं",
+        messages:"संदेश",Replying:"जवाब दिया जा रहा है",Record:"रिकॉर्ड करें"
+    },
+    mr: {
+        Buy:"खरेदी करा",Discover:"शोधा",Your:"तुमचे",campus:"कॅम्पस",marketplace:"मार्केटप्लेस",
+        Any:"कोणतीही",Min:"किमान",Max:"कमाल",By:"नुसार",First:"पहिले",Low:"कमी",High:"जास्त",
+        Simple:"सोपे",Process:"प्रक्रिया",Buying:"खरेदी",selling:"विक्री",should:"पाहिजे",Create:"तयार करा",
+        Sign:"साइन",profile:"प्रोफाइल",List:"यादी",photos:"फोटो",price:"किंमत",details:"तपशील",
+        Find:"शोधा",What:"काय",Need:"गरज",Browse:"पहा",products:"प्रोडक्ट्स",contact:"संपर्क",
+        sellers:"विक्रेते",directly:"थेट",Connect:"जोडा",Deal:"व्यवहार",Discuss:"चर्चा करा",
+        complete:"पूर्ण करा",Built:"बनवलेले",focused:"केंद्रित",Easy:"सोपे",use:"वापरा",
+        Information:"माहिती",policies:"धोरणे",support:"मदत",Something:"काहीतरी",Search:"शोधा",
+        image:"प्रतिमा",selected:"निवडलेले",Preview:"पूर्वदृश्य",Listed:"यादीत",saved:"जतन केलेले",
+        later:"नंतरसाठी",Inquiry:"चौकशी",Ask:"विचारा",buyer:"खरेदीदार",messages:"संदेश",
+        Here:"येथे",already:"आधीच",Since:"पासून",Conversation:"संभाषण",Everyone:"सर्व",
+        want:"इच्छिता",how:"कसे",Replying:"उत्तर देत आहे",Record:"रेकॉर्ड करा"
+    },
+    gu: {
+        Buy:"ખરીદો",Discover:"શોધો",Your:"તમારું",campus:"કેમ્પસ",marketplace:"માર્કેટપ્લેસ",
+        Any:"કોઈપણ",Min:"ન્યૂનતમ",Max:"મહત્તમ",By:"દ્વારા",First:"પહેલું",Low:"ઓછું",High:"વધુ",
+        Simple:"સરળ",Process:"પ્રક્રિયા",Buying:"ખરીદી",selling:"વેચાણ",should:"જોઈએ",Create:"બનાવો",
+        Sign:"સાઇન",profile:"પ્રોફાઇલ",List:"યાદી",photos:"ફોટા",price:"કિંમત",details:"વિગતો",
+        Find:"શોધો",What:"શું",Need:"જરૂર",Browse:"જુઓ",products:"પ્રોડક્ટ્સ",contact:"સંપર્ક",
+        sellers:"વેચનાર",directly:"સીધા",Connect:"જોડાઓ",Deal:"વ્યવહાર",Discuss:"ચર્ચા કરો",
+        complete:"પૂર્ણ કરો",Built:"બનાવેલ",focused:"કેન્દ્રિત",Easy:"સરળ",use:"ઉપયોગ",
+        Information:"માહિતી",policies:"નીતિઓ",support:"મદદ",Something:"કંઈક",Search:"શોધો",
+        image:"છબી",selected:"પસંદ કરેલ",Preview:"પૂર્વદર્શન",Listed:"યાદીબદ્ધ",saved:"સાચવેલ",
+        later:"પછી માટે",Inquiry:"પૂછપરછ",Ask:"પૂછો",buyer:"ખરીદનાર",messages:"સંદેશાઓ",
+        Here:"અહીં",already:"પહેલેથી",Since:"ત્યારથી",Conversation:"વાતચીત",Everyone:"દરેક",
+        want:"માંગો",how:"કેવી રીતે",Replying:"જવાબ આપી રહ્યા છીએ",Record:"રેકોર્ડ કરો"
+    },
+    bn: {
+        Buy:"কিনুন",Discover:"খুঁজুন",Your:"আপনার",campus:"ক্যাম্পাস",marketplace:"মার্কেটপ্লেস",
+        Any:"যেকোনো",Min:"সর্বনিম্ন",Max:"সর্বোচ্চ",By:"অনুযায়ী",First:"প্রথম",Low:"কম",High:"বেশি",
+        Simple:"সহজ",Process:"প্রক্রিয়া",Buying:"কেনা",selling:"বিক্রি",should:"উচিত",Create:"তৈরি করুন",
+        Sign:"সাইন",profile:"প্রোফাইল",List:"তালিকা",photos:"ছবি",price:"দাম",details:"বিস্তারিত",
+        Find:"খুঁজুন",What:"যা",Need:"প্রয়োজন",Browse:"দেখুন",products:"পণ্য",contact:"যোগাযোগ",
+        sellers:"বিক্রেতাদের",directly:"সরাসরি",Connect:"যুক্ত হন",Deal:"লেনদেন",Discuss:"আলোচনা করুন",
+        complete:"সম্পূর্ণ করুন",Built:"তৈরি",focused:"কেন্দ্রিক",Easy:"সহজ",use:"ব্যবহার",
+        Information:"তথ্য",policies:"নীতিমালা",support:"সহায়তা",Something:"কিছু",Search:"খুঁজুন",
+        image:"ছবি",selected:"নির্বাচিত",Preview:"প্রিভিউ",Listed:"তালিকাভুক্ত",saved:"সংরক্ষিত",
+        later:"পরে",Inquiry:"জিজ্ঞাসা",Ask:"জিজ্ঞাসা করুন",buyer:"ক্রেতা",messages:"বার্তা",
+        Here:"এখানে",already:"ইতিমধ্যে",Since:"থেকে",Conversation:"কথোপকথন",Everyone:"সকল",
+        want:"চান",how:"কীভাবে",Replying:"উত্তর দিচ্ছে",Record:"রেকর্ড করুন"
+    },
+    ta: {
+        Buy:"வாங்கவும்",Discover:"கண்டறியவும்",Your:"உங்கள்",campus:"வளாகம்",marketplace:"சந்தை",
+        Any:"எதுவும்",Min:"குறைந்தபட்சம்",Max:"அதிகபட்சம்",By:"படி",First:"முதல்",Low:"குறைவு",High:"அதிகம்",
+        Simple:"எளிய",Process:"செயல்முறை",Buying:"வாங்குதல்",selling:"விற்பனை",should:"வேண்டும்",Create:"உருவாக்கு",
+        Sign:"பதிவு",profile:"சுயவிவரம்",List:"பட்டியல்",photos:"புகைப்படங்கள்",price:"விலை",details:"விவரங்கள்",
+        Find:"கண்டுபிடி",What:"என்ன",Need:"தேவை",Browse:"உலாவு",products:"பொருட்கள்",contact:"தொடர்பு",
+        sellers:"விற்பனையாளர்கள்",directly:"நேரடியாக",Connect:"இணைக்கவும்",Deal:"பரிவர்த்தனை",Discuss:"விவாதிக்கவும்",
+        complete:"முடிக்கவும்",Built:"உருவாக்கப்பட்டது",focused:"மையப்படுத்தப்பட்டது",Easy:"எளிதான",use:"பயன்படுத்து",
+        Information:"தகவல்",policies:"கொள்கைகள்",support:"ஆதரவு",Something:"ஏதோ ஒன்று",Search:"தேடல்",
+        image:"படம்",selected:"தேர்ந்தெடுக்கப்பட்டது",Preview:"முன்னோட்டம்",Listed:"பட்டியலிடப்பட்டது",saved:"சேமிக்கப்பட்ட",
+        later:"பின்னர்",Inquiry:"விசாரணை",Ask:"கேளுங்கள்",buyer:"வாங்குபவர்",messages:"செய்திகள்",
+        Here:"இங்கே",already:"ஏற்கனவே",Since:"முதல்",Conversation:"உரையாடல்",Everyone:"அனைவரும்",
+        want:"விரும்புகிறீர்கள்",how:"எப்படி",Replying:"பதில் அளிக்கிறது",Record:"பதிவு செய்"
+    },
+    te: {
+        Buy:"కొనండి",Discover:"కనుగొనండి",Your:"మీ",campus:"క్యాంపస్",marketplace:"మార్కెట్‌ప్లేస్",
+        Any:"ఏదైనా",Min:"కనిష్ట",Max:"గరిష్ట",By:"ప్రకారం",First:"మొదటి",Low:"తక్కువ",High:"ఎక్కువ",
+        Simple:"సులభమైన",Process:"ప్రక్రియ",Buying:"కొనడం",selling:"అమ్మకం",should:"ఉండాలి",Create:"సృష్టించండి",
+        Sign:"సైన్",profile:"ప్రొఫైల్",List:"జాబితా",photos:"ఫోటోలు",price:"ధర",details:"వివరాలు",
+        Find:"కనుగొనండి",What:"ఏమి",Need:"అవసరం",Browse:"చూడండి",products:"ఉత్పత్తులు",contact:"సంప్రదించండి",
+        sellers:"విక్రేతలు",directly:"నేరుగా",Connect:"కనెక్ట్ అవ్వండి",Deal:"వ్యవహారం",Discuss:"చర్చించండి",
+        complete:"పూర్తి చేయండి",Built:"నిర్మించబడింది",focused:"కేంద్రిత",Easy:"సులభమైన",use:"ఉపయోగించండి",
+        Information:"సమాచారం",policies:"విధానాలు",support:"సహాయం",Something:"ఏదో",Search:"వెతకండి",
+        image:"చిత్రం",selected:"ఎంచుకున్నది",Preview:"ముందస్తు వీక్షణ",Listed:"జాబితాలో ఉంది",saved:"సేవ్ చేయబడింది",
+        later:"తర్వాత",Inquiry:"విచారణ",Ask:"అడగండి",buyer:"కొనుగోలుదారు",messages:"సందేశాలు",
+        Here:"ఇక్కడ",already:"ఇప్పటికే",Since:"నుండి",Conversation:"సంభాషణ",Everyone:"అందరూ",
+        want:"కావాలి",how:"ఎలా",Replying:"సమాధానం ఇస్తోంది",Record:"రికార్డ్ చేయండి"
+    },
+    kn: {
+        Buy:"ಖರೀದಿಸಿ",Discover:"ಹುಡುಕಿ",Your:"ನಿಮ್ಮ",campus:"ಕ್ಯಾಂಪಸ್",marketplace:"ಮಾರುಕಟ್ಟೆ",
+        Any:"ಯಾವುದೇ",Min:"ಕನಿಷ್ಠ",Max:"ಗರಿಷ್ಠ",By:"ಪ್ರಕಾರ",First:"ಮೊದಲು",Low:"ಕಡಿಮೆ",High:"ಹೆಚ್ಚು",
+        Simple:"ಸರಳ",Process:"ಪ್ರಕ್ರಿಯೆ",Buying:"ಖರೀದಿ",selling:"ಮಾರಾಟ",should:"ಬೇಕು",Create:"ರಚಿಸಿ",
+        Sign:"ಸೈನ್",profile:"ಪ್ರೊಫೈಲ್",List:"ಪಟ್ಟಿ",photos:"ಫೋಟೋಗಳು",price:"ಬೆಲೆ",details:"ವಿವರಗಳು",
+        Find:"ಹುಡುಕಿ",What:"ಏನು",Need:"ಅಗತ್ಯ",Browse:"ವೀಕ್ಷಿಸಿ",products:"ಉತ್ಪನ್ನಗಳು",contact:"ಸಂಪರ್ಕಿಸಿ",
+        sellers:"ಮಾರಾಟಗಾರರು",directly:"ನೇರವಾಗಿ",Connect:"ಸಂಪರ್ಕಿಸಿ",Deal:"ವ್ಯವಹಾರ",Discuss:"ಚರ್ಚಿಸಿ",
+        complete:"ಪೂರ್ಣಗೊಳಿಸಿ",Built:"ನಿರ್ಮಿಸಲಾಗಿದೆ",focused:"ಕೇಂದ್ರಿತ",Easy:"ಸುಲಭ",use:"ಬಳಸಿ",
+        Information:"ಮಾಹಿತಿ",policies:"ನೀತಿಗಳು",support:"ಬೆಂಬಲ",Something:"ಏನಾದರೂ",Search:"ಹುಡುಕಿ",
+        image:"ಚಿತ್ರ",selected:"ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ",Preview:"ಮುನ್ನೋಟ",Listed:"ಪಟ್ಟಿಮಾಡಲಾಗಿದೆ",saved:"ಉಳಿಸಲಾಗಿದೆ",
+        later:"ನಂತರಕ್ಕಾಗಿ",Inquiry:"ವಿಚಾರಣೆ",Ask:"ಕೇಳಿ",buyer:"ಖರೀದಿದಾರ",messages:"ಸಂದೇಶಗಳು",
+        Here:"ಇಲ್ಲಿ",already:"ಈಗಾಗಲೇ",Since:"ಇಂದ",Conversation:"ಸಂಭಾಷಣೆ",Everyone:"ಎಲ್ಲರೂ",
+        want:"ಬಯಸುತ್ತೀರಿ",how:"ಹೇಗೆ",Replying:"ಉತ್ತರಿಸುತ್ತಿದೆ",Record:"ರೆಕಾರ್ಡ್ ಮಾಡಿ"
+    }
+};
+
+Object.keys(SK_WORD_EXTRA).forEach(lang => {
+    SK_WORD_T[lang] = { ...(SK_WORD_T[lang] || {}), ...SK_WORD_EXTRA[lang] };
+});
+
 function skTranslate(value, language) {
     const source = String(value ?? "");
     if (language === "en") {
