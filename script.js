@@ -7567,7 +7567,7 @@ async function sendChatMessage(event) {
                     : "Image must be 8 MB or smaller.");
             }
 
-            showToast(isVideo ? "Uploading video…" : "Uploading photo…", "success");
+            showChatUploadStatus(isVideo ? "Uploading video…" : "Uploading photo…", isVideo);
             const imageUrl = await uploadProductImage(selectedFile);
 
             if (!imageUrl) throw new Error("Could not upload media.");
@@ -7593,11 +7593,13 @@ async function sendChatMessage(event) {
         if (input) input.value = "";
         clearChatImageSelection();
         clearChatReplyPreview();
+        removeChatUploadStatus();
 
         await loadChatMessages();
 
     } catch (error) {
         console.error("Send chat message error:", error);
+        removeChatUploadStatus();
         showToast(error?.message || "Could not send message", "error");
     } finally {
         if (sendButton) {
@@ -7606,6 +7608,36 @@ async function sendChatMessage(event) {
         }
         input?.focus();
     }
+}
+
+function showChatUploadStatus(text, isVideo = false) {
+    const container = $("chatMessages");
+    if (!container) return;
+
+    removeChatUploadStatus();
+
+    const status = document.createElement("div");
+    status.id = "chatUploadStatus";
+    status.className = "chat-upload-status chat-message chat-message-own sent";
+    status.innerHTML = `
+        <div class="chat-upload-bubble">
+            <div class="chat-upload-media">
+                <i class="fas ${isVideo ? "fa-video" : "fa-image"}"></i>
+            </div>
+            <div class="chat-upload-info">
+                <strong>${escapeHtml(text)}</strong>
+                <span>Sending securely…</span>
+                <div class="chat-upload-progress"><span></span></div>
+            </div>
+            <i class="fas fa-spinner fa-spin chat-upload-spinner"></i>
+        </div>`;
+
+    container.appendChild(status);
+    scrollChatToBottom();
+}
+
+function removeChatUploadStatus() {
+    $("chatUploadStatus")?.remove();
 }
 
 function clearChatImageSelection() {
