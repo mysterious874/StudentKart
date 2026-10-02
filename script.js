@@ -8119,7 +8119,47 @@ async function loadChatContactProfile() {
     }
 }
 
-async function openChat(inquiry) {
+async function isChatUserBlocked(userId) {
+    if (!userId || !currentUser) return false;
+    const blocked = getStudentKartSettings()?.privacy?.blockedUsers;
+    return Array.isArray(blocked) && blocked.map(String).includes(String(userId));
+}
+
+async function blockCurrentChatUser() {
+    if (!currentUser || !currentChatInquiry) return;
+    const otherUserId = window.currentChatOtherUserId ||
+        (String(currentChatInquiry.seller_id) === String(currentUser.id)
+            ? currentChatInquiry.buyer_id
+            : currentChatInquiry.seller_id);
+
+    if (!otherUserId || String(otherUserId) === String(currentUser.id)) {
+        showToast("User information unavailable", "warning");
+        return;
+    }
+
+    if (isChatUserBlocked(otherUserId)) {
+        showToast("User is already blocked", "info");
+        return;
+    }
+
+    const settings = getStudentKartSettings();
+    settings.privacy.blockedUsers = [
+        ...(Array.isArray(settings.privacy.blockedUsers) ? settings.privacy.blockedUsers.map(String) : []),
+        String(otherUserId)
+    ];
+
+    const saved = await saveStudentKartSettings(settings, true);
+    if (!saved) {
+        showToast("Could not block this user", "error");
+        return;
+    }
+
+    closeChatDeleteMenu();
+    closeModal("chatModal");
+    showToast("User blocked. You will not be able to message this user.", "success");
+}
+
+function openChat(inquiry) {
 
     if (!currentUser) {
         openModal("loginModal");
@@ -8129,6 +8169,16 @@ async function openChat(inquiry) {
 
     if (!inquiry || !inquiry.id) {
         showToast("Chat information unavailable", "error");
+        return;
+    }
+
+    const otherParticipantId =
+        String(inquiry.seller_id) === String(currentUser.id)
+            ? inquiry.buyer_id
+            : inquiry.seller_id;
+
+    if (isChatUserBlocked(otherParticipantId)) {
+        showToast("This user is blocked. Unblock them from Privacy & Safety to chat again.", "warning");
         return;
     }
 
@@ -8857,6 +8907,16 @@ async function sendChatMessage(event) {
 
     if (!currentUser || !currentChatInquiry) return;
 
+    const chatOtherUserId = window.currentChatOtherUserId ||
+        (String(currentChatInquiry.seller_id) === String(currentUser.id)
+            ? currentChatInquiry.buyer_id
+            : currentChatInquiry.seller_id);
+
+    if (isChatUserBlocked(chatOtherUserId)) {
+        showToast("This user is blocked. Unblock them from Privacy & Safety to send messages.", "warning");
+        return;
+    }
+
     const input = $("chatInput");
     const imageInput = $("chatImageInput");
     const selectedFile = imageInput?.files?.[0] || null;
@@ -9509,6 +9569,11 @@ $("deleteChatForMeButton")?.addEventListener(
 $("deleteChatForEveryoneButton")?.addEventListener(
     "click",
     deleteChatForEveryone
+);
+
+$("blockChatUserButton")?.addEventListener(
+    "click",
+    blockCurrentChatUser
 );
 
 
