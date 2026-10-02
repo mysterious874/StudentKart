@@ -17196,3 +17196,27 @@ main,.footer { margin-left:0 !important; }
   .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions #signupButton { display:none !important; }
   .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions .nav-chat-button .chat-button-text { display:none !important; }
 }
+
+/* FULL-WIDTH NAVBAR + LEFT LOGO */
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-container {
+  width:100% !important;
+  max-width:none !important;
+  padding:0 24px !important;
+  margin:0 !important;
+  gap:28px !important;
+}
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .logo {
+  display:flex !important;
+  align-items:center !important;
+  margin-right:8px !important;
+}
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-links {
+  margin-left:0 !important;
+}
+.navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions {
+  margin-left:auto !important;
+}
+@media (max-width:760px) {
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-container { width:100% !important; padding:0 10px !important; }
+  .navbar:not(.site-side-nav):not(.hero-nav-rail) .logo { margin-right:0 !important; }
+}
