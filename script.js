@@ -8971,8 +8971,8 @@ function setupEditProfileCityLocationPicker() {
         cityTimer = setTimeout(() => searchCities(input.value), 180);
     });
 
-    collegeInput?.addEventListener("focus", async () => {
-        renderInstitutions(await loadAllIndiaInstitutionDataset());
+    collegeInput?.addEventListener("focus", () => {
+        renderInstitutions(STUDENTKART_INSTITUTIONS);
     });
 
     collegeInput?.addEventListener("input", () => {
