@@ -5431,6 +5431,231 @@ body { font-weight: 400; }
 }
 
 
+/* =========================================================
+   WHATSAPP-STYLE CHAT LIST HOME
+   ========================================================= */
+#inquiriesModal .modal-content {
+    width: min(560px, calc(100% - 24px));
+    max-width: 560px;
+    max-height: min(820px, calc(100vh - 28px));
+    border-radius: 18px;
+    background: #f7fafa;
+}
+
+#inquiriesModal .chat-list-header {
+    flex: 0 0 auto;
+    padding: 20px 20px 12px;
+    background: #ffffff;
+    border-bottom: 1px solid #e3ecec;
+}
+
+.chat-list-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.chat-list-title-row h2 {
+    margin: 2px 0 0;
+    color: #102a30;
+    font-size: 26px;
+    line-height: 1.1;
+}
+
+.chat-list-header-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.chat-list-icon-button {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: #f0f6f6;
+    color: #536a70;
+    cursor: pointer;
+    transition: .15s ease;
+}
+
+.chat-list-icon-button:hover {
+    background: #dff1f0;
+    color: #087577;
+}
+
+.chat-list-icon-button.is-loading i {
+    animation: chatListSpin .7s linear infinite;
+}
+
+@keyframes chatListSpin {
+    to { transform: rotate(360deg); }
+}
+
+.chat-list-search {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 13px;
+    border-radius: 12px;
+    background: #f1f5f5;
+    color: #789096;
+}
+
+.chat-list-search > i {
+    font-size: 13px;
+}
+
+.chat-list-search input {
+    min-width: 0;
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #20373d;
+    font: inherit;
+    font-size: 13px;
+}
+
+.chat-list-search input::placeholder {
+    color: #899ba0;
+}
+
+.chat-list-search button {
+    width: 25px;
+    height: 25px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: #dfe8e8;
+    color: #62767b;
+    cursor: pointer;
+}
+
+.chat-list-tabs {
+    display: flex;
+    gap: 7px;
+    padding-top: 12px;
+}
+
+.chat-list-tab {
+    min-width: 66px;
+    padding: 7px 13px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #667b80;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.chat-list-tab.active {
+    background: #dff3f1;
+    color: #087577;
+}
+
+#inquiriesModal .inquiry-bulk-tools {
+    margin-top: 10px;
+}
+
+.chat-filter-hidden {
+    display: none !important;
+}
+
+.chat-list-filtered-empty {
+    display: flex;
+    min-height: 210px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    color: #71868b;
+    text-align: center;
+}
+
+.chat-list-filtered-empty.hidden {
+    display: none;
+}
+
+.chat-list-filtered-empty i {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 3px;
+    border-radius: 50%;
+    background: #e4f1f0;
+    color: #138486;
+}
+
+.chat-list-filtered-empty strong {
+    color: #334c52;
+    font-size: 14px;
+}
+
+.chat-list-filtered-empty span {
+    font-size: 12px;
+}
+
+.whatsapp-inquiry-card {
+    min-height: 74px;
+    padding: 10px 18px;
+}
+
+.whatsapp-inquiry-card:active {
+    background: #e8f2f2;
+}
+
+.whatsapp-inquiry-top strong {
+    font-size: 14px;
+}
+
+.whatsapp-message-preview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.whatsapp-inquiry-role {
+    flex: 0 0 auto;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: #edf4f4;
+    color: #6b8085;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+@media (max-width: 560px) {
+    #inquiriesModal .modal-content {
+        width: 100%;
+        max-width: none;
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    #inquiriesModal .chat-list-header {
+        padding: 18px 14px 10px;
+    }
+
+    .chat-list-title-row h2 {
+        font-size: 24px;
+    }
+
+    .whatsapp-inquiry-card {
+        padding: 9px 12px;
+    }
+}
+
 /* BULK CHAT SELECTION */
 .inquiries-whatsapp-header {
     justify-content: space-between;
