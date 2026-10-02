@@ -16097,3 +16097,12 @@ body #chatModal:not(.hidden) .chat-head .chat-person p,
 body #chatModal:not(.hidden) .chat-head #chatUserStatus{
     color:rgba(255,255,255,.72) !important;
 }
+
+/* CHAT SCREEN — remove empty gap under header */
+body #chatModal:not(.hidden) .chat-messages{
+    margin-top:0 !important;
+    padding-top:0 !important;
+}
+body #chatModal:not(.hidden) .chat-security-notice{
+    margin-top:0 !important;
+}
