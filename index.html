@@ -727,6 +727,18 @@
 <div id="chatModal" class="modal hidden">
   <div class="modal-overlay" data-close-modal></div>
   <div class="modal-content chat-modal-content">
+    <div id="chatMessageSelectionHeader" class="chat-message-selection-header hidden">
+      <button type="button" id="chatMessageSelectionCancel" class="chat-selection-header-icon" title="Cancel selection" aria-label="Cancel selection">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <strong id="chatMessageSelectionHeaderCount">0</strong>
+      <div class="chat-message-selection-header-actions">
+        <button type="button" id="chatHeaderReplySelected" title="Reply" aria-label="Reply"><i class="fas fa-reply"></i></button>
+        <button type="button" id="chatHeaderCopySelected" title="Copy" aria-label="Copy"><i class="fas fa-copy"></i></button>
+        <button type="button" id="chatHeaderDeleteSelected" title="Delete" aria-label="Delete"><i class="fas fa-trash-can"></i></button>
+        <button type="button" id="chatHeaderMoreSelected" title="More options" aria-label="More options"><i class="fas fa-ellipsis-vertical"></i></button>
+      </div>
+    </div>
     <div class="chat-head">
       <button type="button" class="chat-back-button" id="chatBackButton" title="Back to chats" aria-label="Back to chats">
         <i class="fas fa-arrow-left"></i>
@@ -763,26 +775,7 @@
         <span>Delete for Everyone</span>
       </button>
     </div>
-    <div id="chatSelectionBar" class="chat-selection-bar hidden">
-      <span><strong id="chatSelectionCount">0</strong> selected</span>
-      <div class="chat-selection-actions">
-        <button type="button" id="copySelectedChatButton" title="Copy selected messages">
-          <i class="fas fa-copy"></i><span>Copy</span>
-        </button>
-        <button type="button" id="replySelectedChatButton" title="Reply to selected message">
-          <i class="fas fa-reply"></i><span>Reply</span>
-        </button>
-        <button type="button" id="deleteSelectedChatForMeButton" title="Delete selected messages for you">
-          <i class="fas fa-eye-slash"></i><span>Delete for Me</span>
-        </button>
-        <button type="button" id="deleteSelectedChatButton" class="danger" title="Delete selected messages for everyone">
-          <i class="fas fa-trash-can"></i><span>Delete for Everyone</span>
-        </button>
-        <button type="button" id="clearChatSelectionButton" title="Cancel selection">
-          <i class="fas fa-xmark"></i><span>Cancel</span>
-        </button>
-      </div>
-    </div>
+    <div id="chatSelectionBar" class="chat-selection-bar hidden" aria-hidden="true"></div>
     <div id="chatMessages" class="chat-messages">
       <div class="chat-profile-intro" id="chatProfileIntro">
         <div class="chat-profile-avatar-large">
