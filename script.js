@@ -2260,6 +2260,29 @@ async function openProductDetails(productId) {
         };
     }
 
+    const detailsWishlistButton =
+        $("detailsWishlistButton");
+
+    if (detailsWishlistButton) {
+        const saved = isWishlisted(product.id);
+        detailsWishlistButton.classList.toggle("active", saved);
+        detailsWishlistButton.setAttribute("aria-pressed", String(saved));
+        detailsWishlistButton.innerHTML = saved
+            ? '<i class="fas fa-heart"></i> Saved to Wishlist'
+            : '<i class="far fa-heart"></i> Save to Wishlist';
+        detailsWishlistButton.onclick = async event => {
+            event.preventDefault();
+            event.stopPropagation();
+            await toggleWishlist(product.id);
+            const active = isWishlisted(product.id);
+            detailsWishlistButton.classList.toggle("active", active);
+            detailsWishlistButton.setAttribute("aria-pressed", String(active));
+            detailsWishlistButton.innerHTML = active
+                ? '<i class="fas fa-heart"></i> Saved to Wishlist'
+                : '<i class="far fa-heart"></i> Save to Wishlist';
+        };
+    }
+
     const contactButton =
         $("contactSellerButton");
 
