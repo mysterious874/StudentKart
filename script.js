@@ -8298,7 +8298,7 @@ $("clearChatSelectionButton")?.addEventListener("click", clearChatMessageSelecti
 $("chatMessageSelectionCancel")?.addEventListener("click", clearChatMessageSelection);
 $("chatHeaderReplySelected")?.addEventListener("click", replyToSelectedChatMessage);
 $("chatHeaderCopySelected")?.addEventListener("click", copySelectedChatMessages);
-$("chatHeaderDeleteSelected")?.addEventListener("click", deleteSelectedChatMessagesForEveryone);
+$("chatHeaderDeleteSelected")?.addEventListener("click", openSelectedChatDeletePopup);
 $("chatHeaderMoreSelected")?.addEventListener("click", () => {
     const actions = $("chatSelectionHeaderMoreMenu");
     if (actions) actions.classList.toggle("hidden");
@@ -8363,15 +8363,37 @@ function replyToSelectedChatMessage() {
     showToast("Reply ready", "success");
 }
 
+function openSelectedChatDeletePopup() {
+    if (!selectedChatMessageIds.size) return;
+    const modal = $("chatSelectionDeleteModal");
+    const text = $("chatSelectionDeleteText");
+    const count = selectedChatMessageIds.size;
+    if (text) {
+        text.textContent = "Choose how you want to delete " + count + " selected message" + (count === 1 ? "" : "s") + ".";
+    }
+    if (modal) {
+        modal.classList.remove("hidden");
+        modal.setAttribute("aria-hidden", "false");
+    }
+}
+
+function closeSelectedChatDeletePopup() {
+    const modal = $("chatSelectionDeleteModal");
+    if (modal) {
+        modal.classList.add("hidden");
+        modal.setAttribute("aria-hidden", "true");
+    }
+}
+
 async function deleteSelectedChatMessagesForMe() {
     if (!currentUser || !selectedChatMessageIds.size) return;
-    const ids = Array.from(selectedChatMessageIds).map(String);
-    if (!window.confirm("Delete " + ids.length + " selected message" + (ids.length === 1 ? "" : "s") + " for you?")) return;
 
+    const ids = Array.from(selectedChatMessageIds).map(String);
     const hidden = getHiddenChatMessageIds();
     ids.forEach(id => hidden.add(id));
     saveHiddenChatMessageIds(hidden);
 
+    closeSelectedChatDeletePopup();
     selectedChatMessageIds.clear();
     await loadChatMessages();
     showToast(ids.length + " message" + (ids.length === 1 ? "" : "s") + " deleted for you", "success");
@@ -8380,21 +8402,19 @@ async function deleteSelectedChatMessagesForMe() {
 async function deleteSelectedChatMessagesForEveryone() {
     if (!currentUser || !selectedChatMessageIds.size) return;
 
-    const ownIds = getSelectedChatMessageElements()
+    const selectedElements = getSelectedChatMessageElements();
+    const ownIds = selectedElements
         .filter(el => String(el.dataset.senderId) === String(currentUser.id))
         .map(el => el.dataset.messageId)
         .filter(Boolean);
 
     if (!ownIds.length) {
-        showToast("Delete for everyone is only available for messages you sent", "warning");
+        closeSelectedChatDeletePopup();
+        showToast("Delete for Everyone is only available for messages you sent", "warning");
         return;
     }
 
-    if (!window.confirm("Delete " + ownIds.length + " selected message" + (ownIds.length === 1 ? "" : "s") + " for everyone?")) return;
-
     try {
-        if (chatReplyTarget) messageToSend = createChatReplyMessage(messageToSend, chatReplyTarget);
-
         const { error } = await supabaseClient
             .from("messages")
             .delete()
@@ -8403,14 +8423,30 @@ async function deleteSelectedChatMessagesForEveryone() {
 
         if (error) throw error;
 
+        closeSelectedChatDeletePopup();
         selectedChatMessageIds.clear();
         await loadChatMessages();
-        showToast(ownIds.length + " message" + (ownIds.length === 1 ? "" : "s") + " deleted for everyone", "success");
+
+        const extra = ownIds.length < selectedElements.length
+            ? " Received messages were kept in the chat."
+            : "";
+        showToast(
+            ownIds.length + " message" + (ownIds.length === 1 ? "" : "s") +
+            " deleted for everyone." + extra,
+            "success"
+        );
     } catch (error) {
         console.error("Delete for everyone error:", error);
         showToast("Could not delete selected messages for everyone", "error");
     }
 }
+
+$("deleteSelectedChatForMePopup")?.addEventListener("click", deleteSelectedChatMessagesForMe);
+$("deleteSelectedChatForEveryonePopup")?.addEventListener("click", deleteSelectedChatMessagesForEveryone);
+$("cancelSelectedChatDelete")?.addEventListener("click", closeSelectedChatDeletePopup);
+document.addEventListener("click", event => {
+    if (event.target.closest("[data-close-selection-delete]")) closeSelectedChatDeletePopup();
+});
 
 
 function parseChatImageMessage(value) {
@@ -8466,6 +8502,28 @@ function parseChatMediaMessage(value) {
     }
 }
 
+function locateQuotedChatMessage(messageId) {
+    const id = String(messageId || "").trim();
+    if (!id) return;
+
+    const messages = Array.from(document.querySelectorAll("#chatMessages .chat-message"));
+    const target = messages.find(el => String(el.dataset.messageId || "") === id);
+
+    if (!target) {
+        showToast("Original message is not available", "warning");
+        return;
+    }
+
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    target.classList.remove("chat-quoted-target-highlight");
+    target.classList.add("chat-quoted-target-highlight");
+
+    window.clearTimeout(window.__studentKartQuotedHighlightTimer);
+    window.__studentKartQuotedHighlightTimer = window.setTimeout(() => {
+        target.classList.remove("chat-quoted-target-highlight");
+    }, 1600);
+}
+
 async function loadChatMessages() {
 
     if (!currentChatInquiry || !currentUser) return;
@@ -8513,27 +8571,7 @@ async function loadChatMessages() {
             return;
         }
 
-function locateQuotedChatMessage(messageId) {
-    const id = String(messageId || "").trim();
-    if (!id) return;
 
-    const messages = Array.from(document.querySelectorAll("#chatMessages .chat-message"));
-    const target = messages.find(el => String(el.dataset.messageId || "") === id);
-
-    if (!target) {
-        showToast("Original message is not available", "warning");
-        return;
-    }
-
-    target.scrollIntoView({ behavior: "smooth", block: "center" });
-    target.classList.remove("chat-quoted-target-highlight");
-    target.classList.add("chat-quoted-target-highlight");
-
-    window.clearTimeout(window.__studentKartQuotedHighlightTimer);
-    window.__studentKartQuotedHighlightTimer = window.setTimeout(() => {
-        target.classList.remove("chat-quoted-target-highlight");
-    }, 1600);
-}
 
         container.innerHTML = profileIntroHtml + visibleMessages.map(message => {
             const isMine = message.sender_id === currentUser.id;
