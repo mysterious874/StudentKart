@@ -6536,10 +6536,13 @@ document.addEventListener("click", event => {
         const wishlistButton = event.target.closest("[data-wishlist-id]");
         if (!wishlistButton) return;
 
+        // Wishlist buttons are rendered in several product containers.
+        // Handle the click exactly once so multiple delegated listeners
+        // cannot toggle add -> remove (or remove -> add) in the same click.
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
 
-        toggleWishlist(wishlistButton.dataset.wishlistId);
+        void toggleWishlist(wishlistButton.dataset.wishlistId);
     });
 
 
