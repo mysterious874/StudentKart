@@ -851,9 +851,7 @@ async function getUserProfile() {
 let currentWishlist = [];
 
 
-/* -----------------------------------------
-   LOAD WISHLIST
-   ----------------------------------------- */
+/* Load Wishlist */
 
 async function getWishlist() {
 
@@ -901,9 +899,7 @@ async function getWishlist() {
 }
 
 
-/* -----------------------------------------
-   CHECK WISHLIST
-   ----------------------------------------- */
+/* Check Wishlist */
 
 function isWishlisted(productId) {
 
@@ -915,9 +911,7 @@ function isWishlisted(productId) {
 }
 
 
-/* -----------------------------------------
-   NAVBAR COUNT
-   ----------------------------------------- */
+/* Navbar Count */
 
 function updateWishlistNavbar() {
 
@@ -943,9 +937,7 @@ function updateWishlistNavbar() {
 }
 
 
-/* -----------------------------------------
-   UPDATE HEART BUTTONS
-   ----------------------------------------- */
+/* Update Heart Buttons */
 
 function updateWishlistButtons() {
 
@@ -989,9 +981,7 @@ function updateWishlistButtons() {
 }
 
 
-/* -----------------------------------------
-   ADD TO WISHLIST
-   ----------------------------------------- */
+/* Add To Wishlist */
 
 async function addToWishlist(productId) {
 
@@ -1063,9 +1053,7 @@ async function addToWishlist(productId) {
 }
 
 
-/* -----------------------------------------
-   TOGGLE WISHLIST
-   ----------------------------------------- */
+/* Toggle Wishlist */
 
 async function toggleWishlist(productId) {
 
@@ -7000,9 +6988,7 @@ document.addEventListener("click", event => {
     ensureNotificationsUI();
 
 
-    /* -----------------------------------------
-       GENERAL MODAL CLOSE
-       ----------------------------------------- */
+    /* General Modal Close */
 
     document.addEventListener(
         "click",
@@ -7063,9 +7049,7 @@ document.addEventListener("click", event => {
     );
 
 
-    /* -----------------------------------------
-       LOGIN
-       ----------------------------------------- */
+    /* Login */
 
     $("loginButton")
         ?.addEventListener(
@@ -7079,9 +7063,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       SIGNUP
-       ----------------------------------------- */
+    /* Signup */
 
     $("signupButton")
         ?.addEventListener(
@@ -7095,9 +7077,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       WISHLIST
-       ----------------------------------------- */
+    /* Wishlist */
 
     $("wishlistButton")
         ?.addEventListener(
@@ -7106,9 +7086,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       NOTIFICATIONS
-       ----------------------------------------- */
+    /* Notifications */
 
     $("notificationButton")
         ?.addEventListener(
@@ -7216,9 +7194,7 @@ document.addEventListener("click", event => {
     });
 
 
-    /* -----------------------------------------
-       PROFILE
-       ----------------------------------------- */
+    /* Profile */
 
     $("profileButton")
         ?.addEventListener(
@@ -7227,9 +7203,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       SELL
-       ----------------------------------------- */
+    /* Sell */
 
     $("sellButton")
         ?.addEventListener(
@@ -7256,9 +7230,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       HERO SEARCH
-       ----------------------------------------- */
+    /* Hero Search */
 
     $("heroSearchButton")
         ?.addEventListener(
@@ -7281,9 +7253,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       MARKETPLACE FILTERS
-       ----------------------------------------- */
+    /* Marketplace Filters */
 
     $("marketplaceSearch")
         ?.addEventListener(
@@ -7368,9 +7338,7 @@ document.addEventListener("click", event => {
         $("marketplace")?.scrollIntoView({ behavior: "auto", block: "start" });
     });
 
-    /* -----------------------------------------
-       CATEGORY CARDS
-       ----------------------------------------- */
+    /* Category Cards */
 
     document
         .querySelectorAll(
@@ -7391,17 +7359,13 @@ document.addEventListener("click", event => {
         });
 
 
-    /* -----------------------------------------
-       NEW USER ENTRY GATE
-       ----------------------------------------- */
+    /* New User Entry Gate */
 
     $("newUserLoginButton")?.addEventListener("click", openLoginFromNewUserGate);
     $("newUserSignupButton")?.addEventListener("click", openSignupFromNewUserGate);
     $("newUserGuestButton")?.addEventListener("click", enterStudentKartGuestMode);
 
-    /* -----------------------------------------
-       AUTH FORMS
-       ----------------------------------------- */
+    /* Auth Forms */
 
     $("loginForm")
         ?.addEventListener(
@@ -7458,9 +7422,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       SELL FORM
-       ----------------------------------------- */
+    /* Sell Form */
 
     $("sellForm")
         ?.addEventListener(
@@ -7480,9 +7442,7 @@ document.addEventListener("click", event => {
     });
 
 
-    /* -----------------------------------------
-       PRODUCT DETAILS
-       ----------------------------------------- */
+    /* Product Details */
 
     $("contactSellerButton")
         ?.addEventListener(
@@ -7491,9 +7451,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       INQUIRY
-       ----------------------------------------- */
+    /* Inquiry */
 
     $("inquiryForm")
         ?.addEventListener(
@@ -7502,9 +7460,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       PROFILE ACTIONS
-       ----------------------------------------- */
+    /* Profile Actions */
 
     $("editProfileButton")
         ?.addEventListener(
@@ -7587,9 +7543,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       EDIT PROFILE
-       ----------------------------------------- */
+    /* Edit Profile */
 
     // Edit Profile submit is handled by the global capture listener below.
 
@@ -7600,9 +7554,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       FOOTER AUTH
-       ----------------------------------------- */
+    /* Footer Auth */
 
     $("footerLoginButton")
         ?.addEventListener(
@@ -7629,9 +7581,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       WISHLIST CONTAINER
-       ----------------------------------------- */
+    /* Wishlist Container */
 
     $("wishlistContainer")
         ?.addEventListener(
@@ -7671,9 +7621,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       MARKETPLACE PRODUCTS
-       ----------------------------------------- */
+    /* Marketplace Products */
 
     $("productContainer")
         ?.addEventListener(
@@ -7730,9 +7678,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       CATEGORY PAGE PRODUCTS
-       ----------------------------------------- */
+    /* Category Page Products */
 
     $("categoryProductContainer")
         ?.addEventListener(
@@ -7791,9 +7737,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       MY LISTINGS
-       ----------------------------------------- */
+    /* My Listings */
 
     $("myListingsContainer")
         ?.addEventListener(
@@ -7887,9 +7831,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       SELLER PROFILE LISTINGS
-       ----------------------------------------- */
+    /* Seller Profile Listings */
 
     $("sellerProfileListings")
         ?.addEventListener(
@@ -7914,9 +7856,7 @@ document.addEventListener("click", event => {
         );
 
 
-    /* -----------------------------------------
-       INQUIRIES
-       ----------------------------------------- */
+    /* Inquiries */
 
     $("inquiriesContainer")
         ?.addEventListener(
