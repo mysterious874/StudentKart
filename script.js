@@ -8144,6 +8144,9 @@ function moveChatSwipeReply(event) {
     const dx = event.clientX - chatSwipeStartX;
     const dy = event.clientY - chatSwipeStartY;
     if (Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < 8) return;
+    // Horizontal swipe has started, so cancel long-press selection detection.
+    clearTimeout(chatLongPressTimer);
+    chatLongPressTriggered = false;
     chatSwipeMoved = true;
     if (dx > 0 && dx < 72) {
         chatSwipeMessageEl.style.transform = "translateX(" + dx + "px)";
@@ -8211,7 +8214,7 @@ function beginChatMessageLongPress(event) {
     chatLongPressTimer = setTimeout(() => {
         chatLongPressTriggered = true;
         toggleChatMessageSelection(messageEl.dataset.messageId);
-    }, 550);
+    }, 800);
 }
 
 function endChatMessageLongPress() {
