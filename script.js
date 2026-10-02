@@ -1779,13 +1779,13 @@ function sellerTrigger(
    RENDER PRODUCTS
    ========================================================= */
 
-function renderProducts(products) {
+function renderProducts(products, targetContainerId = "productContainer", targetEmptyId = "emptyState") {
 
     const container =
-        $("productContainer");
+        $(targetContainerId);
 
     const empty =
-        $("emptyState");
+        $(targetEmptyId);
 
     if (!container) {
         return;
@@ -5071,30 +5071,54 @@ function performSearch() {
     });
 }
 
-function selectCategory(
-    category
-) {
+function showHomePageFromCategory() {
+    $("categoryPage")?.classList.add("hidden");
+    document.querySelector("main")?.classList.remove("category-page-active");
+    $("home")?.classList.remove("hidden");
+    $("marketplace")?.classList.remove("hidden");
+    $("how-it-works")?.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
-    selectedMarketplaceCategory =
-        category || "all";
+function openCategoryPage(category) {
+    const selected = String(category || "Other").trim() || "Other";
+    selectedMarketplaceCategory = selected;
 
-    const filter =
-        $("categoryFilter");
+    $("categoryPickerModal")?.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+    document.body.classList.remove("studentkart-modal-navigation-hidden");
 
-    if (filter) {
-        filter.value = category;
+    $("home")?.classList.add("hidden");
+    $("marketplace")?.classList.add("hidden");
+    $("how-it-works")?.classList.add("hidden");
+    $("categoryPage")?.classList.remove("hidden");
+    document.querySelector("main")?.classList.add("category-page-active");
+
+    const title = $("categoryPageTitle");
+    const subtitle = $("categoryPageSubtitle");
+    if (title) title.textContent = selected;
+    if (subtitle) subtitle.textContent = "Products listed in " + selected + " category";
+
+    const filtered = currentProducts.filter(product =>
+        String(product.category || "").toLowerCase() === selected.toLowerCase()
+    );
+
+    const count = $("categoryPageCount");
+    if (count) count.textContent = filtered.length + (filtered.length === 1 ? " listing" : " listings");
+
+    renderProducts(filtered, "categoryProductContainer", "categoryEmptyState");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function selectCategory(category) {
+    const selected = category || "all";
+    if (selected === "all") {
+        selectedMarketplaceCategory = "all";
+        showHomePageFromCategory();
+        applyFilters();
+        return;
     }
-
-    applyFilters();
-
-    document
-        .querySelector(
-            "#marketplace"
-        )
-        ?.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
+    openCategoryPage(selected);
 }
 
 
@@ -6833,13 +6857,14 @@ document.addEventListener("click", event => {
     });
 
     document.querySelectorAll(".category-picker-card").forEach(card => {
-        card.addEventListener("click", () => {
-            selectCategory(card.dataset.category);
-            const modal = $("categoryPickerModal");
-            modal?.classList.add("hidden");
-            document.body.classList.remove("modal-open");
-            document.body.classList.remove("studentkart-modal-navigation-hidden");
-        });
+        card.addEventListener("click", () => openCategoryPage(card.dataset.category));
+    });
+
+    $("categoryPageBack")?.addEventListener("click", showHomePageFromCategory);
+
+    $("categoryPageBrowseAll")?.addEventListener("click", () => {
+        showHomePageFromCategory();
+        $("marketplace")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     /* -----------------------------------------
