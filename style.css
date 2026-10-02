@@ -18727,3 +18727,22 @@ body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
         padding-bottom: 96px !important;
     }
 }
+
+
+/* =========================================================
+   MOBILE-NAV-ONLY PAGE NAVIGATION
+   Page-level close/back controls are hidden. Navigation between
+   StudentKart screens is handled through the mobile navigation/history.
+   Keep functional controls such as search-clear, reply-cancel and
+   remove-image buttons untouched.
+   ========================================================= */
+.category-page-back,
+.modal-close,
+.product-image-preview-close,
+.chat-list-close-button,
+#chatListCloseButton,
+.chat-back-button {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
