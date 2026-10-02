@@ -4594,8 +4594,15 @@ async function saveEditedProfile(
             error
         );
 
+        const message = String(
+            error?.message ||
+            error?.details ||
+            error?.hint ||
+            "Unknown profile update error"
+        );
+
         showToast(
-            "Could not update profile",
+            "Profile update failed: " + message,
             "error"
         );
     }
