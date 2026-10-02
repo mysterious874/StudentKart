@@ -11829,28 +11829,17 @@ function studentKartBottomNavOpen(modalId, sourceButtonId = "") {
 
     const source = sourceButtonId ? $(sourceButtonId) : null;
 
-    // Let the modal become measurable, but disable its normal popup animation.
-    content.style.animation = "none";
-    modal.style.animation = "none";
-
-    const sourceRect = source?.getBoundingClientRect();
-    const contentRect = content.getBoundingClientRect();
-
-    let dx = 0;
-    let dy = window.innerHeight * 0.38;
-
-    if (sourceRect && contentRect.width && contentRect.height) {
-        dx = (sourceRect.left + sourceRect.width / 2) -
-            (contentRect.left + contentRect.width / 2);
-        dy = (sourceRect.top + sourceRect.height / 2) -
-            (contentRect.top + contentRect.height / 2);
-    }
-
-    // Make the launch start from the actual dock button.
-    content.style.transformOrigin = "50% 50%";
-    content.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(.08)`;
-    content.style.opacity = "0";
-    content.style.filter = "blur(8px)";
+    // Use the StudentKart macOS-style dock animation consistently.
+    // The previous implementation relied only on Web Animations API; on some
+    // mobile browsers that could produce only the tap flash while the popup
+    // itself appeared without the dock-to-popup animation.
+    modal.classList.remove("studentkart-bottom-nav-opening");
+    content.style.animation = "";
+    modal.style.animation = "";
+    content.style.transform = "";
+    content.style.opacity = "";
+    content.style.filter = "";
+    content.style.transformOrigin = "";
 
     if (source) {
         source.classList.remove("studentkart-nav-launching");
@@ -11859,48 +11848,15 @@ function studentKartBottomNavOpen(modalId, sourceButtonId = "") {
         window.setTimeout(() => source.classList.remove("studentkart-nav-launching"), 520);
     }
 
-    requestAnimationFrame(() => {
-        const animation = content.animate(
-            [
-                {
-                    opacity: 0,
-                    transform: `translate3d(${dx}px, ${dy}px, 0) scale(.08)`,
-                    filter: "blur(8px)"
-                },
-                {
-                    opacity: 0.9,
-                    transform: `translate3d(${dx * 0.34}px, ${dy * 0.34}px, 0) scale(.72)`,
-                    filter: "blur(2px)"
-                },
-                {
-                    opacity: 1,
-                    transform: "translate3d(-4px, -5px, 0) scale(1.025)",
-                    filter: "blur(0)"
-                },
-                {
-                    opacity: 1,
-                    transform: "translate3d(0, 0, 0) scale(1)",
-                    filter: "blur(0)"
-                }
-            ],
-            {
-                duration: 560,
-                easing: "cubic-bezier(.16,.82,.18,1)",
-                fill: "forwards"
-            }
-        );
+    // Force a fresh animation frame so every bottom-nav action gets the
+    // same macOS-style open transition, including Categories, Chat,
+    // Wishlist and Settings.
+    void modal.offsetWidth;
+    modal.classList.add("studentkart-bottom-nav-opening");
 
-        animation.finished
-            .catch(() => {})
-            .finally(() => {
-                content.style.animation = "";
-                content.style.transform = "";
-                content.style.opacity = "";
-                content.style.filter = "";
-                content.style.transformOrigin = "";
-                modal.style.animation = "";
-            });
-    });
+    window.setTimeout(() => {
+        modal.classList.remove("studentkart-bottom-nav-opening");
+    }, 620);
 }
 
 /* Bottom-nav page opening animation for direct page anchors */
