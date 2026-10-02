@@ -12410,27 +12410,49 @@ function applyStudentKartLanguage(root = document) {
         : "en";
 
     document.documentElement.lang = language;
-
     if (studentKartLanguageApplying) return;
     studentKartLanguageApplying = true;
 
     const translateNode = node => {
         if (node.nodeType === Node.TEXT_NODE) {
-            const source = getStudentKartLanguageSource(node);
-            const value = source.trim();
+            if (!node.parentElement || node.parentElement.closest("script,style,noscript,[data-sk-lang-skip='true']")) return;
+
+            // Keep a permanent English source for this node. If a renderer
+            // replaced its text after the first scan, refresh the source
+            // whenever the current text is neither the previous source nor
+            // one of the translations we already generated.
+            let source = studentKartLanguageTextOriginals.get(node);
+            const current = node.nodeValue || "";
+            const trimmedCurrent = current.trim();
+
+            if (!source) {
+                source = current;
+                studentKartLanguageTextOriginals.set(node, source);
+            } else {
+                const sourceTrimmed = String(source).trim();
+                const knownTranslations = Object.values(SK_T).some(map => Object.values(map).includes(trimmedCurrent));
+                if (
+                    trimmedCurrent &&
+                    trimmedCurrent !== sourceTrimmed &&
+                    !knownTranslations &&
+                    trimmedCurrent !== String(skTranslate(sourceTrimmed, language)).trim()
+                ) {
+                    source = current;
+                    studentKartLanguageTextOriginals.set(node, source);
+                }
+            }
+
+            const value = String(source).trim();
             if (!value) return;
 
             const translated = skTranslate(value, language);
-            if (translated !== value) {
-                const raw = node.nodeValue || "";
-                const leading = raw.match(/^\\s*/)?.[0] || "";
-                const trailing = raw.match(/\\s*$/)?.[0] || "";
-                node.nodeValue = leading + translated + trailing;
-            } else if ((node.nodeValue || "").trim() !== value) {
-                const raw = node.nodeValue || "";
-                const leading = raw.match(/^\\s*/)?.[0] || "";
-                const trailing = raw.match(/\\s*$/)?.[0] || "";
-                node.nodeValue = leading + value + trailing;
+            const raw = String(source);
+            const leading = raw.match(/^\s*/)?.[0] || "";
+            const trailing = raw.match(/\s*$/)?.[0] || "";
+            const nextValue = leading + translated + trailing;
+
+            if (node.nodeValue !== nextValue) {
+                node.nodeValue = nextValue;
             }
             return;
         }
@@ -12445,9 +12467,19 @@ function applyStudentKartLanguage(root = document) {
 
         ["placeholder", "title", "aria-label"].forEach(attr => {
             if (!node.hasAttribute(attr)) return;
-            const source = getStudentKartAttributeSource(node, attr);
-            if (!source) return;
-            node.setAttribute(attr, skTranslate(source, language));
+
+            let source = getStudentKartAttributeSource(node, attr);
+            const current = node.getAttribute(attr) || "";
+            const knownTranslations = Object.values(SK_T).some(map => Object.values(map).includes(current));
+
+            if (source && current !== source && !knownTranslations) {
+                source = current;
+                const values = studentKartLanguageAttributeOriginals.get(node) || {};
+                values[attr] = source;
+                studentKartLanguageAttributeOriginals.set(node, values);
+            }
+
+            if (source) node.setAttribute(attr, skTranslate(source, language));
         });
 
         [...node.childNodes].forEach(translateNode);
@@ -12456,6 +12488,7 @@ function applyStudentKartLanguage(root = document) {
     translateNode(root);
     studentKartLanguageApplying = false;
 }
+
 
 function startStudentKartLanguageObserver() {
     if (studentKartLanguageObserver || !document.body) return;
