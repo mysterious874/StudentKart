@@ -14656,3 +14656,13 @@ body.studentkart-dark #chatModal .chat-quoted-message {
 body.studentkart-dark #chatModal .chat-quoted-content span {
     color: #e7f7f5;
 }
+
+
+/* WhatsApp-style quoted-message jump highlight */
+body #chatModal .chat-message.chat-quoted-target-highlight {
+    animation: chatQuotedTargetFlash 1.4s ease;
+}
+@keyframes chatQuotedTargetFlash {
+    0%, 100% { background: inherit; }
+    18%, 55% { background: rgba(15, 139, 141, 0.24); }
+}
