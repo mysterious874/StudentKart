@@ -5138,18 +5138,36 @@ function openCategoryPage(category, options = {}) {
     // return to the category picker without requiring the on-page arrow.
     if (!options.fromPopState && !studentKartHandlingPopState) {
         ensureStudentKartHistory();
-        window.history.pushState(
-            {
-                studentKart: true,
-                modalId: null,
-                modalStack: [],
-                page: "category",
-                category: selected
-            },
-            "",
-            window.location.pathname + window.location.search + "#category-" +
-                encodeURIComponent(selected)
-        );
+
+        const currentState = window.history.state;
+
+        // The category picker is only a temporary selector. Do not leave its
+        // modal history entry underneath the category page, otherwise Android
+        // Back needs to be pressed twice (category -> picker -> home).
+        const categoryState = {
+            studentKart: true,
+            modalId: null,
+            modalStack: [],
+            page: "category",
+            category: selected
+        };
+
+        if (currentState?.studentKart === true &&
+            currentState?.modalId === "categoryPickerModal") {
+            window.history.replaceState(
+                categoryState,
+                "",
+                window.location.pathname + window.location.search + "#category-" +
+                    encodeURIComponent(selected)
+            );
+        } else {
+            window.history.pushState(
+                categoryState,
+                "",
+                window.location.pathname + window.location.search + "#category-" +
+                    encodeURIComponent(selected)
+            );
+        }
     }
 
     $("categoryPickerModal")?.classList.add("hidden");
@@ -6913,13 +6931,9 @@ document.addEventListener("click", event => {
     });
 
     $("categoryPageBack")?.addEventListener("click", () => {
-    // Let the browser navigation stack restore the previous page/modal.
-    // This keeps the visible arrow and Android/browser Back behaviour in sync.
-    if (window.history.state?.studentKart && window.history.state?.page === "category") {
-        window.history.back();
-        return;
-    }
-
+    // The page-level Back arrow intentionally returns to the category picker.
+    // Browser/Android Back remains separate and returns to the previous page
+    // because the picker history entry is replaced when a category is opened.
     showHomePageFromCategory();
     const modal = $("categoryPickerModal");
     if (modal) {
