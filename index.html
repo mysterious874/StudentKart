@@ -419,27 +419,39 @@
     <div id="productModal" class="modal hidden">
         <div class="modal-overlay" data-close-modal></div>
         <div class="modal-content product-details-modal">
-            <div class="details-image-container"><img id="detailsImage" src="" alt="Product"></div>
+            <button type="button" class="modal-close product-details-close" data-close-modal aria-label="Close product details" title="Close">
+                <i class="fas fa-xmark"></i>
+            </button>
+            <div class="details-image-container">
+                <img id="detailsImage" src="" alt="Product">
+                <div class="details-image-overlay">
+                    <span><i class="fas fa-camera"></i> Product Preview</span>
+                </div>
+            </div>
             <div class="product-details-content">
-                <div class="product-details-top"><span id="detailsCategory" class="product-badge">Category</span><span
-                        id="detailsCondition" class="condition-badge">Condition</span></div>
+                <div class="details-eyebrow"><span class="section-label">LISTING DETAILS</span></div>
+                <div class="product-details-top">
+                    <span id="detailsCategory" class="product-badge">Category</span>
+                    <span id="detailsCondition" class="condition-badge">Condition</span>
+                </div>
                 <h2 id="detailsName">Product Name</h2>
-                <div id="detailsPrice" class="details-price">₹0</div>
+                <div class="details-price" id="detailsPrice">₹0</div>
                 <div class="details-meta">
-                    <div><i class="fas fa-location-dot"></i><span id="detailsLocation">Location</span></div>
+                    <div class="details-meta-card"><i class="fas fa-location-dot"></i><span><small>Location</small><strong id="detailsLocation">Location</strong></span></div>
                 </div>
                 <div class="details-description">
-                    <h3>Description</h3>
+                    <div class="details-section-heading"><i class="fas fa-align-left"></i><h3>Description</h3></div>
                     <p id="detailsDescription">Product description</p>
                 </div>
                 <div class="seller-box">
                     <div id="detailsSellerAvatar" class="seller-avatar">S</div>
-                    <div><small>Seller</small><strong id="detailsSeller">Seller</strong></div>
+                    <div><small>Listed by</small><strong id="detailsSeller">Seller</strong></div>
+                    <span class="seller-verified"><i class="fas fa-circle-check"></i> Student</span>
                 </div>
-                <button type="button" class="btn btn-outline btn-full" id="viewSellerProfileButton"><i
-                        class="fas fa-user"></i> View Seller Profile</button>
-                <button type="button" class="btn btn-primary btn-full" id="contactSellerButton"><i
-                        class="fas fa-message"></i> Contact Seller</button>
+                <div class="details-actions">
+                    <button type="button" class="btn btn-outline btn-full" id="viewSellerProfileButton"><i class="fas fa-user"></i> View Seller Profile</button>
+                    <button type="button" class="btn btn-primary btn-full" id="contactSellerButton"><i class="fas fa-message"></i> Contact Seller</button>
+                </div>
             </div>
         </div>
     </div>
