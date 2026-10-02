@@ -12027,7 +12027,6 @@ function applyStudentKartLanguage(root = document) {
     const settings = getStudentKartSettings();
     const language = STUDENTKART_LANGUAGES[settings.preferences.language] ? settings.preferences.language : "en";
     document.documentElement.lang = language;
-    if (language === "en") return;
 
     const walk = node => {
         if (node.nodeType === Node.TEXT_NODE) {
