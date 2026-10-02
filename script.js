@@ -7876,30 +7876,31 @@ $("chatBackButton")?.addEventListener("click", () => {
 
     if (!chatModal || !inquiriesModal) return;
 
-    /*
-     * Chat is a child history entry of the Chats list.
-     * Use history.back() so the browser removes the Chat entry instead
-     * of merely changing the URL and leaving the Chat entry behind.
-     */
-    if (
-        window.history.state?.studentKart &&
-        window.history.state?.modalId === "chatModal" &&
-        Array.isArray(window.history.state?.modalStack) &&
-        window.history.state.modalStack.includes("inquiriesModal")
-    ) {
-        window.history.back();
-        return;
-    }
-
-    // Safe UI fallback if the browser history state is unavailable.
+    // One click = immediately return to the Chats list.
+    // Replace the current Chat history entry instead of going back through
+    // multiple history entries, so the same chat cannot reopen.
     chatModal.classList.remove("modal-closing");
     chatModal.classList.add("hidden");
     inquiriesModal.classList.remove("modal-closing");
     inquiriesModal.classList.remove("hidden");
+
     document.body.classList.add("modal-open");
     document.body.classList.add("studentkart-modal-navigation-hidden");
     document.body.classList.remove("studentkart-chat-open");
+
     modalHistory = [];
+
+    if (window.history.state?.studentKart) {
+        window.history.replaceState(
+            {
+                studentKart: true,
+                modalId: "inquiriesModal",
+                modalStack: ["inquiriesModal"]
+            },
+            "",
+            window.location.pathname + window.location.search + "#inquiriesModal"
+        );
+    }
 });
 
 window.addEventListener("hashchange", () => {
