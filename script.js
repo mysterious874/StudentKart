@@ -8866,19 +8866,40 @@ function renderStudentKartLocationSuggestions(values) {
         return;
     }
 
-    box.innerHTML = uniqueValues.map((value, index) => {
+    box.innerHTML = uniqueValues.map(value => {
         const parts = String(value).split(" — ");
         const place = parts[0] || value;
-        const hierarchy = parts.slice(1).join(" — ");
+        const hierarchyText = parts.slice(1).join(" — ");
+
+        const hierarchy = hierarchyText
+            .split(",")
+            .map(item => item.trim())
+            .filter(Boolean);
+
+        const subdistrict = hierarchy[0] || "";
+        const district = hierarchy[1] || "";
+        const state = hierarchy[2] || "";
 
         return '<button type="button" class="studentkart-location-option" data-location-value="' +
             escapeHTML(value) +
             '">' +
-            '<span class="studentkart-location-place">' + escapeHTML(place) + '</span>' +
-            (hierarchy
-                ? '<span class="studentkart-location-hierarchy">' + escapeHTML(hierarchy) + '</span>'
+            '<span class="studentkart-location-place">' +
+                '<i class="fas fa-location-dot"></i> ' +
+                escapeHTML(place) +
+            '</span>' +
+            (subdistrict
+                ? '<span class="studentkart-location-level"><b>Sub-district:</b> ' +
+                    escapeHTML(subdistrict) + '</span>'
                 : '') +
-            '</button>';
+            (district
+                ? '<span class="studentkart-location-level"><b>District:</b> ' +
+                    escapeHTML(district) + '</span>'
+                : '') +
+            (state
+                ? '<span class="studentkart-location-level"><b>State:</b> ' +
+                    escapeHTML(state) + '</span>'
+                : '') +
+        '</button>';
     }).join("");
 
     box.classList.remove("hidden");
@@ -8888,10 +8909,12 @@ function renderStudentKartLocationSuggestions(values) {
             const input = $("locationFilter");
             if (input) input.value = option.dataset.locationValue || "";
             box.classList.add("hidden");
+            if (typeof applyMarketplaceFilters === "function") {
+                applyMarketplaceFilters();
+            }
         });
     });
 }
-
 async function searchStudentKartIndiaLocations(query) {
     const list = $("studentkartLocationList");
     const input = $("locationFilter");
