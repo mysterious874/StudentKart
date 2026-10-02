@@ -831,10 +831,28 @@
       <span id="chatImagePreviewName"></span>
     </div>
     <form id="chatForm" class="chat-form">
-      <button type="button" class="chat-media-button" id="chatAttachButton" title="Attach photo or video" aria-label="Attach photo or video">
-        <i class="fas fa-paperclip"></i>
-      </button>
+      <div class="chat-attach-wrap">
+        <button type="button" class="chat-media-button" id="chatAttachButton" title="Attachments" aria-label="Attachments" aria-expanded="false">
+          <i class="fas fa-paperclip"></i>
+        </button>
+        <div id="chatAttachmentMenu" class="chat-attachment-menu hidden" role="menu">
+          <button type="button" id="chatCameraOption" role="menuitem">
+            <span class="chat-attachment-icon"><i class="fas fa-camera"></i></span>
+            <span>Camera</span>
+          </button>
+          <button type="button" id="chatPhotoVideoOption" role="menuitem">
+            <span class="chat-attachment-icon"><i class="far fa-image"></i></span>
+            <span>Photo &amp; Video</span>
+          </button>
+          <button type="button" id="chatVideoOption" role="menuitem">
+            <span class="chat-attachment-icon"><i class="fas fa-video"></i></span>
+            <span>Record Video</span>
+          </button>
+        </div>
+      </div>
       <input type="file" id="chatImageInput" accept="image/*,video/*" hidden>
+      <input type="file" id="chatCameraInput" accept="image/*" capture="environment" hidden>
+      <input type="file" id="chatVideoInput" accept="video/*" capture="environment" hidden>
 
       <div class="chat-input-pill">
         <input type="text" id="chatInput" placeholder="Message" autocomplete="off">
@@ -853,7 +871,7 @@
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=20261002-chat-edge-1"></script>
+    <script src="script.js?v=20261002-chat-attach-menu-1"></script>
     <script src="/push-notifications.js?v=20261002-push-1"></script>
     </body>
 
