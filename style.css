@@ -5662,12 +5662,18 @@ body { font-weight: 400; }
     height: 38px;
     display: grid;
     place-items: center;
-    border: 0;
+    border: 1px solid #c4d5d6;
     border-radius: 50%;
-    background: #f0f6f6;
-    color: #536a70;
+    background: #dce9e9;
+    color: #173a40;
     cursor: pointer;
     transition: .15s ease;
+}
+
+.chat-list-icon-button i {
+    color: #173a40;
+    font-size: 17px;
+    opacity: 1;
 }
 
 .chat-list-icon-button:hover {
