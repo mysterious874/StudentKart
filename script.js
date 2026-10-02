@@ -2528,7 +2528,6 @@ async function openSellerProfile(
         contactButton.onclick = startSellerChat;
     }
 
-    /*
     if (avatar) {
         avatar.textContent = "S";
     }
