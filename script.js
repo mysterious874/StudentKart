@@ -12416,16 +12416,23 @@ function mergeSettings(base, extra) {
 }
 
 function getStudentKartSettings() {
-    const metadata = currentUser?.user_metadata?.studentkart_settings;
+    const metadata = currentUser?.user_metadata?.studentkart_settings || {};
     let local = null;
     try {
         local = currentUser
             ? JSON.parse(localStorage.getItem(`studentkart_settings_${currentUser.id}`) || "null")
             : null;
     } catch (_) {}
+
+    // Local settings are the latest device-side choice. Merge them over
+    // account metadata so a newly selected language is never overwritten
+    // by an older profile value.
     return mergeSettings(
-        deepCloneSettings(STUDENTKART_SETTINGS_DEFAULTS),
-        metadata || local || {}
+        mergeSettings(
+            deepCloneSettings(STUDENTKART_SETTINGS_DEFAULTS),
+            metadata
+        ),
+        local || {}
     );
 }
 
@@ -12444,6 +12451,10 @@ async function saveStudentKartSettings(nextSettings, silent = false) {
         );
     } catch (_) {}
 
+    // Apply the selected language/theme immediately. Do not make the UI
+    // wait for the Supabase metadata request.
+    applyStudentKartSettings();
+
     const { data, error } = await supabaseClient.auth.updateUser({
         data: {
             ...(currentUser.user_metadata || {}),
@@ -12453,8 +12464,8 @@ async function saveStudentKartSettings(nextSettings, silent = false) {
 
     if (error) {
         console.error("Settings save error:", error);
-        if (!silent) showToast("Could not save setting to your account", "error");
-        return false;
+        if (!silent) showToast("Setting saved on this device", "success");
+        return true;
     }
 
     if (data?.user) currentUser = data.user;
