@@ -15350,3 +15350,25 @@ body.category-page-active .category-page-navbar-title small{
     body.category-page-active .category-page-navbar-title span{font-size:12px!important}
     body.category-page-active .category-page-navbar-title small{font-size:11px!important}
 }
+
+/* CATEGORY PAGE — dark fixed navbar strip */
+body.category-page-active .category-page-navbar{
+    background:linear-gradient(135deg,#172033 0%,#243447 100%)!important;
+    border-bottom:1px solid rgba(255,255,255,.08)!important;
+    box-shadow:0 6px 22px rgba(15,23,42,.22)!important;
+}
+body.category-page-active .category-page-back{
+    background:rgba(255,255,255,.08)!important;
+    border-color:rgba(255,255,255,.16)!important;
+    color:#fff!important;
+}
+body.category-page-active .category-page-back:hover{
+    background:rgba(255,255,255,.14)!important;
+    color:#fff!important;
+}
+body.category-page-active .category-page-navbar-title span{
+    color:#fff!important;
+}
+body.category-page-active .category-page-navbar-title small{
+    color:rgba(255,255,255,.72)!important;
+}
