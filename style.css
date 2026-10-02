@@ -17582,3 +17582,15 @@ body.new-user-gate-open {
         margin-bottom: 21px !important;
     }
 }
+
+
+/* Improve Continue as Guest visibility */
+.new-user-gate-guest {
+    color: #425466 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 8px rgba(66,84,102,.08);
+}
+
+.new-user-gate-guest:hover {
+    color: #102a43 !important;
+}
