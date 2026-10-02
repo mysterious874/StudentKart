@@ -21757,3 +21757,28 @@ html body > .mobile-bottom-nav{
     padding-top:18px !important;
   }
 }
+
+
+/* =========================================================
+   STUDENTKART — HERO NAV STICKY UNDER LOGO
+   The hero navigation stays in normal flow initially.
+   On scroll it sticks directly below the StudentKart logo.
+   ========================================================= */
+.sk-home-v2{
+  overflow:visible !important;
+}
+.sk-home-nav-bar{
+  position:sticky !important;
+  top:74px !important;
+  z-index:20 !important;
+}
+@media(max-width:800px){
+  .sk-home-nav-bar{
+    top:62px !important;
+  }
+}
+@media(max-width:600px){
+  .sk-home-nav-bar{
+    top:54px !important;
+  }
+}
