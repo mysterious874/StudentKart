@@ -8852,30 +8852,30 @@ function setupStudentKartIndiaLocationSearch() {
         clearTimeout(studentKartLocationSearchTimer);
         const query = input.value.trim();
 
-        if (query.length < 2) return;
+        if (query.length < 2) {
+            $("studentkartLocationSuggestions")?.classList.add("hidden");
+            return;
+        }
 
         studentKartLocationSearchTimer = setTimeout(() => {
             searchStudentKartIndiaLocations(query);
-        }, 300);
+        }, 250);
     });
 
     input.addEventListener("focus", () => {
-        if (!input.value.trim()) {
-            const list = $("studentkartLocationList");
-            if (list) {
-                const starter = [...new Set([
-                    ...STUDENTKART_INDIA_STATES,
-                    ...STUDENTKART_INDIA_CITIES,
-                    ...STUDENTKART_INSTITUTIONS
-                ])].slice(0, 80);
-                list.innerHTML = starter
-                    .map(value => '<option value="' + escapeHTML(value) + '"></option>')
-                    .join("");
-            }
+        if (input.value.trim().length >= 2) {
+            searchStudentKartIndiaLocations(input.value.trim());
+        }
+    });
+
+    document.addEventListener("click", event => {
+        const wrap = document.querySelector(".marketplace-location-search-wrap");
+        const box = $("studentkartLocationSuggestions");
+        if (wrap && box && !wrap.contains(event.target)) {
+            box.classList.add("hidden");
         }
     });
 }
-
 let studentKartAllIndiaCitiesCache = null;
 let studentKartAllIndiaInstitutionsCache = null;
 let studentKartInstitutionLoadPromise = null;
