@@ -7363,6 +7363,7 @@ document.addEventListener("click", event => {
         closeAllModals({ fromPopState: true });
         modal.classList.remove("modal-closing");
         modal.classList.remove("hidden");
+        studentKartBottomNavOpen("categoryPickerModal");
         document.body.classList.add("modal-open");
         document.body.classList.add("studentkart-modal-navigation-hidden");
 
@@ -7586,6 +7587,7 @@ document.addEventListener("click", event => {
 
         setupChatListControls();
         openModal("inquiriesModal");
+        studentKartBottomNavOpen("inquiriesModal");
 
         void loadReceivedInquiries().catch(error => {
             console.error("Chat section background refresh error:", error);
@@ -11815,14 +11817,28 @@ document.addEventListener("pointerdown", event => {
 });
 
 
+/* =========================================================
+   MACOS-STYLE BOTTOM NAV OPENING
+   ========================================================= */
+function studentKartBottomNavOpen(modalId) {
+    const modal = $(modalId);
+    if (!modal) return;
+    modal.classList.add("studentkart-bottom-nav-opening");
+    window.setTimeout(() => {
+        if (modal) modal.classList.remove("studentkart-bottom-nav-opening");
+    }, 520);
+}
+
 /* Footer information links */
 const bottomSettingsButton = $("bottomSettingsButton");
 if (bottomSettingsButton) {
     bottomSettingsButton.addEventListener("click", () => {
         if (currentUser) {
             openModal("settingsModal");
+            studentKartBottomNavOpen("settingsModal");
         } else {
             openModal("loginModal");
+            studentKartBottomNavOpen("loginModal");
         }
     });
 }
@@ -11831,6 +11847,7 @@ const bottomWishlistButton = $("bottomWishlistButton");
 if (bottomWishlistButton) {
     bottomWishlistButton.addEventListener("click", () => {
         openWishlist();
+        studentKartBottomNavOpen("wishlistModal");
     });
 }
 
