@@ -8631,6 +8631,11 @@ function openChat(inquiry) {
                 updateChatUnreadCount(),
                 loadChatMessages()
             ]);
+
+            // Always land at the newest message when a chat is opened,
+            // even if the message list was already rendered and its
+            // signature did not change.
+            scrollChatToBottomAfterOpen();
         } catch (error) {
             console.error("Background chat open refresh error:", error);
         }
@@ -9794,8 +9799,30 @@ function scrollChatToBottom() {
         return;
     }
 
-    container.scrollTop =
-        container.scrollHeight;
+    container.scrollTop = container.scrollHeight;
+}
+
+function scrollChatToBottomAfterOpen() {
+    const scrollNow = () => {
+        scrollChatToBottom();
+        requestAnimationFrame(scrollChatToBottom);
+    };
+
+    // The chat may contain lazy-loaded photos/videos whose height is not
+    // available during the first render. Re-apply the bottom position after
+    // the DOM/media layout settles.
+    scrollNow();
+    window.setTimeout(scrollNow, 60);
+    window.setTimeout(scrollNow, 180);
+    window.setTimeout(scrollNow, 400);
+
+    const container = $("chatMessages");
+    if (!container) return;
+
+    container.querySelectorAll("img, video").forEach(media => {
+        media.addEventListener("load", scrollNow, { once: true });
+        media.addEventListener("loadedmetadata", scrollNow, { once: true });
+    });
 }
 
 
