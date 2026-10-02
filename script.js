@@ -7201,6 +7201,8 @@ async function openChat(inquiry) {
 
     openModal("chatModal");
 
+    document.body.classList.add("studentkart-chat-open");
+
     await markChatMessagesRead(inquiry.id);
 
     // Refresh the inquiry list immediately so the unread badge
@@ -7389,11 +7391,7 @@ async function loadChatMessages() {
         return;
     }
 
-    container.innerHTML = `
-        <div class="chat-empty">
-            Loading messages...
-        </div>
-    `;
+    container.classList.add("chat-loading");
 
     try {
 
@@ -7464,6 +7462,8 @@ async function loadChatMessages() {
                 Could not load messages.
             </div>
         `;
+    } finally {
+        container.classList.remove("chat-loading");
     }
 }
 
