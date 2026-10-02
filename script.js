@@ -9179,7 +9179,9 @@ function setupEditProfileCityLocationPicker() {
         const merged = [...new Set(values.filter(Boolean))].slice(0, 50);
 
         if (!merged.length) {
-            suggestions.innerHTML = '<div class="profile-city-suggestion-empty">No matching Indian location found</div>';
+            suggestions.innerHTML = '<div class="profile-city-suggestion-empty">' +
+                '<i class="fas fa-location-dot"></i> City not found in the selected State / Union Territory' +
+                '</div>';
             suggestions.classList.remove("hidden");
             return;
         }
