@@ -18307,3 +18307,16 @@ body .modal.studentkart-bottom-nav-opening .modal-content {
         animation: none !important;
     }
 }
+
+
+/* Visible dock launch feedback */
+@keyframes studentKartNavLaunchPulse {
+    0% { transform: translateY(0) scale(1); }
+    35% { transform: translateY(-8px) scale(1.18); }
+    70% { transform: translateY(-2px) scale(.98); }
+    100% { transform: translateY(0) scale(1); }
+}
+.studentkart-nav-launching {
+    animation: studentKartNavLaunchPulse .5s cubic-bezier(.16,.82,.18,1) both !important;
+    will-change: transform;
+}
