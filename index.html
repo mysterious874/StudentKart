@@ -71,7 +71,7 @@
                     </label>
                     <label><span>Min Price</span><input id="minPrice" type="number" min="0" placeholder="₹0"></label>
                     <label><span>Max Price</span><input id="maxPrice" type="number" min="0" placeholder="No limit"></label>
-                    <label><span>Location</span><input id="locationFilter" list="studentkartLocationList" type="text" placeholder="University / city / area"></label>
+                    <label class="marketplace-location-filter"><span>Location</span><div class="marketplace-location-search-wrap"><input id="locationFilter" type="text" autocomplete="off" placeholder="University / city / village / area"><div id="studentkartLocationSuggestions" class="studentkart-location-suggestions hidden" role="listbox" aria-label="Location suggestions"></div></div></label>
                     <label><span>Condition</span>
                         <select id="conditionFilter">
                             <option value="all">Any Condition</option>
