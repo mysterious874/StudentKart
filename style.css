@@ -17244,3 +17244,4 @@ html body header.navbar .nav-container {
 html body header.navbar .logo { flex-shrink:0 !important; }
 html body header.navbar .nav-links { margin-left:0 !important; }
 html body header.navbar .nav-actions { margin-left:auto !important; }
+\n\n/* BRAND-ONLY HERO TOP BAR */\nhtml body header.navbar { height:64px !important; min-height:64px !important; background:var(--nav) !important; }\nhtml body header.navbar .nav-container { width:100% !important; max-width:none !important; height:64px !important; padding:0 24px !important; margin:0 !important; display:flex !important; align-items:center !important; justify-content:flex-start !important; }\nhtml body header.navbar .logo { margin:0 !important; }\n
