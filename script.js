@@ -1,7 +1,4 @@
-/* =========================================================
-   STUDENTKART - COMPLETE SCRIPT
-   Notifications + Wishlist + Seller Profile + Inquiries
-   ========================================================= */
+/* StudentKart app logic */
 
 const SUPABASE_URL =
     "https://yymzfjfkmsrymqhpnfqz.supabase.co";
@@ -17,9 +14,7 @@ const supabaseClient =
 
 const STORAGE_BUCKET = "product-images";
 
-/* =========================================================
-   STUDENTKART APP INTRO / SPLASH
-   ========================================================= */
+/* STUDENTKART APP INTRO / SPLASH */
 const STUDENTKART_SPLASH_DURATION = 1450;
 function finishStudentKartSplash(){
     const splash = $("studentKartSplash");
@@ -45,10 +40,7 @@ function startStudentKartSplash(){
 }
 
 let currentUser = null;
-// ===============================
 // CHAT SYSTEM
-// ===============================
-
 let currentChatInquiry = null;
 let chatReplyTarget = null;
 let chatRealtimeChannel = null;
@@ -69,9 +61,7 @@ let productsRealtimeChannel = null;
 let toastTimer = null;
 
 
-/* =========================================================
-   BASIC HELPERS
-   ========================================================= */
+/* BASIC HELPERS */
 
 function $(id) {
     return document.getElementById(id);
@@ -222,9 +212,7 @@ function getPlaceholderImage(name = "StudentKart") {
 }
 
 
-/* =========================================================
-   TOAST
-   ========================================================= */
+/* TOAST */
 
 function showToast(message, type = "success") {
 
@@ -267,9 +255,7 @@ function showToast(message, type = "success") {
 }
 
 
-/* =========================================================
-   MODALS
-   ========================================================= */
+/* MODALS */
 
 let modalHistory = [];
 let studentKartHistoryReady = false;
@@ -527,11 +513,7 @@ function closeAllModals(options = {}) {
 
 
 
-/* =========================================================
-   STUDENTKART MODAL BACKGROUND TOUCH GUARD
-   Keep the page behind an open popup completely stationary on mobile.
-   The popup's own scroll containers remain scrollable.
-   ========================================================= */
+/* STUDENTKART MODAL BACKGROUND TOUCH GUARD Keep the page behind an open popup completely stationary on mobile. The popup's own scroll containers remain scrollable. */
 (function installStudentKartModalScrollGuard() {
     const isModalOpen = () => !!document.querySelector(".modal:not(.hidden)");
     const isInsideAllowedScrollArea = target => {
@@ -710,9 +692,7 @@ window.addEventListener("popstate", event => {
 ensureStudentKartHistory();
 
 
-/* =========================================================
-   LOCAL PROFILE
-   ========================================================= */
+/* LOCAL PROFILE */
 
 function getProfileStorageKey() {
 
@@ -866,9 +846,7 @@ async function getUserProfile() {
 }
 
 
-/* =========================================================
-   WISHLIST — SUPABASE
-   ========================================================= */
+/* WISHLIST — SUPABASE */
 
 let currentWishlist = [];
 
@@ -1364,9 +1342,7 @@ async function removeFromWishlist(productId) {
 }
 
 
-/* =========================================================
-   PRODUCT HELPERS
-   ========================================================= */
+/* PRODUCT HELPERS */
 
 function normalizeProduct(product) {
 
@@ -1491,9 +1467,7 @@ function isMyProduct(product) {
 }
 
 
-/* =========================================================
-   AUTH
-   ========================================================= */
+/* AUTH */
 
 async function getCurrentUser() {
 
@@ -1606,9 +1580,7 @@ function updateNavbar() {
 }
 
 
-/* =========================================================
-   LOAD PRODUCTS
-   ========================================================= */
+/* LOAD PRODUCTS */
 
 async function loadProducts() {
 
@@ -1953,9 +1925,7 @@ function updateFilterStatus(count) {
 }
 
 
-/* =========================================================
-   SELLER TRIGGER
-   ========================================================= */
+/* SELLER TRIGGER */
 
 function sellerTrigger(
     product,
@@ -2000,9 +1970,7 @@ function sellerTrigger(
         </button>
     `;
 }
-/* =========================================================
-   RENDER PRODUCTS
-   ========================================================= */
+/* RENDER PRODUCTS */
 
 function renderProducts(products, targetContainerId = "productContainer", targetEmptyId = "emptyState") {
 
@@ -2154,9 +2122,7 @@ function renderProducts(products, targetContainerId = "productContainer", target
 }
 
 
-/* =========================================================
-   PRODUCT DETAILS
-   ========================================================= */
+/* PRODUCT DETAILS */
 
 async function openProductDetails(productId) {
 
@@ -2376,9 +2342,7 @@ async function openProductDetails(productId) {
 }
 
 
-/* =========================================================
-   SELLER PROFILE
-   ========================================================= */
+/* SELLER PROFILE */
 
 function ensureSellerProfileUI() {
 
@@ -2883,9 +2847,7 @@ async function openSellerProfile(
 }
 
 
-/* =========================================================
-   INQUIRIES
-   ========================================================= */
+/* INQUIRIES */
 
 function contactSeller() {
 
@@ -3884,9 +3846,7 @@ async function updateInquiryStatus(
 }
 
 
-/* =========================================================
-   IMAGE UPLOAD
-   ========================================================= */
+/* IMAGE UPLOAD */
 
 async function uploadProductImage(
     file
@@ -4026,9 +3986,7 @@ function handleImagePreview(event) {
 }
 
 
-/* =========================================================
-   SELL / EDIT PRODUCT
-   ========================================================= */
+/* SELL / EDIT PRODUCT */
 
 function openSellModal() {
 
@@ -4542,9 +4500,7 @@ async function deleteProduct(
 }
 
 
-/* =========================================================
-   LOGIN / SIGNUP / LOGOUT
-   ========================================================= */
+/* LOGIN / SIGNUP / LOGOUT */
 
 function normalizeAuthEmail(raw) {
     const value = String(raw || "").trim().toLowerCase();
@@ -4730,9 +4686,7 @@ async function logoutUser() {
 }
 
 
-/* =========================================================
-   PROFILE
-   ========================================================= */
+/* PROFILE */
 
 async function openProfile() {
 
@@ -4913,9 +4867,7 @@ function handleProfileImagePreview(
         `<img src="${url}" alt="">`;
 }
 
-/* =========================================================
-   USERNAME AVAILABILITY
-   ========================================================= */
+/* USERNAME AVAILABILITY */
 let studentKartUsernameCheckTimer = null;
 let studentKartUsernameCheckToken = 0;
 
@@ -5308,9 +5260,7 @@ async function saveEditedProfile(
 }
 
 
-/* =========================================================
-   MY LISTINGS
-   ========================================================= */
+/* MY LISTINGS */
 
 async function loadMyListings() {
 
@@ -5511,9 +5461,7 @@ async function loadMyListings() {
 }
 
 
-/* =========================================================
-   SEARCH
-   ========================================================= */
+/* SEARCH */
 
 function performSearch() {
 
@@ -5641,9 +5589,7 @@ function selectCategory(category) {
 }
 
 
-/* =========================================================
-   NOTIFICATIONS UI
-   ========================================================= */
+/* NOTIFICATIONS UI */
 
 function ensureNotificationsUI() {
 
@@ -6104,9 +6050,7 @@ function injectNotificationStyles() {
 }
 
 
-/* =========================================================
-   NOTIFICATION HELPERS
-   ========================================================= */
+/* NOTIFICATION HELPERS */
 
 function formatNotificationTime(dateValue) {
 
@@ -6933,16 +6877,12 @@ function showNotificationPopup(
         );
 }
 
-/* =========================================================
-   EVENT LISTENERS
-   ========================================================= */
+/* EVENT LISTENERS */
 
 function setupEventListeners() {
     /* Global wishlist delegation — works for dynamically rendered cards too. */
     
-/* =========================================================
-   PRODUCT IMAGE LONG-PRESS PREVIEW
-   ========================================================= */
+/* PRODUCT IMAGE LONG-PRESS PREVIEW */
 (() => {
     let pressTimer = null;
     let longPressTriggered = false;
@@ -8051,9 +7991,7 @@ document.addEventListener("click", event => {
 }
 
 
-/* =========================================================
-   AUTH LISTENER
-   ========================================================= */
+/* AUTH LISTENER */
 
 function setupAuthListener() {
 
@@ -8130,9 +8068,7 @@ function setupAuthListener() {
 
 
 
-/* =========================================================
-   NEW USER ENTRY GATE
-   ========================================================= */
+/* NEW USER ENTRY GATE */
 const STUDENTKART_GUEST_MODE_KEY = "studentkart_guest_mode";
 
 function isStudentKartGuestMode() {
@@ -8192,9 +8128,7 @@ function openSignupFromNewUserGate() {
     openModal("signupModal");
 }
 
-/* =========================================================
-   INITIALIZE
-   ========================================================= */
+/* INITIALIZE */
 
 async function initializeStudentKart() {
 
@@ -8261,9 +8195,7 @@ async function initializeStudentKart() {
 }
 
 
-/* =========================================================
-   GLOBAL FUNCTIONS
-   ========================================================= */
+/* GLOBAL FUNCTIONS */
 
 window.openModal =
     openModal;
@@ -8314,21 +8246,14 @@ window.openNotification =
     openNotification;
 
 
-/* =========================================================
-   EDIT PROFILE SUBMIT SAFETY HANDLER
-   =========================================================
-   Keep this outside setupEventListeners() so Edit Profile still
-   responds even if another optional UI initializer fails.
-   ========================================================= */
+/* EDIT PROFILE SUBMIT SAFETY HANDLER Keep this outside setupEventListeners() so Edit Profile still responds even if another optional UI initializer fails. */
 document.addEventListener("submit", event => {
     const form = event.target;
     if (form?.id !== "editProfileForm") return;
     saveEditedProfile(event);
 }, true);
 
-/* =========================================================
-   START
-   ========================================================= */
+/* START */
 
 if (
     document.readyState ===
@@ -8344,9 +8269,7 @@ if (
 
     initializeStudentKart();
 }
-// ===============================
 // AUTO DATA REFRESH
-// ===============================
 let studentKartAutoRefreshTimer = null;
 let studentKartAutoRefreshBusy = false;
 
@@ -8383,10 +8306,7 @@ function startStudentKartAutoRefresh() {
 
 startStudentKartAutoRefresh();
 
-// ===============================
 // CHAT SYSTEM FUNCTIONS
-// ===============================
-
 async function openInquiryChat(inquiryId) {
     if (!currentUser) {
         openModal("loginModal");
@@ -10354,9 +10274,7 @@ if (typeof originalCloseModal === "function") {
  * opening the same inquiry create duplicate Chat history entries.
  */
 
-/* =========================================================
-   CHAT UNREAD NOTIFICATIONS
-   ========================================================= */
+/* CHAT UNREAD NOTIFICATIONS */
 
 async function showChatBrowserNotification(message) {
     if (!currentUser || !message) return;
@@ -10616,9 +10534,7 @@ async function startChatUnreadRealtime() {
 
 
 
-/* =========================================================
-   MODAL BACK + HOME NAVIGATION
-   ========================================================= */
+/* MODAL BACK + HOME NAVIGATION */
 function goToHomeFromModal() {
     if (typeof closeAllModals === "function") {
         closeAllModals();
@@ -11833,14 +11749,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* =========================================================
-   STUDENTKART TOUCH RIPPLE
-   Replaces the browser's default blue tap flash with a
-   small teal ripple exactly where the user touches/clicks.
-   ========================================================= */
-/* =========================================================
-   STUDENTKART TOUCH FEEDBACK + SOFT CLICK SOUND
-   ========================================================= */
+/* STUDENTKART TOUCH RIPPLE Replaces the browser's default blue tap flash with a small teal ripple exactly where the user touches/clicks. */
+/* STUDENTKART TOUCH FEEDBACK + SOFT CLICK SOUND */
 /* Lightweight tap feedback: visual only.
    Audio feedback was removed because creating/resuming WebAudio on every
    tap adds unnecessary work on mobile and makes the UI feel delayed. */
@@ -11863,9 +11773,7 @@ document.addEventListener("pointerdown", event => {
 });
 
 
-/* =========================================================
-   MACOS-STYLE BOTTOM NAV OPENING
-   ========================================================= */
+/* MACOS-STYLE BOTTOM NAV OPENING */
 function studentKartBottomNavPrepare(modalId) {
     const modal = $(modalId);
     if (!modal) return false;
@@ -12007,10 +11915,7 @@ if (bottomWishlistButton) {
     });
 }
 
-/* =========================================================
-   SETTINGS — REAL USER PREFERENCES
-   Persisted in Supabase Auth user_metadata with local fallback.
-   ========================================================= */
+/* SETTINGS — REAL USER PREFERENCES Persisted in Supabase Auth user_metadata with local fallback. */
 
 const STUDENTKART_INDIA_STATES = [
 "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal",
@@ -12026,9 +11931,7 @@ const STUDENTKART_INSTITUTIONS = [
 ];
 
 
-/* =========================================================
-   STUDENTKART MULTILINGUAL UI
-   ========================================================= */
+/* STUDENTKART MULTILINGUAL UI */
 const STUDENTKART_LANGUAGES = {
     en: "English", hi: "हिंदी", mr: "मराठी", gu: "ગુજરાતી",
     bn: "বাংলা", ta: "தமிழ்", te: "తెలుగు", kn: "ಕನ್ನಡ"
@@ -14278,11 +14181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-/* =========================================================
-   FINAL NAVBAR SCROLL BEHAVIOR
-   Hide navbar while scrolling down, reveal it while scrolling up.
-   Bottom floating navigation is intentionally untouched.
-   ========================================================= */
+/* FINAL NAVBAR SCROLL BEHAVIOR Hide navbar while scrolling down, reveal it while scrolling up. Bottom floating navigation is intentionally untouched. */
 (function initNavbarScrollBehavior() {
     // Keep the main StudentKart navbar visible while scrolling.
     // The bottom quick-navigation bar remains independently fixed.
