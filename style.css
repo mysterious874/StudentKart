@@ -17117,3 +17117,28 @@ main, .footer { margin-left:0 !important; }
 .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions { display:flex !important; align-items:center !important; gap:8px !important; }
 .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-actions button { display:inline-flex !important; }
 main,.footer { margin-left:0 !important; }
+
+
+/* POLISHED STUDENTKART NAVBAR — BALANCED DESKTOP + MOBILE */
+.navbar.hero-nav-rail { position: sticky !important; top: 0 !important; left: auto !important; right: auto !important; width: 100% !important; height: 68px !important; min-height: 68px !important; padding: 0 !important; display: block !important; background: var(--nav) !important; border: 0 !important; border-bottom: 1px solid rgba(255,255,255,.08) !important; border-radius: 0 !important; box-shadow: 0 4px 18px rgba(0,0,0,.14) !important; backdrop-filter: none !important; }
+.navbar.hero-nav-rail .hero-nav-logo { display: none !important; }
+.navbar.hero-nav-rail .nav-links { display: flex !important; flex-direction: row !important; align-items: center !important; margin-left: auto !important; gap: 2px !important; }
+.navbar.hero-nav-rail .nav-links a { width: auto !important; min-height: 0 !important; height: auto !important; padding: 8px 11px !important; display: inline-flex !important; flex-direction: row !important; gap: 7px !important; color: #c3d0db !important; background: transparent !important; border-radius: 7px !important; font-size: 12px !important; font-weight: 600 !important; }
+.navbar.hero-nav-rail .nav-links a i { display: none !important; }
+.navbar.hero-nav-rail .nav-actions { display:flex !important; flex-direction:row !important; align-items:center !important; gap:7px !important; margin:0 !important; padding:0 !important; flex:0 0 auto !important; }
+.navbar.hero-nav-rail .nav-actions .btn { width:auto !important; min-width:0 !important; min-height:38px !important; height:38px !important; padding:0 11px !important; display:inline-flex !important; flex-direction:row !important; gap:6px !important; border-radius:7px !important; font-size:11px !important; }
+.navbar.hero-nav-rail .nav-actions .nav-search-button { width:38px !important; padding:0 !important; }
+.navbar.hero-nav-rail .nav-actions .nav-search-button span { display:none !important; }
+.navbar.hero-nav-rail .nav-actions .nav-notification-button,
+.navbar.hero-nav-rail .nav-actions .nav-chat-button { display:inline-flex !important; }
+.navbar.hero-nav-rail .nav-actions .nav-profile-button { width:38px !important; padding:0 !important; }
+.navbar.hero-nav-rail .nav-actions .nav-profile-button span { display:none !important; }
+.navbar.hero-nav-rail .nav-actions #sellButton { padding:0 13px !important; }
+.navbar.hero-nav-rail .nav-actions #signupButton { padding:0 13px !important; }
+.navbar.hero-nav-rail .notification-count,.navbar.hero-nav-rail .chat-unread-count { position:relative !important; top:auto !important; right:auto !important; margin-left:-2px !important; }
+.navbar.hero-nav-rail .nav-container { width:min(1240px,calc(100% - 32px)) !important; height:100% !important; margin:auto !important; padding:0 !important; display:flex !important; align-items:center !important; gap:18px !important; }
+.navbar.hero-nav-rail .nav-container::before { content:'StudentKart'; display:flex; align-items:center; height:40px; padding-left:48px; color:#fff; font-size:19px; font-weight:700; letter-spacing:-.45px; white-space:nowrap; background:linear-gradient(135deg,#0f8b8d,#16a3a5); background-size:40px 40px; background-repeat:no-repeat; background-position:left center; border-radius:9px; }
+.navbar.hero-nav-rail .nav-container::after { content:'🎓'; position:absolute; left:max(16px,calc((100% - 1240px)/2)); width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; pointer-events:none; }
+.navbar.hero-nav-rail + .navbar-search-panel { left:0 !important; right:0 !important; top:68px !important; }
+@media (max-width:1050px) { .navbar.hero-nav-rail .nav-links a { padding:8px 7px !important; font-size:11px !important; } .navbar.hero-nav-rail .nav-actions { gap:5px !important; } .navbar.hero-nav-rail .nav-actions .btn { padding:0 8px !important; } .navbar.hero-nav-rail .nav-actions .btn span { display:none !important; } .navbar.hero-nav-rail .nav-actions #sellButton span,.navbar.hero-nav-rail .nav-actions #loginButton span,.navbar.hero-nav-rail .nav-actions #signupButton span { display:inline !important; } }
+@media (max-width:760px) { .navbar.hero-nav-rail { height:60px !important; min-height:60px !important; } .navbar.hero-nav-rail .nav-container { width:calc(100% - 18px) !important; gap:8px !important; } .navbar.hero-nav-rail .nav-container::before { font-size:15px; background-size:34px 34px; padding-left:41px; } .navbar.hero-nav-rail .nav-container::after { left:9px; width:34px; height:34px; font-size:15px; } .navbar.hero-nav-rail .nav-links { display:none !important; } .navbar.hero-nav-rail .nav-actions { margin-left:auto !important; } .navbar.hero-nav-rail .nav-actions .btn { width:36px !important; height:36px !important; min-height:36px !important; padding:0 !important; } .navbar.hero-nav-rail .nav-actions .btn span { display:none !important; } .navbar.hero-nav-rail .nav-actions #sellButton { width:68px !important; padding:0 8px !important; } .navbar.hero-nav-rail .nav-actions #sellButton span { display:inline !important; } }
