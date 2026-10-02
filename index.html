@@ -412,9 +412,15 @@
                             id="productPrice" placeholder="e.g. 1500" min="0" required></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group"><label for="productLocation">Location</label><input type="text"
-                            id="productLocation" list="studentkartCityList" placeholder="e.g. Mumbai, Pune, Manipal" required>
-                        <small class="form-help">You can choose a city or enter your exact area.</small></div>
+                    <div class="form-group"><label for="productLocation">Location</label>
+                        <div class="product-location-input-wrap">
+                            <input type="text" id="productLocation" list="studentkartCityList" placeholder="Search city / district / village / area" autocomplete="off" required>
+                            <button type="button" id="productLocationButton" class="product-location-button" title="Fetch my real location" aria-label="Fetch my real location">
+                                <i class="fas fa-location-crosshairs"></i>
+                            </button>
+                            <div id="productLocationSuggestions" class="product-location-suggestions hidden" role="listbox" aria-label="Indian location suggestions"></div>
+                        </div>
+                        <small class="form-help">Search any location in India or use your current location.</small></div>
                     <div class="form-group"><label for="productCondition">Condition</label><select id="productCondition"
                             required>
                             <option value="">Select condition</option>
