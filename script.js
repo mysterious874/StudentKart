@@ -4529,16 +4529,15 @@ async function updateProfileUI() {
     }
 
     if ($("profileEmailInfo")) {
-
-        $("profileEmailInfo")
-            .textContent =
-            currentUser.email ||
-            profile.email ||
-            "Not available";
+        $("profileEmailInfo").textContent = getStudentKartSettings().privacy.hideEmail
+            ? "Hidden"
+            : (currentUser.email || profile.email || "Not available");
     }
 
     if ($("profilePhoneInfo")) {
-        $("profilePhoneInfo").textContent = getStudentKartSettings().privacy.hidePhone ? "Hidden" : (profile.getStudentKartSettings().privacy.hidePhone ? "Hidden" : (phone || currentUser.phone || "Not added"));
+        $("profilePhoneInfo").textContent = getStudentKartSettings().privacy.hidePhone
+            ? "Hidden"
+            : (profile.phone || currentUser.phone || "Not added");
     }
 
     if ($("profileAvatar")) {
