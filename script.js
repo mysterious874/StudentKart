@@ -528,6 +528,44 @@ function closeAllModals(options = {}) {
 
 window.addEventListener("popstate", event => {
     /*
+     * IMPORTANT: transient viewers/popups push a history entry. When Back
+     * is pressed, event.state is the PREVIOUS page state, not the popup
+     * state. Therefore these visible transient layers must be detected
+     * BEFORE looking at event.state, otherwise normal page/modal navigation
+     * runs and the background moves.
+     */
+
+    const activeChatImageViewer = document.querySelector(".chat-image-viewer");
+    if (activeChatImageViewer) {
+        activeChatImageViewer.remove();
+        return;
+    }
+
+    const activeProductImagePreview = $("productImagePreviewModal");
+    if (
+        activeProductImagePreview &&
+        !activeProductImagePreview.classList.contains("hidden") &&
+        document.body.classList.contains("product-image-preview-open")
+    ) {
+        activeProductImagePreview.classList.add("hidden");
+        activeProductImagePreview.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("product-image-preview-open");
+        const previewImage = $("productImagePreview");
+        if (previewImage) previewImage.src = "";
+        return;
+    }
+
+    const activeChatSelectionDelete = $("chatSelectionDeleteModal");
+    if (
+        activeChatSelectionDelete &&
+        !activeChatSelectionDelete.classList.contains("hidden")
+    ) {
+        activeChatSelectionDelete.classList.add("hidden");
+        activeChatSelectionDelete.setAttribute("aria-hidden", "true");
+        return;
+    }
+
+    /*
      * System/browser Back uses this same navigation stack as the
      * visible Chat back arrow.
      *
