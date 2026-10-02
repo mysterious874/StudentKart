@@ -2989,6 +2989,21 @@ async function loadReceivedInquiries() {
             });
         }
 
+        // WhatsApp-style ordering: the conversation with the newest
+        // message is always shown at the top of the chat list.
+        visibleInquiries.sort((a, b) => {
+            const latestA =
+                latestMessages[String(a.id)]?.created_at ||
+                a.created_at ||
+                "";
+            const latestB =
+                latestMessages[String(b.id)]?.created_at ||
+                b.created_at ||
+                "";
+
+            return new Date(latestB).getTime() - new Date(latestA).getTime();
+        });
+
         container.innerHTML =
             visibleInquiries.map(
                 inquiry => {
