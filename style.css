@@ -12436,7 +12436,7 @@ body.studentkart-dark .filter-panel-grid input,body.studentkart-dark .filter-pan
    ========================================================= */
 .navbar-search-panel {
     position: fixed !important;
-    top: 70px !important;
+    top: 76px !important;
     left: 50% !important;
     right: auto !important;
     transform: translateX(-50%) !important;
@@ -12445,7 +12445,7 @@ body.studentkart-dark .filter-panel-grid input,body.studentkart-dark .filter-pan
 }
 @media (max-width: 600px) {
     .navbar-search-panel {
-        top: 62px !important;
+        top: 68px !important;
         width: calc(100vw - 16px) !important;
     }
 }
