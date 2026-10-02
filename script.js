@@ -11593,30 +11593,141 @@ document.addEventListener("click", event => {
 const footerInfoContent = {
     about: {
         title: "About StudentKart",
-        body: "StudentKart is a student-focused marketplace built to make campus buying, selling, renting and discovering easier. Students can explore listings, compare products, save favourites, contact sellers and publish their own listings from one place.\n\nOur focus is simple: make student-to-student transactions convenient, organized and easier to discover. StudentKart is designed around campus communities, where useful products and services are often available nearby but difficult to find.\n\nStudentKart connects users; it does not act as the buyer or seller in a transaction. Always verify the product, seller and transaction details before making a payment."
+        body: `
+            <div class="info-intro">StudentKart is a student-focused marketplace designed to make campus buying, selling, renting and discovering useful products easier.</div>
+            <div class="info-section">
+                <h3><i class="fas fa-store"></i> What is StudentKart?</h3>
+                <p>StudentKart brings student-to-student listings into one simple place. Students can browse products, compare listings, save favourites, chat with sellers and publish their own listings.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-bullseye"></i> Our Purpose</h3>
+                <p>Our goal is to make useful products and services around student communities easier to discover, while keeping the buying and selling process simple and organized.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-handshake"></i> How StudentKart Works</h3>
+                <p>StudentKart connects buyers and sellers. It does not act as the buyer or seller in a transaction. Users are responsible for checking products, sellers, prices and transaction details before making a deal.</p>
+            </div>
+        `
     },
     how: {
         title: "How It Works",
-        body: "Buying:\n1. Browse the marketplace or choose a category.\n2. Search and filter listings by what you need.\n3. Open a product to check price, condition, location and seller details.\n4. Contact the seller through StudentKart chat and discuss the transaction.\n\nSelling:\n1. Sign in to your StudentKart account.\n2. Choose Sell and add the product name, category, price, location, condition, description and photos.\n3. Publish the listing.\n4. Respond to interested buyers through chat and complete the transaction safely.\n\nAlways inspect an item and agree on the final transaction details before paying."
+        body: `
+            <div class="info-section">
+                <h3><i class="fas fa-cart-shopping"></i> Buying on StudentKart</h3>
+                <ol class="info-steps">
+                    <li>Browse the marketplace or choose a category.</li>
+                    <li>Search and filter listings to find what you need.</li>
+                    <li>Open a listing and check its price, condition, location and seller details.</li>
+                    <li>Contact the seller through StudentKart chat.</li>
+                    <li>Discuss the product and agree on the transaction details before paying.</li>
+                </ol>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-tag"></i> Selling on StudentKart</h3>
+                <ol class="info-steps">
+                    <li>Sign in to your StudentKart account.</li>
+                    <li>Select <strong>Sell</strong> and add the product details.</li>
+                    <li>Add the name, category, price, location, condition, description and photos.</li>
+                    <li>Publish your listing.</li>
+                    <li>Respond to interested buyers through chat and complete the transaction safely.</li>
+                </ol>
+            </div>
+            <div class="info-note"><i class="fas fa-circle-info"></i><span>Always inspect an item and confirm the final price, payment method and meeting details before completing a transaction.</span></div>
+        `
     },
     safety: {
         title: "Safety",
-        body: "Meet in a safe, public and well-known place whenever possible. Inspect the product carefully before completing a transaction and confirm that it matches the listing.\n\nNever share your password, OTP, verification code or other account credentials with anyone. Be careful with requests for advance payments, unusual payment methods, urgent transfers or offers that seem too good to be true.\n\nKeep important conversations inside StudentKart where possible. If a user or listing appears suspicious, stop the transaction and use the available reporting options."
+        body: `
+            <div class="info-intro">A few simple precautions can help make buying and selling safer on StudentKart.</div>
+            <div class="info-section">
+                <h3><i class="fas fa-location-dot"></i> Meet Safely</h3>
+                <p>Whenever possible, meet in a safe, public and well-known place. If you are inspecting an item, check it carefully before completing the transaction.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-lock"></i> Protect Your Account</h3>
+                <ul class="info-list">
+                    <li>Never share your password, OTP or verification code.</li>
+                    <li>Do not give anyone access to your account.</li>
+                    <li>Avoid publishing sensitive personal information in listings, profiles or chats.</li>
+                </ul>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-triangle-exclamation"></i> Watch for Suspicious Activity</h3>
+                <ul class="info-list">
+                    <li>Be careful with requests for advance payments or unusual payment methods.</li>
+                    <li>Do not rush into urgent transfers without verifying the details.</li>
+                    <li>Be cautious of offers that seem unusually good or inconsistent with the listing.</li>
+                </ul>
+            </div>
+            <div class="info-note warning"><i class="fas fa-flag"></i><span>If a user or listing appears suspicious, stop the transaction and use the available reporting options.</span></div>
+        `
     },
     contact: {
         title: "Contact Us",
-        body: "Need help, found a bug or have a feature suggestion? Contact the StudentKart team at rathodharish004@gmail.com.\n\nYou can use this address for general feedback, problem reports, account-related questions and suggestions for improving the platform. When reporting a problem, include a short description of what happened and, if possible, the page or feature where you experienced it."
+        body: `
+            <div class="info-intro">Need help, found a bug or have a feature suggestion? You can contact the StudentKart team directly.</div>
+            <div class="info-contact-card">
+                <div class="info-contact-icon"><i class="fas fa-envelope"></i></div>
+                <div><span>Email</span><a href="mailto:rathodharish004@gmail.com">rathodharish004@gmail.com</a></div>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-headset"></i> What You Can Contact Us About</h3>
+                <ul class="info-list">
+                    <li>General feedback and suggestions</li>
+                    <li>Bug or technical problem reports</li>
+                    <li>Account-related questions</li>
+                    <li>Ideas for improving StudentKart</li>
+                </ul>
+            </div>
+            <div class="info-note"><i class="fas fa-circle-info"></i><span>When reporting a problem, include a short description of what happened and the page or feature where you experienced it.</span></div>
+        `
     },
     privacy: {
         title: "Privacy Policy",
-        body: "StudentKart uses account and profile information to provide features such as authentication, profiles, listings, wishlist, chat and notifications. Information needed for a feature may be stored or processed by the services used to operate StudentKart.\n\nWe aim to show only the information needed for marketplace and communication features. Do not publish sensitive information in your profile, listing description, chat messages or images.\n\nYou are responsible for keeping your login credentials and OTPs private. If you believe your account or personal information has been exposed, contact StudentKart support."
+        body: `
+            <div class="info-intro">StudentKart uses information needed to provide account, marketplace and communication features.</div>
+            <div class="info-section">
+                <h3><i class="fas fa-database"></i> Information Used</h3>
+                <p>Account and profile information may be used for features such as authentication, profiles, listings, wishlist, chat and notifications. Information required for a feature may be stored or processed by the services used to operate StudentKart.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-eye"></i> Information You Share</h3>
+                <p>StudentKart aims to show only the information needed for marketplace and communication features. Please do not publish sensitive information in your profile, listing descriptions, chat messages or images.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-shield-halved"></i> Keep Your Account Secure</h3>
+                <p>Keep your login credentials and OTPs private. If you believe your account or personal information has been exposed, contact StudentKart support.</p>
+            </div>
+        `
     },
     terms: {
         title: "Terms & Conditions",
-        body: "By using StudentKart, you agree to use the platform lawfully and respectfully. Listing information should be genuine and should accurately describe the product or service being offered. Users must not use StudentKart for scams, impersonation, harassment, prohibited transactions or other unlawful activity.\n\nBuyers and sellers are responsible for verifying listings, product condition, identity, price, payment details and other transaction terms before completing a deal. StudentKart provides a platform for users to connect and does not become a party to transactions between users.\n\nStudentKart may restrict or remove content or accounts when necessary to protect users or maintain the platform."
+        body: `
+            <div class="info-intro">By using StudentKart, you agree to use the platform lawfully, honestly and respectfully.</div>
+            <div class="info-section">
+                <h3><i class="fas fa-user-check"></i> User Responsibilities</h3>
+                <ul class="info-list">
+                    <li>Provide genuine and accurate information in listings.</li>
+                    <li>Use StudentKart only for lawful activities.</li>
+                    <li>Do not use the platform for scams, impersonation, harassment or prohibited transactions.</li>
+                    <li>Do not intentionally misrepresent a product or service.</li>
+                </ul>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-receipt"></i> Transactions</h3>
+                <p>Buyers and sellers are responsible for verifying the listing, product condition, identity, price, payment details and other transaction terms before completing a deal.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-users"></i> StudentKart's Role</h3>
+                <p>StudentKart provides a platform for users to connect. StudentKart does not become a party to transactions between users. Users are responsible for their own buying and selling decisions.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-shield-halved"></i> Platform Protection</h3>
+                <p>StudentKart may restrict or remove content or accounts when necessary to protect users or maintain the platform.</p>
+            </div>
+        `
     }
 }
-
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[data-footer-info]").forEach(button => {
         button.addEventListener("click", () => {
