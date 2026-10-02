@@ -6433,6 +6433,8 @@ function setupEventListeners() {
         document.body.classList.remove("product-image-preview-open");
         const image = $("productImagePreview");
         if (image) image.src = "";
+        const detailsImage = $("detailsImage");
+        if (detailsImage) detailsImage.style.removeProperty("user-select");
     }
 
     function openProductImagePreview(source) {
@@ -6454,7 +6456,7 @@ function setupEventListeners() {
     }
 
     document.addEventListener("pointerdown", event => {
-        const image = event.target.closest(".product-card .product-image");
+        const image = event.target.closest(".product-card .product-image, #detailsImage");
         if (!image) return;
         pressTarget = image;
         longPressTriggered = false;
