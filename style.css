@@ -16070,3 +16070,30 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
 #chatModal .chat-call-button:hover i,
 #chatModal .chat-delete-button:hover i,
 #chatModal .chat-head > .chat-back-button:hover i{color:#fff !important}
+
+/* FINAL FIX — CHAT HEADER MUST MATCH BROWSE CATEGORIES DARK HEADER */
+body #chatModal:not(.hidden) .chat-head{
+    background:#0d2331 !important;
+    border-bottom:1px solid rgba(255,255,255,.10) !important;
+    box-shadow:0 6px 22px rgba(15,23,42,.22) !important;
+}
+body #chatModal:not(.hidden) .chat-head > .chat-back-button,
+body #chatModal:not(.hidden) .chat-call-button,
+body #chatModal:not(.hidden) .chat-delete-button{
+    border:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    color:rgba(255,255,255,.78) !important;
+}
+body #chatModal:not(.hidden) .chat-head > .chat-back-button i,
+body #chatModal:not(.hidden) .chat-call-button i,
+body #chatModal:not(.hidden) .chat-delete-button i{
+    color:rgba(255,255,255,.78) !important;
+}
+body #chatModal:not(.hidden) .chat-head .chat-person h2{
+    color:#fff !important;
+}
+body #chatModal:not(.hidden) .chat-head .chat-person p,
+body #chatModal:not(.hidden) .chat-head #chatUserStatus{
+    color:rgba(255,255,255,.72) !important;
+}
