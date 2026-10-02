@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="/icons/studentkart-icon.svg">
     <title>StudentKart — Student Marketplace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20261003-home-tools-1">
+    <link rel="stylesheet" href="style.css?v=20261003-home-nav-1">
 </head>
 
 <body>
@@ -71,12 +71,26 @@
             <h1>Buy. Sell. Rent.<br><span>Around your campus.</span></h1>
             <p>StudentKart helps students buy, sell, rent and discover products from other students around campus.</p>
 
-            <div class="sk-home-actions">
-                <a href="#marketplace" class="sk-home-btn sk-home-btn-primary">
-                    <i class="fas fa-store"></i><span>Explore Marketplace</span><i class="fas fa-arrow-right sk-home-btn-arrow"></i>
-                </a>
-                <button type="button" class="sk-home-btn sk-home-btn-secondary" id="homeSellButton" onclick="openSellModal()">
-                    <i class="fas fa-plus"></i><span>Sell Something</span>
+            <div class="sk-home-nav-bar" aria-label="StudentKart navigation">
+                <button type="button" class="sk-home-nav-item" id="bottomChatButton" aria-label="Chat">
+                    <span class="sk-home-nav-icon"><i class="fas fa-message"></i><span class="chat-unread-count hidden" id="chatBottomUnreadCount">0</span></span>
+                    <span>Chat</span>
+                </button>
+                <button type="button" class="sk-home-nav-item" id="bottomWishlistButton" aria-label="Wishlist">
+                    <span class="sk-home-nav-icon"><i class="fa-regular fa-heart"></i></span>
+                    <span>Wishlist</span>
+                </button>
+                <button type="button" class="sk-home-nav-item" id="bottomCategoriesButton" aria-label="Categories">
+                    <span class="sk-home-nav-icon"><i class="fas fa-layer-group"></i></span>
+                    <span>Categories</span>
+                </button>
+                <button type="button" class="sk-home-nav-item" id="homeProfileButton" aria-label="Profile" onclick="openProfile()">
+                    <span class="sk-home-nav-icon"><i class="fas fa-user"></i></span>
+                    <span>Profile</span>
+                </button>
+                <button type="button" class="sk-home-nav-item" id="bottomSettingsButton" aria-label="Settings">
+                    <span class="sk-home-nav-icon"><i class="fas fa-gear"></i></span>
+                    <span>Settings</span>
                 </button>
             </div>
 
