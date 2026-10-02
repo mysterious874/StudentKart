@@ -11895,3 +11895,31 @@ form {
     color: #ffffff !important;
     border-color: rgba(115,232,229,.35) !important;
 }
+
+
+/* =========================================================
+   ANDROID-STYLE PERSISTENT FLOATING BOTTOM NAV
+   Keep bottom navigation visible while inner pages/modals open.
+   ========================================================= */
+body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    left: 50% !important;
+    bottom: 14px !important;
+    top: auto !important;
+    transform: translateX(-50%) !important;
+    z-index: 99999 !important;
+}
+body.studentkart-modal-navigation-hidden {
+    padding-bottom: 96px !important;
+}
+@media (max-width: 600px) {
+    body.studentkart-modal-navigation-hidden {
+        padding-bottom: 86px !important;
+    }
+    body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
+        bottom: 8px !important;
+    }
+}
