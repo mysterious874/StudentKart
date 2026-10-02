@@ -18117,3 +18117,18 @@ body:has(.modal:not(.hidden)) .modal:not(.hidden) .modal-content {
     overscroll-behavior-x: none !important;
     -webkit-overflow-scrolling: touch !important;
 }
+
+/* STUDENTKART THEMED CONFIRMATION DIALOG */
+.studentkart-native-confirm-modal{width:min(420px,calc(100vw - 28px));max-width:420px;padding:26px 22px 20px;border-radius:22px;text-align:center;background:#fff;border:1px solid rgba(15,139,141,.12);box-shadow:0 24px 70px rgba(16,42,67,.22)}
+.studentkart-native-confirm-icon{width:52px;height:52px;margin:0 auto 14px;display:grid;place-items:center;border-radius:16px;background:rgba(15,139,141,.10);color:#0f8b8d;font-size:21px}
+.studentkart-native-confirm-modal h2{margin:0 0 8px;color:#193238;font-size:20px;font-weight:800}
+.studentkart-native-confirm-modal p{margin:0 auto;max-width:340px;color:#63757b;font-size:13px;line-height:1.55}
+.studentkart-native-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.studentkart-native-confirm-actions button{min-height:44px;border-radius:12px;border:1px solid transparent;font:inherit;font-size:13px;font-weight:750;cursor:pointer}
+.studentkart-native-confirm-cancel{background:#eef3f4;color:#42555a;border-color:#dce7ea!important}
+.studentkart-native-confirm-ok{background:#0f8b8d;color:#fff;box-shadow:0 7px 18px rgba(15,139,141,.20)}
+.studentkart-native-confirm-ok.is-danger{background:#c84b4b;box-shadow:0 7px 18px rgba(200,75,75,.20)}
+body.studentkart-dark .studentkart-native-confirm-modal{background:#122b2f;border-color:rgba(143,225,221,.14)}
+body.studentkart-dark .studentkart-native-confirm-modal h2{color:#e7f7f5}
+body.studentkart-dark .studentkart-native-confirm-modal p{color:#a9c4c5}
+body.studentkart-dark .studentkart-native-confirm-cancel{background:#203c40;color:#dcefed;border-color:rgba(143,225,221,.14)!important}
