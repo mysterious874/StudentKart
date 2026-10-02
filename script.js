@@ -8019,8 +8019,11 @@ async function loadChatMessages() {
     const container = $("chatMessages");
     if (!container) return;
 
-    container.classList.add("chat-loading");
-
+    /*
+     * Message refresh is intentionally silent.
+     * Keep the current chat visible while Supabase fetches in the
+     * background so realtime refreshes never show a loading bubble.
+     */
     try {
         const { data, error } = await supabaseClient
             .from("messages")
@@ -8096,7 +8099,7 @@ async function loadChatMessages() {
                 Could not load messages.
             </div>`;
     } finally {
-        container.classList.remove("chat-loading");
+        /* No visible loading state here — chat refresh stays in background. */
     }
 }
 
