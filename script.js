@@ -12007,7 +12007,20 @@ const SK_T = {
 };
 
 function skTranslate(value, language) {
-    return SK_T[language]?.[String(value)] || String(value);
+    const source = String(value ?? "");
+    if (language === "en") {
+        for (const map of Object.values(SK_T)) {
+            const original = Object.keys(map).find(key => map[key] === source);
+            if (original) return original;
+        }
+        return source;
+    }
+    if (SK_T[language]?.[source]) return SK_T[language][source];
+    for (const map of Object.values(SK_T)) {
+        const original = Object.keys(map).find(key => map[key] === source);
+        if (original && SK_T[language]?.[original]) return SK_T[language][original];
+    }
+    return source;
 }
 
 function applyStudentKartLanguage(root = document) {
@@ -12396,6 +12409,7 @@ async function settingsLanguage() {
             return saved;
         }
     });
+    window.setTimeout(() => applyStudentKartLanguage($("settingsActionModal")), 0);
 }
 
 async function settingsProfileVisibility() {
