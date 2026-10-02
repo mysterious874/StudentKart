@@ -15194,3 +15194,18 @@ body.product-image-preview-open{overflow:hidden!important}
 .category-page-count{flex-shrink:0;padding:7px 11px;border:1px solid #cde5e4;border-radius:20px;background:var(--primary-light);color:var(--primary2);font-size:11px;font-weight:700}
 .category-page .products-grid{min-height:180px}
 @media(max-width:700px){.category-page{padding:18px 0 90px}.category-page-container{width:min(100% - 24px,1180px)}.category-page-header{align-items:flex-start;flex-direction:column;gap:10px;margin:18px 0}.category-page-header h2{font-size:27px}}
+
+
+/* CATEGORY PAGE — hide navbar and floating navigation */
+body.category-page-active .navbar,
+body.category-page-active .mobile-bottom-nav,
+html body.category-page-active .navbar,
+html body.category-page-active .mobile-bottom-nav{
+    display:none!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+}
+html body.category-page-active{
+    padding-top:0!important;
+    padding-bottom:0!important;
+}
