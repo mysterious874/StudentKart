@@ -15872,3 +15872,53 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
         font-size: 13px;
     }
 }
+
+/* CHAT UI POLISH */
+#inquiriesModal .modal-content{box-shadow:0 28px 80px rgba(16,42,67,.18);border:1px solid rgba(15,139,141,.12)}
+#inquiriesModal .chat-list-header{padding:22px 22px 13px;background:radial-gradient(circle at 100% 0%,rgba(15,139,141,.08),transparent 34%),#fff}
+.chat-list-title-row{margin-bottom:16px}
+.chat-list-title-row h2{color:#132d35;font-size:27px;letter-spacing:-.025em}
+.chat-list-header-actions{gap:7px}
+.chat-list-icon-button{width:36px;height:36px;background:#f4f8f8;border:1px solid #e5eeee;transition:transform .16s ease,background .16s ease,color .16s ease,border-color .16s ease}
+.chat-list-icon-button:hover{transform:translateY(-1px);background:#e7f5f4;border-color:#cfe8e6}
+.chat-list-search{height:46px;padding:0 14px;border:1px solid #e2ebeb;border-radius:14px;background:#f6f9f9;transition:border-color .16s ease,box-shadow .16s ease,background .16s ease}
+.chat-list-search:focus-within{border-color:rgba(15,139,141,.45);background:#fff;box-shadow:0 0 0 4px rgba(15,139,141,.08)}
+.chat-list-search>i{color:#0f8b8d}
+.chat-list-tabs{padding-top:13px;gap:5px}
+.chat-list-tab{min-width:62px;padding:7px 14px;border:1px solid transparent;transition:.15s ease}
+.chat-list-tab:hover:not(.active){background:#f2f7f7;color:#314e55}
+.chat-list-tab.active{border-color:#cce9e7;background:#e7f6f4;color:#087577}
+#inquiriesContainer{background:#f4f8f8}
+.whatsapp-inquiry-card{position:relative;min-height:82px;padding:12px 18px;gap:14px;border-bottom:1px solid #edf2f2;transition:background .14s ease,transform .14s ease}
+.whatsapp-inquiry-card:hover{background:#f8fbfb}
+.whatsapp-inquiry-avatar{width:52px;height:52px;flex-basis:52px;border:1px solid #d8e9e8;box-shadow:0 2px 7px rgba(16,42,67,.06)}
+.whatsapp-inquiry-top strong{color:#183139;font-size:14px;font-weight:750}
+.whatsapp-inquiry-top time{color:#84959a;font-size:10px}
+.whatsapp-inquiry-preview{margin-top:3px;gap:7px}
+.whatsapp-product-name{max-width:135px;color:#0f8b8d;font-size:10px}
+.whatsapp-message-preview{color:#74888d;font-size:11.5px}
+.whatsapp-unread{min-width:19px;height:19px;background:#0f8b8d;box-shadow:0 2px 5px rgba(15,139,141,.18)}
+.whatsapp-chat-button{width:32px;height:32px;background:#edf7f6;border:1px solid #dceeed}
+.whatsapp-chat-button:hover{background:#dff2f0;transform:translateY(-1px)}
+#chatModal .chat-modal-content{border-color:#dce9ea;box-shadow:0 28px 90px rgba(16,42,67,.22)}
+#chatModal .chat-head{min-height:72px;padding:10px 13px 10px 8px;background:radial-gradient(circle at 0 0,rgba(15,139,141,.06),transparent 32%),#fff;border-bottom-color:#e2ebec}
+#chatModal .chat-avatar{width:45px;height:45px;flex-basis:45px;border:2px solid #e8f5f4;box-shadow:none}
+#chatModal .chat-person h2{color:#162f37;font-size:15px;font-weight:750}
+#chatModal .chat-call-button{border:0;background:transparent;cursor:pointer}
+#chatModal .chat-call-button:hover{background:#eaf7f5;color:#087577}
+#chatModal .chat-messages{background:radial-gradient(circle at 10% 10%,rgba(15,139,141,.035),transparent 24%),#f7faf9}
+#chatModal .chat-security-notice{margin:0;padding:7px 12px;background:#f1f7f6;border-top:1px solid #e1eceb;border-bottom:1px solid #e1eceb;color:#71868a;font-size:9.5px}
+#chatModal .chat-form{min-height:62px;padding:9px 10px 10px;gap:7px;background:#fff;border-top:1px solid #e2ebec}
+#chatModal .chat-input-pill{min-height:43px;border:1px solid #dfe9e9;border-radius:22px;background:#f6f9f9;transition:.15s ease}
+#chatModal .chat-input-pill:focus-within{background:#fff;border-color:rgba(15,139,141,.45);box-shadow:0 0 0 3px rgba(15,139,141,.07)}
+#chatModal .chat-send-button{width:43px;height:43px;flex:0 0 43px;border-radius:50%;background:#0f8b8d;color:#fff;box-shadow:0 5px 13px rgba(15,139,141,.20);transition:transform .14s ease,box-shadow .14s ease,background .14s ease}
+#chatModal .chat-send-button:hover{transform:translateY(-1px);background:#087577;box-shadow:0 7px 16px rgba(15,139,141,.25)}
+.chat-delete-menu{top:72px;right:14px;min-width:205px;padding:7px;border-radius:14px;box-shadow:0 16px 38px rgba(16,42,67,.18);border-color:#dfe9ea}
+.chat-delete-menu button{min-height:39px;border-radius:9px;font-size:12.5px}
+@media(max-width:560px){
+ #inquiriesModal .chat-list-header{padding:17px 14px 10px}
+ .whatsapp-inquiry-card{min-height:78px;padding:10px 12px}
+ .whatsapp-inquiry-avatar{width:48px;height:48px;flex-basis:48px}
+ #chatModal .chat-head{min-height:68px;padding-right:8px}
+ #chatModal .chat-form{padding:8px 7px 9px}
+}
