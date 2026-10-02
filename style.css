@@ -20915,3 +20915,28 @@ body.category-page-active .category-page-container {
     padding-top:72px !important;
   }
 }
+
+
+/* MOBILE NAV CONTENT — MOVE THE ACTUAL NAV ITEMS UP */
+@media screen and (max-width:600px){
+  html body > header.navbar,
+  html body > header.navbar.navbar-scroll-hidden{
+    height:64px !important;
+    min-height:64px !important;
+    max-height:64px !important;
+    padding:0 !important;
+  }
+
+  html body > header.navbar > .nav-container{
+    height:64px !important;
+    min-height:64px !important;
+    max-height:64px !important;
+    padding:6px 12px !important;
+    align-items:center !important;
+    transform:translateY(-5px) !important;
+  }
+
+  html body{
+    padding-top:64px !important;
+  }
+}
