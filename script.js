@@ -1440,7 +1440,64 @@ function restoreMarketplaceFilterSnapshot() {
     });
 }
 
-function applyFilters() {
+const studentKartLocationGeoCache = new Map();
+
+async function getStudentKartLocationTerms(location) {
+    const raw = String(location || "").trim().toLowerCase();
+    if (!raw) return [];
+
+    if (studentKartLocationGeoCache.has(raw)) {
+        return studentKartLocationGeoCache.get(raw);
+    }
+
+    const terms = new Set([raw]);
+
+    try {
+        const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=5&q=" + encodeURIComponent(location);
+        const response = await fetch(url, {
+            headers: { "Accept": "application/json" }
+        });
+
+        if (response.ok) {
+            const results = await response.json();
+
+            results.forEach(item => {
+                const address = item.address || {};
+
+                [
+                    address.city,
+                    address.town,
+                    address.city_district,
+                    address.municipality,
+                    address.county,
+                    address.state_district,
+                    address.village,
+                    address.suburb,
+                    address.neighbourhood,
+                    address.state
+                ]
+                    .filter(Boolean)
+                    .forEach(value => terms.add(String(value).trim().toLowerCase()));
+
+                if (item.display_name) {
+                    String(item.display_name)
+                        .split(",")
+                        .map(value => value.trim().toLowerCase())
+                        .filter(value => value.length >= 2)
+                        .forEach(value => terms.add(value));
+                }
+            });
+        }
+    } catch (error) {
+        console.debug("Location matching lookup unavailable:", error);
+    }
+
+    const finalTerms = [...terms].filter(Boolean);
+    studentKartLocationGeoCache.set(raw, finalTerms);
+    return finalTerms;
+}
+
+async function applyFilters() {
 
     const search =
         String(
@@ -1468,131 +1525,90 @@ function applyFilters() {
             : Number(maxRaw);
 
     const condition =
-        $("conditionFilter")
-            ?.value || "all";
+        $("conditionFilter")?.value || "all";
 
-    const location =
+    const locationRaw =
         String(
             $("locationFilter")?.value || ""
-        )
-            .trim()
-            .toLowerCase();
+        ).trim();
+
+    const locationTerms =
+        locationRaw
+            ? await getStudentKartLocationTerms(locationRaw)
+            : [];
 
     const sort =
-        $("sortFilter")
-            ?.value || "newest";
+        $("sortFilter")?.value || "newest";
 
-    let filtered =
-        [...currentProducts];
+    let filtered = [...currentProducts];
 
     if (search) {
+        filtered = filtered.filter(product => {
+            const haystack =
+                [
+                    product.name,
+                    product.category,
+                    product.location,
+                    product.condition,
+                    product.description,
+                    product.seller
+                ]
+                    .join(" ")
+                    .toLowerCase();
 
-        filtered =
-            filtered.filter(product => {
-
-                const haystack =
-                    [
-                        product.name,
-                        product.category,
-                        product.location,
-                        product.condition,
-                        product.description,
-                        product.seller
-                    ]
-                        .join(" ")
-                        .toLowerCase();
-
-                return haystack.includes(
-                    search
-                );
-            });
+            return haystack.includes(search);
+        });
     }
 
-    if (
-        category &&
-        category !== "all"
-    ) {
-
-        filtered =
-            filtered.filter(
-                product =>
-                    String(
-                        product.category
-                    ).toLowerCase() ===
-                    String(
-                        category
-                    ).toLowerCase()
-            );
-    }
-
-    filtered =
-        filtered.filter(
+    if (category && category !== "all") {
+        filtered = filtered.filter(
             product =>
-                product.price >= min &&
-                product.price <= max
+                String(product.category).toLowerCase() ===
+                String(category).toLowerCase()
         );
-
-    if (
-        condition &&
-        condition !== "all"
-    ) {
-
-        filtered =
-            filtered.filter(
-                product =>
-                    String(
-                        product.condition
-                    ).toLowerCase() ===
-                    String(
-                        condition
-                    ).toLowerCase()
-            );
     }
 
-    if (location) {
-        filtered =
-            filtered.filter(product =>
-                String(product.location || "")
-                    .toLowerCase()
-                    .includes(location)
+    filtered = filtered.filter(
+        product =>
+            Number(product.price) >= min &&
+            Number(product.price) <= max
+    );
+
+    if (condition && condition !== "all") {
+        filtered = filtered.filter(
+            product =>
+                String(product.condition).toLowerCase() ===
+                String(condition).toLowerCase()
+        );
+    }
+
+    if (locationTerms.length) {
+        filtered = filtered.filter(product => {
+            const productLocation = String(product.location || "").toLowerCase();
+            const productText = [
+                product.location,
+                product.description,
+                product.name
+            ].join(" ").toLowerCase();
+
+            return locationTerms.some(term =>
+                productLocation.includes(term) ||
+                productText.includes(term)
             );
+        });
     }
 
     if (sort === "price-low") {
-
-        filtered.sort(
-            (a, b) =>
-                a.price - b.price
-        );
-
+        filtered.sort((a, b) => Number(a.price) - Number(b.price));
     } else if (sort === "price-high") {
-
-        filtered.sort(
-            (a, b) =>
-                b.price - a.price
-        );
-
+        filtered.sort((a, b) => Number(b.price) - Number(a.price));
     } else if (sort === "oldest") {
-
-        filtered.sort(
-            (a, b) =>
-                new Date(a.createdAt) -
-                new Date(b.createdAt)
-        );
-
+        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     } else {
-
-        filtered.sort(
-            (a, b) =>
-                new Date(b.createdAt) -
-                new Date(a.createdAt)
-        );
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
-    updateFilterStatus(
-        filtered.length
-    );
-
+    updateFilterStatus(filtered.length);
     renderProducts(filtered);
 }
 
@@ -8225,9 +8241,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     ["categoryFilter","minPrice","maxPrice","locationFilter","conditionFilter","sortFilter"].forEach(id => {
         $(id)?.addEventListener("change", applyFilters);
-        $(id)?.addEventListener("input", event => {
-            if (event.target.tagName === "INPUT") applyFilters();
-        });
+    });
+
+    ["minPrice","maxPrice"].forEach(id => {
+        $(id)?.addEventListener("input", applyFilters);
     });
 
     $("applyMarketplaceFilters")?.addEventListener("click", () => {
