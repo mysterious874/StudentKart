@@ -479,6 +479,36 @@ document.addEventListener("click", event => {
 }, true);
 
 window.addEventListener("popstate", event => {
+    // If Chat is currently visible, Android/browser Back must restore the
+    // Chats list immediately instead of stepping through a stale history entry.
+    const visibleChat = $("chatModal") && !$("chatModal").classList.contains("hidden");
+    const inquiries = $("inquiriesModal");
+
+    if (visibleChat && inquiries) {
+        $("chatModal").classList.remove("modal-closing");
+        $("chatModal").classList.add("hidden");
+        inquiries.classList.remove("modal-closing");
+        inquiries.classList.remove("hidden");
+
+        document.body.classList.add("modal-open");
+        document.body.classList.add("studentkart-modal-navigation-hidden");
+        document.body.classList.remove("studentkart-chat-open");
+
+        modalHistory = [];
+        ensureStudentKartHistory();
+        window.history.replaceState(
+            {
+                studentKart: true,
+                modalId: "inquiriesModal",
+                modalStack: ["inquiriesModal"]
+            },
+            "",
+            window.location.pathname + window.location.search + "#inquiriesModal"
+        );
+        return;
+    }
+    /* existing modal history handler */
+
     /*
      * System/browser Back uses this same navigation stack as the
      * visible Chat back arrow.
