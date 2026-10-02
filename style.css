@@ -17220,3 +17220,27 @@ main,.footer { margin-left:0 !important; }
   .navbar:not(.site-side-nav):not(.hero-nav-rail) .nav-container { width:100% !important; padding:0 10px !important; }
   .navbar:not(.site-side-nav):not(.hero-nav-rail) .logo { margin-right:0 !important; }
 }
+
+
+/* ABSOLUTE FINAL NAVBAR WIDTH FIX */
+html body header.navbar {
+  width:100vw !important;
+  max-width:none !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+  left:0 !important;
+  right:0 !important;
+  box-sizing:border-box !important;
+}
+html body header.navbar .nav-container {
+  width:100% !important;
+  max-width:none !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+  padding-left:24px !important;
+  padding-right:24px !important;
+  box-sizing:border-box !important;
+}
+html body header.navbar .logo { flex-shrink:0 !important; }
+html body header.navbar .nav-links { margin-left:0 !important; }
+html body header.navbar .nav-actions { margin-left:auto !important; }
