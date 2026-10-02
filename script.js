@@ -450,6 +450,28 @@ window.addEventListener("popstate", event => {
     if (state?.studentKart === true) {
         studentKartHandlingPopState = true;
 
+        // Category marketplace is a page-level navigation state rather than
+        // a modal. Restore it directly when the user presses Android/browser Back.
+        if (state.page === "category") {
+            document.querySelectorAll(".modal").forEach(modal => {
+                modal.classList.remove("modal-closing");
+                modal.classList.add("hidden");
+            });
+            modalHistory = [];
+            openCategoryPage(state.category || "Other", { fromPopState: true });
+            studentKartHandlingPopState = false;
+            return;
+        }
+
+        // Returning from a category page to the category picker/home must
+        // first restore the normal page visibility.
+        document.body.classList.remove("category-page-active");
+        $("categoryPage")?.classList.add("hidden");
+        document.querySelector("main")?.classList.remove("category-page-active");
+        $("home")?.classList.remove("hidden");
+        $("marketplace")?.classList.remove("hidden");
+        $("how-it-works")?.classList.remove("hidden");
+
         const targetModalId = state.modalId || null;
         const targetModal = targetModalId ? $(targetModalId) : null;
 
@@ -5107,9 +5129,28 @@ function closeCategoryPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function openCategoryPage(category) {
+function openCategoryPage(category, options = {}) {
     const selected = String(category || "Other").trim() || "Other";
     selectedMarketplaceCategory = selected;
+
+    // Category pages are real navigation destinations, not just a visual
+    // state. Create a browser history entry so Android/browser Back can
+    // return to the category picker without requiring the on-page arrow.
+    if (!options.fromPopState && !studentKartHandlingPopState) {
+        ensureStudentKartHistory();
+        window.history.pushState(
+            {
+                studentKart: true,
+                modalId: null,
+                modalStack: [],
+                page: "category",
+                category: selected
+            },
+            "",
+            window.location.pathname + window.location.search + "#category-" +
+                encodeURIComponent(selected)
+        );
+    }
 
     $("categoryPickerModal")?.classList.add("hidden");
     document.body.classList.remove("modal-open");
@@ -6872,19 +6913,20 @@ document.addEventListener("click", event => {
     });
 
     $("categoryPageBack")?.addEventListener("click", () => {
-    $("categoryPage")?.classList.add("hidden");
-    document.body.classList.remove("category-page-active");
-    document.querySelector("main")?.classList.remove("category-page-active");
-    $("home")?.classList.remove("hidden");
-    $("marketplace")?.classList.remove("hidden");
-    $("how-it-works")?.classList.remove("hidden");
+    // Let the browser navigation stack restore the previous page/modal.
+    // This keeps the visible arrow and Android/browser Back behaviour in sync.
+    if (window.history.state?.studentKart && window.history.state?.page === "category") {
+        window.history.back();
+        return;
+    }
+
+    showHomePageFromCategory();
     const modal = $("categoryPickerModal");
     if (modal) {
         modal.classList.remove("hidden");
         document.body.classList.add("modal-open");
         document.body.classList.add("studentkart-modal-navigation-hidden");
     }
-    window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
     $("categoryPageBrowseAll")?.addEventListener("click", () => {
