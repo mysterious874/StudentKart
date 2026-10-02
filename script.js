@@ -5072,6 +5072,7 @@ function performSearch() {
 }
 
 function showHomePageFromCategory() {
+    document.body.classList.remove("category-page-active");
     $("categoryPage")?.classList.add("hidden");
     document.querySelector("main")?.classList.remove("category-page-active");
     $("home")?.classList.remove("hidden");
@@ -5092,6 +5093,7 @@ function openCategoryPage(category) {
     $("marketplace")?.classList.add("hidden");
     $("how-it-works")?.classList.add("hidden");
     $("categoryPage")?.classList.remove("hidden");
+    document.body.classList.add("category-page-active");
     document.querySelector("main")?.classList.add("category-page-active");
 
     const title = $("categoryPageTitle");
