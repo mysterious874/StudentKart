@@ -20311,3 +20311,44 @@ body.category-page-active .category-page-container {
     padding-bottom: 120px !important;
   }
 }
+
+
+/* FINAL NAVBAR SEPARATION — logo navbar stays at top, quick nav stays at bottom */
+@media (max-width: 600px) {
+  body > header.navbar {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    z-index: 1000 !important;
+  }
+
+  body > header.navbar > .nav-container {
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 64px !important;
+    margin: 0 !important;
+    border-radius: 0 0 20px 20px !important;
+  }
+
+  body > header.navbar .mobile-bottom-nav {
+    display: none !important;
+  }
+
+  body > header.navbar.navbar-scroll-hidden {
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  body:not(.studentkart-modal-navigation-hidden) {
+    padding-bottom: 120px !important;
+  }
+}
