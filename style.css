@@ -18709,3 +18709,21 @@ body.studentkart-modal-navigation-hidden #inquiriesModal:not(.hidden) .inquiries
 body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
     z-index: 19990 !important;
 }
+
+
+/* =========================================================
+   FOOTER + FLOATING BOTTOM NAV SPACING
+   Keep the footer in normal document flow. On small screens,
+   reserve enough scroll space so the fixed floating nav never
+   covers the footer's last content.
+   ========================================================= */
+@media (max-width: 600px) {
+    body {
+        padding-bottom: 96px !important;
+    }
+
+    /* Inner pages/modals already use their own navigation spacing. */
+    body.studentkart-modal-navigation-hidden {
+        padding-bottom: 96px !important;
+    }
+}
