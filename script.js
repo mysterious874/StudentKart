@@ -42,6 +42,27 @@ let productsRealtimeChannel = null;
 let toastTimer = null;
 
 
+
+/* =========================================================
+   STUDENTKART APP INTRO / SPLASH
+   ========================================================= */
+const STUDENTKART_SPLASH_DURATION = 1450;
+
+function finishStudentKartSplash() {
+    const splash = $("studentKartSplash");
+    if (!splash || splash.classList.contains("is-leaving")) return;
+
+    splash.classList.add("is-leaving");
+    window.setTimeout(() => splash.remove(), 500);
+}
+
+function startStudentKartSplash() {
+    const splash = $("studentKartSplash");
+    if (!splash) return;
+
+    window.setTimeout(finishStudentKartSplash, STUDENTKART_SPLASH_DURATION);
+}
+
 /* =========================================================
    BASIC HELPERS
    ========================================================= */
@@ -7814,6 +7835,8 @@ function openSignupFromNewUserGate() {
    ========================================================= */
 
 async function initializeStudentKart() {
+
+    startStudentKartSplash();
 
     try {
 
