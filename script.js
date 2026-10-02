@@ -11620,6 +11620,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     modalObserver.observe(document.body, {
         childList: true,
+        characterData: true,
+        attributes: true,
+        attributeFilter: ["placeholder", "title", "aria-label"],
         subtree: true
     });
 });
@@ -12444,6 +12447,7 @@ function skTranslate(value, language) {
 
 const studentKartLanguageTextOriginals = new WeakMap();
 const studentKartLanguageAttributeOriginals = new WeakMap();
+const studentKartLanguageLastApplied = new WeakMap();
 let studentKartLanguageObserver = null;
 let studentKartLanguageApplying = false;
 
@@ -12527,6 +12531,7 @@ function applyStudentKartLanguage(root = document) {
             if (node.nodeValue !== nextValue) {
                 node.nodeValue = nextValue;
             }
+            studentKartLanguageLastApplied.set(node, nextValue);
             return;
         }
 
@@ -12571,6 +12576,20 @@ function startStudentKartLanguageObserver() {
         if (!STUDENTKART_LANGUAGES[settings.preferences.language]) return;
 
         for (const mutation of mutations) {
+            if (mutation.type === "characterData") {
+                const node = mutation.target;
+                if (node && node.nodeType === Node.TEXT_NODE) {
+                    if (studentKartLanguageLastApplied.get(node) === node.nodeValue) continue;
+                    applyStudentKartLanguage(node);
+                }
+                continue;
+            }
+
+            if (mutation.type === "attributes") {
+                applyStudentKartLanguage(mutation.target);
+                continue;
+            }
+
             mutation.addedNodes.forEach(node => {
                 if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.TEXT_NODE) {
                     applyStudentKartLanguage(node);
