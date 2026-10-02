@@ -9445,13 +9445,13 @@ async function loadChatMessages() {
             if (reply) {
                 const quoted = reply.replyTo || {};
                 const quotedText = quoted.text || (quoted.mediaType === "video" ? "Video" : quoted.mediaType === "image" ? "Photo" : "Message");
-                replyHtml = '<div class="chat-quoted-message" data-reply-to-id="' + escapeHtml(String(quoted.id || "")) + '" role="button" tabindex="0"><span class="chat-quoted-line"></span><div class="chat-quoted-content"><strong>Replying to</strong><span>' + escapeHtml(quotedText).slice(0, 180) + '</span></div></div>';
+                replyHtml = '<div class="chat-quoted-message" data-reply-to-id="' + escapeHTML(String(quoted.id || "")) + '" role="button" tabindex="0"><span class="chat-quoted-line"></span><div class="chat-quoted-content"><strong>Replying to</strong><span>' + escapeHTML(quotedText).slice(0, 180) + '</span></div></div>';
             }
 
             if (image) {
-                const safeUrl = escapeHtml(image.url);
+                const safeUrl = escapeHTML(image.url);
                 const caption = image.caption
-                    ? `<div class="chat-image-caption">${escapeHtml(image.caption)}</div>`
+                    ? `<div class="chat-image-caption">${escapeHTML(image.caption)}</div>`
                     : "";
 
                 if (image.mediaType === "video") {
@@ -9473,13 +9473,13 @@ async function loadChatMessages() {
                     `;
                 }
             } else {
-                content = `<div class="chat-message-bubble">${escapeHtml(actualMessage)}</div>`;
+                content = `<div class="chat-message-bubble">${escapeHTML(actualMessage)}</div>`;
             }
 
             return `
                 <div class="chat-message ${isMine ? "chat-message-own sent" : "chat-message-other received"}"
-                     data-message-id="${escapeHtml(String(message.id))}"
-                     data-sender-id="${escapeHtml(String(message.sender_id || ""))}"
+                     data-message-id="${escapeHTML(String(message.id))}"
+                     data-sender-id="${escapeHTML(String(message.sender_id || ""))}"
                      data-message-type="${image ? image.mediaType : "text"}">
                     <span class="chat-message-selection-check" aria-hidden="true"><i class="fas fa-check"></i></span>
                     ${replyHtml}
@@ -9637,7 +9637,7 @@ function showChatUploadStatus(text, isVideo = false) {
                 <i class="fas ${isVideo ? "fa-video" : "fa-image"}"></i>
             </div>
             <div class="chat-upload-info">
-                <strong>${escapeHtml(text)}</strong>
+                <strong>${escapeHTML(text)}</strong>
                 <span>Sending securely…</span>
                 <div class="chat-upload-progress"><span></span></div>
             </div>
@@ -10022,39 +10022,6 @@ function formatChatTime(dateString) {
     );
 }
 
-
-function escapeHtml(value) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent =
-        value ?? "";
-
-    return div.innerHTML;
-}
-
-
-// Chat form
-$("chatForm")?.addEventListener(
-    "submit",
-    sendChatMessage
-);
-
-$("chatInput")?.addEventListener("keydown", event => {
-    if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
-
-    event.preventDefault();
-
-    const form = $("chatForm");
-    if (!form) return;
-
-    if (typeof form.requestSubmit === "function") {
-        form.requestSubmit();
-    } else {
-        sendChatMessage(event);
-    }
-});
 
 function closeChatAttachmentMenu() {
     const menu = $("chatAttachmentMenu");
@@ -11798,37 +11765,6 @@ function studentKartBottomNavPrepare(modalId) {
     void content.offsetWidth;
 
     return true;
-}
-
-function studentKartBottomNavOpen(modalId, sourceButtonId = "") {
-    const modal = $(modalId);
-    if (!modal) return;
-
-    const content = modal.querySelector(".modal-content");
-    if (!content) return;
-
-    const source = sourceButtonId ? $(sourceButtonId) : null;
-
-    if (source) {
-        source.classList.remove("studentkart-nav-launching");
-        void source.offsetWidth;
-        source.classList.add("studentkart-nav-launching");
-        window.setTimeout(() => source.classList.remove("studentkart-nav-launching"), 520);
-    }
-
-    // The modal is now visible with the default animation already disabled.
-    // Start the macOS-style animation on the next frame, so there is no
-    // default-animation flash.
-    requestAnimationFrame(() => {
-        modal.classList.add("studentkart-bottom-nav-opening");
-        void modal.offsetWidth;
-
-        window.setTimeout(() => {
-            modal.classList.remove("studentkart-bottom-nav-opening");
-            content.style.animation = "";
-            modal.style.animation = "";
-        }, 620);
-    });
 }
 
 function studentKartBottomNavOpen(modalId, sourceButtonId = "") {
