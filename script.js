@@ -2084,6 +2084,21 @@ async function openProductDetails(productId) {
             profileButton.disabled =
                 false;
 
+            // Bind directly to the current listing so the button
+            // always opens the correct seller profile.
+            profileButton.onclick = event => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (!currentProduct?.userId) {
+                    return;
+                }
+
+                void openSellerProfile(
+                    currentProduct.userId
+                );
+            };
+
         } else {
 
             profileButton.classList.add(
@@ -2092,6 +2107,8 @@ async function openProductDetails(productId) {
 
             profileButton.disabled =
                 true;
+
+            profileButton.onclick = null;
         }
     }
 
