@@ -18219,3 +18219,22 @@ body #profileModal:not(.hidden) .profile-header p {
         text-align: center !important;
     }
 }
+
+/* PROFILE INFO CENTER ALIGNMENT */
+body #profileModal:not(.hidden) .profile-info {
+    text-align: center !important;
+}
+
+body #profileModal:not(.hidden) .profile-info-row {
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+body #profileModal:not(.hidden) .profile-info-row > div {
+    text-align: center !important;
+}
+
+body #profileModal:not(.hidden) .profile-info-row small,
+body #profileModal:not(.hidden) .profile-info-row span {
+    text-align: center !important;
+}
