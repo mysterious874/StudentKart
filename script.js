@@ -9089,13 +9089,10 @@ function showChatImageSelection(file) {
         return;
     }
 
-    /*
-     * WhatsApp-style chat flow:
-     * Do not render the selected media as a separate preview above
-     * the composer. The actual upload/sending state is rendered as
-     * a message bubble inside chatMessages when the user sends it.
-     */
-    $("chatImagePreview")?.classList.add("hidden");
+    // Keep the selected media preview visible above the composer.
+    // It is cleared immediately after Send/upload succeeds.
+    const preview = $("chatImagePreview");
+    if (preview) preview.classList.remove("hidden");
 }
 
 function clearChatReplyPreview() {
