@@ -20854,8 +20854,11 @@ body.category-page-active .category-page-container {
   }
 }
 
-
-/* DEFINITIVE ANDROID TOP NAVBAR LOCK */
+ /* =========================================================
+    STUDENTKART MOBILE LAYOUT — FINAL AUTHORITATIVE RULES
+    Keep the top navbar visible, keep bottom navigation above
+    the app, and position the homepage hero consistently.
+    ========================================================= */
 @media screen and (max-width:600px){
   html body > header.navbar,
   html body > header.navbar.navbar-scroll-hidden{
@@ -20867,11 +20870,11 @@ body.category-page-active .category-page-container {
     left:0 !important;
     inset:0 0 auto 0 !important;
     width:100% !important;
-    height:92px !important;
-    min-height:92px !important;
-    max-height:92px !important;
+    height:64px !important;
+    min-height:64px !important;
+    max-height:64px !important;
     margin:0 !important;
-    padding:10px 0 0 !important;
+    padding:0 !important;
     transform:none !important;
     opacity:1 !important;
     visibility:visible !important;
@@ -20880,85 +20883,35 @@ body.category-page-active .category-page-container {
     z-index:2147483000 !important;
     transition:none !important;
   }
+
   html body > header.navbar > .nav-container{
     position:relative !important;
+    display:flex !important;
     width:calc(100vw - 28px) !important;
-    height:78px !important;
-    min-height:78px !important;
-    max-height:78px !important;
+    height:64px !important;
+    min-height:64px !important;
+    max-height:64px !important;
     margin:0 auto !important;
-    transform:none !important;
-  }
-  html body > .mobile-bottom-nav{
-    z-index:2147483001 !important;
-  }
-  html body{
-    padding-top:92px !important;
-  }
-}
-
-/* NAVBAR HEIGHT / VERTICAL POSITION TUNING */
-@media screen and (max-width:600px){
-  html body > header.navbar,
-  html body > header.navbar.navbar-scroll-hidden{
-    height:72px !important;
-    min-height:72px !important;
-    max-height:72px !important;
-    padding:4px 0 0 !important;
-  }
-  html body > header.navbar > .nav-container{
-    height:64px !important;
-    min-height:64px !important;
-    max-height:64px !important;
-  }
-  html body{
-    padding-top:72px !important;
-  }
-}
-
-
-/* MOBILE NAV CONTENT — MOVE THE ACTUAL NAV ITEMS UP */
-@media screen and (max-width:600px){
-  html body > header.navbar,
-  html body > header.navbar.navbar-scroll-hidden{
-    height:64px !important;
-    min-height:64px !important;
-    max-height:64px !important;
-    padding:0 !important;
-  }
-
-  html body > header.navbar > .nav-container{
-    height:64px !important;
-    min-height:64px !important;
-    max-height:64px !important;
     padding:6px 12px !important;
     align-items:center !important;
-    transform:translateY(-5px) !important;
+    transform:none !important;
   }
 
   html body{
     padding-top:64px !important;
   }
-}
 
-
-/* MOBILE NAV CONTENT — FINAL 20PX UPWARD POSITION */
-@media screen and (max-width:600px){
-  html body > header.navbar > .nav-container{
-    transform:translateY(-20px) !important;
+  html body > .mobile-bottom-nav{
+    z-index:2147483001 !important;
   }
-}
 
-
-/* MOBILE NAV CONTENT — MOVE 50PX UP */
-@media screen and (max-width:600px){
-  html body > header.navbar > .nav-container{
+  html body > .hero{
     transform:translateY(-50px) !important;
+    margin-bottom:-50px !important;
   }
 }
 
-
-/* SPLASH SCREEN — keep mobile floating navigation completely hidden */
+/* Splash must always cover/hide the floating mobile navigation. */
 body.studentkart-splash-active > .mobile-bottom-nav,
 body.studentkart-splash-leaving > .mobile-bottom-nav,
 body:has(> #studentKartSplash) > .mobile-bottom-nav{
@@ -20966,13 +20919,4 @@ body:has(> #studentKartSplash) > .mobile-bottom-nav{
   visibility:hidden !important;
   opacity:0 !important;
   pointer-events:none !important;
-}
-
-
-/* MOBILE HERO — MOVE HERO SECTION 50PX UP */
-@media screen and (max-width:600px){
-  html body > .hero{
-    transform:translateY(-50px) !important;
-    margin-bottom:-50px !important;
-  }
 }
