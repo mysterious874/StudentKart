@@ -14586,3 +14586,30 @@ body:has(#chatMessageSelectionHeader:not(.hidden)) #chatModal .chat-head {
 body:has(#chatMessageSelectionHeader:not(.hidden)) #chatModal .chat-message-selection-header {
     display: flex !important;
 }
+
+
+/* WhatsApp-style swipe-to-reply feedback */
+body #chatModal .chat-message {
+    touch-action: pan-y;
+    transition: transform .16s ease;
+}
+body #chatModal .chat-message.chat-swipe-reply {
+    transform: translateX(58px) !important;
+}
+body #chatModal .chat-message.chat-swipe-reply::before {
+    content: "\\f3e5";
+    position: absolute;
+    left: -34px;
+    top: 50%;
+    width: 28px;
+    height: 28px;
+    margin-top: -14px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #e7f6f5;
+    color: #0f8b8d;
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 13px;
+}
