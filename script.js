@@ -8644,6 +8644,11 @@ async function sendChatMessage(event) {
             );
         }
 
+        // Wrap the outgoing message with reply metadata only after media/text content is ready.
+        if (chatReplyTarget) {
+            messageToSend = createChatReplyMessage(messageToSend, chatReplyTarget);
+        }
+
         const { error } = await supabaseClient
             .from("messages")
             .insert({
