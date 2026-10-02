@@ -14325,3 +14325,38 @@ body #chatModal #chatLikeButton.chat-send-button i {
     font-size: 15px !important;
     color: #fff !important;
 }
+
+
+/* Mobile chat unread badge */
+.bottom-nav-icon-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.bottom-chat-unread-count {
+    position: absolute !important;
+    top: -9px !important;
+    right: -13px !important;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 800;
+    color: #fff;
+    background: #ef4444;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,.18);
+    z-index: 3;
+}
+
+.bottom-chat-unread-count.hidden {
+    display: none !important;
+}
