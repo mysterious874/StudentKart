@@ -7759,7 +7759,7 @@ function closeChatDeleteMenu() {
     }
 }
 
-async async function openChat(inquiry) {
+async function openChat(inquiry) {
 
     if (!currentUser) {
         openModal("loginModal");
