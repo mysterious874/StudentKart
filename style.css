@@ -18338,3 +18338,24 @@ body .modal.studentkart-bottom-nav-opening .modal-content {
     animation: studentKartNavLaunchPulse .5s cubic-bezier(.16,.82,.18,1) both !important;
     will-change: transform;
 }
+
+
+/* =========================================================
+   STUDENTKART - SETTINGS BOTTOM NAV OPENING FIX
+   Prevent the generic modalOpen animation from painting even
+   for one frame before the macOS-style bottom-nav animation.
+   ========================================================= */
+body #settingsModal .modal-content {
+    animation: none !important;
+}
+
+body #settingsModal.modal.studentkart-bottom-nav-opening {
+    animation: none !important;
+    background: rgba(12, 18, 14, 0.62) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+}
+
+body #settingsModal.modal.studentkart-bottom-nav-opening .modal-content {
+    animation: studentKartMacOpen 0.52s cubic-bezier(.16,.82,.18,1) both !important;
+}
