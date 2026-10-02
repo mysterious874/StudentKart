@@ -15096,3 +15096,67 @@ html body.studentkart-product-details-open{
     padding-top:0!important;
     padding-bottom:0!important;
 }
+
+
+/* PRODUCT IMAGE LONG-PRESS PREVIEW */
+.product-image-preview-modal{
+    position:fixed!important;
+    inset:0!important;
+    z-index:100000!important;
+    display:grid!important;
+    place-items:center!important;
+    padding:20px!important;
+    background:rgba(7,12,18,.82)!important;
+    backdrop-filter:blur(10px)!important;
+}
+.product-image-preview-modal.hidden{display:none!important}
+.product-image-preview-backdrop{
+    position:absolute!important;
+    inset:0!important;
+}
+.product-image-preview-dialog{
+    position:relative!important;
+    z-index:1!important;
+    width:min(960px,94vw)!important;
+    height:min(780px,90vh)!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border-radius:20px!important;
+    overflow:hidden!important;
+    background:#111820!important;
+    box-shadow:0 30px 90px rgba(0,0,0,.42)!important;
+}
+.product-image-preview-dialog img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    display:block!important;
+    background:#111820!important;
+}
+.product-image-preview-close{
+    position:absolute!important;
+    top:14px!important;
+    right:14px!important;
+    z-index:2!important;
+    width:42px!important;
+    height:42px!important;
+    border:1px solid rgba(255,255,255,.25)!important;
+    border-radius:50%!important;
+    display:grid!important;
+    place-items:center!important;
+    background:rgba(0,0,0,.55)!important;
+    color:#fff!important;
+    cursor:pointer!important;
+    font-size:18px!important;
+}
+body.product-image-preview-open{overflow:hidden!important}
+@media(max-width:600px){
+    .product-image-preview-modal{padding:0!important}
+    .product-image-preview-dialog{
+        width:100vw!important;
+        height:100dvh!important;
+        border-radius:0!important;
+    }
+    .product-image-preview-close{top:16px!important;right:16px!important}
+}
