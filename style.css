@@ -17133,6 +17133,35 @@ main,
 }
 
 
+/* Center seller profile identity on every screen */
+body #sellerProfileModal .seller-profile-header {
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+    text-align: center !important;
+    padding: 42px 24px 24px !important;
+}
+
+body #sellerProfileModal .seller-profile-avatar {
+    margin: 0 auto !important;
+}
+
+body #sellerProfileModal .seller-profile-main {
+    width: 100% !important;
+    text-align: center !important;
+}
+
+body #sellerProfileModal .seller-profile-main .section-label {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+body #sellerProfileModal .seller-profile-main h2,
+body #sellerProfileModal .seller-profile-main p {
+    text-align: center !important;
+}
+
 /* Seller profile contact actions */
 body #sellerProfileModal .seller-profile-actions {
     display: flex !important;
