@@ -16553,3 +16553,27 @@ body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) .mobil
     .footer-actions { grid-column:1 / -1; justify-content:flex-start; }
     .footer-bottom { width:min(100% - 30px,1180px); flex-direction:column; align-items:flex-start; gap:5px; margin-top:28px; }
 }
+
+
+/* =========================================================
+   FOOTER END-OF-PAGE STABILITY
+   Keep the footer in normal document flow so it never jumps,
+   lifts, or shifts when the user reaches the very bottom.
+   ========================================================= */
+html, body {
+    min-height: 100%;
+}
+body {
+    overflow-x: hidden;
+}
+.footer {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    margin-top: 0 !important;
+    flex-shrink: 0;
+}
+.footer-container,
+.footer-bottom {
+    transform: none !important;
+}
