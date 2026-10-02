@@ -7399,11 +7399,30 @@ function parseChatImageMessage(value) {
     }
 }
 
-function createChatImageMessage(url, caption = "") {
-    return "__STUDENTKART_IMAGE__" + JSON.stringify({
+function createChatImageMessage(url, caption = "", mediaType = "image") {
+    return "__STUDENTKART_MEDIA__" + JSON.stringify({
         url,
-        caption: String(caption || "").slice(0, 1000)
+        caption: String(caption || "").slice(0, 1000),
+        mediaType: mediaType === "video" ? "video" : "image"
     });
+}
+
+function parseChatMediaMessage(value) {
+    const raw = String(value || "");
+    const prefixes = ["__STUDENTKART_MEDIA__", "__STUDENTKART_IMAGE__"];
+    const prefix = prefixes.find(item => raw.startsWith(item));
+    if (!prefix) return null;
+    try {
+        const data = JSON.parse(raw.slice(prefix.length));
+        if (!data?.url) return null;
+        return {
+            url: data.url,
+            caption: data.caption || "",
+            mediaType: data.mediaType === "video" ? "video" : "image"
+        };
+    } catch {
+        return null;
+    }
 }
 
 async function loadChatMessages() {
@@ -7436,7 +7455,7 @@ async function loadChatMessages() {
 
         container.innerHTML = data.map(message => {
             const isMine = message.sender_id === currentUser.id;
-            const image = parseChatImageMessage(message.message);
+            const image = parseChatMediaMessage(message.message);
 
             let content = "";
 
@@ -7446,14 +7465,24 @@ async function loadChatMessages() {
                     ? `<div class="chat-image-caption">${escapeHtml(image.caption)}</div>`
                     : "";
 
-                content = `
-                    <img class="chat-message-image"
-                         src="${safeUrl}"
-                         alt="Shared photo"
-                         loading="lazy"
-                         data-chat-image="${safeUrl}">
-                    ${caption}
-                `;
+                if (image.mediaType === "video") {
+                    content = `
+                        <video class="chat-message-video" controls playsinline preload="metadata">
+                            <source src="${safeUrl}">
+                            Your browser does not support video playback.
+                        </video>
+                        ${caption}
+                    `;
+                } else {
+                    content = `
+                        <img class="chat-message-image"
+                             src="${safeUrl}"
+                             alt="Shared photo"
+                             loading="lazy"
+                             data-chat-image="${safeUrl}">
+                        ${caption}
+                    `;
+                }
             } else {
                 content = `<div class="chat-message-bubble">${escapeHtml(message.message)}</div>`;
             }
@@ -7462,7 +7491,7 @@ async function loadChatMessages() {
                 <div class="chat-message ${isMine ? "chat-message-own sent" : "chat-message-other received"}"
                      data-message-id="${escapeHtml(String(message.id))}"
                      data-sender-id="${escapeHtml(String(message.sender_id || ""))}"
-                     data-message-type="${image ? "image" : "text"}">
+                     data-message-type="${image ? image.mediaType : "text"}">
                     ${content}
                     <small class="chat-message-time">
                         ${formatChatTime(message.created_at)}
@@ -7521,20 +7550,33 @@ async function sendChatMessage(event) {
         let messageToSend = message;
 
         if (selectedFile) {
-            if (!selectedFile.type.startsWith("image/")) {
-                throw new Error("Please select an image file.");
+            const isImage = selectedFile.type.startsWith("image/");
+            const isVideo = selectedFile.type.startsWith("video/");
+
+            if (!isImage && !isVideo) {
+                throw new Error("Please select an image or video.");
             }
 
-            if (selectedFile.size > 8 * 1024 * 1024) {
-                throw new Error("Image must be 8 MB or smaller.");
+            const maxSize = isVideo
+                ? 50 * 1024 * 1024
+                : 8 * 1024 * 1024;
+
+            if (selectedFile.size > maxSize) {
+                throw new Error(isVideo
+                    ? "Video must be 50 MB or smaller."
+                    : "Image must be 8 MB or smaller.");
             }
 
-            showToast("Uploading photo…", "success");
+            showToast(isVideo ? "Uploading video…" : "Uploading photo…", "success");
             const imageUrl = await uploadProductImage(selectedFile);
 
-            if (!imageUrl) throw new Error("Could not upload photo.");
+            if (!imageUrl) throw new Error("Could not upload media.");
 
-            messageToSend = createChatImageMessage(imageUrl, message);
+            messageToSend = createChatImageMessage(
+                imageUrl,
+                message,
+                isVideo ? "video" : "image"
+            );
         }
 
         const { error } = await supabaseClient
@@ -7578,16 +7620,27 @@ function clearChatImageSelection() {
     preview?.classList.add("hidden");
 }
 
+function isVideoPreviewFile(file) {
+    return Boolean(file?.type?.startsWith("video/"));
+}
+
 function showChatImageSelection(file) {
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-        showToast("Please select an image", "warning");
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
+
+    if (!isImage && !isVideo) {
+        showToast("Please select an image or video", "warning");
         return;
     }
 
-    if (file.size > 8 * 1024 * 1024) {
-        showToast("Image must be 8 MB or smaller", "warning");
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 8 * 1024 * 1024;
+    if (file.size > maxSize) {
+        showToast(
+            isVideo ? "Video must be 50 MB or smaller" : "Image must be 8 MB or smaller",
+            "warning"
+        );
         clearChatImageSelection();
         return;
     }
@@ -7600,8 +7653,21 @@ function showChatImageSelection(file) {
 
     const url = URL.createObjectURL(file);
     image.onload = () => URL.revokeObjectURL(url);
-    image.src = url;
-    if (name) name.textContent = file.name;
+    image.src = isVideoPreviewFile(file) ? "" : url;
+    if (isVideoPreviewFile(file)) {
+        image.style.display = "none";
+        const video = document.createElement("video");
+        video.src = url;
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = "metadata";
+        video.style.cssText = "width:100%;height:100%;object-fit:cover;border-radius:8px;display:block";
+        video.id = "chatImagePreviewVideo";
+        $("chatImagePreviewImg")?.replaceWith(video);
+    } else {
+        image.style.display = "block";
+    }
+    if (name) name.textContent = (isVideoPreviewFile(file) ? "🎬 " : "🖼️ ") + file.name;
     preview.classList.remove("hidden");
 }
 
