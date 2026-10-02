@@ -18653,3 +18653,59 @@ body.studentkart-dark .how-info-intro p {
         height: 40px;
     }
 }
+
+
+/* =========================================================
+   GLOBAL PAGE LAYER CLEANUP
+   When an inner page/modal is open, the main site navbar and
+   global overlays must never sit above the new page.
+   ========================================================= */
+
+/* Inner pages own their header. Never let the main sticky navbar
+   remain visible over them. */
+body.category-page-active > .navbar,
+body.studentkart-modal-navigation-hidden > .navbar {
+    display: none !important;
+}
+
+/* The navbar search is global UI, not part of an inner page.
+   Hide it whenever another page/modal takes over the screen. */
+body.category-page-active .navbar-search-panel,
+body.studentkart-modal-navigation-hidden .navbar-search-panel {
+    display: none !important;
+}
+
+/* Realtime notification bubbles must not float over a newly opened
+   full-screen page/modal. */
+body.category-page-active #notificationPopup,
+body.studentkart-modal-navigation-hidden #notificationPopup {
+    display: none !important;
+}
+
+/* The category page header is the only top header allowed while
+   browsing a category. */
+body.category-page-active .category-page-navbar {
+    z-index: 3000 !important;
+}
+
+/* Keep modal content above all ordinary page chrome. */
+body.studentkart-modal-navigation-hidden .modal {
+    z-index: 20000 !important;
+}
+
+/* A modal's own header belongs to that modal, never the underlying page. */
+body.studentkart-modal-navigation-hidden .modal:not(.hidden) > .modal-content > .modal-header,
+body.studentkart-modal-navigation-hidden .modal:not(.hidden) > .modal-content > .auth-header,
+body.studentkart-modal-navigation-hidden .modal:not(.hidden) .profile-header,
+body.studentkart-modal-navigation-hidden .modal:not(.hidden) .seller-profile-header,
+body.studentkart-modal-navigation-hidden .modal:not(.hidden) .wishlist-page-header,
+body.studentkart-modal-navigation-hidden #chatModal:not(.hidden) .chat-head,
+body.studentkart-modal-navigation-hidden #inquiriesModal:not(.hidden) .inquiries-whatsapp-header {
+    z-index: 20010 !important;
+}
+
+/* On inner pages the floating bottom navigation remains available,
+   but it must never cover a modal's content area. */
+body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
+    z-index: 19990 !important;
+}
