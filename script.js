@@ -287,6 +287,19 @@ function openModal(id, options = {}) {
             ".modal:not(.hidden)"
         );
 
+    // Never create duplicate browser-history entries when the same modal is
+    // already the active destination. Duplicate entries are what make Android
+    // Back appear to require two taps.
+    if (
+        !options.fromPopState &&
+        !studentKartHandlingPopState &&
+        window.history.state?.studentKart === true &&
+        window.history.state?.modalId === id &&
+        currentModal?.id === id
+    ) {
+        return;
+    }
+
     // If another modal is in the middle of its close animation, cancel that
     // animation and treat it as the real parent of the new modal. This keeps
     // modal navigation/history in the same order the user sees on screen.
@@ -6683,11 +6696,31 @@ document.addEventListener("click", event => {
                         ".modal"
                     );
 
-                if (modal) {
-                    closeModal(
-                        modal.id
-                    );
+                if (!modal) {
+                    return;
                 }
+
+                /*
+                 * User-facing modal Back/Close must move the browser history
+                 * backwards instead of replacing the current entry. Replacing
+                 * it leaves the previous copy of the same modal underneath,
+                 * which makes Android Back require two taps.
+                 *
+                 * popstate then restores the exact previous screen instantly.
+                 */
+                const activeModalId = window.history.state?.studentKart === true
+                    ? window.history.state?.modalId
+                    : null;
+
+                if (
+                    activeModalId === modal.id &&
+                    window.history.length > 1
+                ) {
+                    window.history.back();
+                    return;
+                }
+
+                closeModal(modal.id);
             }
         }
     );
