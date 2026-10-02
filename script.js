@@ -561,6 +561,12 @@ window.addEventListener("popstate", event => {
         return;
     }
 
+    if (transientPopupId === "chatImageViewer") {
+        const viewer = document.querySelector(".chat-image-viewer");
+        viewer?.remove();
+        return;
+    }
+
     const state = event.state;
 
     if (state?.studentKart === true) {
@@ -9891,16 +9897,43 @@ document.addEventListener("click", event => {
 $("chatMessages")?.addEventListener("click", event => {
     const image = event.target.closest("[data-chat-image]");
     if (!image) return;
+
     const url = image.getAttribute("data-chat-image");
     if (!url) return;
+
     const viewer = document.createElement("div");
     viewer.className = "chat-image-viewer";
     viewer.innerHTML = '<button type="button" aria-label="Close"><i class="fas fa-xmark"></i></button><img alt="Shared photo">';
     viewer.querySelector("img").src = url;
     document.body.appendChild(viewer);
-    const close = () => viewer.remove();
+
+    // This viewer is outside the normal .modal stack, so give it exactly
+    // one temporary history entry. Android/browser Back now closes only the
+    // photo preview and does not navigate away from the chat.
+    if (window.history.state?.studentKartPopup !== "chatImageViewer") {
+        window.history.pushState(
+            {
+                ...(window.history.state || {}),
+                studentKart: true,
+                studentKartPopup: "chatImageViewer"
+            },
+            "",
+            window.location.href
+        );
+    }
+
+    const close = () => {
+        if (window.history.state?.studentKartPopup === "chatImageViewer") {
+            window.history.back();
+        } else {
+            viewer.remove();
+        }
+    };
+
     viewer.addEventListener("click", event => {
-        if (event.target === viewer || event.target.closest("button")) close();
+        if (event.target === viewer || event.target.closest("button")) {
+            close();
+        }
     });
 });
 
