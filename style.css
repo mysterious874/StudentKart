@@ -1,9 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-/* =========================================================
-   STUDENTKART
-   Clean Student Marketplace UI
-   ========================================================= */
+/* StudentKart styles */
 
 :root {
     --bg: #f3f7f8;
@@ -43,9 +40,7 @@
 }
 
 
-/* =========================================================
-   RESET
-   ========================================================= */
+/* RESET */
 
 * {
     margin: 0;
@@ -104,9 +99,7 @@ a {
 }
 
 
-/* =========================================================
-   NAVBAR
-   ========================================================= */
+/* NAVBAR */
 
 .navbar {
     position: sticky;
@@ -135,9 +128,7 @@ a {
 }
 
 
-/* =========================================================
-   STUDENTKART LOGO
-   ========================================================= */
+/* STUDENTKART LOGO */
 
 .logo {
     display: flex;
@@ -210,9 +201,7 @@ a {
     color: #ffffff;
 }
 
-/* =========================================================
-   NAV LINKS
-   ========================================================= */
+/* NAV LINKS */
 
 .nav-links {
     display: flex;
@@ -247,9 +236,7 @@ a {
 }
 
 
-/* =========================================================
-   BUTTONS
-   ========================================================= */
+/* BUTTONS */
 
 .btn {
     display: inline-flex;
@@ -336,9 +323,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   HERO
-   ========================================================= */
+/* HERO */
 
 .hero {
     position: relative;
@@ -543,9 +528,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   HERO SIDE CARD
-   ========================================================= */
+/* HERO SIDE CARD */
 
 .hero-side {
     display: flex;
@@ -648,9 +631,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   STATS
-   ========================================================= */
+/* STATS */
 
 .stats-section {
     background: #f1f6f7;
@@ -742,9 +723,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   COMMON SECTION
-   ========================================================= */
+/* COMMON SECTION */
 
 .section {
     width: min(1180px, calc(100% - 40px));
@@ -790,9 +769,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   CATEGORIES
-   ========================================================= */
+/* CATEGORIES */
 
 #categories {
     background: transparent;
@@ -927,9 +904,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   MARKETPLACE
-   ========================================================= */
+/* MARKETPLACE */
 
 .marketplace-section {
     width: 100%;
@@ -1051,9 +1026,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   PRODUCTS
-   ========================================================= */
+/* PRODUCTS */
 
 .products-grid,
 #productContainer {
@@ -1092,10 +1065,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   CURRENT PRODUCT MARKUP COMPATIBILITY
-   The JS renderer uses these classes.
-   ========================================================= */
+/* CURRENT PRODUCT MARKUP COMPATIBILITY The JS renderer uses these classes. */
 
 .product-image-wrap {
     position: relative;
@@ -1545,9 +1515,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   EMPTY / LOADING / ERROR
-   ========================================================= */
+/* EMPTY / LOADING / ERROR */
 
 .empty-state,
 .loading-state,
@@ -1606,9 +1574,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   HOW IT WORKS
-   ========================================================= */
+/* HOW IT WORKS */
 
 .how-section {
     background: transparent;
@@ -1680,9 +1646,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   CTA
-   ========================================================= */
+/* CTA */
 
 .cta-section {
     width: min(1180px, calc(100% - 40px));
@@ -1767,9 +1731,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   FOOTER
-   ========================================================= */
+/* FOOTER */
 
 .footer {
     background: var(--nav);
@@ -1855,9 +1817,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   MODALS
-   ========================================================= */
+/* MODALS */
 
 .modal {
     position: fixed;
@@ -1987,9 +1947,7 @@ button:disabled {
 }
 
 
-/* =========================================================
-   FORMS
-   ========================================================= */
+/* FORMS */
 
 .form-group {
     margin-bottom: 15px;
@@ -2094,9 +2052,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   AUTH
-   ========================================================= */
+/* AUTH */
 
 .auth-modal {
     width: min(440px, 100%);
@@ -2247,9 +2203,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   PRODUCT DETAILS
-   ========================================================= */
+/* PRODUCT DETAILS */
 
 .product-details-modal {
     width: min(900px, 100%);
@@ -2406,9 +2360,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   INQUIRIES
-   ========================================================= */
+/* INQUIRIES */
 
 .inquiry-product-summary {
     margin: 18px 24px 0;
@@ -2536,9 +2488,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   PROFILE
-   ========================================================= */
+/* PROFILE */
 
 .profile-header {
     text-align: center;
@@ -2664,9 +2614,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   EDIT PROFILE
-   ========================================================= */
+/* EDIT PROFILE */
 
 .edit-avatar-section {
     display: flex;
@@ -2689,9 +2637,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   MY LISTINGS
-   ========================================================= */
+/* MY LISTINGS */
 
 #myListingsContainer {
     padding: 20px 24px 24px;
@@ -2703,9 +2649,7 @@ input[type="file"] {
 
 
 
-/* =========================================================
-   MY LISTINGS - MODERN 2 COLUMN APP GRID
-   ========================================================= */
+/* MY LISTINGS - MODERN 2 COLUMN APP GRID */
 
 #myListingsModal .modal-content {
     background:
@@ -2828,9 +2772,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   TOAST
-   ========================================================= */
+/* TOAST */
 
 .toast {
     position: fixed;
@@ -2898,9 +2840,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   SCROLLBAR
-   ========================================================= */
+/* SCROLLBAR */
 
 ::-webkit-scrollbar {
     width: 8px;
@@ -2921,9 +2861,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   SELECTION
-   ========================================================= */
+/* SELECTION */
 
 ::selection {
     background: #c7e7e7;
@@ -2931,9 +2869,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   RESPONSIVE — 1050px
-   ========================================================= */
+/* RESPONSIVE — 1050px */
 
 @media (max-width: 1050px) {
 
@@ -2959,9 +2895,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   RESPONSIVE — 850px
-   ========================================================= */
+/* RESPONSIVE — 850px */
 
 @media (max-width: 850px) {
 
@@ -3027,9 +2961,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   RESPONSIVE — 750px
-   ========================================================= */
+/* RESPONSIVE — 750px */
 
 @media (max-width: 750px) {
 
@@ -3056,9 +2988,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   RESPONSIVE — 600px
-   ========================================================= */
+/* RESPONSIVE — 600px */
 
 @media (max-width: 600px) {
 
@@ -3242,9 +3172,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   RESPONSIVE — 380px
-   ========================================================= */
+/* RESPONSIVE — 380px */
 
 @media (max-width: 380px) {
 
@@ -3302,9 +3230,7 @@ input[type="file"] {
     }
 }
 
-/* =========================
-   WISHLIST NAVBAR
-========================= */
+/* WISHLIST NAVBAR */
 
 .nav-wishlist-button {
     position: relative;
@@ -3345,9 +3271,7 @@ input[type="file"] {
 }
 
 
-/* =========================
-   WISHLIST MODAL
-========================= */
+/* WISHLIST MODAL */
 
 .wishlist-modal-content {
     width: min(900px, 94vw);
@@ -3470,9 +3394,7 @@ input[type="file"] {
 }
 
 
-/* =========================
-   MOBILE
-========================= */
+/* MOBILE */
 
 @media (max-width: 700px) {
 
@@ -3507,9 +3429,7 @@ input[type="file"] {
     .product-image-wrap { height: 220px; }
 }
 
-/* =========================================================
-   WISHLIST POLISH
-   ========================================================= */
+/* WISHLIST POLISH */
 .wishlist-modal-content{
     width:min(960px,94vw);
     max-height:88vh;
@@ -3645,9 +3565,7 @@ input[type="file"] {
     }
     
 }
-/* =========================================
-   REALTIME NOTIFICATION POPUP
-   ========================================= */
+/* REALTIME NOTIFICATION POPUP */
 
 #notificationPopup {
     position: fixed;
@@ -3777,9 +3695,7 @@ input[type="file"] {
             calc(100vw - 32px);
     }
 }
-/* ===============================
-   CHAT SYSTEM
-================================ */
+/* CHAT SYSTEM */
 
 .chat-modal-content {
     width: min(620px, calc(100vw - 18px));
@@ -4377,10 +4293,7 @@ input[type="file"] {
     }
 }
 
-/* =========================================================
-   SELLER PROFILE
-   Dedicated styles for the View Seller Profile modal.
-   ========================================================= */
+/* SELLER PROFILE Dedicated styles for the View Seller Profile modal. */
 
 .seller-profile-modal {
     width: min(850px, 100%);
@@ -4567,9 +4480,7 @@ input[type="file"] {
 }
 
 
-/* =========================================================
-   TYPOGRAPHY POLISH — DM Sans
-   ========================================================= */
+/* TYPOGRAPHY POLISH — DM Sans */
 body,
 button,
 input,
@@ -4607,9 +4518,7 @@ body { font-weight: 400; }
 }
 
 
-/* =========================================================
-   PREMIUM MARKETPLACE NAVBAR
-   ========================================================= */
+/* PREMIUM MARKETPLACE NAVBAR */
 
 .navbar {
     height: 74px;
@@ -4890,9 +4799,7 @@ body { font-weight: 400; }
 }
 
 
-/* =========================================================
-   MODERN STUDENT APP NAVBAR
-   ========================================================= */
+/* MODERN STUDENT APP NAVBAR */
 
 .navbar {
     height: 68px;
@@ -5219,9 +5126,7 @@ body { font-weight: 400; }
 }
 
 
-/* =========================
-   MODERN CHAT MODAL REDESIGN
-   ========================= */
+/* MODERN CHAT MODAL REDESIGN */
 .chat-modal-content {
     width: min(620px, calc(100vw - 28px));
     max-width: 620px;
@@ -5618,9 +5523,7 @@ body { font-weight: 400; }
 }
 
 
-/* =========================================================
-   WHATSAPP-STYLE CHAT LIST HOME
-   ========================================================= */
+/* WHATSAPP-STYLE CHAT LIST HOME */
 #inquiriesModal .modal-content {
     width: min(560px, calc(100% - 24px));
     max-width: 560px;
@@ -5850,9 +5753,7 @@ body { font-weight: 400; }
     }
 }
 
-/* =========================================================
-   HOLD / LONG-PRESS CHAT SELECTION
-   ========================================================= */
+/* HOLD / LONG-PRESS CHAT SELECTION */
 .inquiry-select-box,
 .inquiry-select-checkbox { display: none !important; }
 
@@ -6121,10 +6022,7 @@ body { font-weight: 400; }
 }
 
 
-/* =========================================================
-   MOBILE-FIRST RESPONSIVE POLISH
-   Keeps the existing desktop design intact.
-   ========================================================= */
+/* MOBILE-FIRST RESPONSIVE POLISH Keeps the existing desktop design intact. */
 
 html {
     overflow-x: hidden;
@@ -6654,9 +6552,7 @@ textarea {
     }
 }
 
-/* =========================================================
-   COMPACT MARKETPLACE FILTER BUTTON
-   ========================================================= */
+/* COMPACT MARKETPLACE FILTER BUTTON */
 
 .marketplace-filters {
     display: flex;
@@ -7195,9 +7091,7 @@ body #notificationsModal #notificationsContainer [data-notification-id] {
 }
 
 
-/* =========================================================
-   CHAT PAGE - SAME APP-LIKE LAYOUT AS NOTIFICATIONS
-   ========================================================= */
+/* CHAT PAGE - SAME APP-LIKE LAYOUT AS NOTIFICATIONS */
 body #chatModal.modal {
     align-items: flex-start !important;
     justify-content: center !important;
@@ -7293,9 +7187,7 @@ body #chatModal #chatForm .btn {
 }
 
 
-/* =========================================================
-   CHATS INBOX - SAME APP-LIKE LAYOUT AS NOTIFICATIONS
-   ========================================================= */
+/* CHATS INBOX - SAME APP-LIKE LAYOUT AS NOTIFICATIONS */
 body #inquiriesModal.modal {
     align-items: flex-start !important;
     justify-content: center !important;
@@ -7366,9 +7258,7 @@ body #inquiriesModal #inquiriesContainer {
 }
 
 
-/* =========================================================
-   CHATS / INBOX PAGE - FULL SCREEN APP LAYOUT
-   ========================================================= */
+/* CHATS / INBOX PAGE - FULL SCREEN APP LAYOUT */
 body #inquiriesModal.modal {
     align-items: stretch !important;
     justify-content: stretch !important;
@@ -7441,9 +7331,7 @@ body #inquiriesModal #inquiriesContainer {
 }
 
 
-/* =========================================================
-   WISHLIST - CLEAN CENTERED POPUP HEADER
-   ========================================================= */
+/* WISHLIST - CLEAN CENTERED POPUP HEADER */
 body #wishlistModal .wishlist-page-header {
     text-align: center !important;
     padding: 22px 26px 18px !important;
@@ -7640,9 +7528,7 @@ body .modal > .modal-content > .modal-back-button i {
 }
 
 
-/* =========================================================
-   POPUP HEADINGS - CONSISTENT CENTERED STYLE
-   ========================================================= */
+/* POPUP HEADINGS - CONSISTENT CENTERED STYLE */
 
 body .modal-content .modal-header h2,
 body .modal-content > .auth-header h2,
@@ -7675,9 +7561,7 @@ body .modal-content .modal-header {
 }
 
 
-/* =========================================================
-   SMOOTH MODAL CLOSE TRANSITION
-   ========================================================= */
+/* SMOOTH MODAL CLOSE TRANSITION */
 
 .modal {
     opacity: 1;
@@ -7703,9 +7587,7 @@ body .modal-content .modal-header {
 }
 
 
-/* =========================================================
-   GLOBAL MODAL BACKGROUND SCROLL LOCK
-   ========================================================= */
+/* GLOBAL MODAL BACKGROUND SCROLL LOCK */
 html:has(.modal:not(.hidden)),
 body:has(.modal:not(.hidden)) {
     overflow: hidden !important;
@@ -7733,9 +7615,7 @@ body:has(.modal:not(.hidden)) .modal-overlay {
 
 
 
-/* =========================================================
-   MODAL HOME BUTTON - MATCH BACK ARROW STYLE
-   ========================================================= */
+/* MODAL HOME BUTTON - MATCH BACK ARROW STYLE */
 body .modal > .modal-content > .modal-home-button {
     position: absolute !important;
     top: 13px !important;
@@ -7811,9 +7691,7 @@ body #chatModal .chat-head .modal-home-button {
 }
 
 
-/* =========================================================
-   MODAL HEADER CLEARANCE FOR BACK + HOME BUTTONS
-   ========================================================= */
+/* MODAL HEADER CLEARANCE FOR BACK + HOME BUTTONS */
 body .modal > .modal-content > .modal-header {
     padding-left: 112px !important;
     padding-right: 58px !important;
@@ -7888,9 +7766,7 @@ body #chatModal .chat-person {
 }
 
 
-/* =========================================================
-   KEEP BACK + HOME CONTROLS FIXED WHILE POPUP CONTENT SCROLLS
-   ========================================================= */
+/* KEEP BACK + HOME CONTROLS FIXED WHILE POPUP CONTENT SCROLLS */
 body .modal > .modal-content > .modal-back-button,
 body .modal > .modal-content > .modal-home-button {
     position: sticky !important;
@@ -7985,9 +7861,7 @@ body #notificationsModal .notifications-modal-content > .modal-home-button {
 }
 
 
-/* =========================================================
-   FINAL FIX: NAV BUTTONS MUST NOT SCROLL WITH MODAL CONTENT
-   ========================================================= */
+/* FINAL FIX: NAV BUTTONS MUST NOT SCROLL WITH MODAL CONTENT */
 
 /* A transformed ancestor makes position:fixed behave like
    position:absolute. Keep the open modal content untransformed. */
@@ -8067,9 +7941,7 @@ body #notificationsModal .notifications-modal-content > .modal-home-button {
 }
 
 
-/* =========================================================
-   FINAL: KEEP MODAL HEADERS + PAGE TITLES VISIBLE ON SCROLL
-   ========================================================= */
+/* FINAL: KEEP MODAL HEADERS + PAGE TITLES VISIBLE ON SCROLL */
 
 /* Headers stay pinned at the top of their scroll container. */
 body .modal > .modal-content > .modal-header,
@@ -8159,9 +8031,7 @@ body #sellerProfileModal .seller-profile-header {
 }
 
 
-/* =========================================================
-   STUDENTKART - CONVERT ALL MODALS INTO FULL PAGE SCREENS
-   ========================================================= */
+/* STUDENTKART - CONVERT ALL MODALS INTO FULL PAGE SCREENS */
 
 /* Every existing modal now behaves like a real app page.
    IDs and JavaScript are intentionally unchanged. */
@@ -8276,9 +8146,7 @@ body #notificationsModal:not(.hidden) > .modal-content {
 }
 
 
-/* =========================================================
-   STUDENTKART - FINAL FULL-PAGE SCREEN OVERRIDE
-   ========================================================= */
+/* STUDENTKART - FINAL FULL-PAGE SCREEN OVERRIDE */
 
 /* Every modal screen fills the entire viewport. */
 body .modal:not(.hidden) {
@@ -8516,9 +8384,7 @@ body #notificationsModal:not(.hidden) .modal-content {
 }
 
 
-/* =========================================================
-   FINAL SCREEN EXCEPT PROFILE + CHAT NAV FIX
-   ========================================================= */
+/* FINAL SCREEN EXCEPT PROFILE + CHAT NAV FIX */
 
 /* Profile stays a centered popup. */
 body #profileModal:not(.hidden) {
@@ -8665,9 +8531,7 @@ body #chatModal:not(.hidden) .chat-head > .modal-home-button {
 }
 
 
-/* =========================================================
-   UNIVERSAL NAVIGATION VISIBILITY - LAST OVERRIDE
-   ========================================================= */
+/* UNIVERSAL NAVIGATION VISIBILITY - LAST OVERRIDE */
 body .modal:not(.hidden) button.modal-back-button {
     display: flex !important;
     visibility: visible !important;
@@ -8855,10 +8719,7 @@ body #profileModal:not(.hidden) .profile-header {
 }
 
 
-/* =========================================================
-   COMPACT HOMEPAGE LAYOUT
-   Visual spacing only - functionality unchanged.
-   ========================================================= */
+/* COMPACT HOMEPAGE LAYOUT Visual spacing only - functionality unchanged. */
 .navbar { height: 62px; }
 .nav-container { gap: 18px; }
 .logo-mark { width: 36px; height: 36px; }
@@ -8931,11 +8792,7 @@ body #profileModal:not(.hidden) .profile-header {
 }
 
 
-/* =========================================================
-   FINAL CATEGORY GRID LAYOUT
-   Six category cards: side-by-side on desktop,
-   two per row on smaller screens.
-   ========================================================= */
+/* FINAL CATEGORY GRID LAYOUT Six category cards: side-by-side on desktop, two per row on smaller screens. */
 .categories-grid {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
@@ -8968,10 +8825,7 @@ body #profileModal:not(.hidden) .profile-header {
 }
 
 
-/* =========================================================
-   FINAL PRODUCT LISTING GRID
-   Product listings displayed as compact side-by-side cards.
-   ========================================================= */
+/* FINAL PRODUCT LISTING GRID Product listings displayed as compact side-by-side cards. */
 .products-grid,
 #productContainer {
     display: grid !important;
@@ -9009,10 +8863,7 @@ body #profileModal:not(.hidden) .profile-header {
 }
 
 
-/* =========================================================
-   PRODUCT CARD CONTRAST
-   Keeps product listings visually separated from the page background.
-   ========================================================= */
+/* PRODUCT CARD CONTRAST Keeps product listings visually separated from the page background. */
 .products-grid .product-card,
 #productContainer .product-card {
     background: #ffffff !important;
@@ -9029,10 +8880,7 @@ body #profileModal:not(.hidden) .profile-header {
 }
 
 
-/* =========================================================
-   PRODUCT DETAILS - SELLER AREA
-   Cleaner seller identity card and stacked actions.
-   ========================================================= */
+/* PRODUCT DETAILS - SELLER AREA Cleaner seller identity card and stacked actions. */
 .product-details-modal .seller-box {
     display: flex;
     align-items: center;
@@ -9103,10 +8951,7 @@ body #profileModal:not(.hidden) .profile-header {
 }
 
 
-/* =========================================================
-   FINAL NAVBAR + CHAT HEADING VISIBILITY FIX
-   Keep Wishlist visible in the header and force Chat heading dark.
-   ========================================================= */
+/* FINAL NAVBAR + CHAT HEADING VISIBILITY FIX Keep Wishlist visible in the header and force Chat heading dark. */
 
 body .nav-wishlist-button,
 body #wishlistButton {
@@ -9168,9 +9013,7 @@ body .chat-person h2 {
 }
 
 
-/* =========================================================
-   WISHLIST HEADER - FINAL MOBILE VISIBILITY
-   ========================================================= */
+/* WISHLIST HEADER - FINAL MOBILE VISIBILITY */
 .navbar .nav-container,
 .navbar .nav-actions {
     overflow: visible !important;
@@ -9219,10 +9062,7 @@ body .chat-person h2 {
 }
 
 
-/* =========================================================
-   WISHLIST PRODUCT GRID
-   Compact boxed cards, side-by-side like Marketplace.
-   ========================================================= */
+/* WISHLIST PRODUCT GRID Compact boxed cards, side-by-side like Marketplace. */
 #wishlistContainer {
     display: grid !important;
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
@@ -9283,9 +9123,7 @@ body .chat-person h2 {
 }
 
 
-/* =========================================================
-   NAVBAR ICONS - MODERN COMPACT STYLE
-   ========================================================= */
+/* NAVBAR ICONS - MODERN COMPACT STYLE */
 .navbar .nav-actions > button {
     min-height: 40px;
     border-radius: 10px;
@@ -9361,10 +9199,7 @@ body .chat-person h2 {
 }
 
 
-/* =========================================================
-   FLIPKART-STYLE FLOATING BOTTOM NAV
-   Top navbar keeps only logo + Sell.
-   ========================================================= */
+/* FLIPKART-STYLE FLOATING BOTTOM NAV Top navbar keeps only logo + Sell. */
 .navbar .nav-links {
     display: none !important;
 }
@@ -9514,9 +9349,7 @@ body {
 }
 
 
-/* =========================================================
-   NAV SEARCH + LARGER FLOATING BOTTOM NAV
-   ========================================================= */
+/* NAV SEARCH + LARGER FLOATING BOTTOM NAV */
 .navbar .nav-search-button {
     display: inline-flex !important;
     width: 40px;
@@ -9561,9 +9394,7 @@ body {
     .bottom-nav-item i { font-size: 18px; }
 }
 
-/* =========================================================
-   NAVBAR FINAL FIX - LOGO TEXT + SEARCH
-   ========================================================= */
+/* NAVBAR FINAL FIX - LOGO TEXT + SEARCH */
 .navbar .logo-text {
     display: inline !important;
     visibility: visible !important;
@@ -9599,10 +9430,7 @@ body {
 }
 
 
-/* =========================================================
-   FIXED TOP + BOTTOM NAVIGATION
-   Both navigation bars stay visible while the page scrolls.
-   ========================================================= */
+/* FIXED TOP + BOTTOM NAVIGATION Both navigation bars stay visible while the page scrolls. */
 body {
     padding-top: 78px;
     padding-bottom: 96px;
@@ -9636,9 +9464,7 @@ body {
 }
 
 
-/* =========================================================
-   LARGER FIXED TOP NAVBAR
-   ========================================================= */
+/* LARGER FIXED TOP NAVBAR */
 .navbar .nav-container {
     min-height: 72px !important;
     padding-top: 10px !important;
@@ -9699,10 +9525,7 @@ body {
 }
 
 
-/* =========================================================
-   NAVBAR BACKGROUND - ACTUAL HEIGHT
-   Increase the dark/blur navbar surface itself.
-   ========================================================= */
+/* NAVBAR BACKGROUND - ACTUAL HEIGHT Increase the dark/blur navbar surface itself. */
 .navbar {
     min-height: 88px !important;
     height: 88px !important;
@@ -9737,10 +9560,7 @@ body {
 }
 
 
-/* =========================================================
-   FLOATING TOP NAVBAR
-   Matches the floating bottom navigation style.
-   ========================================================= */
+/* FLOATING TOP NAVBAR Matches the floating bottom navigation style. */
 .navbar {
     top: 12px !important;
     left: 50% !important;
@@ -9814,12 +9634,7 @@ body {
 }
 
 
-/* =========================================================
-   GLOBAL PAGE NAVIGATION VISIBILITY
-   Any open StudentKart modal/page owns the viewport.
-   Hide the global navbar and bottom floating navigation so
-   page-specific buttons do not appear underneath them.
-   ========================================================= */
+/* GLOBAL PAGE NAVIGATION VISIBILITY Any open StudentKart modal/page owns the viewport. Hide the global navbar and bottom floating navigation so page-specific buttons do not appear underneath them. */
 body:has(.modal:not(.hidden)) .navbar,
 body:has(.modal:not(.hidden)) .mobile-bottom-nav,
 body.studentkart-modal-navigation-hidden .navbar,
@@ -9860,9 +9675,7 @@ body.studentkart-modal-navigation-hidden .navbar,
 body.studentkart-modal-navigation-hidden .mobile-bottom-nav { display: none !important; }
 
 
-/* =========================================================
-   POPUP-STYLE PAGE HEADERS
-   ========================================================= */
+/* POPUP-STYLE PAGE HEADERS */
 .page-popup-header {
     margin: 14px 14px 0 !important;
     padding: 15px 18px !important;
@@ -10151,10 +9964,7 @@ body #wishlistModal:not(.hidden) .wishlist-page-header .section-label{
 }
 
 
-/* =========================================================
-   NAVBAR SEARCH PANEL
-   Opens directly below the floating navbar.
-   ========================================================= */
+/* NAVBAR SEARCH PANEL Opens directly below the floating navbar. */
 .navbar-search-panel {
     position: fixed;
     top: 96px;
@@ -10261,9 +10071,7 @@ body #wishlistModal:not(.hidden) .wishlist-page-header .section-label{
 body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !important; }
 
 
-/* =========================================================
-   TOP CATEGORY STRIP - MARKETPLACE STYLE
-   ========================================================= */
+/* TOP CATEGORY STRIP - MARKETPLACE STYLE */
 .top-category-bar {
     position: relative;
     z-index: 100;
@@ -10391,9 +10199,7 @@ body.studentkart-modal-navigation-hidden .navbar-search-panel { display: none !i
 }
 
 
-/* =========================================================
-   CATEGORY PICKER - CLEAN FINAL
-   ========================================================= */
+/* CATEGORY PICKER - CLEAN FINAL */
 
 .category-picker-modal {
     width: min(980px, calc(100vw - 32px)) !important;
@@ -10612,9 +10418,7 @@ html body #categoryPickerModal:not(.hidden) > .modal-overlay {
 }
 
 
-/* =========================================================
-   MY LISTINGS - FULL PAGE, SAME AS OTHER APP PAGES
-   ========================================================= */
+/* MY LISTINGS - FULL PAGE, SAME AS OTHER APP PAGES */
 body #myListingsModal:not(.hidden) {
     padding: 0 !important;
     align-items: stretch !important;
@@ -10675,9 +10479,7 @@ body #myListingsModal:not(.hidden) #myListingsContainer {
 }
 
 
-/* =========================================================
-   MY LISTINGS - FINAL PAGE HEADING + HORIZONTAL LISTINGS
-   ========================================================= */
+/* MY LISTINGS - FINAL PAGE HEADING + HORIZONTAL LISTINGS */
 body #myListingsModal:not(.hidden) > .modal-content > .modal-header {
     min-height: 70px !important;
     padding: 13px 20px !important;
@@ -10735,9 +10537,7 @@ body #myListingsModal:not(.hidden) #myListingsContainer {
 }
 
 
-/* =========================================================
-   STUDENTKART AUTH + BUTTON TOUCH POLISH
-   ========================================================= */
+/* STUDENTKART AUTH + BUTTON TOUCH POLISH */
 
 /* Remove the browser's default blue tap flash. */
 button,
@@ -10983,9 +10783,7 @@ button:active,
 }
 
 
-/* =========================================================
-   STUDENTKART AUTH + BUTTON TOUCH POLISH
-   ========================================================= */
+/* STUDENTKART AUTH + BUTTON TOUCH POLISH */
 
 .auth-modal {
     width: min(430px, 94vw);
@@ -11189,9 +10987,7 @@ button {
 }
 
 
-/* =========================================================
-   STUDENTKART AUTH + TOUCH FEEDBACK POLISH
-   ========================================================= */
+/* STUDENTKART AUTH + TOUCH FEEDBACK POLISH */
 
 .auth-modal {
     width: min(430px, calc(100vw - 32px)) !important;
@@ -11419,9 +11215,7 @@ body #signupModal:not(.hidden) .auth-modal .auth-header p {
 }
 
 
-/* =========================================================
-   FINAL: CENTER ALL PAGE HEADERS + SUBTITLES
-   ========================================================= */
+/* FINAL: CENTER ALL PAGE HEADERS + SUBTITLES */
 
 body .modal > .modal-content > .modal-header,
 body .modal > .modal-content > .auth-header,
@@ -11751,10 +11545,7 @@ body.studentkart-dark .chat-message-selection-header-actions button {
 }
 
 
-/* =========================================================
-   STUDENTKART — UNIFIED UI REDESIGN
-   Final visual system. Functionality/layout hooks preserved.
-   ========================================================= */
+/* STUDENTKART — UNIFIED UI REDESIGN Final visual system. Functionality/layout hooks preserved. */
 
 :root {
     --sk-bg: #f4f8f9;
@@ -12465,10 +12256,7 @@ form {
 }
 
 
-/* =========================================================
-   ANDROID-STYLE PERSISTENT FLOATING BOTTOM NAV
-   Keep bottom navigation visible while inner pages/modals open.
-   ========================================================= */
+/* ANDROID-STYLE PERSISTENT FLOATING BOTTOM NAV Keep bottom navigation visible while inner pages/modals open. */
 body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
     display: flex !important;
     visibility: visible !important;
@@ -12493,9 +12281,7 @@ body.studentkart-modal-navigation-hidden {
 }
 
 
-/* =========================================================
-   FOOTER — CREATOR DETAILS
-   ========================================================= */
+/* FOOTER — CREATOR DETAILS */
 .footer-creator {
     display: flex;
     flex-direction: column;
@@ -12732,9 +12518,7 @@ body.studentkart-modal-navigation-hidden {
 }
 
 
-/* =========================================================
-   REAL SETTINGS STATE + DARK MODE
-   ========================================================= */
+/* REAL SETTINGS STATE + DARK MODE */
 .settings-switch[data-enabled="true"] {
     background: #0f8b8d !important;
 }
@@ -12805,9 +12589,7 @@ body.studentkart-dark .form-group textarea::placeholder {
     color: #7892a0 !important;
 }
 
-/* =========================================================
-   SETTINGS ACTION MODAL
-   ========================================================= */
+/* SETTINGS ACTION MODAL */
 .settings-action-modal-content {
     width: min(560px, calc(100vw - 28px));
     max-width: 560px;
@@ -12998,10 +12780,7 @@ body.studentkart-dark .filter-panel-grid input,body.studentkart-dark .filter-pan
 }
 
 
-/* =========================================================
-   FIXED NAVBAR SEARCH BAR
-   Keep the search panel locked directly below the navbar.
-   ========================================================= */
+/* FIXED NAVBAR SEARCH BAR Keep the search panel locked directly below the navbar. */
 .navbar-search-panel {
     position: fixed !important;
     top: 76px !important;
@@ -13032,9 +12811,7 @@ body.studentkart-dark .filter-panel-grid input,body.studentkart-dark .filter-pan
     }
 }
 
-/* =========================================================
-   NOTIFICATION BELL — NAVBAR
-   ========================================================= */
+/* NOTIFICATION BELL — NAVBAR */
 .nav-notification-button { position:relative; width:42px; min-width:42px; height:42px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
 .nav-notification-button i { font-size:16px; }
 .notification-count { position:absolute; top:-5px; right:-5px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; background:#e53935; color:#fff; border:2px solid #fff; font-size:10px; font-weight:800; line-height:1; }
@@ -13042,9 +12819,7 @@ body.studentkart-dark .notification-count { border-color:#102a43; }
 @media (max-width:720px) { .nav-notification-button { width:38px; min-width:38px; height:38px; } }
 
 
-/* =========================================================
-   CHAT FOCUS + BACKGROUND LOADING
-   ========================================================= */
+/* CHAT FOCUS + BACKGROUND LOADING */
 body.studentkart-chat-open .mobile-bottom-nav,
 body.studentkart-chat-open > .mobile-bottom-nav,
 body.studentkart-chat-open .bottom-floating-nav,
@@ -13061,9 +12836,7 @@ body.studentkart-chat-open .floating-bottom-nav {
 }
 
 
-/* =========================================================
-   WHATSAPP-STYLE PROFESSIONAL CHAT
-   ========================================================= */
+/* WHATSAPP-STYLE PROFESSIONAL CHAT */
 .chat-modal-content {
     width: min(900px, calc(100vw - 34px)) !important;
     max-width: 900px !important;
@@ -13314,9 +13087,7 @@ body.studentkart-dark #chatInput::placeholder { color: #9aa8ad !important; }
 }
 
 
-/* =========================================================
-   CHAT COMPOSER — ATTACHMENTS / EMOJI / REPLY
-   ========================================================= */
+/* CHAT COMPOSER — ATTACHMENTS / EMOJI / REPLY */
 .chat-form { position:relative !important; }
 .chat-attach-button {
     width:38px !important; height:38px !important; min-width:38px !important;
@@ -13992,9 +13763,7 @@ body #chatModal .chat-view-profile-button:active{transform:scale(.96)!important}
 body #chatModal .chat-view-profile-button:disabled{opacity:.7!important;cursor:wait!important}
 
 
-/* =========================================================
-   PREMIUM SELLER PROFILE — FINAL RESPONSIVE POLISH
-   ========================================================= */
+/* PREMIUM SELLER PROFILE — FINAL RESPONSIVE POLISH */
 
 body #sellerProfileModal .seller-profile-modal {
     width: min(900px, calc(100vw - 24px)) !important;
@@ -14868,9 +14637,7 @@ body #chatModal .chat-message {
 }
 
 
-/* =========================================================
-   COMPACT HERO — keep listings visible on app open
-   ========================================================= */
+/* COMPACT HERO — keep listings visible on app open */
 @media (min-width: 701px) {
     .hero { padding: 42px 0 !important; }
     .hero-badge { margin-bottom: 11px !important; }
@@ -14923,9 +14690,7 @@ body #chatModal .chat-message {
 }
 
 
-/* =========================================================
-   COMPACT LISTING CARDS — compact the card, preserve photos
-   ========================================================= */
+/* COMPACT LISTING CARDS — compact the card, preserve photos */
 .product-card {
     padding: 0 !important;
 }
@@ -14977,10 +14742,7 @@ body #chatModal .chat-message {
 @media(max-width:430px){.product-details-modal{width:calc(100vw - 12px);max-height:calc(100vh - 12px);border-radius:18px}.details-image-container,.details-image-container img{min-height:245px;height:245px}.product-details-content{padding:20px 16px 18px}.details-image-overlay{left:10px;bottom:10px}}
 
 
-/* =========================================================
-   LISTING DETAILS PAGE — FINAL POLISH
-   The View Details screen is treated as a dedicated page.
-   ========================================================= */
+/* LISTING DETAILS PAGE — FINAL POLISH The View Details screen is treated as a dedicated page. */
 body.studentkart-modal-navigation-hidden #productModal{
     background:linear-gradient(180deg,#f7faf9 0%,#eef4f2 100%)!important;
 }
@@ -15448,10 +15210,7 @@ body.category-page-active .category-page-navbar-title small{
 @media(max-width:700px){.settings-detail-modal-content{width:calc(100vw - 20px);max-height:calc(100vh - 20px)}.settings-section-button{padding:14px}.settings-section-button>span>i{width:34px;height:34px}}
 
 
-/* =========================================================
-   STUDENTKART — FINAL VISUAL POLISH
-   Consistent marketplace/app language without changing behavior.
-   ========================================================= */
+/* STUDENTKART — FINAL VISUAL POLISH Consistent marketplace/app language without changing behavior. */
 :root {
     --sk-surface: #ffffff;
     --sk-surface-soft: #f7fbfb;
@@ -15655,11 +15414,7 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
 }
 
 
-/* =========================================================
-   CLEAN PAGE HEADERS — no top-right X clutter
-   Keep the underlying close controls in the DOM for behavior,
-   but remove their visible X marks from page/modal headers.
-   ========================================================= */
+/* CLEAN PAGE HEADERS — no top-right X clutter Keep the underlying close controls in the DOM for behavior, but remove their visible X marks from page/modal headers. */
 .settings-page-header .modal-close,
 .modal-header .modal-close,
 .product-details-modal > .modal-close,
@@ -16350,12 +16105,7 @@ body #chatModal:not(.hidden) #chatMessages .chat-message {
 }
 
 
-/* =========================================================
-   FINAL HOME NAVIGATION RECOVERY FIX
-   Navbar + bottom navigation must be visible on the real home
-   screen even if an old navigation-state class remains on body.
-   Actual open modals/category pages still keep them hidden.
-   ========================================================= */
+/* FINAL HOME NAVIGATION RECOVERY FIX Navbar + bottom navigation must be visible on the real home screen even if an old navigation-state class remains on body. Actual open modals/category pages still keep them hidden. */
 body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) .navbar {
     display: block !important;
     visibility: visible !important;
@@ -16370,11 +16120,7 @@ body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) .mobil
     pointer-events: auto !important;
 }
 
-/* =========================================================
-   FINAL NAVBAR SCROLL VISIBILITY
-   Hide/reveal the navbar vertically using TOP, never transform.
-   This prevents any horizontal/sideways slide or transform conflict.
-   ========================================================= */
+/* FINAL NAVBAR SCROLL VISIBILITY Hide/reveal the navbar vertically using TOP, never transform. This prevents any horizontal/sideways slide or transform conflict. */
 .navbar {
     transition: top 0.22s ease, opacity 0.18s ease !important;
     will-change: top, opacity;
@@ -16387,9 +16133,7 @@ body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) .mobil
 }
 
 
-/* =========================================================
-   PROFESSIONAL FOOTER REDESIGN
-   ========================================================= */
+/* PROFESSIONAL FOOTER REDESIGN */
 .footer {
     background:
         radial-gradient(circle at 82% 0%, rgba(15,139,141,.12), transparent 28%),
@@ -16555,11 +16299,7 @@ body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) .mobil
 }
 
 
-/* =========================================================
-   FOOTER END-OF-PAGE STABILITY
-   Keep the footer in normal document flow so it never jumps,
-   lifts, or shifts when the user reaches the very bottom.
-   ========================================================= */
+/* FOOTER END-OF-PAGE STABILITY Keep the footer in normal document flow so it never jumps, lifts, or shifts when the user reaches the very bottom. */
 html, body {
     min-height: 100%;
 }
@@ -16579,9 +16319,7 @@ body {
 }
 
 
-/* =========================================================
-   FIXED SIDE NAVIGATION — REPLACES THE TOP NAVBAR
-   ========================================================= */
+/* FIXED SIDE NAVIGATION — REPLACES THE TOP NAVBAR */
 body {
     padding-top: 0 !important;
 }
@@ -16773,9 +16511,7 @@ main,
 }
 
 
-/* =========================================================
-   REFINED FIXED NAV — COMPACT MARKETPLACE STYLE
-   ========================================================= */
+/* REFINED FIXED NAV — COMPACT MARKETPLACE STYLE */
 .site-side-nav {
     top: 16px !important;
     left: 16px !important;
@@ -16925,11 +16661,7 @@ main,
 }
 
 
-/* =========================================================
-/* =========================================================
-   STUDENTKART HERO NAVBAR — SINGLE CANONICAL RULESET
-   Logo + Search + Sell + Profile
-   ========================================================= */
+/* /* ========================================================= STUDENTKART HERO NAVBAR — SINGLE CANONICAL RULESET Logo + Search + Sell + Profile */
 .hero { position:relative !important; }
 
 .hero-nav-rail {
@@ -17266,9 +16998,7 @@ body #sellerProfileModal #sellerProfileCollege {
     text-align: center !important;
 }
 
-/* =========================================================
-   NEW USER ENTRY GATE
-   ========================================================= */
+/* NEW USER ENTRY GATE */
 .new-user-gate {
     position: fixed;
     inset: 0;
@@ -17444,9 +17174,7 @@ body.new-user-gate-open {
 
 
 
-/* =========================================================
-   NEW USER ENTRY GATE — MODERN APP REDESIGN
-   ========================================================= */
+/* NEW USER ENTRY GATE — MODERN APP REDESIGN */
 .new-user-gate {
     position: fixed !important;
     inset: 0 !important;
@@ -17595,9 +17323,7 @@ body.new-user-gate-open {
     color: #102a43 !important;
 }
 \n
-/* =========================================================
-   LOGOUT CONFIRMATION — STUDENTKART THEME
-   ========================================================= */
+/* LOGOUT CONFIRMATION — STUDENTKART THEME */
 .logout-confirm-modal {
     width: min(360px, calc(100% - 32px)) !important;
     padding: 28px 24px 22px !important;
@@ -17680,9 +17406,7 @@ body.new-user-gate-open {
 }
 
 
-/* =========================================================
-   LOGOUT POPUP — FORCE CENTERED CARD
-   ========================================================= */
+/* LOGOUT POPUP — FORCE CENTERED CARD */
 #logoutConfirmModal {
     align-items: center !important;
     justify-content: center !important;
@@ -17757,9 +17481,7 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
 }
 
 
-/* =========================================================
-   STUDENTKART APP INTRO / SPLASH
-   ========================================================= */
+/* STUDENTKART APP INTRO / SPLASH */
 .studentkart-splash {
     position: fixed;
     inset: 0;
@@ -17986,10 +17708,7 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
 }
 
 
-/* =========================================================
-   STUDENTKART THEMED FILTER DROPDOWNS
-   Replaces native Android/Chrome select popups with in-page menus.
-   ========================================================= */
+/* STUDENTKART THEMED FILTER DROPDOWNS Replaces native Android/Chrome select popups with in-page menus. */
 .studentkart-native-filter-select {
     position: absolute !important;
     width: 1px !important;
@@ -18094,10 +17813,7 @@ body.studentkart-dark .studentkart-custom-select-option:focus-visible { backgrou
 body.studentkart-dark .studentkart-custom-select-option.is-selected { background: rgba(143,225,221,.14); color: #8fe1dd; }
 
 
-/* =========================================================
-   FINAL MODAL BACKGROUND SCROLL LOCK
-   Never allow touch/wheel gestures to move the page behind a modal.
-   ========================================================= */
+/* FINAL MODAL BACKGROUND SCROLL LOCK Never allow touch/wheel gestures to move the page behind a modal. */
 html:has(.modal:not(.hidden)),
 body:has(.modal:not(.hidden)) {
     overflow: hidden !important;
@@ -18133,9 +17849,7 @@ body.studentkart-dark .studentkart-native-confirm-modal h2{color:#e7f7f5}
 body.studentkart-dark .studentkart-native-confirm-modal p{color:#a9c4c5}
 body.studentkart-dark .studentkart-native-confirm-cancel{background:#203c40;color:#dcefed;border-color:rgba(143,225,221,.14)!important}
 
-/* =========================================================
-   EDIT PROFILE USERNAME AVAILABILITY
-   ========================================================= */
+/* EDIT PROFILE USERNAME AVAILABILITY */
 .username-availability {
     margin-top: 8px;
     padding: 9px 10px;
@@ -18239,9 +17953,7 @@ body #profileModal:not(.hidden) .profile-info-row span {
     text-align: center !important;
 }
 
-/* =========================================================
-   MACOS-STYLE BOTTOM NAV APP OPENING
-   ========================================================= */
+/* MACOS-STYLE BOTTOM NAV APP OPENING */
 @keyframes studentKartMacOpen {
     0% {
         opacity: 0;
@@ -18340,11 +18052,7 @@ body .modal.studentkart-bottom-nav-opening .modal-content {
 }
 
 
-/* =========================================================
-   STUDENTKART - SETTINGS BOTTOM NAV OPENING FIX
-   Prevent the generic modalOpen animation from painting even
-   for one frame before the macOS-style bottom-nav animation.
-   ========================================================= */
+/* STUDENTKART - SETTINGS BOTTOM NAV OPENING FIX Prevent the generic modalOpen animation from painting even for one frame before the macOS-style bottom-nav animation. */
 body #settingsModal .modal-content {
     animation: none !important;
 }
@@ -18361,10 +18069,7 @@ body #settingsModal.modal.studentkart-bottom-nav-opening .modal-content {
 }
 
 
-/* =========================================================
-   STUDENTKART — FINAL VISUAL CLEANUP / CONSISTENCY PASS
-   Styling-only polish. No functionality changes.
-   ========================================================= */
+/* STUDENTKART — FINAL VISUAL CLEANUP / CONSISTENCY PASS Styling-only polish. No functionality changes. */
 
 /* 1. Remove accidental legacy positioning from the category picker. */
 .category-picker-grid {
@@ -18655,11 +18360,7 @@ body.studentkart-dark .how-info-intro p {
 }
 
 
-/* =========================================================
-   GLOBAL PAGE LAYER CLEANUP
-   When an inner page/modal is open, the main site navbar and
-   global overlays must never sit above the new page.
-   ========================================================= */
+/* GLOBAL PAGE LAYER CLEANUP When an inner page/modal is open, the main site navbar and global overlays must never sit above the new page. */
 
 /* Inner pages own their header. Never let the main sticky navbar
    remain visible over them. */
@@ -18711,12 +18412,7 @@ body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
 }
 
 
-/* =========================================================
-   FOOTER + FLOATING BOTTOM NAV SPACING
-   Keep the footer in normal document flow. On small screens,
-   reserve enough scroll space so the fixed floating nav never
-   covers the footer's last content.
-   ========================================================= */
+/* FOOTER + FLOATING BOTTOM NAV SPACING Keep the footer in normal document flow. On small screens, reserve enough scroll space so the fixed floating nav never covers the footer's last content. */
 @media (max-width: 600px) {
     body {
         padding-bottom: 96px !important;
@@ -18729,13 +18425,7 @@ body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
 }
 
 
-/* =========================================================
-   MOBILE-NAV-ONLY PAGE NAVIGATION
-   Page-level close/back controls are hidden. Navigation between
-   StudentKart screens is handled through the mobile navigation/history.
-   Keep functional controls such as search-clear, reply-cancel and
-   remove-image buttons untouched.
-   ========================================================= */
+/* MOBILE-NAV-ONLY PAGE NAVIGATION Page-level close/back controls are hidden. Navigation between StudentKart screens is handled through the mobile navigation/history. Keep functional controls such as search-clear, reply-cancel and remove-image buttons untouched. */
 .category-page-back,
 .modal-close,
 .product-image-preview-close,
@@ -18748,11 +18438,7 @@ body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
 }
 
 
-/* =========================================================
-   TOP NAV MOBILE CONTROLS
-   Move the mobile navigation into the top navbar area.
-   No floating/fixed bottom dock.
-   ========================================================= */
+/* TOP NAV MOBILE CONTROLS Move the mobile navigation into the top navbar area. No floating/fixed bottom dock. */
 @media (max-width: 600px) {
     .navbar {
         height: auto !important;
@@ -18845,12 +18531,7 @@ body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
 }
 
 
-/* =========================================================
-   MOBILE NAVBAR — 3 ROW LAYOUT
-   Row 1: Logo + Sell + Profile
-   Row 2: Full Search Bar
-   Row 3: Home + Categories + Chat + Wishlist + Settings
-   ========================================================= */
+/* MOBILE NAVBAR — 3 ROW LAYOUT Row 1: Logo + Sell + Profile Row 2: Full Search Bar Row 3: Home + Categories + Chat + Wishlist + Settings */
 @media (max-width: 600px) {
     .navbar {
         height: auto !important;
@@ -19006,10 +18687,7 @@ body.studentkart-modal-navigation-hidden .mobile-bottom-nav {
 
 
 
-/* =========================================================
-   STUDENTKART — MODERN MARKETPLACE REDESIGN
-   Unified visual layer: marketplace-first, app-like, clean.
-   ========================================================= */
+/* STUDENTKART — MODERN MARKETPLACE REDESIGN Unified visual layer: marketplace-first, app-like, clean. */
 
 :root {
   --sk-primary: #16a39f;
@@ -19347,9 +19025,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 
-/* =========================================================
-   RESTORE ORIGINAL FLOATING MOBILE NAV
-   ========================================================= */
+/* RESTORE ORIGINAL FLOATING MOBILE NAV */
 @media (max-width: 600px) {
   .navbar .nav-container {
     display: flex !important;
@@ -19461,9 +19137,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 
-/* =========================================================
-   FINAL MOBILE FLOATING BAR + CATEGORY PAGE CLEANUP
-   ========================================================= */
+/* FINAL MOBILE FLOATING BAR + CATEGORY PAGE CLEANUP */
 @media (max-width: 600px) {
   /* Keep the bottom navigation truly floating above the page. */
   .navbar .mobile-bottom-nav {
@@ -19527,9 +19201,7 @@ body.category-page-active .category-page-container {
 }
 
 
-/* =========================================================
-   CATEGORY PAGE — FINAL MOBILE NAV + FLAT LISTING LAYOUT
-   ========================================================= */
+/* CATEGORY PAGE — FINAL MOBILE NAV + FLAT LISTING LAYOUT */
 @media (max-width: 600px) {
   /* The floating navigation must remain visible even while a category
      page is open. */
@@ -19588,10 +19260,7 @@ body.category-page-active .category-page-container {
 }
 
 
-/* =========================================================
-   RESTORE OLD SELLER PROFILE MOBILE LAYOUT
-   Matches the earlier full-screen seller profile presentation.
-   ========================================================= */
+/* RESTORE OLD SELLER PROFILE MOBILE LAYOUT Matches the earlier full-screen seller profile presentation. */
 @media (max-width: 600px) {
   body #sellerProfileModal:not(.hidden) {
     display: flex !important;
@@ -19748,9 +19417,7 @@ body.category-page-active .category-page-container {
 }
 
 
-/* =========================================================
-   HOME MOBILE DESIGN — MATCH REFERENCE
-   ========================================================= */
+/* HOME MOBILE DESIGN — MATCH REFERENCE */
 @media (max-width: 600px) {
   body {
     background: #f5fafb !important;
@@ -19984,9 +19651,7 @@ body.category-page-active .category-page-container {
 }
 
 
-/* =========================================================
-   FINAL MOBILE HOME REFERENCE — HIGH PRIORITY
-   ========================================================= */
+/* FINAL MOBILE HOME REFERENCE — HIGH PRIORITY */
 .how-home-section {
   background: #f5fafb;
   padding: 72px 0 110px;
@@ -20648,10 +20313,7 @@ body.category-page-active .category-page-container {
   }
 }
 
-/* =========================================================
-   ANDROID / MOBILE FINAL LAYOUT
-   One clean source of truth for the homepage navigation.
-   ========================================================= */
+/* ANDROID / MOBILE FINAL LAYOUT One clean source of truth for the homepage navigation. */
 @media screen and (max-width:600px){
   /* TOP: StudentKart logo/search/sell/profile */
   html body > header.navbar{
@@ -20854,11 +20516,7 @@ body.category-page-active .category-page-container {
   }
 }
 
- /* =========================================================
-    STUDENTKART MOBILE LAYOUT — FINAL AUTHORITATIVE RULES
-    Keep the top navbar visible, keep bottom navigation above
-    the app, and position the homepage hero consistently.
-    ========================================================= */
+ /* STUDENTKART MOBILE LAYOUT — FINAL AUTHORITATIVE RULES Keep the top navbar visible, keep bottom navigation above the app, and position the homepage hero consistently. */
 @media screen and (max-width:600px){
   html body > header.navbar,
   html body > header.navbar.navbar-scroll-hidden{
@@ -20931,9 +20589,7 @@ html body > .mobile-bottom-nav.splash-hidden{
 }
 
 
-/* =========================================================
-   STUDENTKART HOMEPAGE V2 — PROFESSIONAL MARKETPLACE UI
-   ========================================================= */
+/* STUDENTKART HOMEPAGE V2 — PROFESSIONAL MARKETPLACE UI */
 .sk-home-v2{
   position:relative !important;
   overflow:hidden !important;
@@ -21084,10 +20740,7 @@ html body > .mobile-bottom-nav.splash-hidden{
 }
 
 
-/* =========================================================
-   STUDENTKART — NAVBAR / FLOATING BAR REMOVED
-   Homepage owns the viewport without legacy navigation space.
-   ========================================================= */
+/* STUDENTKART — NAVBAR / FLOATING BAR REMOVED Homepage owns the viewport without legacy navigation space. */
 html body > header.navbar,
 html body > .mobile-bottom-nav{
   display:none !important;
@@ -21117,9 +20770,7 @@ html body > .sk-home-v2{
 }
 
 
-/* =========================================================
-   STUDENTKART — PREMIUM HOME REDESIGN
-   ========================================================= */
+/* STUDENTKART — PREMIUM HOME REDESIGN */
 .sk-home-v2{
   min-height:100svh !important;
   padding:0 !important;
@@ -21314,10 +20965,7 @@ html body > .sk-home-v2{
 }
 
 
-/* =========================================================
-   STUDENTKART — HOMEPAGE QUICK TOOLS
-   Compact utility actions integrated into the hero.
-   ========================================================= */
+/* STUDENTKART — HOMEPAGE QUICK TOOLS Compact utility actions integrated into the hero. */
 .sk-home-tools{
   margin-top:18px !important;
   width:min(100%,560px) !important;
@@ -21427,10 +21075,7 @@ html body > .mobile-bottom-nav{
 }
 
 
-/* =========================================================
-   STUDENTKART — HOMEPAGE BRANDING
-   Logo + name restored without bringing back the old navbar.
-   ========================================================= */
+/* STUDENTKART — HOMEPAGE BRANDING Logo + name restored without bringing back the old navbar. */
 .sk-home-brand{
   position:absolute !important;
   top:26px !important;
@@ -21524,10 +21169,7 @@ html body > .mobile-bottom-nav{
 }
 
 
-/* =========================================================
-   STUDENTKART — SIMPLE HOME COPY
-   Keep the homepage focused on what the app actually does.
-   ========================================================= */
+/* STUDENTKART — SIMPLE HOME COPY Keep the homepage focused on what the app actually does. */
 .sk-home-simple-label{
   display:inline-flex !important;
   align-items:center !important;
@@ -21549,9 +21191,7 @@ html body > .mobile-bottom-nav{
 }
 
 
-/* =========================================================
-   STUDENTKART — HOMEPAGE NAVIGATION BAR
-   ========================================================= */
+/* STUDENTKART — HOMEPAGE NAVIGATION BAR */
 .sk-home-nav-bar{
   width:min(100%,620px) !important;
   margin-top:28px !important;
@@ -21653,9 +21293,7 @@ html body > .mobile-bottom-nav{
 }
 
 
-/* =========================================================
-   STUDENTKART — HOMEPAGE NAV BAR DARK THEME
-   ========================================================= */
+/* STUDENTKART — HOMEPAGE NAV BAR DARK THEME */
 .sk-home-nav-bar{
   background:#102f4b !important;
   border-color:rgba(255,255,255,.10) !important;
@@ -21682,9 +21320,7 @@ html body > .mobile-bottom-nav{
 }
 
 
-/* =========================================================
-   STUDENTKART — COMPACT HOME AFTER SHOWCASE REMOVAL
-   ========================================================= */
+/* STUDENTKART — COMPACT HOME AFTER SHOWCASE REMOVAL */
 .sk-home-container{
   min-height:auto !important;
   grid-template-columns:1fr !important;
@@ -21723,9 +21359,7 @@ html body > .mobile-bottom-nav{
 }
 
 
-/* =========================================================
-   STUDENTKART — MOVE HERO CONTENT UP
-   ========================================================= */
+/* STUDENTKART — MOVE HERO CONTENT UP */
 .sk-home-container{
   padding-top:52px !important;
 }
@@ -21741,9 +21375,7 @@ html body > .mobile-bottom-nav{
 }
 
 
-/* =========================================================
-   STUDENTKART — MOVE HOMEPAGE CONTENT FURTHER UP
-   ========================================================= */
+/* STUDENTKART — MOVE HOMEPAGE CONTENT FURTHER UP */
 .sk-home-container{
   padding-top:28px !important;
 }
@@ -21759,11 +21391,7 @@ html body > .mobile-bottom-nav{
 }
 
 
-/* =========================================================
-   STUDENTKART — HERO NAV STICKY UNDER LOGO
-   The hero navigation stays in normal flow initially.
-   On scroll it sticks directly below the StudentKart logo.
-   ========================================================= */
+/* STUDENTKART — HERO NAV STICKY UNDER LOGO The hero navigation stays in normal flow initially. On scroll it sticks directly below the StudentKart logo. */
 .sk-home-v2{
   overflow:visible !important;
 }
