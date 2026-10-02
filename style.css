@@ -16333,3 +16333,18 @@ body #chatModal:not(.hidden) .chat-form .chat-input-pill:focus-within {
 body #chatModal:not(.hidden) .chat-form .chat-input-pill:focus-within {
     border-color: rgba(15,139,141,.45) !important;
 }
+
+
+/* CHAT LONG-PRESS SELECTION — disable Chrome native image menu */
+body #chatModal:not(.hidden) #chatMessages,
+body #chatModal:not(.hidden) #chatMessages .chat-message,
+body #chatModal:not(.hidden) #chatMessages img,
+body #chatModal:not(.hidden) #chatMessages video {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-user-drag: none !important;
+}
+body #chatModal:not(.hidden) #chatMessages .chat-message {
+    touch-action: manipulation !important;
+}
