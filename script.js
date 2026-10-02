@@ -2210,32 +2210,8 @@ function ensureSellerProfileUI() {
     if (existingModal) {
         const actions = existingModal.querySelector(".seller-profile-actions");
 
-        if (actions && !actions.querySelector("#sellerProfileContactButton")) {
-            const contactButton = document.createElement("button");
-            contactButton.type = "button";
-            contactButton.className = "btn btn-outline seller-profile-contact-button";
-            contactButton.id = "sellerProfileContactButton";
-            contactButton.innerHTML = '<i class="fas fa-paper-plane"></i> Contact with Seller';
-            actions.appendChild(contactButton);
-        } else if (!actions) {
-            const listingsHeader = existingModal.querySelector(".seller-profile-listings-header");
-            if (listingsHeader) {
-                const newActions = document.createElement("div");
-                newActions.className = "seller-profile-actions";
-                newActions.innerHTML = `
-                    <button type="button" class="btn btn-primary" id="sellerProfileChatButton">
-                        <i class="fas fa-message"></i>
-                        Chat with Seller
-                    </button>
-                    <button type="button" class="btn btn-outline seller-profile-contact-button" id="sellerProfileContactButton">
-                        <i class="fas fa-paper-plane"></i>
-                        Contact with Seller
-                    </button>
-                `;
-                listingsHeader.parentNode.insertBefore(newActions, listingsHeader);
-            }
-        }
-
+        // Repair any previously rendered seller profile by removing the old contact action.
+        existingModal.querySelector("#sellerProfileContactButton")?.remove();
         return;
     }
 
@@ -2311,10 +2287,6 @@ function ensureSellerProfileUI() {
                 <button type="button" class="btn btn-primary" id="sellerProfileChatButton">
                     <i class="fas fa-message"></i>
                     Chat with Seller
-                </button>
-                <button type="button" class="btn btn-outline seller-profile-contact-button" id="sellerProfileContactButton">
-                    <i class="fas fa-paper-plane"></i>
-                    Contact with Seller
                 </button>
             </div>
 
@@ -2526,30 +2498,18 @@ async function openSellerProfile(
         if (!currentUser) {
             closeModal("sellerProfileModal");
             openModal("loginModal");
-            showToast("Please login to contact the seller", "warning");
+            showToast("Please login to chat with the seller", "warning");
             return;
         }
 
         if (String(currentUser.id) === String(sellerId)) {
-            showToast("You cannot contact yourself", "warning");
+            showToast("You cannot chat with yourself", "warning");
             return;
         }
 
-        const { data: inquiry } = await supabaseClient
-            .from("inquiries")
-            .select("*")
-            .eq("buyer_id", currentUser.id)
-            .eq("seller_id", sellerId)
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-        if (!inquiry) {
-            showToast("Open a product and send an inquiry to start chatting with this seller.", "warning");
-            return;
-        }
-
-        await openChat(inquiry);
+        // Seller profile chat must work even when no product inquiry exists yet.
+        // Reuse/create the direct-chat inquiry container, then open the existing chat UI.
+        await openStudentKartUserChat(sellerId);
     };
 
     if (chatButton) {
