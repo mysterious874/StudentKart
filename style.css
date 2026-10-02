@@ -19459,3 +19459,69 @@ input:focus, textarea:focus, select:focus {
     display: none !important;
   }
 }
+
+
+/* =========================================================
+   FINAL MOBILE FLOATING BAR + CATEGORY PAGE CLEANUP
+   ========================================================= */
+@media (max-width: 600px) {
+  /* Keep the bottom navigation truly floating above the page. */
+  .navbar .mobile-bottom-nav {
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: 12px !important;
+    top: auto !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 24px) !important;
+    max-width: 520px !important;
+    height: 62px !important;
+    min-height: 62px !important;
+    padding: 6px !important;
+    margin: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    border-radius: 18px !important;
+    background: rgba(16,42,67,.96) !important;
+    box-shadow: 0 12px 35px rgba(16,42,67,.25) !important;
+    z-index: 99999 !important;
+  }
+
+  body {
+    padding-bottom: 96px !important;
+  }
+}
+
+/* Category page: remove the old boxed/grid treatment and make it
+   look like a clean marketplace page instead of the previous card UI. */
+.category-page,
+#categoryPage {
+  background: transparent !important;
+}
+
+.category-page .category-grid,
+#categoryPage .category-grid,
+.category-page .categories-grid,
+#categoryPage .categories-grid {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+.category-page .category-card,
+#categoryPage .category-card,
+.category-page .category-picker-card,
+#categoryPage .category-picker-card {
+  box-shadow: none !important;
+}
+
+/* If the category page uses a generic grid/list wrapper, strip its
+   surrounding box without affecting the product cards themselves. */
+body.category-page-active .section,
+body.category-page-active .container,
+body.category-page-active .category-page-container {
+  box-shadow: none !important;
+  border: 0 !important;
+  background: transparent !important;
+}
