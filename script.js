@@ -2668,32 +2668,11 @@ function contactSeller() {
         return;
     }
 
-    selectedInquiryProduct =
-        currentProduct;
+    // Close View Details first so its full-screen navigation lock is removed.
+    closeModal("productModal");
 
-    if ($("inquiryProductName")) {
-
-        $("inquiryProductName")
-            .textContent =
-            currentProduct.name;
-    }
-
-    if ($("inquiryProductPrice")) {
-
-        $("inquiryProductPrice")
-            .textContent =
-            formatPrice(
-                currentProduct.price
-            );
-    }
-
-    if ($("inquiryMessage")) {
-
-        $("inquiryMessage")
-            .value = "";
-    }
-
-    openModal("inquiryModal");
+    // Open the existing WhatsApp-style direct chat with this seller.
+    openStudentKartUserChat(currentProduct.userId);
 }
 
 async function submitInquiry(event) {
