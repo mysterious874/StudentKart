@@ -8492,10 +8492,10 @@ async function sendChatMessage(event) {
             sendButton.disabled = false;
             sendButton.innerHTML = originalSendHtml || '<i class="fas fa-paper-plane"></i>';
         }
-        // Do not refocus the input after sending.
-        // Keeping focus here makes the mobile keyboard reopen/stay visible.
-        if (document.activeElement === input) {
-            input?.blur();
+        // Keep the chat input focused after sending so the mobile
+        // keyboard stays open for rapid consecutive messages.
+        if (input) {
+            input.focus({ preventScroll: true });
         }
     }
 }
