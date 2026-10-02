@@ -6700,12 +6700,20 @@ document.addEventListener("click", event => {
     });
 
 
-    $("mobileOtpForm")?.addEventListener("submit", verifyMobileOtp);
-    $("resendMobileOtpButton")?.addEventListener("click", resendMobileOtp);
-
-
-    $("otpForm")?.addEventListener("submit", verifyOtp);
-    $("resendOtpButton")?.addEventListener("click", resendOtp);
+    // Legacy OTP handlers are optional. Guard them so a missing legacy
+    // function can never stop the rest of StudentKart initialization.
+    if (typeof verifyMobileOtp === "function") {
+        $("mobileOtpForm")?.addEventListener("submit", verifyMobileOtp);
+    }
+    if (typeof resendMobileOtp === "function") {
+        $("resendMobileOtpButton")?.addEventListener("click", resendMobileOtp);
+    }
+    if (typeof verifyOtp === "function") {
+        $("otpForm")?.addEventListener("submit", verifyOtp);
+    }
+    if (typeof resendOtp === "function") {
+        $("resendOtpButton")?.addEventListener("click", resendOtp);
+    }
 
     ensureSellerProfileUI();
     ensureNotificationsUI();
