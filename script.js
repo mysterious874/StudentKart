@@ -6513,6 +6513,18 @@ function setupEventListeners() {
         if (event.target.closest("[data-close-product-image-preview]")) {
             event.preventDefault();
             closeProductImagePreview();
+            return;
+        }
+
+        // Prevent the normal image click from firing immediately after
+        // a successful long-press preview.
+        if (
+            longPressTriggered &&
+            event.target.closest(".product-card .product-image, #detailsImage")
+        ) {
+            longPressTriggered = false;
+            event.preventDefault();
+            event.stopPropagation();
         }
     });
 
@@ -6836,35 +6848,6 @@ document.addEventListener("click", event => {
                 () => {}
             );
         });
-
-    const filterMenu =
-        document.querySelector(".marketplace-filter-menu");
-
-    filterMenu?.addEventListener("toggle", () => {
-        if (filterMenu.open) {
-            captureMarketplaceFilterSnapshot();
-        }
-    });
-
-    $("applyMarketplaceFilters")
-        ?.addEventListener(
-            "click",
-            () => {
-                applyFilters();
-                filterMenu?.removeAttribute("open");
-                showToast("Filters applied", "success");
-            }
-        );
-
-    $("cancelMarketplaceFilters")
-        ?.addEventListener(
-            "click",
-            () => {
-                restoreMarketplaceFilterSnapshot();
-                applyFilters();
-                filterMenu?.removeAttribute("open");
-            }
-        );
 
     $("bottomCategoriesButton")?.addEventListener("click", () => {
         const modal = $("categoryPickerModal");
