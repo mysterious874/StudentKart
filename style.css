@@ -20250,3 +20250,32 @@ body.category-page-active .category-page-container {
     padding-bottom: 120px !important;
   }
 }
+
+
+/* STEP 4 — Keep the main logo navbar at the top; floating quick nav stays at bottom */
+@media (max-width: 600px) {
+  html body > .navbar {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: 1000 !important;
+  }
+
+  html body > .navbar > .nav-container {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 64px !important;
+    margin: 0 !important;
+    padding: 10px 14px !important;
+    border-radius: 0 0 20px 20px !important;
+  }
+
+  html body > .navbar .mobile-bottom-nav {
+    display: none !important;
+  }
+}
