@@ -9378,6 +9378,23 @@ body .chat-person h2 {
     display: inline-flex !important;
 }
 
+.navbar .nav-actions > #profileButton {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    padding: 8px;
+}
+
+.navbar .nav-actions > #profileButton i {
+    display: inline-flex !important;
+    font-size: 16px !important;
+    margin: 0 !important;
+}
+
 .navbar .nav-container {
     justify-content: space-between;
 }
