@@ -6748,11 +6748,7 @@ function setupEventListeners() {
        EDIT PROFILE
        ----------------------------------------- */
 
-    $("editProfileForm")
-        ?.addEventListener(
-            "submit",
-            saveEditedProfile
-        );
+    // Edit Profile submit is handled by the global capture listener below.
 
     $("editProfileImage")
         ?.addEventListener(
@@ -7274,6 +7270,18 @@ window.markAllNotificationsAsRead =
 window.openNotification =
     openNotification;
 
+
+/* =========================================================
+   EDIT PROFILE SUBMIT SAFETY HANDLER
+   =========================================================
+   Keep this outside setupEventListeners() so Edit Profile still
+   responds even if another optional UI initializer fails.
+   ========================================================= */
+document.addEventListener("submit", event => {
+    const form = event.target;
+    if (form?.id !== "editProfileForm") return;
+    saveEditedProfile(event);
+}, true);
 
 /* =========================================================
    START
