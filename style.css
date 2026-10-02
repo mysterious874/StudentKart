@@ -20920,3 +20920,12 @@ body:has(> #studentKartSplash) > .mobile-bottom-nav{
   opacity:0 !important;
   pointer-events:none !important;
 }
+
+
+/* SPLASH INITIAL-RENDER LOCK — bottom navigation cannot flash over intro */
+html body > .mobile-bottom-nav.splash-hidden{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
