@@ -3698,7 +3698,7 @@ async function signupUser(event) {
     const email = normalizeAuthEmail($("signupIdentifier")?.value);
     const password = $("signupPassword")?.value || "";
 
-    if (!name || !college || !email || !password) {
+    if (!name || !college || !state || !city || !email || !password) {
         showToast("Please fill all fields correctly", "warning");
         return;
     }
@@ -3766,6 +3766,9 @@ async function ensureProfileAfterPasswordSignup(user) {
             id: user.id,
             name: metadata.name || user.email?.split("@")[0] || "Student",
             college: metadata.college || "",
+            state: metadata.state || "",
+            city: metadata.city || "",
+            area: metadata.area || "",
             email: user.email || "",
             avatar_url: ""
         };
@@ -4079,6 +4082,9 @@ async function saveEditedProfile(
                 currentUser.id,
             name,
             college,
+            state,
+            city,
+            area,
             email:
                 currentUser.email ||
                 "",
@@ -4107,7 +4113,10 @@ async function saveEditedProfile(
             .updateUser({
                 data: {
                     name,
-                    college
+                    college,
+                    state,
+                    city,
+                    area
                 }
             });
 
@@ -8025,7 +8034,41 @@ function addHomeButtonsToBackArrows(root = document) {
     });
 }
 
+function populateStudentKartIndiaData() {
+    const stateSelects = ["signupState","editProfileState"];
+    const cityLists = ["studentkartCityList"];
+    const institutionLists = ["studentkartInstitutionList"];
+
+    stateSelects.forEach(id => {
+        const select = $(id);
+        if (!select) return;
+        const current = select.value;
+        select.innerHTML = '<option value="">Select state / UT</option>' +
+            STUDENTKART_INDIA_STATES.map(state =>
+                '<option value="' + escapeHTML(state) + '">' + escapeHTML(state) + '</option>'
+            ).join("");
+        if (current) select.value = current;
+    });
+
+    cityLists.forEach(id => {
+        const list = $(id);
+        if (!list) return;
+        list.innerHTML = STUDENTKART_INDIA_CITIES
+            .map(city => '<option value="' + escapeHTML(city) + '"></option>')
+            .join("");
+    });
+
+    institutionLists.forEach(id => {
+        const list = $(id);
+        if (!list) return;
+        list.innerHTML = STUDENTKART_INSTITUTIONS
+            .map(name => '<option value="' + escapeHTML(name) + '"></option>')
+            .join("");
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    populateStudentKartIndiaData();
     addHomeButtonsToBackArrows();
 
     const modalObserver = new MutationObserver(mutations => {
