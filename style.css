@@ -17209,3 +17209,59 @@ body #sellerProfileModal .seller-profile-contact-button,
 body #sellerProfileModal #sellerProfileContactButton {
     display: none !important;
 }
+
+
+/* FINAL SELLER PROFILE IDENTITY CENTERING FIX
+   Keep avatar centered and lock Name + College to the exact modal center,
+   independent of asymmetric back/home button spacing or inherited layout rules. */
+body #sellerProfileModal .seller-profile-header {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+body #sellerProfileModal .seller-profile-avatar {
+    position: relative !important;
+    left: 0 !important;
+    right: auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+body #sellerProfileModal .seller-profile-main {
+    position: relative !important;
+    left: 0 !important;
+    right: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+body #sellerProfileModal #sellerProfileName,
+body #sellerProfileModal #sellerProfileCollege {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+    transform: none !important;
+}
+
+body #sellerProfileModal #sellerProfileName {
+    text-align: center !important;
+}
+
+body #sellerProfileModal #sellerProfileCollege {
+    text-align: center !important;
+}
