@@ -8100,6 +8100,31 @@ $("chatBackButton")?.addEventListener("click", () => {
 
 
 let selectedChatMessageIds = new Set();
+
+function getHiddenChatMessageKey() {
+    return currentUser && currentChatInquiry
+        ? "studentkart-hidden-messages-" + String(currentUser.id) + "-" + String(currentChatInquiry.id)
+        : "";
+}
+
+function getHiddenChatMessageIds() {
+    const key = getHiddenChatMessageKey();
+    if (!key) return new Set();
+    try {
+        const raw = JSON.parse(localStorage.getItem(key) || "[]");
+        return new Set(Array.isArray(raw) ? raw.map(String) : []);
+    } catch {
+        return new Set();
+    }
+}
+
+function saveHiddenChatMessageIds(ids) {
+    const key = getHiddenChatMessageKey();
+    if (!key) return;
+    localStorage.setItem(key, JSON.stringify(Array.from(ids)));
+}
+
+
 let chatLongPressTimer = null;
 let chatLongPressTriggered = false;
 
@@ -8208,7 +8233,8 @@ $("chatMessages")?.addEventListener("click", async event => {
 $("clearChatSelectionButton")?.addEventListener("click", clearChatMessageSelection);
 $("copySelectedChatButton")?.addEventListener("click", copySelectedChatMessages);
 $("replySelectedChatButton")?.addEventListener("click", replyToSelectedChatMessage);
-$("deleteSelectedChatButton")?.addEventListener("click", deleteSelectedOwnChatMessages);
+$("deleteSelectedChatForMeButton")?.addEventListener("click", deleteSelectedChatMessagesForMe);
+$("deleteSelectedChatButton")?.addEventListener("click", deleteSelectedChatMessagesForEveryone);
 
 function getSelectedChatMessageElements() {
     return Array.from(
@@ -8264,7 +8290,21 @@ function replyToSelectedChatMessage() {
     showToast("Reply ready", "success");
 }
 
-async function deleteSelectedOwnChatMessages() {
+async function deleteSelectedChatMessagesForMe() {
+    if (!currentUser || !selectedChatMessageIds.size) return;
+    const ids = Array.from(selectedChatMessageIds).map(String);
+    if (!window.confirm("Delete " + ids.length + " selected message" + (ids.length === 1 ? "" : "s") + " for you?")) return;
+
+    const hidden = getHiddenChatMessageIds();
+    ids.forEach(id => hidden.add(id));
+    saveHiddenChatMessageIds(hidden);
+
+    selectedChatMessageIds.clear();
+    await loadChatMessages();
+    showToast(ids.length + " message" + (ids.length === 1 ? "" : "s") + " deleted for you", "success");
+}
+
+async function deleteSelectedChatMessagesForEveryone() {
     if (!currentUser || !selectedChatMessageIds.size) return;
 
     const ownIds = getSelectedChatMessageElements()
@@ -8273,16 +8313,11 @@ async function deleteSelectedOwnChatMessages() {
         .filter(Boolean);
 
     if (!ownIds.length) {
-        showToast("Select messages you sent to delete them", "warning");
+        showToast("Delete for everyone is only available for messages you sent", "warning");
         return;
     }
 
-    if (!window.confirm(
-        "Delete " + ownIds.length + " selected message" +
-        (ownIds.length === 1 ? "" : "s") + "?"
-    )) {
-        return;
-    }
+    if (!window.confirm("Delete " + ownIds.length + " selected message" + (ownIds.length === 1 ? "" : "s") + " for everyone?")) return;
 
     try {
         const { error } = await supabaseClient
@@ -8295,16 +8330,13 @@ async function deleteSelectedOwnChatMessages() {
 
         selectedChatMessageIds.clear();
         await loadChatMessages();
-        showToast(
-            ownIds.length + " message" +
-            (ownIds.length === 1 ? "" : "s") + " deleted",
-            "success"
-        );
+        showToast(ownIds.length + " message" + (ownIds.length === 1 ? "" : "s") + " deleted for everyone", "success");
     } catch (error) {
-        console.error("Delete selected chat messages error:", error);
-        showToast("Could not delete selected messages", "error");
+        console.error("Delete for everyone error:", error);
+        showToast("Could not delete selected messages for everyone", "error");
     }
 }
+
 
 function parseChatImageMessage(value) {
     const raw = String(value || "");
@@ -8366,7 +8398,10 @@ async function loadChatMessages() {
 
         if (error) throw error;
 
-        const nextSignature = JSON.stringify((data || []).map(message => [
+        const hiddenMessageIds = getHiddenChatMessageIds();
+        const visibleMessages = (data || []).filter(message => !hiddenMessageIds.has(String(message.id)));
+
+        const nextSignature = JSON.stringify(visibleMessages.map(message => [
             message.id,
             message.updated_at || message.created_at,
             message.message,
@@ -8379,7 +8414,7 @@ async function loadChatMessages() {
         const profileIntro = container.querySelector("#chatProfileIntro");
         const profileIntroHtml = profileIntro ? profileIntro.outerHTML : "";
 
-        if (!data || data.length === 0) {
+        if (!visibleMessages || visibleMessages.length === 0) {
             container.innerHTML = profileIntroHtml + `
                 <div class="chat-empty">
                     <i class="fas fa-comment-dots"></i>
