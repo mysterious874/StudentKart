@@ -20494,3 +20494,46 @@ body.category-page-active .category-page-container {
     padding-top:130px !important;
   }
 }
+/* FINAL NAV POSITION — TOP HEADER / BOTTOM QUICK BAR */
+@media (max-width:600px){
+  body > header.navbar{
+    display:block !important;
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    right:0 !important;
+    bottom:auto !important;
+    width:100% !important;
+    height:auto !important;
+    margin:0 !important;
+    padding:14px 0 0 !important;
+    transform:none !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+    z-index:5000 !important;
+  }
+  body > header.navbar.navbar-scroll-hidden{
+    top:0 !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+  }
+  body > header.navbar > .nav-container{
+    margin:0 auto !important;
+  }
+  body > .mobile-bottom-nav{
+    display:grid !important;
+    position:fixed !important;
+    top:auto !important;
+    left:50% !important;
+    right:auto !important;
+    bottom:14px !important;
+    transform:translateX(-50%) !important;
+    z-index:99999 !important;
+  }
+  body{
+    padding-top:130px !important;
+    padding-bottom:120px !important;
+  }
+}
