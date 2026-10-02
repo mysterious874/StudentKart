@@ -17711,3 +17711,47 @@ body.new-user-gate-open {
         padding: 25px 20px 20px !important;
     }
 }
+
+
+/* FINAL LOGOUT CARD OVERRIDE */
+body #logoutConfirmModal.modal:not(.hidden) {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 16px !important;
+    box-sizing: border-box !important;
+    background: rgba(12, 18, 14, 0.62) !important;
+    z-index: 99999 !important;
+}
+
+body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
+    display: block !important;
+    position: relative !important;
+    inset: auto !important;
+    width: 360px !important;
+    max-width: calc(100vw - 32px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 32px) !important;
+    margin: 0 !important;
+    padding: 28px 24px 22px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    border-radius: 20px !important;
+    background: #fff !important;
+    flex: none !important;
+}
+
+@media (max-width: 480px) {
+    body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
+        width: 340px !important;
+        max-width: calc(100vw - 28px) !important;
+        padding: 25px 20px 20px !important;
+    }
+}
