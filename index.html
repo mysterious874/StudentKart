@@ -112,8 +112,12 @@
         <a href="#marketplace" class="bottom-nav-item">
             <i class="fas fa-store"></i><span>Market</span>
         </a>
-        <button type="button" class="bottom-nav-item" onclick="document.getElementById('chatButton')?.click()">
-            <i class="fas fa-message"></i><span>Chat</span>
+        <button type="button" class="bottom-nav-item bottom-chat-nav-item" onclick="document.getElementById('chatButton')?.click()">
+            <span class="bottom-nav-icon-wrap">
+                <i class="fas fa-message"></i>
+                <span class="chat-unread-count bottom-chat-unread-count hidden" id="chatBottomUnreadCount">0</span>
+            </span>
+            <span>Chat</span>
         </button>
         <button type="button" class="bottom-nav-item" onclick="document.getElementById('wishlistButton')?.click()">
             <i class="fa-regular fa-heart"></i><span>Wishlist</span>
