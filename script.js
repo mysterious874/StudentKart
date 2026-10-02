@@ -7759,7 +7759,7 @@ function closeChatDeleteMenu() {
     }
 }
 
-async function openChat(inquiry) {
+async async function openChat(inquiry) {
 
     if (!currentUser) {
         openModal("loginModal");
@@ -7800,7 +7800,33 @@ async function openChat(inquiry) {
             ? inquiry.buyer_id
             : inquiry.seller_id;
 
+    /*
+     * Chat is a child of the Chats list. Keep that relationship explicit
+     * so Android/browser Back restores the chat list instead of Home.
+     */
+    const chatListIsOpen = Boolean(
+        document.getElementById("inquiriesModal") &&
+        !document.getElementById("inquiriesModal").classList.contains("hidden")
+    );
+
+    if (chatListIsOpen) {
+        modalHistory = ["inquiriesModal"];
+    }
+
     openModal("chatModal");
+
+    if (chatListIsOpen && window.history.state?.studentKart) {
+        window.history.replaceState(
+            {
+                ...window.history.state,
+                studentKart: true,
+                modalId: "chatModal",
+                modalStack: ["inquiriesModal", "chatModal"]
+            },
+            "",
+            window.location.pathname + window.location.search + "#chatModal"
+        );
+    }
 
     document.body.classList.add("studentkart-chat-open");
 
