@@ -13635,6 +13635,12 @@ async function settingsLanguage() {
             if (saved) {
                 applyStudentKartLanguage();
                 showToast("Language changed to " + STUDENTKART_LANGUAGES[settings.preferences.language], "success");
+
+                // Relaunch the app so every static and dynamically generated
+                // screen starts cleanly in the newly selected language.
+                window.setTimeout(() => {
+                    window.location.reload();
+                }, 450);
             }
             return saved;
         }
