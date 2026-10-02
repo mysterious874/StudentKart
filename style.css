@@ -14824,3 +14824,8 @@ body.studentkart-dark #chatModal .chat-selection-delete-option {
     border-color: rgba(143,225,221,.14);
     color: #e7f7f5;
 }
+
+
+body #chatModal .chat-message {
+    position: relative !important;
+}
