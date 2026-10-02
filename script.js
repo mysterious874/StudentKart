@@ -2203,7 +2203,39 @@ async function openProductDetails(productId) {
 
 function ensureSellerProfileUI() {
 
-    if ($("sellerProfileModal")) {
+    const existingModal = $("sellerProfileModal");
+
+    // If the modal already exists (for example after SPA navigation or
+    // an older cached DOM), repair the action row instead of returning.
+    if (existingModal) {
+        const actions = existingModal.querySelector(".seller-profile-actions");
+
+        if (actions && !actions.querySelector("#sellerProfileContactButton")) {
+            const contactButton = document.createElement("button");
+            contactButton.type = "button";
+            contactButton.className = "btn btn-outline seller-profile-contact-button";
+            contactButton.id = "sellerProfileContactButton";
+            contactButton.innerHTML = '<i class="fas fa-paper-plane"></i> Contact with Seller';
+            actions.appendChild(contactButton);
+        } else if (!actions) {
+            const listingsHeader = existingModal.querySelector(".seller-profile-listings-header");
+            if (listingsHeader) {
+                const newActions = document.createElement("div");
+                newActions.className = "seller-profile-actions";
+                newActions.innerHTML = `
+                    <button type="button" class="btn btn-primary" id="sellerProfileChatButton">
+                        <i class="fas fa-message"></i>
+                        Chat with Seller
+                    </button>
+                    <button type="button" class="btn btn-outline seller-profile-contact-button" id="sellerProfileContactButton">
+                        <i class="fas fa-paper-plane"></i>
+                        Contact with Seller
+                    </button>
+                `;
+                listingsHeader.parentNode.insertBefore(newActions, listingsHeader);
+            }
+        }
+
         return;
     }
 
