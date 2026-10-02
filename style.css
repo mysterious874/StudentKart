@@ -16771,3 +16771,155 @@ main,
         top: 10px !important;
     }
 }
+
+
+/* =========================================================
+   REFINED FIXED NAV — COMPACT MARKETPLACE STYLE
+   ========================================================= */
+.site-side-nav {
+    top: 16px !important;
+    left: 16px !important;
+    bottom: 16px !important;
+    width: 78px !important;
+    border-radius: 20px !important;
+    background: rgba(255,255,255,.92) !important;
+    box-shadow: 0 14px 40px rgba(15,42,67,.08) !important;
+    border: 1px solid rgba(15,42,67,.07) !important;
+}
+
+.site-side-nav .nav-container {
+    padding: 14px 9px !important;
+    gap: 15px !important;
+}
+
+.site-side-nav .side-nav-logo {
+    flex-direction: column !important;
+    gap: 4px !important;
+    padding: 3px 2px 14px !important;
+}
+
+.site-side-nav .side-nav-logo .logo-mark {
+    transform: scale(.82);
+    transform-origin: center;
+}
+
+.site-side-nav .logo-text {
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.2px !important;
+}
+
+.site-side-nav .nav-links {
+    gap: 5px !important;
+}
+
+.site-side-nav .nav-links a {
+    min-height: 53px !important;
+    padding: 7px 3px !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    border-radius: 12px !important;
+    font-size: 9px !important;
+    font-weight: 650 !important;
+    text-align: center !important;
+}
+
+.site-side-nav .nav-links a i {
+    width: auto !important;
+    font-size: 14px !important;
+}
+
+.site-side-nav .nav-links a:hover,
+.site-side-nav .nav-links a:focus-visible {
+    transform: translateY(-1px) !important;
+}
+
+.site-side-nav .nav-actions {
+    gap: 4px !important;
+    padding-top: 10px !important;
+}
+
+.site-side-nav .nav-actions .btn {
+    min-height: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 11px !important;
+    font-size: 0 !important;
+}
+
+.site-side-nav .nav-actions .btn i {
+    width: auto !important;
+    font-size: 13px !important;
+    margin: 0 !important;
+}
+
+.site-side-nav .nav-actions .btn-primary#sellButton {
+    font-size: 0 !important;
+}
+
+.site-side-nav .nav-actions .btn-primary#sellButton i {
+    font-size: 14px !important;
+}
+
+.site-side-nav .nav-actions .nav-action-label,
+.site-side-nav .nav-actions .chat-button-text,
+.site-side-nav .nav-actions .btn span:not(.notification-count):not(.chat-unread-count) {
+    display: none !important;
+}
+
+.site-side-nav .notification-count,
+.site-side-nav .chat-unread-count {
+    position: absolute !important;
+    top: 5px !important;
+    right: 5px !important;
+    margin: 0 !important;
+    min-width: 15px !important;
+    height: 15px !important;
+    padding: 0 3px !important;
+    font-size: 8px !important;
+}
+
+.site-side-nav .nav-actions .btn {
+    position: relative !important;
+}
+
+main,
+.footer {
+    margin-left: 110px !important;
+}
+
+.site-side-nav + .navbar-search-panel {
+    left: 110px !important;
+    right: 16px !important;
+    top: 16px !important;
+}
+
+@media (max-width: 900px) {
+    .site-side-nav {
+        width: 68px !important;
+        left: 10px !important;
+        top: 10px !important;
+        bottom: 10px !important;
+    }
+    main,
+    .footer {
+        margin-left: 92px !important;
+    }
+    .site-side-nav + .navbar-search-panel {
+        left: 92px !important;
+        right: 10px !important;
+        top: 10px !important;
+    }
+}
+
+@media (max-width: 680px) {
+    .site-side-nav {
+        display: none !important;
+    }
+    main,
+    .footer {
+        margin-left: 0 !important;
+    }
+}
