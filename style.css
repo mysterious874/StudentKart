@@ -12453,13 +12453,13 @@ body.studentkart-dark .filter-panel-grid input,body.studentkart-dark .filter-pan
 
 /* FINAL FIX — 25px gap below navbar */
 .navbar-search-panel {
-    top: 95px !important;
+    top: 93px !important;
     z-index: 9999 !important;
 }
 
 @media (max-width: 600px) {
     .navbar-search-panel {
-        top: 87px !important;
+        top: 85px !important;
         width: calc(100vw - 16px) !important;
     }
 }
