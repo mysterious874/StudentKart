@@ -15160,3 +15160,24 @@ body.product-image-preview-open{overflow:hidden!important}
     }
     .product-image-preview-close{top:16px!important;right:16px!important}
 }
+
+/* PRODUCT IMAGE PREVIEW — compact rounded presentation */
+.product-image-preview-dialog{
+    width:min(720px,82vw)!important;
+    height:min(620px,78vh)!important;
+    border-radius:24px!important;
+    overflow:hidden!important;
+    background:#111820!important;
+}
+.product-image-preview-dialog img{
+    border-radius:20px!important;
+}
+@media(max-width:600px){
+    .product-image-preview-modal{padding:16px!important}
+    .product-image-preview-dialog{
+        width:min(92vw,520px)!important;
+        height:min(72vh,620px)!important;
+        border-radius:20px!important;
+    }
+    .product-image-preview-dialog img{border-radius:16px!important}
+}
