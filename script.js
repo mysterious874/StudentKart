@@ -11593,27 +11593,27 @@ document.addEventListener("click", event => {
 const footerInfoContent = {
     about: {
         title: "About StudentKart",
-        body: "StudentKart is a student-focused marketplace created to make everyday buying, selling and discovering products simpler for students. From books and electronics to furniture, vehicles and useful services, the platform brings students and sellers together in one convenient place. Our goal is to make student-to-student transactions easier, more accessible and more organized."
+        body: "StudentKart is a student-focused marketplace built to make campus buying, selling, renting and discovering easier. Students can explore listings, compare products, save favourites, contact sellers and publish their own listings from one place.\n\nOur focus is simple: make student-to-student transactions convenient, organized and easier to discover. StudentKart is designed around campus communities, where useful products and services are often available nearby but difficult to find.\n\nStudentKart connects users; it does not act as the buyer or seller in a transaction. Always verify the product, seller and transaction details before making a payment."
     },
     how: {
         title: "How It Works",
-        body: "Using StudentKart is simple. Browse the marketplace, search for the product you need, and use filters to find relevant listings by category, price and location. Open any listing to view its details and contact the seller. If you want to sell something, sign in, add your product information and photos, set a price and publish the listing so other students can discover it."
+        body: "Buying:\n1. Browse the marketplace or choose a category.\n2. Search and filter listings by what you need.\n3. Open a product to check price, condition, location and seller details.\n4. Contact the seller through StudentKart chat and discuss the transaction.\n\nSelling:\n1. Sign in to your StudentKart account.\n2. Choose Sell and add the product name, category, price, location, condition, description and photos.\n3. Publish the listing.\n4. Respond to interested buyers through chat and complete the transaction safely.\n\nAlways inspect an item and agree on the final transaction details before paying."
     },
     safety: {
-        title: "Safety Tips",
-        body: "Your safety matters when buying or selling online. Meet other users in a safe and public place, inspect products carefully before completing a transaction, and avoid sharing passwords, OTPs or sensitive personal information. Be cautious of unusually cheap offers or requests for advance payments. If a listing or user seems suspicious, use the available reporting features and avoid continuing the transaction."
+        title: "Safety",
+        body: "Meet in a safe, public and well-known place whenever possible. Inspect the product carefully before completing a transaction and confirm that it matches the listing.\n\nNever share your password, OTP, verification code or other account credentials with anyone. Be careful with requests for advance payments, unusual payment methods, urgent transfers or offers that seem too good to be true.\n\nKeep important conversations inside StudentKart where possible. If a user or listing appears suspicious, stop the transaction and use the available reporting options."
     },
     contact: {
         title: "Contact Us",
-        body: "Have a question, suggestion or feedback about StudentKart? You can reach us directly at rathodharish004@gmail.com. Whether you have found a problem, want to suggest a new feature or simply want to share your experience, your feedback can help improve StudentKart for students. StudentKart is based in Titwala, Kalyan, Maharashtra, India."
+        body: "Need help, found a bug or have a feature suggestion? Contact the StudentKart team at rathodharish004@gmail.com.\n\nYou can use this address for general feedback, problem reports, account-related questions and suggestions for improving the platform. When reporting a problem, include a short description of what happened and, if possible, the page or feature where you experienced it."
     },
     privacy: {
         title: "Privacy Policy",
-        body: "StudentKart is designed to use personal information only where it is needed to provide account, marketplace and communication features. We aim to keep user information handled responsibly and to avoid exposing unnecessary contact details publicly. Never share your password, OTP or other account credentials with another person, even if someone claims to be from StudentKart."
+        body: "StudentKart uses account and profile information to provide features such as authentication, profiles, listings, wishlist, chat and notifications. Information needed for a feature may be stored or processed by the services used to operate StudentKart.\n\nWe aim to show only the information needed for marketplace and communication features. Do not publish sensitive information in your profile, listing description, chat messages or images.\n\nYou are responsible for keeping your login credentials and OTPs private. If you believe your account or personal information has been exposed, contact StudentKart support."
     },
     terms: {
         title: "Terms & Conditions",
-        body: "By using StudentKart, users are expected to provide genuine listing information, communicate respectfully and use the platform only for lawful purposes. Buyers and sellers are responsible for checking products, agreeing on transaction details and completing payments safely. StudentKart is a platform that connects users and does not replace the user's responsibility to verify a listing, seller or transaction before proceeding."
+        body: "By using StudentKart, you agree to use the platform lawfully and respectfully. Listing information should be genuine and should accurately describe the product or service being offered. Users must not use StudentKart for scams, impersonation, harassment, prohibited transactions or other unlawful activity.\n\nBuyers and sellers are responsible for verifying listings, product condition, identity, price, payment details and other transaction terms before completing a deal. StudentKart provides a platform for users to connect and does not become a party to transactions between users.\n\nStudentKart may restrict or remove content or accounts when necessary to protect users or maintain the platform."
     }
 }
 
