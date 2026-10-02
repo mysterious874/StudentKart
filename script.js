@@ -8791,14 +8791,85 @@ function setupStudentKartIndiaLocationSearch() {
     });
 }
 
+let studentKartAllIndiaCitiesCache = null;
+let studentKartAllIndiaInstitutionsCache = null;
+let studentKartInstitutionLoadPromise = null;
+
+async function loadAllIndiaCityDataset() {
+    if (studentKartAllIndiaCitiesCache) return studentKartAllIndiaCitiesCache;
+
+    try {
+        const response = await fetch("https://raw.githubusercontent.com/nshntarora/Indian-Cities-JSON/master/cities.json", {
+            headers: { "Accept": "application/json" },
+            cache: "force-cache"
+        });
+        if (!response.ok) throw new Error("City dataset request failed");
+
+        const data = await response.json();
+        const cities = Array.isArray(data)
+            ? data.map(item => item?.name).filter(Boolean)
+            : [];
+
+        studentKartAllIndiaCitiesCache = [...new Set([
+            ...STUDENTKART_INDIA_CITIES,
+            ...cities
+        ])].sort((a, b) => a.localeCompare(b, "en"));
+
+        return studentKartAllIndiaCitiesCache;
+    } catch (error) {
+        console.debug("All-India city dataset unavailable:", error);
+        studentKartAllIndiaCitiesCache = [...STUDENTKART_INDIA_CITIES];
+        return studentKartAllIndiaCitiesCache;
+    }
+}
+
+async function loadAllIndiaInstitutionDataset() {
+    if (studentKartAllIndiaInstitutionsCache) return studentKartAllIndiaInstitutionsCache;
+    if (studentKartInstitutionLoadPromise) return studentKartInstitutionLoadPromise;
+
+    studentKartInstitutionLoadPromise = fetch(
+        "https://raw.githubusercontent.com/brahmjotsingh0/aishe-institutions-list/main/data/institutions.json",
+        { headers: { "Accept": "application/json" }, cache: "force-cache" }
+    )
+        .then(response => {
+            if (!response.ok) throw new Error("Institution dataset request failed");
+            return response.json();
+        })
+        .then(data => {
+            const institutions = Array.isArray(data)
+                ? data.map(item => item?.name || item?.institutionName).filter(Boolean)
+                : [];
+
+            studentKartAllIndiaInstitutionsCache = [...new Set([
+                ...STUDENTKART_INSTITUTIONS,
+                ...institutions
+            ])].sort((a, b) => a.localeCompare(b, "en"));
+
+            return studentKartAllIndiaInstitutionsCache;
+        })
+        .catch(error => {
+            console.debug("All-India institution dataset unavailable:", error);
+            studentKartAllIndiaInstitutionsCache = [...STUDENTKART_INSTITUTIONS];
+            return studentKartAllIndiaInstitutionsCache;
+        })
+        .finally(() => {
+            studentKartInstitutionLoadPromise = null;
+        });
+
+    return studentKartInstitutionLoadPromise;
+}
+
 function setupEditProfileCityLocationPicker() {
     const input = $("editProfileCity");
     const list = $("studentkartCityList");
     const locationButton = $("editProfileCityLocationButton");
+    const collegeInput = $("editProfileCollege");
+    const institutionList = $("studentkartInstitutionList");
     if (!input || !list) return;
 
-    let timer = null;
+    let cityTimer = null;
     let controller = null;
+    let institutionTimer = null;
 
     const renderCities = values => {
         const merged = [...new Set(
@@ -8810,12 +8881,29 @@ function setupEditProfileCityLocationPicker() {
             .join("");
     };
 
+    const renderInstitutions = values => {
+        if (!institutionList) return;
+        const merged = [...new Set(
+            values.map(value => String(value || "").trim()).filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b, "en"));
+
+        institutionList.innerHTML = merged
+            .map(name => '<option value="' + escapeHTML(name) + '"></option>')
+            .join("");
+    };
+
     const searchCities = async query => {
         const q = String(query || "").trim();
+        const dataset = await loadAllIndiaCityDataset();
+
         if (q.length < 2) {
-            renderCities(STUDENTKART_INDIA_CITIES);
+            renderCities(dataset);
             return;
         }
+
+        const localMatches = dataset.filter(city =>
+            city.toLowerCase().includes(q.toLowerCase())
+        );
 
         if (controller) controller.abort();
         controller = new AbortController();
@@ -8826,47 +8914,70 @@ function setupEditProfileCityLocationPicker() {
                 signal: controller.signal,
                 headers: { "Accept": "application/json" }
             });
-            if (!response.ok) return;
 
-            const results = await response.json();
-            const cities = [];
+            const geoCities = [];
+            if (response.ok) {
+                const results = await response.json();
+                results.forEach(item => {
+                    const address = item.address || {};
+                    [
+                        address.city,
+                        address.town,
+                        address.municipality,
+                        address.city_district,
+                        address.county,
+                        address.state_district,
+                        address.village
+                    ].filter(Boolean).forEach(value => geoCities.push(String(value).trim()));
 
-            results.forEach(item => {
-                const address = item.address || {};
-                [
-                    address.city,
-                    address.town,
-                    address.municipality,
-                    address.city_district,
-                    address.county,
-                    address.state_district,
-                    address.village
-                ].filter(Boolean).forEach(value => cities.push(String(value).trim()));
+                    if (item.display_name) {
+                        const firstPart = String(item.display_name).split(",")[0].trim();
+                        if (firstPart) geoCities.push(firstPart);
+                    }
+                });
+            }
 
-                if (item.display_name) {
-                    const firstPart = String(item.display_name).split(",")[0].trim();
-                    if (firstPart) cities.push(firstPart);
-                }
-            });
-
-            renderCities([...cities, ...STUDENTKART_INDIA_CITIES.filter(city =>
-                city.toLowerCase().includes(q.toLowerCase())
-            )]);
+            renderCities([...geoCities, ...localMatches, ...dataset]);
         } catch (error) {
             if (error?.name !== "AbortError") {
                 console.debug("Edit profile city search unavailable:", error);
             }
+            renderCities([...localMatches, ...dataset]);
         }
     };
 
-    input.addEventListener("focus", () => {
-        renderCities(STUDENTKART_INDIA_CITIES);
+    const searchInstitutions = async query => {
+        const dataset = await loadAllIndiaInstitutionDataset();
+        const q = String(query || "").trim().toLowerCase();
+
+        if (!q) {
+            renderInstitutions(dataset);
+            return;
+        }
+
+        const matches = dataset
+            .filter(name => name.toLowerCase().includes(q))
+            .slice(0, 200);
+
+        renderInstitutions(matches.length ? matches : dataset);
+    };
+
+    input.addEventListener("focus", async () => {
+        renderCities(await loadAllIndiaCityDataset());
     });
 
     input.addEventListener("input", () => {
-        clearTimeout(timer);
-        const q = input.value.trim();
-        timer = setTimeout(() => searchCities(q), 250);
+        clearTimeout(cityTimer);
+        cityTimer = setTimeout(() => searchCities(input.value), 180);
+    });
+
+    collegeInput?.addEventListener("focus", async () => {
+        renderInstitutions(await loadAllIndiaInstitutionDataset());
+    });
+
+    collegeInput?.addEventListener("input", () => {
+        clearTimeout(institutionTimer);
+        institutionTimer = setTimeout(() => searchInstitutions(collegeInput.value), 180);
     });
 
     locationButton?.addEventListener("click", () => {
@@ -8896,7 +9007,7 @@ function setupEditProfileCityLocationPicker() {
 
                 if (city) {
                     input.value = city;
-                    renderCities([city, ...STUDENTKART_INDIA_CITIES]);
+                    renderCities([city, ...(await loadAllIndiaCityDataset())]);
                     showToast("Current city selected: " + city, "success");
 
                     if ($("editProfileState") && address.state) {
@@ -8925,6 +9036,7 @@ function setupEditProfileCityLocationPicker() {
     });
 
     renderCities(STUDENTKART_INDIA_CITIES);
+    renderInstitutions(STUDENTKART_INSTITUTIONS);
 }
 
 function populateStudentKartIndiaData() {
