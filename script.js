@@ -6416,7 +6416,74 @@ function showNotificationPopup(
 
 function setupEventListeners() {
     /* Global wishlist delegation — works for dynamically rendered cards too. */
+    
+/* =========================================================
+   PRODUCT IMAGE LONG-PRESS PREVIEW
+   ========================================================= */
+(() => {
+    let pressTimer = null;
+    let longPressTriggered = false;
+    let pressTarget = null;
+
+    function closeProductImagePreview() {
+        const modal = $("productImagePreviewModal");
+        if (!modal) return;
+        modal.classList.add("hidden");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("product-image-preview-open");
+        const image = $("productImagePreview");
+        if (image) image.src = "";
+    }
+
+    function openProductImagePreview(source) {
+        const modal = $("productImagePreviewModal");
+        const preview = $("productImagePreview");
+        if (!modal || !preview || !source) return;
+        preview.src = source;
+        modal.classList.remove("hidden");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("product-image-preview-open");
+    }
+
+    function clearPress() {
+        if (pressTimer) {
+            clearTimeout(pressTimer);
+            pressTimer = null;
+        }
+        pressTarget = null;
+    }
+
+    document.addEventListener("pointerdown", event => {
+        const image = event.target.closest(".product-card .product-image");
+        if (!image) return;
+        pressTarget = image;
+        longPressTriggered = false;
+        clearPress();
+        pressTarget = image;
+        pressTimer = setTimeout(() => {
+            if (!pressTarget) return;
+            longPressTriggered = true;
+            openProductImagePreview(pressTarget.currentSrc || pressTarget.src);
+            if (navigator.vibrate) navigator.vibrate(20);
+        }, 550);
+    }, {passive:true});
+
+    document.addEventListener("pointerup", clearPress, {passive:true});
+    document.addEventListener("pointercancel", clearPress, {passive:true});
+    document.addEventListener("pointerleave", clearPress, {passive:true});
+
     document.addEventListener("click", event => {
+        if (event.target.closest("[data-close-product-image-preview]")) {
+            event.preventDefault();
+            closeProductImagePreview();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeProductImagePreview();
+    });
+})();
+\ndocument.addEventListener("click", event => {
         const wishlistButton = event.target.closest("[data-wishlist-id]");
         if (!wishlistButton) return;
 
