@@ -17984,3 +17984,111 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
     box-shadow: 0 5px 16px rgba(16,42,67,.10) !important;
   }
 }
+
+
+/* =========================================================
+   STUDENTKART THEMED FILTER DROPDOWNS
+   Replaces native Android/Chrome select popups with in-page menus.
+   ========================================================= */
+.studentkart-native-filter-select {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+}
+.studentkart-custom-select-wrap {
+    position: relative;
+    width: 100%;
+}
+.studentkart-custom-select {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border, #dce7ea);
+    border-radius: 12px;
+    background: #f7fafb;
+    color: var(--text, #193238);
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(16,42,67,.06);
+    transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.studentkart-custom-select:active,
+.studentkart-custom-select[aria-expanded="true"] {
+    border-color: rgba(15,139,141,.55);
+    background: #ffffff;
+    box-shadow: 0 7px 18px rgba(15,139,141,.12);
+}
+.studentkart-custom-select > i {
+    flex: 0 0 auto;
+    color: #0f8b8d;
+    font-size: 11px;
+    transition: transform .16s ease;
+}
+.studentkart-custom-select[aria-expanded="true"] > i { transform: rotate(180deg); }
+.studentkart-custom-select-menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 7px);
+    z-index: 10050;
+    display: none;
+    padding: 6px;
+    border: 1px solid rgba(15,139,141,.14);
+    border-radius: 14px;
+    background: rgba(255,255,255,.98);
+    box-shadow: 0 18px 42px rgba(16,42,67,.18);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    max-height: 240px;
+    overflow-y: auto;
+}
+.studentkart-custom-select-menu.is-open { display: grid; gap: 2px; }
+.studentkart-custom-select-option {
+    width: 100%;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #29434c;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+.studentkart-custom-select-option:hover,
+.studentkart-custom-select-option:focus-visible { background: #edf8f7; outline: none; }
+.studentkart-custom-select-option.is-selected {
+    background: rgba(15,139,141,.10);
+    color: #0f7779;
+    font-weight: 700;
+}
+.studentkart-custom-select-option i { color: #0f8b8d; font-size: 12px; }
+body.studentkart-dark .studentkart-custom-select {
+    background: #173438;
+    border-color: rgba(143,225,221,.16);
+    color: #e7f7f5;
+}
+body.studentkart-dark .studentkart-custom-select[aria-expanded="true"] { background: #1b3d41; }
+body.studentkart-dark .studentkart-custom-select-menu {
+    background: rgba(16,39,42,.98);
+    border-color: rgba(143,225,221,.16);
+    box-shadow: 0 18px 42px rgba(0,0,0,.35);
+}
+body.studentkart-dark .studentkart-custom-select-option { color: #dcefed; }
+body.studentkart-dark .studentkart-custom-select-option:hover,
+body.studentkart-dark .studentkart-custom-select-option:focus-visible { background: rgba(143,225,221,.10); }
+body.studentkart-dark .studentkart-custom-select-option.is-selected { background: rgba(143,225,221,.14); color: #8fe1dd; }
