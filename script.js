@@ -327,6 +327,46 @@ function closeModal(id, options = {}) {
         return;
     }
 
+    if (options.instant) {
+        modal.classList.remove("modal-closing");
+        modal.classList.add("hidden");
+
+        const parentId = modalHistory.pop();
+
+        if (parentId) {
+            const parentModal = $(parentId);
+
+            if (parentModal) {
+                parentModal.classList.remove("modal-closing");
+                parentModal.classList.remove("hidden");
+                document.body.classList.add("modal-open");
+                document.body.classList.add("studentkart-modal-navigation-hidden");
+
+                if (!options.fromPopState && window.history.state?.studentKart) {
+                    setStudentKartModalHistory(
+                        parentId,
+                        [parentId]
+                    );
+                }
+
+                return;
+            }
+        }
+
+        const anyOpen = document.querySelector(".modal:not(.hidden)");
+
+        if (!anyOpen) {
+            document.body.classList.remove("modal-open");
+            document.body.classList.remove("studentkart-modal-navigation-hidden");
+
+            if (!options.fromPopState && window.history.state?.studentKart && window.history.state?.modalId) {
+                setStudentKartModalHistory(null, []);
+            }
+        }
+
+        return;
+    }
+
     modal.classList.add("modal-closing");
 
     window.setTimeout(() => {
@@ -4438,7 +4478,7 @@ async function saveEditedProfile(
         }
     }
 
-    closeModal("editProfileModal");
+    closeModal("editProfileModal", { instant: true });
     showToast(
         file ? "Profile photo updating..." : "Profile updated",
         "success"
