@@ -8919,7 +8919,13 @@ async function sendChatMessage(event) {
 
     const input = $("chatInput");
     const imageInput = $("chatImageInput");
-    const selectedFile = imageInput?.files?.[0] || null;
+    const cameraInput = $("chatCameraInput");
+    const videoInput = $("chatVideoInput");
+    const selectedFile =
+        imageInput?.files?.[0] ||
+        cameraInput?.files?.[0] ||
+        videoInput?.files?.[0] ||
+        null;
     const message = input?.value.trim() || "";
 
     if (!message && !selectedFile) return;
@@ -9044,11 +9050,15 @@ function removeChatUploadStatus() {
 
 function clearChatImageSelection() {
     const input = $("chatImageInput");
+    const cameraInput = $("chatCameraInput");
+    const videoInput = $("chatVideoInput");
     const preview = $("chatImagePreview");
     const image = $("chatImagePreviewImg");
     const name = $("chatImagePreviewName");
 
     if (input) input.value = "";
+    if (cameraInput) cameraInput.value = "";
+    if (videoInput) videoInput.value = "";
     if (image) image.src = "";
     if (name) name.textContent = "";
     preview?.classList.add("hidden");
