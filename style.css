@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-/* Base styles */
+/* StudentKart styles */
 
 :root {
     --bg: #f3f7f8;
@@ -40,7 +40,7 @@
 }
 
 
-/* Reset */
+/* RESET */
 
 * {
     margin: 0;
@@ -99,7 +99,7 @@ a {
 }
 
 
-/* Navbar */
+/* NAVBAR */
 
 .navbar {
     position: sticky;
@@ -128,7 +128,7 @@ a {
 }
 
 
-/* Studentkart Logo */
+/* STUDENTKART LOGO */
 
 .logo {
     display: flex;
@@ -201,7 +201,7 @@ a {
     color: #ffffff;
 }
 
-/* Nav Links */
+/* NAV LINKS */
 
 .nav-links {
     display: flex;
@@ -236,7 +236,7 @@ a {
 }
 
 
-/* Buttons */
+/* BUTTONS */
 
 .btn {
     display: inline-flex;
@@ -323,7 +323,7 @@ button:disabled {
 }
 
 
-/* Hero */
+/* HERO */
 
 .hero {
     position: relative;
@@ -528,7 +528,7 @@ button:disabled {
 }
 
 
-/* Hero Side Card */
+/* HERO SIDE CARD */
 
 .hero-side {
     display: flex;
@@ -631,7 +631,7 @@ button:disabled {
 }
 
 
-/* Stats */
+/* STATS */
 
 .stats-section {
     background: #f1f6f7;
@@ -723,7 +723,7 @@ button:disabled {
 }
 
 
-/* Common Section */
+/* COMMON SECTION */
 
 .section {
     width: min(1180px, calc(100% - 40px));
@@ -769,7 +769,7 @@ button:disabled {
 }
 
 
-/* Categories */
+/* CATEGORIES */
 
 #categories {
     background: transparent;
@@ -904,7 +904,7 @@ button:disabled {
 }
 
 
-/* Marketplace */
+/* MARKETPLACE */
 
 .marketplace-section {
     width: 100%;
@@ -1026,7 +1026,7 @@ button:disabled {
 }
 
 
-/* Products */
+/* PRODUCTS */
 
 .products-grid,
 #productContainer {
@@ -1515,7 +1515,7 @@ button:disabled {
 }
 
 
-/* Empty / Loading / Error */
+/* EMPTY / LOADING / ERROR */
 
 .empty-state,
 .loading-state,
@@ -1574,7 +1574,7 @@ button:disabled {
 }
 
 
-/* How It Works */
+/* HOW IT WORKS */
 
 .how-section {
     background: transparent;
@@ -1646,7 +1646,7 @@ button:disabled {
 }
 
 
-/* Cta */
+/* CTA */
 
 .cta-section {
     width: min(1180px, calc(100% - 40px));
@@ -1731,7 +1731,7 @@ button:disabled {
 }
 
 
-/* Footer */
+/* FOOTER */
 
 .footer {
     background: var(--nav);
@@ -1817,7 +1817,7 @@ button:disabled {
 }
 
 
-/* Modals */
+/* MODALS */
 
 .modal {
     position: fixed;
@@ -1947,7 +1947,7 @@ button:disabled {
 }
 
 
-/* Forms */
+/* FORMS */
 
 .form-group {
     margin-bottom: 15px;
@@ -2052,7 +2052,7 @@ input[type="file"] {
 }
 
 
-/* Auth */
+/* AUTH */
 
 .auth-modal {
     width: min(440px, 100%);
@@ -2203,7 +2203,7 @@ input[type="file"] {
 }
 
 
-/* Product Details */
+/* PRODUCT DETAILS */
 
 .product-details-modal {
     width: min(900px, 100%);
@@ -2360,7 +2360,7 @@ input[type="file"] {
 }
 
 
-/* Inquiries */
+/* INQUIRIES */
 
 .inquiry-product-summary {
     margin: 18px 24px 0;
@@ -2488,7 +2488,7 @@ input[type="file"] {
 }
 
 
-/* Profile */
+/* PROFILE */
 
 .profile-header {
     text-align: center;
@@ -2614,7 +2614,7 @@ input[type="file"] {
 }
 
 
-/* Edit Profile */
+/* EDIT PROFILE */
 
 .edit-avatar-section {
     display: flex;
@@ -2637,7 +2637,7 @@ input[type="file"] {
 }
 
 
-/* My Listings */
+/* MY LISTINGS */
 
 #myListingsContainer {
     padding: 20px 24px 24px;
@@ -2649,7 +2649,7 @@ input[type="file"] {
 
 
 
-/* My Listings - Modern 2 Column App Grid */
+/* MY LISTINGS - MODERN 2 COLUMN APP GRID */
 
 #myListingsModal .modal-content {
     background:
@@ -2772,7 +2772,7 @@ input[type="file"] {
 }
 
 
-/* Toast */
+/* TOAST */
 
 .toast {
     position: fixed;
@@ -2840,7 +2840,7 @@ input[type="file"] {
 }
 
 
-/* Scrollbar */
+/* SCROLLBAR */
 
 ::-webkit-scrollbar {
     width: 8px;
@@ -2861,7 +2861,7 @@ input[type="file"] {
 }
 
 
-/* Selection */
+/* SELECTION */
 
 ::selection {
     background: #c7e7e7;
@@ -2869,7 +2869,7 @@ input[type="file"] {
 }
 
 
-/* Responsive — 1050px */
+/* RESPONSIVE — 1050px */
 
 @media (max-width: 1050px) {
 
@@ -2895,7 +2895,7 @@ input[type="file"] {
 }
 
 
-/* Responsive — 850px */
+/* RESPONSIVE — 850px */
 
 @media (max-width: 850px) {
 
@@ -2961,7 +2961,7 @@ input[type="file"] {
 }
 
 
-/* Responsive — 750px */
+/* RESPONSIVE — 750px */
 
 @media (max-width: 750px) {
 
@@ -2988,7 +2988,7 @@ input[type="file"] {
 }
 
 
-/* Responsive — 600px */
+/* RESPONSIVE — 600px */
 
 @media (max-width: 600px) {
 
@@ -3172,7 +3172,7 @@ input[type="file"] {
 }
 
 
-/* Responsive — 380px */
+/* RESPONSIVE — 380px */
 
 @media (max-width: 380px) {
 
@@ -3230,7 +3230,7 @@ input[type="file"] {
     }
 }
 
-/* Wishlist Navbar */
+/* WISHLIST NAVBAR */
 
 .nav-wishlist-button {
     position: relative;
@@ -3271,7 +3271,7 @@ input[type="file"] {
 }
 
 
-/* Wishlist Modal */
+/* WISHLIST MODAL */
 
 .wishlist-modal-content {
     width: min(900px, 94vw);
@@ -3394,7 +3394,7 @@ input[type="file"] {
 }
 
 
-/* Mobile */
+/* MOBILE */
 
 @media (max-width: 700px) {
 
@@ -3429,7 +3429,7 @@ input[type="file"] {
     .product-image-wrap { height: 220px; }
 }
 
-/* Wishlist Polish */
+/* WISHLIST POLISH */
 .wishlist-modal-content{
     width:min(960px,94vw);
     max-height:88vh;
@@ -3565,7 +3565,7 @@ input[type="file"] {
     }
     
 }
-/* Realtime Notification Popup */
+/* REALTIME NOTIFICATION POPUP */
 
 #notificationPopup {
     position: fixed;
@@ -3600,7 +3600,7 @@ input[type="file"] {
 }
 
 
-/* Show Popup */
+/* SHOW POPUP */
 
 #notificationPopup.show {
     opacity: 1;
@@ -3609,7 +3609,7 @@ input[type="file"] {
 }
 
 
-/* Bell Icon */
+/* BELL ICON */
 
 .notification-popup-icon {
     width: 42px;
@@ -3629,7 +3629,7 @@ input[type="file"] {
 }
 
 
-/* Content */
+/* CONTENT */
 
 .notification-popup-content {
     flex: 1;
@@ -3659,7 +3659,7 @@ input[type="file"] {
 }
 
 
-/* Close Button */
+/* CLOSE BUTTON */
 
 .notification-popup-close {
     border: none;
@@ -3681,7 +3681,7 @@ input[type="file"] {
 }
 
 
-/* Mobile */
+/* MOBILE */
 
 @media (max-width: 600px) {
 
@@ -3695,7 +3695,7 @@ input[type="file"] {
             calc(100vw - 32px);
     }
 }
-/* Chat System */
+/* CHAT SYSTEM */
 
 .chat-modal-content {
     width: min(620px, calc(100vw - 18px));
@@ -4268,7 +4268,7 @@ input[type="file"] {
     }
 }
 
-/* Seller Profile Actions */
+/* Seller profile actions */
 .seller-profile-actions {
     display: flex;
     justify-content: center;
@@ -4480,7 +4480,7 @@ input[type="file"] {
 }
 
 
-/* Typography Polish — Dm Sans */
+/* TYPOGRAPHY POLISH — DM Sans */
 body,
 button,
 input,
@@ -4518,7 +4518,7 @@ body { font-weight: 400; }
 }
 
 
-/* Premium Marketplace Navbar */
+/* PREMIUM MARKETPLACE NAVBAR */
 
 .navbar {
     height: 74px;
@@ -4799,7 +4799,7 @@ body { font-weight: 400; }
 }
 
 
-/* Modern Student App Navbar */
+/* MODERN STUDENT APP NAVBAR */
 
 .navbar {
     height: 68px;
@@ -5073,7 +5073,7 @@ body { font-weight: 400; }
 }
 
 
-/* Navbar Alignment — Logo Left, Actions Right */
+/* NAVBAR ALIGNMENT — LOGO LEFT, ACTIONS RIGHT */
 .nav-container {
     justify-content: flex-start;
 }
@@ -5101,7 +5101,7 @@ body { font-weight: 400; }
 }
 
 
-/* Wishlist Button — Match Other Nav Action Boxes */
+/* WISHLIST BUTTON — MATCH OTHER NAV ACTION BOXES */
 .nav-wishlist-button {
     display: inline-flex;
     align-items: center;
@@ -5126,7 +5126,7 @@ body { font-weight: 400; }
 }
 
 
-/* Modern Chat Modal Redesign */
+/* MODERN CHAT MODAL REDESIGN */
 .chat-modal-content {
     width: min(620px, calc(100vw - 28px));
     max-width: 620px;
@@ -5333,7 +5333,7 @@ body { font-weight: 400; }
 }
 
 
-/* Whatsapp-Style Received Chats */
+/* WHATSAPP-STYLE RECEIVED CHATS */
 .inquiries-whatsapp-header {
     display: flex;
     align-items: center;
@@ -5523,7 +5523,7 @@ body { font-weight: 400; }
 }
 
 
-/* Whatsapp-Style Chat List Home */
+/* WHATSAPP-STYLE CHAT LIST HOME */
 #inquiriesModal .modal-content {
     width: min(560px, calc(100% - 24px));
     max-width: 560px;
@@ -5753,7 +5753,7 @@ body { font-weight: 400; }
     }
 }
 
-/* Hold / Long-Press Chat Selection */
+/* HOLD / LONG-PRESS CHAT SELECTION */
 .inquiry-select-box,
 .inquiry-select-checkbox { display: none !important; }
 
@@ -5782,7 +5782,7 @@ body { font-weight: 400; }
 
 #inquiriesContainer.chat-selection-mode .whatsapp-inquiry-card { user-select: none; }
 #inquiriesContainer.chat-selection-mode .whatsapp-inquiry-card.is-selected { background: #e1f3f1; }
-/* Bulk Chat Selection */
+/* BULK CHAT SELECTION */
 .inquiries-whatsapp-header {
     justify-content: space-between;
     flex-wrap: wrap;
@@ -5890,7 +5890,7 @@ body { font-weight: 400; }
 }
 
 
-/* Full-Page Received Chats */
+/* FULL-PAGE RECEIVED CHATS */
 #inquiriesModal {
     padding: 0;
     background: #f7fafa;
@@ -5954,7 +5954,7 @@ body { font-weight: 400; }
 }
 
 
-/* Full-Page Chat Bulk Action Bar */
+/* FULL-PAGE CHAT BULK ACTION BAR */
 #inquiriesModal .inquiry-bulk-tools {
     position: sticky;
     top: 0;
@@ -6552,7 +6552,7 @@ textarea {
     }
 }
 
-/* Compact Marketplace Filter Button */
+/* COMPACT MARKETPLACE FILTER BUTTON */
 
 .marketplace-filters {
     display: flex;
@@ -6732,7 +6732,7 @@ textarea {
 }
 
 
-/* Marketplace Search Action */
+/* MARKETPLACE SEARCH ACTION */
 .marketplace-search-button {
     flex: 0 0 auto;
     height: 40px;
@@ -6785,7 +6785,7 @@ textarea {
 }
 
 
-/* App-Like Back Buttons For Chat, Notifications & Seller Profile */
+/* APP-LIKE BACK BUTTONS FOR CHAT, NOTIFICATIONS & SELLER PROFILE */
 .chat-head,
 .notifications-modal-content,
 .seller-profile-modal {
@@ -6851,7 +6851,7 @@ textarea {
     }
 }
 
-/* Force Chat Back Arrow */
+/* FORCE CHAT BACK ARROW */
 .chat-head .chat-modal-back-button i {
     display: block !important;
     font-family: "Font Awesome 6 Free" !important;
@@ -6864,7 +6864,7 @@ textarea {
     }
 }
 
-/* Notifications Header Clearance For Back Arrow */
+/* NOTIFICATIONS HEADER CLEARANCE FOR BACK ARROW */
 .notifications-modal-content .notifications-header {
     padding-left: 54px;
 }
@@ -6875,7 +6875,7 @@ textarea {
     }
 }
 
-/* Compact Top-Center Notifications Card */
+/* COMPACT TOP-CENTER NOTIFICATIONS CARD */
 #notificationsModal {
     align-items: flex-start !important;
     justify-content: center !important;
@@ -6913,7 +6913,7 @@ textarea {
     }
 }
 
-/* Final Notification Popup Position + Compact Size */
+/* FINAL NOTIFICATION POPUP POSITION + COMPACT SIZE */
 body #notificationsModal.modal {
     align-items: flex-start !important;
     justify-content: center !important;
@@ -6951,7 +6951,7 @@ body #notificationsModal .notifications-header {
     }
 }
 
-/* Center Notifications Heading Only */
+/* CENTER NOTIFICATIONS HEADING ONLY */
 #notificationsModal .notifications-header {
     text-align: center !important;
 }
@@ -6961,14 +6961,14 @@ body #notificationsModal .notifications-header {
     text-align: center !important;
 }
 
-/* Restore Notifications Scroll */
+/* RESTORE NOTIFICATIONS SCROLL */
 #notificationsModal .notifications-modal-content {
     overflow-y: auto !important;
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
 }
 
-/* Smaller Notifications Popup */
+/* SMALLER NOTIFICATIONS POPUP */
 #notificationsModal .notifications-modal-content {
     width: min(400px, calc(100vw - 28px)) !important;
     max-width: 400px !important;
@@ -6983,7 +6983,7 @@ body #notificationsModal .notifications-header {
     }
 }
 
-/* Keep Notifications Header Visible While Scrolling */
+/* KEEP NOTIFICATIONS HEADER VISIBLE WHILE SCROLLING */
 #notificationsModal .notifications-modal-content {
     position: relative !important;
 }
@@ -6995,7 +6995,7 @@ body #notificationsModal .notifications-header {
     background: #ffffff !important;
 }
 
-/* Notification Back Arrow Must Stay Above Sticky Header */
+/* NOTIFICATION BACK ARROW MUST STAY ABOVE STICKY HEADER */
 #notificationsModal .notifications-modal-content > .modal-back-button {
     z-index: 100 !important;
 }
@@ -7006,7 +7006,7 @@ body #notificationsModal .notifications-header {
     z-index: 25 !important;
 }
 
-/* Keep Notification Arrow Fixed Inside Card */
+/* KEEP NOTIFICATION ARROW FIXED INSIDE CARD */
 #notificationsModal .notifications-modal-content {
     overflow-y: auto !important;
 }
@@ -7029,7 +7029,7 @@ body #notificationsModal .notifications-header {
     }
 }
 
-/* Notifications Page - Final App-Like Layout */
+/* NOTIFICATIONS PAGE - FINAL APP-LIKE LAYOUT */
 body #notificationsModal .notifications-modal-content {
     display: flex !important;
     flex-direction: column !important;
@@ -7091,7 +7091,7 @@ body #notificationsModal #notificationsContainer [data-notification-id] {
 }
 
 
-/* Chat Page - Same App-Like Layout As Notifications */
+/* CHAT PAGE - SAME APP-LIKE LAYOUT AS NOTIFICATIONS */
 body #chatModal.modal {
     align-items: flex-start !important;
     justify-content: center !important;
@@ -7187,7 +7187,7 @@ body #chatModal #chatForm .btn {
 }
 
 
-/* Chats Inbox - Same App-Like Layout As Notifications */
+/* CHATS INBOX - SAME APP-LIKE LAYOUT AS NOTIFICATIONS */
 body #inquiriesModal.modal {
     align-items: flex-start !important;
     justify-content: center !important;
@@ -7258,7 +7258,7 @@ body #inquiriesModal #inquiriesContainer {
 }
 
 
-/* Chats / Inbox Page - Full Screen App Layout */
+/* CHATS / INBOX PAGE - FULL SCREEN APP LAYOUT */
 body #inquiriesModal.modal {
     align-items: stretch !important;
     justify-content: stretch !important;
