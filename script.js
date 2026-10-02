@@ -307,8 +307,14 @@ function openModal(id, options = {}) {
             historyId => historyId !== id
         );
         modalHistory.push(currentModal.id);
-        currentModal.classList.add("hidden");
-        currentModal.classList.remove("modal-closing");
+
+        // Some confirmation dialogs (such as Logout) must appear above
+        // the current page/modal instead of replacing it. This keeps the
+        // current screen visible behind the dark confirmation overlay.
+        if (!options.overlayOnParent) {
+            currentModal.classList.add("hidden");
+            currentModal.classList.remove("modal-closing");
+        }
     }
 
     modal.classList.remove("modal-closing");
@@ -4491,7 +4497,7 @@ async function ensureProfileAfterPasswordSignup(user) {
 
 function openLogoutConfirmation() {
     if (!currentUser) return;
-    openModal("logoutConfirmModal");
+    openModal("logoutConfirmModal", { overlayOnParent: true });
 }
 
 async function logoutUser() {
@@ -11933,7 +11939,6 @@ async function handleSettingAction(action) {
     if (action === "delete-account") return settingsDeleteAccount();
 
     if (action === "logout") {
-        closeModal("settingsModal");
         $("logoutButton")?.click();
         return;
     }
