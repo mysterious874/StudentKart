@@ -751,22 +751,23 @@
   <div class="modal-overlay" data-close-modal></div>
   <div class="modal-content chat-modal-content">
     <div class="chat-head">
-      
       <button type="button" class="chat-back-button" id="chatBackButton" title="Back to chats" aria-label="Back to chats">
         <i class="fas fa-arrow-left"></i>
       </button>
+
       <div class="chat-person">
-        <div class="chat-avatar"><i class="fas fa-comments"></i></div>
-        <div>
-          <span class="section-label">DIRECT CHAT</span>
-          <h2 id="chatProductName">Product Chat</h2>
-          <p id="chatUserName">Conversation</p>
+        <div class="chat-avatar" aria-hidden="true">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="chat-person-info">
+          <h2 id="chatUserName">Conversation</h2>
+          <p id="chatProductName">Product Chat</p>
         </div>
       </div>
+
       <div class="chat-actions">
-        <button type="button" class="chat-delete-button" id="chatDeleteButton" title="Delete options">
-          <i class="fas fa-trash-can"></i>
-          <span>Delete</span>
+        <button type="button" class="chat-delete-button" id="chatDeleteButton" title="Chat options" aria-label="Chat options">
+          <i class="fas fa-ellipsis-vertical"></i>
         </button>
       </div>
     </div>
