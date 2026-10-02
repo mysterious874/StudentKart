@@ -7942,16 +7942,38 @@ $("chatViewProfileButton")?.addEventListener("click", async event => {
     event.preventDefault();
     event.stopPropagation();
 
-    const otherUserId = window.currentChatOtherUserId;
+    const inquiry = currentChatInquiry;
+    const otherUserId =
+        window.currentChatOtherUserId ||
+        (
+            inquiry
+                ? (
+                    String(inquiry.seller_id) === String(currentUser?.id)
+                        ? inquiry.buyer_id
+                        : inquiry.seller_id
+                )
+                : null
+        );
+
+    if (!otherUserId) {
+        showToast("User profile unavailable", "warning");
+        return;
+    }
+
+    window.currentChatOtherUserId = String(otherUserId);
+
     const button = event.currentTarget;
-    if (!otherUserId || !button) return;
+    if (!button) return;
 
     const originalHtml = button.innerHTML;
     button.disabled = true;
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening...';
 
     try {
-        await openSellerProfile(otherUserId);
+        await openSellerProfile(String(otherUserId));
+    } catch (error) {
+        console.error("Chat View Profile error:", error);
+        showToast("Could not open profile. Please try again.", "error");
     } finally {
         button.disabled = false;
         button.innerHTML = originalHtml;
