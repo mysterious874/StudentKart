@@ -7363,7 +7363,7 @@ document.addEventListener("click", event => {
         closeAllModals({ fromPopState: true });
         modal.classList.remove("modal-closing");
         modal.classList.remove("hidden");
-        studentKartBottomNavOpen("categoryPickerModal");
+        studentKartBottomNavOpen("categoryPickerModal", "bottomCategoriesButton");
         document.body.classList.add("modal-open");
         document.body.classList.add("studentkart-modal-navigation-hidden");
 
@@ -7587,7 +7587,7 @@ document.addEventListener("click", event => {
 
         setupChatListControls();
         openModal("inquiriesModal");
-        studentKartBottomNavOpen("inquiriesModal");
+        studentKartBottomNavOpen("inquiriesModal", "bottomChatButton");
 
         void loadReceivedInquiries().catch(error => {
             console.error("Chat section background refresh error:", error);
@@ -11820,13 +11820,39 @@ document.addEventListener("pointerdown", event => {
 /* =========================================================
    MACOS-STYLE BOTTOM NAV OPENING
    ========================================================= */
-function studentKartBottomNavOpen(modalId) {
+function studentKartBottomNavOpen(modalId, sourceButtonId = "") {
     const modal = $(modalId);
     if (!modal) return;
+
+    const source = sourceButtonId ? $(sourceButtonId) : null;
+    const content = modal.querySelector(".modal-content");
+    if (!content) return;
+
+    const sourceRect = source?.getBoundingClientRect();
+    const contentRect = content.getBoundingClientRect();
+
+    let dx = 0;
+    let dy = window.innerHeight * 0.38;
+
+    if (sourceRect) {
+        dx = (sourceRect.left + sourceRect.width / 2) -
+            (contentRect.left + contentRect.width / 2);
+        dy = (sourceRect.top + sourceRect.height / 2) -
+            (contentRect.top + contentRect.height / 2);
+    }
+
+    modal.style.setProperty("--sk-nav-origin-x", Math.round(dx) + "px");
+    modal.style.setProperty("--sk-nav-origin-y", Math.round(dy) + "px");
+
+    modal.classList.remove("studentkart-bottom-nav-opening");
+    void content.offsetWidth;
     modal.classList.add("studentkart-bottom-nav-opening");
+
     window.setTimeout(() => {
-        if (modal) modal.classList.remove("studentkart-bottom-nav-opening");
-    }, 520);
+        modal.classList.remove("studentkart-bottom-nav-opening");
+        modal.style.removeProperty("--sk-nav-origin-x");
+        modal.style.removeProperty("--sk-nav-origin-y");
+    }, 620);
 }
 
 /* Bottom-nav page opening animation for direct page anchors */
@@ -11848,7 +11874,7 @@ if (bottomSettingsButton) {
     bottomSettingsButton.addEventListener("click", () => {
         if (currentUser) {
             openModal("settingsModal");
-            studentKartBottomNavOpen("settingsModal");
+            studentKartBottomNavOpen("settingsModal", "bottomSettingsButton");
         } else {
             openModal("loginModal");
             studentKartBottomNavOpen("loginModal");
@@ -11860,7 +11886,7 @@ const bottomWishlistButton = $("bottomWishlistButton");
 if (bottomWishlistButton) {
     bottomWishlistButton.addEventListener("click", () => {
         openWishlist();
-        studentKartBottomNavOpen("wishlistModal");
+        studentKartBottomNavOpen("wishlistModal", "bottomWishlistButton");
     });
 }
 
