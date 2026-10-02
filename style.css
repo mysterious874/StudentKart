@@ -17890,28 +17890,37 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
     .studentkart-splash-card { opacity: 1; transform: none; }
 }
 
-/* Mobile navbar search: centered beneath the navbar. */
-@media (max-width: 600px) {
+/* Mobile navbar search: one centered panel, never shifted by legacy sidebar rules. */
+@media (max-width: 680px) {
   #navbarSearchPanel {
-    top: 72px !important;
+    position: fixed !important;
+    top: 76px !important;
     left: 50% !important;
     right: auto !important;
+    bottom: auto !important;
     transform: translateX(-50%) !important;
-    width: calc(100vw - 16px) !important;
+    width: calc(100vw - 20px) !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 7px !important;
     box-sizing: border-box !important;
-    padding: 8px !important;
+    z-index: 99999 !important;
   }
 
   #navbarSearchPanel .navbar-search-inner {
+    display: flex !important;
     width: 100% !important;
-    min-width: 0 !important;
+    height: 40px !important;
     gap: 6px !important;
+    box-sizing: border-box !important;
   }
 
   #navbarSearchPanel .navbar-search-field {
-    min-width: 0 !important;
     flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
     height: 40px !important;
+    box-sizing: border-box !important;
   }
 
   #navbarSearchPanel .navbar-filter-button {
@@ -17919,9 +17928,24 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
     width: 42px !important;
     height: 40px !important;
     padding: 0 !important;
+    box-sizing: border-box !important;
   }
 
   #navbarSearchPanel .navbar-filter-button span {
     display: none !important;
+  }
+
+  #navbarSearchPanel .navbar-search-submit {
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    height: 40px !important;
+  }
+
+  /* The filter dropdown is the only element allowed to open below this row. */
+  #navbarSearchPanel .navbar-filter-panel {
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    left: auto !important;
+    right: 0 !important;
   }
 }
