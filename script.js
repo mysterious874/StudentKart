@@ -361,6 +361,38 @@ function openModal(id, options = {}) {
     }
 }
 
+function trapStudentKartModalFocus(event) {
+    if (event.key !== "Tab") {
+        return;
+    }
+
+    const modal = event.target.closest(".modal:not(.hidden)");
+    if (!modal) {
+        return;
+    }
+
+    const focusable = [...modal.querySelectorAll(
+        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )].filter(element => element.offsetParent !== null);
+
+    if (!focusable.length) {
+        event.preventDefault();
+        modal.focus();
+        return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+    }
+}
+
 function restoreStudentKartModalFocus(id) {
     const trigger = studentKartModalFocus.get(id);
     studentKartModalFocus.delete(id);
@@ -6774,7 +6806,9 @@ function setupEventListeners() {
     document.addEventListener("pointercancel", clearPress, {passive:true});
     document.addEventListener("pointerleave", clearPress, {passive:true});
 
-    document.addEventListener("click", event => {
+    document.addEventListener("keydown", trapStudentKartModalFocus);
+
+document.addEventListener("click", event => {
         if (event.target.closest("[data-close-product-image-preview]")) {
             event.preventDefault();
             closeProductImagePreview();
