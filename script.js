@@ -10172,6 +10172,170 @@ function setupEditProfileCityLocationPicker() {
     renderCities(STUDENTKART_INDIA_CITIES);
     renderInstitutions(STUDENTKART_INSTITUTIONS);
 }
+
+function setupSellProductLocationPicker() {
+    const input = $("productLocation");
+    const button = $("productLocationButton");
+    const suggestions = $("productLocationSuggestions");
+    if (!input || !button || !suggestions) return;
+
+    let timer = null;
+    let controller = null;
+
+    const renderSuggestions = values => {
+        const unique = [...new Set(values.filter(Boolean))].slice(0, 80);
+
+        if (!unique.length) {
+            suggestions.innerHTML = '<div class="product-location-suggestion-empty"><i class="fas fa-location-dot"></i> No matching Indian locations found</div>';
+            suggestions.classList.remove("hidden");
+            return;
+        }
+
+        suggestions.innerHTML = unique.map(value => {
+            const parts = String(value).split(" — ");
+            const place = parts[0] || value;
+            const hierarchy = (parts.slice(1).join(" — ") || "")
+                .split(",")
+                .map(item => item.trim())
+                .filter(Boolean);
+
+            return '<button type="button" class="product-location-suggestion" data-location-value="' +
+                escapeHTML(value) + '">' +
+                '<span class="product-location-suggestion-place"><i class="fas fa-location-dot"></i> ' +
+                escapeHTML(place) + '</span>' +
+                hierarchy.map((item, index) =>
+                    '<span><b>' + (index === hierarchy.length - 1 ? "State" : index === hierarchy.length - 2 ? "District" : "Area") +
+                    ':</b> ' + escapeHTML(item) + '</span>'
+                ).join("") +
+                '</button>';
+        }).join("");
+
+        suggestions.classList.remove("hidden");
+
+        suggestions.querySelectorAll(".product-location-suggestion").forEach(option => {
+            option.addEventListener("click", () => {
+                input.value = option.dataset.locationValue || "";
+                suggestions.classList.add("hidden");
+            });
+        });
+    };
+
+    const searchLocations = async query => {
+        const q = String(query || "").trim();
+        if (q.length < 2) {
+            suggestions.classList.add("hidden");
+            return;
+        }
+
+        if (controller) controller.abort();
+        controller = new AbortController();
+
+        try {
+            const nominatimURL =
+                "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=30&dedupe=1&q=" +
+                encodeURIComponent(q + ", India");
+
+            const nominatimPromise = fetch(nominatimURL, {
+                signal: controller.signal,
+                headers: { "Accept": "application/json" }
+            }).then(response => response.ok ? response.json() : []).catch(error => {
+                if (error?.name !== "AbortError") console.debug("Sell location search unavailable:", error);
+                return [];
+            });
+
+            const lgdPromise = searchStudentKartLGDVillages(q);
+            const [nominatimResults, lgdValues] = await Promise.all([nominatimPromise, lgdPromise]);
+
+            const geoValues = nominatimResults.map(item => {
+                const address = item?.address || {};
+                const place = String(
+                    address.village || address.hamlet || address.town || address.city ||
+                    address.municipality || address.suburb || address.neighbourhood ||
+                    String(item?.display_name || "").split(",")[0] || ""
+                ).trim();
+                const area = String(address.subdistrict || address.state_district || address.county || address.city_district || "").trim();
+                const district = String(address.district || address.state_district || address.county || address.city_district || "").trim();
+                const state = String(address.state || "").trim();
+                if (!place) return "";
+                const hierarchy = [...new Set([area, district, state].filter(Boolean))];
+                return hierarchy.length ? place + " — " + hierarchy.join(", ") : place;
+            }).filter(Boolean);
+
+            renderSuggestions([...new Set([...lgdValues, ...geoValues])]);
+        } catch (error) {
+            if (error?.name !== "AbortError") console.debug("Sell location search error:", error);
+        }
+    };
+
+    input.addEventListener("input", () => {
+        clearTimeout(timer);
+        const query = input.value.trim();
+        if (query.length < 2) {
+            suggestions.classList.add("hidden");
+            return;
+        }
+        timer = setTimeout(() => searchLocations(query), 180);
+    });
+
+    input.addEventListener("focus", () => {
+        if (input.value.trim().length >= 2) searchLocations(input.value.trim());
+    });
+
+    button.addEventListener("click", () => {
+        if (!navigator.geolocation) {
+            showToast("Location is not supported by this browser", "warning");
+            return;
+        }
+
+        button.disabled = true;
+        showToast("Fetching your real location...", "info");
+
+        navigator.geolocation.getCurrentPosition(async position => {
+            try {
+                const { latitude, longitude } = position.coords;
+                const url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&lat=" +
+                    encodeURIComponent(latitude) + "&lon=" + encodeURIComponent(longitude) + "&zoom=10";
+                const response = await fetch(url, { headers: { "Accept": "application/json" } });
+                if (!response.ok) throw new Error("Reverse geocoding failed");
+
+                const result = await response.json();
+                const address = result.address || {};
+                const place = address.city || address.town || address.municipality ||
+                    address.village || address.suburb || address.city_district || "";
+                const area = address.subdistrict || address.state_district || address.county || address.city_district || "";
+                const district = address.district || address.state_district || address.county || address.city_district || "";
+                const state = address.state || "";
+
+                if (!place) throw new Error("Could not identify your location");
+
+                const hierarchy = [...new Set([area, district, state].filter(Boolean))];
+                input.value = hierarchy.length ? place + " — " + hierarchy.join(", ") : place;
+                suggestions.classList.add("hidden");
+                showToast("Real location fetched: " + place, "success");
+            } catch (error) {
+                console.error("Sell location error:", error);
+                showToast("Could not fetch your real location", "error");
+            } finally {
+                button.disabled = false;
+            }
+        }, error => {
+            console.warn("Sell geolocation error:", error);
+            button.disabled = false;
+            showToast("Location permission was denied or unavailable", "warning");
+        }, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000
+        });
+    });
+
+    document.addEventListener("click", event => {
+        if (!input.parentElement?.contains(event.target)) {
+            suggestions.classList.add("hidden");
+        }
+    });
+}
+
 function populateStudentKartIndiaData() {
     const stateSelects = ["signupState","editProfileState"];
     const cityLists = ["studentkartCityList"];
@@ -10220,6 +10384,7 @@ function populateStudentKartIndiaData() {
 document.addEventListener("DOMContentLoaded", () => {
     populateStudentKartIndiaData();
     setupEditProfileCityLocationPicker();
+    setupSellProductLocationPicker();
     setupStudentKartIndiaLocationSearch();
     addHomeButtonsToBackArrows();
 
