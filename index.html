@@ -15,26 +15,20 @@
 </head>
 
 <body>
-<div class="navbar hero-nav-rail" aria-label="StudentKart quick navigation">
-        <div class="hero-nav-logo"><a href="#home" class="logo" aria-label="StudentKart Home"><div class="logo-mark"><span class="logo-graduation"><i class="fas fa-graduation-cap"></i></span><span class="logo-cart"><i class="fas fa-cart-shopping"></i></span></div><span class="logo-text">StudentKart</span></a></div>
-        <nav class="nav-links" aria-label="Main navigation">
-            <a href="#home"><i class="fas fa-house"></i><span>Home</span></a>
-            <a href="#categories"><i class="fas fa-layer-group"></i><span>Categories</span></a>
-            <a href="#marketplace"><i class="fas fa-store"></i><span>Marketplace</span></a>
-            <a href="#how-it-works"><i class="fas fa-route"></i><span>How It Works</span></a>
-        </nav>
-        <div class="nav-actions">
-            <button type="button" class="btn btn-outline nav-search-button" id="navSearchButton" aria-label="Search" title="Search"><i class="fas fa-search"></i><span>Search</span></button>
-            <button type="button" class="btn btn-outline nav-notification-button" id="notificationButton" aria-label="Open Notifications" title="Notifications"><i class="fa-regular fa-bell"></i><span class="nav-action-label">Notifications</span><span class="notification-count hidden" id="notificationCount">0</span></button>
-            <button type="button" class="btn btn-outline nav-chat-button" id="chatButton" title="Chat"><i class="fas fa-message"></i><span class="chat-button-text">Chat</span><span class="chat-unread-count hidden" id="chatUnreadCount">0</span></button>
-            <button type="button" class="btn btn-primary" id="sellButton"><i class="fas fa-plus"></i><span>Sell Item</span></button>
-            <button type="button" class="btn btn-outline nav-profile-button" id="profileButton" aria-label="Profile" title="Profile"><i class="fas fa-user"></i><span>Profile</span></button>
-            <button type="button" class="btn btn-outline" id="loginButton"><i class="fas fa-right-to-bracket"></i><span>Login</span></button>
-            <button type="button" class="btn btn-primary" id="signupButton"><i class="fas fa-user-plus"></i><span>Sign Up</span></button>
-        </div>
+<header class="navbar" aria-label="StudentKart main navigation">
+  <div class="nav-container">
+    <a href="#home" class="logo" aria-label="StudentKart Home">
+      <div class="logo-mark"><span class="logo-graduation"><i class="fas fa-graduation-cap"></i></span><span class="logo-cart"><i class="fas fa-cart-shopping"></i></span></div>
+      <span class="logo-text">StudentKart</span>
+    </a>
+    <div class="nav-actions">
+      <button type="button" class="btn btn-outline nav-search-button" id="navSearchButton" aria-label="Search" title="Search"><i class="fas fa-search"></i></button>
+      <button type="button" class="btn btn-primary" id="sellButton"><i class="fas fa-plus"></i><span>Sell</span></button>
+      <button type="button" class="btn btn-outline nav-profile-button" id="profileButton" aria-label="Profile" title="Profile"><i class="fas fa-user"></i></button>
     </div>
-
-    <div id="navbarSearchPanel" class="navbar-search-panel hidden" aria-label="Search StudentKart">
+  </div>
+</header>
+<div id="navbarSearchPanel" class="navbar-search-panel hidden" aria-label="Search StudentKart">
         <div class="navbar-search-inner">
             <div class="navbar-search-field">
                 <i class="fas fa-search"></i>
