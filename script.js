@@ -8909,17 +8909,32 @@ async function searchStudentKartIndiaLocations(query) {
     studentKartLocationSearchController = new AbortController();
 
     try {
-        const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=50&dedupe=1&q=" + encodeURIComponent(q);
-        const response = await fetch(url, {
+        const nominatimURL =
+            "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=in&limit=20&dedupe=1&q=" +
+            encodeURIComponent(q);
+
+        const nominatimPromise = fetch(nominatimURL, {
             signal: studentKartLocationSearchController.signal,
             headers: { "Accept": "application/json" }
-        });
-        if (!response.ok) return;
+        })
+            .then(response => response.ok ? response.json() : [])
+            .catch(error => {
+                if (error?.name !== "AbortError") {
+                    console.debug("Nominatim location search unavailable:", error);
+                }
+                return [];
+            });
 
-        const results = await response.json();
+        const lgdPromise = searchStudentKartLGDVillages(q);
 
-        const values = results.map(item => {
+        const [nominatimResults, lgdValues] = await Promise.all([
+            nominatimPromise,
+            lgdPromise
+        ]);
+
+        const nominatimValues = nominatimResults.map(item => {
             const address = item?.address || {};
+
             const place = String(
                 address.village ||
                 address.hamlet ||
@@ -8963,12 +8978,22 @@ async function searchStudentKartIndiaLocations(query) {
                 : String(item.display_name || "").replace(/, India$/i, "").trim();
         }).filter(Boolean);
 
-        renderStudentKartLocationSuggestions(values);
+        const currentOptions = list
+            ? [...list.options].map(option => option.value)
+            : [];
+
+        const mergedValues = [...new Set([
+            ...lgdValues,
+            ...nominatimValues,
+            ...currentOptions
+        ])]
+            .filter(Boolean)
+            .slice(0, 100);
+
+        renderStudentKartLocationSuggestions(mergedValues);
 
         if (list) {
-            const currentOptions = [...list.options].map(option => option.value);
-            const merged = [...new Set([...values, ...currentOptions])].slice(0, 60);
-            list.innerHTML = merged
+            list.innerHTML = mergedValues
                 .map(value => '<option value="' + escapeHTML(value) + '"></option>')
                 .join("");
         }
