@@ -15646,3 +15646,16 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+
+/* =========================================================
+   CLEAN PAGE HEADERS — no top-right X clutter
+   Keep the underlying close controls in the DOM for behavior,
+   but remove their visible X marks from page/modal headers.
+   ========================================================= */
+.settings-page-header .modal-close,
+.modal-header .modal-close,
+.product-details-modal > .modal-close,
+.product-image-preview-close {
+    display: none !important;
+}
