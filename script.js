@@ -12779,3 +12779,32 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("load", keepNavbarVisible);
     keepNavbarVisible();
 })();
+
+
+/* Password visibility toggles */
+function setupPasswordVisibilityToggles() {
+    document.querySelectorAll("[data-password-toggle]").forEach(button => {
+        if (button.dataset.passwordToggleReady === "true") return;
+        button.dataset.passwordToggleReady = "true";
+
+        button.addEventListener("click", () => {
+            const inputId = button.dataset.passwordToggle;
+            const input = inputId ? document.getElementById(inputId) : null;
+            const icon = button.querySelector("i");
+
+            if (!input) return;
+
+            const showing = input.type === "text";
+            input.type = showing ? "password" : "text";
+
+            if (icon) {
+                icon.className = showing ? "far fa-eye" : "far fa-eye-slash";
+            }
+
+            button.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+            button.setAttribute("title", showing ? "Show password" : "Hide password");
+        });
+    });
+}
+
+setupPasswordVisibilityToggles();
