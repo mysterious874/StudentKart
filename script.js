@@ -11356,6 +11356,15 @@ if (bottomProfileButton) {
     });
 }
 
+const bottomSettingsButton = $("bottomSettingsButton");
+if (bottomSettingsButton) {
+    bottomSettingsButton.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        openModal("settingsModal");
+    });
+}
+
 const bottomWishlistButton = $("bottomWishlistButton");
 if (bottomWishlistButton) {
     bottomWishlistButton.addEventListener("click", event => {
