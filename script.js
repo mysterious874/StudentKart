@@ -16,6 +16,7 @@ const supabaseClient =
     );
 
 const STORAGE_BUCKET = "product-images";
+const CHAT_DELETED_MESSAGE = "__STUDENTKART_DELETED__";
 
 let currentUser = null;
 // ===============================
@@ -9143,57 +9144,38 @@ async function deleteSelectedChatMessagesForEveryone() {
 
     const confirmed = window.confirm(
         "Delete " + ownIds.length + " message" + (ownIds.length === 1 ? "" : "s") +
-        " for everyone? This cannot be undone."
+        " for everyone?"
     );
     if (!confirmed) return;
 
     try {
-        /*
-         * Delete only messages owned by the current user. The extra sender_id
-         * condition keeps the action safe even if the selected DOM is stale.
-         */
         const { error } = await supabaseClient
             .from("messages")
-            .delete()
+            .update({ message: CHAT_DELETED_MESSAGE })
             .eq("sender_id", currentUser.id)
             .in("id", ownIds);
 
         if (error) throw error;
 
-        // Remove the selected bubbles immediately. Do not depend on
-        // DELETE + SELECT returning rows, because RLS can hide deleted rows
-        // even when the DELETE itself succeeded.
-        ownIds.forEach(id => {
-            document
-                .querySelectorAll('#chatMessages .chat-message[data-message-id="' + CSS.escape(id) + '"]')
-                .forEach(el => el.remove());
-        });
-
+        // WhatsApp-style: keep the message slot and show a deleted bubble.
         selectedChatMessageIds.clear();
         closeSelectedChatDeletePopup();
 
         const container = $("chatMessages");
-        if (container) {
-            delete container.dataset.messageSignature;
-        }
+        if (container) delete container.dataset.messageSignature;
 
-        // Re-sync once with the database so the screen stays correct.
         await loadChatMessages();
         await updateChatUnreadCount();
 
-        const extra = ownIds.length < selectedElements.length
-            ? " Received messages were kept in the chat."
-            : "";
-
         showToast(
             ownIds.length + " message" + (ownIds.length === 1 ? "" : "s") +
-            " deleted for everyone." + extra,
+            " deleted for everyone.",
             "success"
         );
     } catch (error) {
         console.error("Delete for everyone error:", error);
         showToast(
-            "Delete for Everyone failed. Your Supabase messages DELETE policy may be blocking it.",
+            "Delete for Everyone failed. Make sure the messages UPDATE policy is enabled.",
             "error"
         );
     }
