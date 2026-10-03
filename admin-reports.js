@@ -79,7 +79,7 @@
             const {data,error}=await supabaseClient.from("moderation_activity").select("id,product_id,admin_id,action,reason,created_at").order("created_at",{ascending:false}).limit(100);
             if(error){list.innerHTML='<div class="sk-admin-empty">Activity log is not ready yet.<br><small>'+esc(error.message)+'</small></div>';return;}
             if(!data?.length){list.innerHTML='<div class="sk-admin-empty"><i class="fas fa-clock"></i><br>No moderation activity yet.</div>';return;}
-            list.innerHTML=data.map(a=>'<article class="sk-admin-card"><strong>'+esc(a.action==="suspend"?"Listing suspended":"Listing restored")+'</strong><div class="sk-admin-meta">'+esc(new Date(a.created_at).toLocaleString("en-IN"))+'<br>Product ID: '+esc(a.product_id||"Deleted/unknown")+'<br>Admin ID: '+esc(a.admin_id||"Unknown")+(a.reason?'<br>Reason: '+esc(a.reason):"")+'</div></article>').join("");
+            list.innerHTML=data.map(a=>'<article class="sk-admin-card"><strong>'+esc(a.action==="suspend"?"Listing suspended":"Listing restored")+'</strong><div class="sk-admin-meta">'+esc(new Date(a.created_at).toLocaleString("en-IN"))+'<br>Product ID: '+esc(a.listing_id||"Deleted/unknown")+'<br>Admin ID: '+esc(a.admin_id||"Unknown")+(a.reason?'<br>Reason: '+esc(a.reason):"")+'</div></article>').join("");
         }
         async function openAppeals(){
             const list=modal.querySelector("#adminReportsList");
@@ -87,7 +87,7 @@
 
             const {data,error}=await supabaseClient
                 .from("moderation_appeals")
-                .select("id,product_id,seller_id,message,status,admin_note,created_at,reviewed_at,reviewed_by")
+                .select("id,listing_id,user_id,reason,status,admin_note,created_at,reviewed_at,reviewed_by")
                 .order("created_at",{ascending:false})
                 .limit(100);
 
@@ -97,7 +97,7 @@
             }
 
             const rows=data||[];
-            const ids=[...new Set(rows.map(a=>a.product_id).filter(Boolean))];
+            const ids=[...new Set(rows.map(a=>a.listing_id).filter(Boolean))];
             const products={};
 
             if(ids.length){
@@ -137,7 +137,7 @@
 
             const products=modal._appealProducts||{};
             list.innerHTML=rows.map(a=>{
-                const p=products[a.product_id];
+                const p=products[a.listing_id];
                 const price=p?.price!=null?' · ₹'+esc(Number(p.price).toLocaleString("en-IN")):"";
                 const image=p?.image
                     ? '<img class="sk-admin-id-preview" src="'+esc(p.image)+'" alt="'+esc(p.name||"Listing")+'" loading="lazy" style="max-height:190px;margin-top:10px">'
@@ -146,18 +146,18 @@
                 return '<article class="sk-admin-card">'+
                     '<div class="sk-admin-card-head"><div><strong>'+esc(p?.name||"Deleted/unknown")+'</strong>'+
                     '<div class="sk-admin-meta">Status: '+esc(a.status)+' · '+esc(new Date(a.created_at).toLocaleString("en-IN"))+
-                    '<br>Seller: '+esc(p?.seller||p?.seller_email||a.seller_id)+
+                    '<br>Seller: '+esc(p?.seller||p?.seller_email||a.user_id)+
                     '<br>Category: '+esc(p?.category||"Unknown")+price+
                     '<br>Location: '+esc(p?.location||"Not added")+
-                    '<br>Product ID: '+esc(a.product_id||"Unknown")+'</div></div></div>'+
+                    '<br>Product ID: '+esc(a.listing_id||"Unknown")+'</div></div></div>'+
                     image+
                     (p?.description?'<div class="sk-admin-meta" style="margin-top:10px"><strong>Listing description:</strong><br>'+esc(p.description)+'</div>':"")+
-                    '<div class="sk-admin-meta" style="margin-top:10px"><strong>Seller appeal:</strong><br>'+esc(a.message)+'</div>'+
+                    '<div class="sk-admin-meta" style="margin-top:10px"><strong>Seller appeal:</strong><br>'+esc(a.reason)+'</div>'+
                     (p?.moderation_reason?'<div class="sk-suspend-box" style="margin-top:10px"><div class="sk-suspend-title"><i class="fas fa-circle-exclamation"></i> Exact moderation reason</div><div class="sk-suspend-reason">'+esc(p.moderation_reason)+'</div></div>':"")+
                     (a.admin_note?'<div class="sk-admin-meta" style="margin-top:8px"><strong>Admin note:</strong> '+esc(a.admin_note)+'</div>':"")+
                     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
-                    (a.product_id&&p?'<button class="btn btn-outline" type="button" data-appeal-view="'+esc(a.product_id)+'"><i class="fas fa-eye"></i> View Listing</button>':"")+
-                    (a.status==="pending"?'<button class="btn btn-primary" type="button" data-approve-appeal="'+esc(a.id)+'" data-appeal-product="'+esc(a.product_id||"")+'"><i class="fas fa-check"></i> Approve & Restore</button><button class="btn btn-outline" type="button" data-reject-appeal="'+esc(a.id)+'"><i class="fas fa-xmark"></i> Reject</button>':"")+
+                    (a.listing_id&&p?'<button class="btn btn-outline" type="button" data-appeal-view="'+esc(a.listing_id)+'"><i class="fas fa-eye"></i> View Listing</button>':"")+
+                    (a.status==="pending"?'<button class="btn btn-primary" type="button" data-approve-appeal="'+esc(a.id)+'" data-appeal-product="'+esc(a.listing_id||"")+'"><i class="fas fa-check"></i> Approve & Restore</button><button class="btn btn-outline" type="button" data-reject-appeal="'+esc(a.id)+'"><i class="fas fa-xmark"></i> Reject</button>':"")+
                     '</div></article>';
             }).join("");
 
