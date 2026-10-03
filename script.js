@@ -5422,7 +5422,7 @@ async function fetchInternetPanelData(mode, query){
         }
 
         if(mode==="news"){
-            const url="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=12&format=json&sort=datedesc";
+            const url="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=30&timespan=24h&format=json";
             const response=await fetchWithTimeout(url,{headers:{"Accept":"application/json"}},9000);
             if(!response.ok) return [];
             const data=await response.json();
@@ -13204,45 +13204,78 @@ async function loadGlobalDiscoveryHomepage(){
     const grid=$("worldNewsGrid");
     if(!grid) return;
 
-    const feeds=[
-        {title:"World",query:"world international",icon:"fa-earth-americas"},
-        {title:"Technology & Science",query:"technology science AI space",icon:"fa-microchip"},
-        {title:"Business & Economy",query:"business economy markets",icon:"fa-chart-line"},
-        {title:"Sports & Culture",query:"sports entertainment culture",icon:"fa-globe"}
+    const topicRules=[
+        {title:"World",query:["world","international","global","war","diplomacy","government"],icon:"fa-earth-americas"},
+        {title:"Technology & Science",query:["technology","science","ai","artificial intelligence","space","nasa","chip","software"],icon:"fa-microchip"},
+        {title:"Business & Economy",query:["business","economy","market","markets","finance","company","trade","oil"],icon:"fa-chart-line"},
+        {title:"Sports & Culture",query:["sports","football","cricket","tennis","culture","entertainment","music","film"],icon:"fa-futbol"}
     ];
 
+    const classify=item=>{
+        const hay=(String(item?.title||"")+" "+String(item?.description||"")).toLowerCase();
+        let best=topicRules[0], bestScore=0;
+        topicRules.forEach(rule=>{
+            const score=rule.query.reduce((sum,word)=>sum+(hay.includes(word)?1:0),0);
+            if(score>bestScore){best=rule;bestScore=score;}
+        });
+        return {...item,topic:best.title,topicIcon:best.icon};
+    };
+
+    const renderUnavailable=()=>{
+        grid.innerHTML='<div class="world-news-empty"><i class="fas fa-cloud-arrow-down"></i><h3>Latest updates are temporarily unavailable</h3><p>Live news sources could not be reached. Try again in a moment.</p><button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Try again</button></div>';
+        $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
+    };
+
     try{
-        const results=await Promise.all(feeds.map(async feed=>{
-            const items=await fetchInternetPanelData("news",feed.query);
-            return {...feed,items:items.slice(0,4)};
-        }));
-        const all=results.flatMap(feed=>feed.items.map(item=>({...item,topic:feed.title,topicIcon:feed.icon})));
+        grid.innerHTML='<div class="world-news-empty"><i class="fas fa-spinner fa-spin"></i><h3>Loading latest updates…</h3><p>Collecting fresh global stories.</p></div>';
+
+        const items=await fetchInternetPanelData(
+            "news",
+            '(world OR international OR global OR technology OR science OR AI OR space OR business OR economy OR markets OR sports OR entertainment OR culture)'
+        );
+
+        const all=items
+            .map(classify)
+            .filter(item=>item.title&&item.url)
+            .sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
 
         if(!all.length){
-            grid.innerHTML='<div class="world-news-empty"><i class="fas fa-newspaper"></i><h3>Latest updates are temporarily unavailable</h3><p>Live news sources could not be reached. Try again in a moment.</p><button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Try again</button></div>';
-            $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
+            renderUnavailable();
             return;
         }
 
+        const grouped=topicRules.map(rule=>({
+            ...rule,
+            items:all.filter(item=>item.topic===rule.title).slice(0,3)
+        })).filter(group=>group.items.length);
+
         const featured=all[0];
-        const cards=all.slice(1,9);
-        const featuredImage=featured.image ? '<img src="'+escapeHTML(featured.image)+'" alt="" loading="lazy">' : '<div class="world-news-image-placeholder"><i class="fas '+escapeHTML(featured.topicIcon)+'"></i></div>';
+        const cards=all.slice(1,10);
+        const featuredImage=featured.image
+            ? '<img src="'+escapeHTML(featured.image)+'" alt="" loading="lazy">'
+            : '<div class="world-news-image-placeholder"><i class="fas '+escapeHTML(featured.topicIcon)+'"></i></div>';
+
         const featuredHtml='<article class="world-news-featured">'+featuredImage+
             '<div class="world-news-featured-body"><div class="world-news-meta"><span><i class="fas '+escapeHTML(featured.topicIcon)+'"></i>'+escapeHTML(featured.topic)+'</span><span>'+escapeHTML(featured.source)+'</span></div>'+
             '<h3>'+escapeHTML(featured.title)+'</h3><p>'+escapeHTML(featured.description||"Latest details from the reported story.")+'</p>'+
             '<a href="'+escapeHTML(featured.url)+'" target="_blank" rel="noopener noreferrer">Read full story <i class="fas fa-arrow-up-right-from-square"></i></a></div></article>';
+
         const cardsHtml='<div class="world-news-card-grid">'+cards.map(item=>{
-            const image=item.image ? '<img src="'+escapeHTML(item.image)+'" alt="" loading="lazy">' : '<div class="world-news-card-placeholder"><i class="fas '+escapeHTML(item.topicIcon)+'"></i></div>';
+            const image=item.image
+                ? '<img src="'+escapeHTML(item.image)+'" alt="" loading="lazy">'
+                : '<div class="world-news-card-placeholder"><i class="fas '+escapeHTML(item.topicIcon)+'"></i></div>';
             return '<article class="world-news-card">'+image+'<div class="world-news-card-body"><div class="world-news-meta"><span>'+escapeHTML(item.topic)+'</span><small>'+escapeHTML(item.source)+'</small></div><h3>'+escapeHTML(item.title)+'</h3>'+
                 (item.description?'<p>'+escapeHTML(item.description)+'</p>':'')+
                 '<a href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer">Details <i class="fas fa-arrow-right"></i></a></div></article>';
         }).join("")+'</div>';
-        grid.innerHTML=featuredHtml+cardsHtml+'<div class="world-news-refresh"><button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Refresh latest updates</button></div>';
+
+        const categoryStrip=grouped.map(group=>'<div class="world-news-category-row"><div class="world-news-category-heading"><span><i class="fas '+escapeHTML(group.icon)+'"></i>'+escapeHTML(group.title)+'</span><small>'+group.items.length+' fresh stories</small></div><div class="world-news-mini-grid">'+group.items.map(item=>'<a class="world-news-mini-card" href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer"><strong>'+escapeHTML(item.title)+'</strong><small>'+escapeHTML(item.source)+'</small></a>').join("")+'</div></div>').join("");
+
+        grid.innerHTML=featuredHtml+cardsHtml+categoryStrip+'<div class="world-news-refresh"><button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Refresh latest updates</button></div>';
         $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
     }catch(error){
         console.error("Global discovery feed failed:",error);
-        grid.innerHTML='<div class="world-news-empty"><i class="fas fa-cloud-arrow-down"></i><h3>Latest updates are temporarily unavailable</h3><p>Live news sources could not be reached. Try again in a moment.</p><button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Try again</button></div>';
-        $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
+        renderUnavailable();
     }
 }
 document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();});
