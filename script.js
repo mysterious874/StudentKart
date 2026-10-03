@@ -13116,6 +13116,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const getSuggestions=query=>{
         const q=String(query||"").trim().toLowerCase();
         const seen=new Set(),out=[];
+        const add=(value,title,meta,icon)=>{
+            const clean=String(value||"").trim();
+            const key=clean.toLowerCase();
+            if(!key||seen.has(key))return;
+            seen.add(key);
+            out.push({value:clean,title:title||clean,meta:meta||"Search StudentKart",icon:icon||"fa-tag"});
+        };
         if(!q){
             [...currentProducts].slice(0,5).forEach(p=>{
                 const name=String(p.name||"").trim(),cat=String(p.category||"").trim(),loc=String(p.location||"").trim();
@@ -13126,10 +13133,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             return out.slice(0,8);
         }
-        const add=(value,title,meta,icon)=>{
-            const key=String(value).toLowerCase(); if(!key||seen.has(key))return;
-            seen.add(key);out.push({value,title,meta,icon});
-        };
         [...currentProducts].forEach(p=>{
             const name=String(p.name||"").trim(),cat=String(p.category||"").trim(),loc=String(p.location||"").trim();
             const hay=[name,cat,loc,String(p.description||"")].join(" ").toLowerCase();
