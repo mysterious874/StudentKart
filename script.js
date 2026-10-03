@@ -3898,8 +3898,17 @@ function setupChatListControls() {
     if (input && !input.dataset.bound) {
         input.dataset.bound = "true";
         input.addEventListener("input", () => {
-            clear?.classList.toggle("hidden", !input.value);
+            const query = String(input.value || "");
+            clear?.classList.toggle("hidden", !query);
             applyChatListFilter();
+
+            const results = $("chatUserSearchResults");
+            if (results) {
+                results.classList.remove("hidden");
+                results.setAttribute("data-search-open", "true");
+            }
+
+            searchStudentKartUsers(query);
         });
     }
 
