@@ -38,50 +38,6 @@
             <button type="button" class="navbar-filter-button" id="navbarFilterButton">
                 <i class="fas fa-sliders"></i><span>Filters</span>
             </button>
-            <div class="navbar-filter-panel hidden" id="navbarFilterPanel">
-                <div class="filter-panel-header">
-                    <div><strong>Filter Listings</strong><small>Refine marketplace results</small></div>
-                    <button type="button" class="filter-panel-close" id="navbarFilterClose">&times;</button>
-                </div>
-                <div class="filter-panel-grid">
-                    <label><span>Category</span>
-                        <select id="categoryFilter">
-                            <option value="all">All Categories</option>
-                            <option value="Books">Books</option>
-                            <option value="Electronics">Electronics</option>
-                            <option value="Vehicles">Vehicles</option>
-                            <option value="Furniture">Furniture</option>
-                            <option value="Services">Services</option>
-                            <option value="Fashion">Fashion</option>
-                        </select>
-                    </label>
-                    <label><span>Min Price</span><input id="minPrice" type="number" min="0" placeholder="₹0"></label>
-                    <label><span>Max Price</span><input id="maxPrice" type="number" min="0" placeholder="No limit"></label>
-                    <label class="marketplace-location-filter"><span>Location</span><div class="marketplace-location-search-wrap"><input id="locationFilter" type="text" autocomplete="off" placeholder="University / city / village / area"><div id="studentkartLocationSuggestions" class="studentkart-location-suggestions hidden" role="listbox" aria-label="Location suggestions"></div></div></label>
-                    <label><span>Condition</span>
-                        <select id="conditionFilter">
-                            <option value="all">Any Condition</option>
-                            <option value="New">New</option>
-                            <option value="Like New">Like New</option>
-                            <option value="Good">Good</option>
-                            <option value="Fair">Fair</option>
-                            <option value="Used">Used</option>
-                        </select>
-                    </label>
-                    <label><span>Sort By</span>
-                        <select id="sortFilter">
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="price-low">Price: Low to High</option>
-                            <option value="price-high">Price: High to Low</option>
-                        </select>
-                    </label>
-                </div>
-                <div class="filter-panel-actions">
-                    <button type="button" class="btn btn-outline" id="cancelMarketplaceFilters">Clear</button>
-                    <button type="button" class="btn btn-primary" id="applyMarketplaceFilters"><i class="fas fa-check"></i> Apply Filters</button>
-                </div>
-            </div>
             <button type="button" class="navbar-search-submit" id="navbarSearchSubmit" aria-label="Search listings">
                 <i class="fas fa-search"></i>
             </button>
@@ -226,6 +182,51 @@
                 </button>
             </div>
         </div>
+
+            <div class="marketplace-filter-panel hidden" id="navbarFilterPanel">
+                <div class="filter-panel-header">
+                    <div><strong>Filter Listings</strong><small>Refine marketplace results</small></div>
+                    <button type="button" class="filter-panel-close" id="navbarFilterClose">&times;</button>
+                </div>
+                <div class="filter-panel-grid">
+                    <label><span>Category</span>
+                        <select id="categoryFilter">
+                            <option value="all">All Categories</option>
+                            <option value="Books">Books</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Vehicles">Vehicles</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Services">Services</option>
+                            <option value="Fashion">Fashion</option>
+                        </select>
+                    </label>
+                    <label><span>Min Price</span><input id="minPrice" type="number" min="0" placeholder="₹0"></label>
+                    <label><span>Max Price</span><input id="maxPrice" type="number" min="0" placeholder="No limit"></label>
+                    <label class="marketplace-location-filter"><span>Location</span><div class="marketplace-location-search-wrap"><input id="locationFilter" type="text" autocomplete="off" placeholder="University / city / village / area"><div id="studentkartLocationSuggestions" class="studentkart-location-suggestions hidden" role="listbox" aria-label="Location suggestions"></div></div></label>
+                    <label><span>Condition</span>
+                        <select id="conditionFilter">
+                            <option value="all">Any Condition</option>
+                            <option value="New">New</option>
+                            <option value="Like New">Like New</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                            <option value="Used">Used</option>
+                        </select>
+                    </label>
+                    <label><span>Sort By</span>
+                        <select id="sortFilter">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="filter-panel-actions">
+                    <button type="button" class="btn btn-outline" id="cancelMarketplaceFilters">Clear</button>
+                    <button type="button" class="btn btn-primary" id="applyMarketplaceFilters"><i class="fas fa-check"></i> Apply Filters</button>
+                </div>
+            </div>
 
             <div id="filterStatus" class="filter-status">Showing latest listings</div>
             <div id="productContainer" class="products-grid"></div>
