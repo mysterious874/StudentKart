@@ -9186,7 +9186,7 @@ async function deleteSelectedChatMessagesForEveryone() {
             : "";
 
         showToast(
-            deletedIds.length + " message" + (deletedIds.length === 1 ? "" : "s") +
+            ownIds.length + " message" + (ownIds.length === 1 ? "" : "s") +
             " deleted for everyone." + extra,
             "success"
         );
