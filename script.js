@@ -11955,6 +11955,34 @@ async function handleSettingAction(action) {
         return;
     }
 
+    if (action === "developer") {
+        closeModal("settingsModal");
+        const title = $("footerInfoTitle"), body = $("footerInfoBody");
+        if (title) title.textContent = "Developer";
+        if (body) body.innerHTML = `
+            <div class="info-intro">StudentKart is built and developed by Harish Rathod.</div>
+            <div class="info-contact-card">
+                <div class="info-contact-icon"><i class="fas fa-code"></i></div>
+                <div><span>Developer</span><strong>Harish Rathod</strong></div>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-user-tie"></i> Role</h3>
+                <p>Founder & Developer of StudentKart.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-laptop-code"></i> What I Work On</h3>
+                <ul class="info-list">
+                    <li>StudentKart product and website development</li>
+                    <li>Marketplace, authentication and chat features</li>
+                    <li>User experience, responsive design and future improvements</li>
+                </ul>
+            </div>
+            <div class="info-note"><i class="fas fa-rocket"></i><span>StudentKart is being built to make campus buying, selling and discovering products easier for students.</span></div>
+        `;
+        openModal("footerInfoModal");
+        return;
+    }
+
     if (action === "how" || action === "safety-tips" || action === "safety-about" || action === "about" ||
         action === "terms" || action === "privacy-policy" || action === "contact") {
         const map = {
@@ -12037,6 +12065,7 @@ const SETTINGS_SECTION_TEMPLATES = {
         <button class="settings-row" type="button" data-setting-action="terms"><span><i class="fas fa-file-contract"></i><b>Terms & Conditions</b><small>Platform terms</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="privacy-policy"><span><i class="fas fa-user-shield"></i><b>Privacy Policy</b><small>How information is handled</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="safety-about"><span><i class="fas fa-shield-heart"></i><b>Safety</b><small>Safe buying and selling guidance</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="developer"><span><i class="fas fa-code"></i><b>Developer</b><small>Meet the creator of StudentKart</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="contact"><span><i class="fas fa-headset"></i><b>Contact Us</b><small>Get in touch with StudentKart</small></span><i class="fas fa-chevron-right"></i></button>
         <div class="settings-version"><span>App Version</span><strong>1.0.0</strong></div>`},
     "account-actions":{title:"Account Actions",icon:"fa-door-open",subtitle:"Manage your account session.",html:`
