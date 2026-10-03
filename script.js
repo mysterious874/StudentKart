@@ -11704,6 +11704,10 @@ document.addEventListener("pointerdown", event => {
 
     window.setTimeout(() => ripple.remove(), 170);
 
+    // Respect the user's interaction-feedback preference on supported mobile browsers.
+    if (currentUser && getStudentKartSettings().preferences.vibration && navigator.vibrate) {
+        navigator.vibrate(10);
+    }
 
 });
 
