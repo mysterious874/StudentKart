@@ -3609,6 +3609,7 @@ function bindChatLongPress() {
     });
 }
 
+async function searchStudentKartUsers(query) {
     const box = $("chatUserSearchResults");
     if (!box) return;
 
