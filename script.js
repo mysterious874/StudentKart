@@ -5261,7 +5261,14 @@ function getSearchResultMatches(query) {
     });
 }
 
-async async function fetchInternetSearchResults(query){
+async function fetchWithTimeout(url, options={}, timeout=9000){
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject)=>setTimeout(()=>reject(new Error("Request timeout")), timeout))
+    ]);
+}
+
+async function fetchInternetSearchResults(query){
     const q=String(query||"").trim();
     if(!q) return {web:[], wiki:[]};
 
@@ -5282,7 +5289,7 @@ async async function fetchInternetSearchResults(query){
 
     try{
         const url="https://api.duckduckgo.com/?q="+encodeURIComponent(q)+"&format=json&no_html=1&skip_disambig=0";
-        const response=await fetch(url,{headers:{"Accept":"application/json"}});
+        const response=await fetchWithTimeout(url,{headers:{"Accept":"application/json"}},9000);
         if(response.ok){
             const data=await response.json();
             if(data?.AbstractURL){
@@ -5317,7 +5324,7 @@ async async function fetchInternetSearchResults(query){
     const wiki=[];
     try{
         const url="https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch="+encodeURIComponent(q)+"&gsrlimit=8&prop=extracts|pageimages|coordinates|pageprops&exintro=1&explaintext=1&exsentences=5&piprop=thumbnail|name&pithumbsize=720&format=json&origin=*";
-        const response=await fetch(url,{headers:{"Accept":"application/json"}});
+        const response=await fetchWithTimeout(url,{headers:{"Accept":"application/json"}},9000);
         if(response.ok){
             const data=await response.json();
             Object.values(data?.query?.pages||{}).forEach(page=>{
@@ -5348,7 +5355,7 @@ async function enrichWikiFacts(items){
     if(!ids.length) return items;
     try{
         const url="https://www.wikidata.org/w/api.php?action=wbgetentities&ids="+encodeURIComponent(ids.join("|"))+"&props=claims|labels&languages=en&format=json&origin=*";
-        const response=await fetch(url,{headers:{"Accept":"application/json"}});
+        const response=await fetchWithTimeout(url,{headers:{"Accept":"application/json"}},9000);
         if(!response.ok) return items;
         const data=await response.json();
         const entityLabels={};
@@ -5398,7 +5405,7 @@ async function fetchInternetPanelData(mode, query){
     try{
         if(mode==="photos"){
             const url="https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch="+encodeURIComponent(q)+"&gsrnamespace=6&gsrlimit=12&prop=imageinfo|info&iiprop=url|extmetadata&iiurlwidth=900&format=json&origin=*";
-            const response=await fetch(url,{headers:{"Accept":"application/json"}});
+            const response=await fetchWithTimeout(url,{headers:{"Accept":"application/json"}},9000);
             if(!response.ok) return [];
             const data=await response.json();
             return Object.values(data?.query?.pages||{}).map(page=>{
@@ -5416,7 +5423,7 @@ async function fetchInternetPanelData(mode, query){
 
         if(mode==="news"){
             const url="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=12&format=json&sort=datedesc";
-            const response=await fetch(url,{headers:{"Accept":"application/json"}});
+            const response=await fetchWithTimeout(url,{headers:{"Accept":"application/json"}},9000);
             if(!response.ok) return [];
             const data=await response.json();
             return (Array.isArray(data?.articles)?data.articles:[]).map(article=>({
