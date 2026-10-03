@@ -190,14 +190,28 @@
 
             if(status==="approved" && (!productId || !confirm("Approve this appeal and restore the listing?"))) return;
 
-            const {data,error}=await supabaseClient.rpc("admin_decide_moderation_appeal",{
-                target_appeal_id:appealId,
-                decision:status,
-                admin_note:note.trim()||null
-            });
+            const {data:userData}=await supabaseClient.auth.getUser();
+            const {error}=await supabaseClient.from("moderation_appeals").update({
+                status,
+                admin_note:note.trim()||null,
+                reviewed_at:new Date().toISOString(),
+                reviewed_by:userData?.user?.id||null
+            }).eq("id",appealId);
 
-            if(error || data===false){
-                window.showToast?.(error?.message||"Could not process appeal","error");
+            if(error){
+                window.showToast?.(error.message||"Could not process appeal","error");
+                return;
+            }
+
+            if(status==="approved" && productId){
+                const restore=await supabaseClient.rpc("admin_set_listing_moderation",{target_product_id:productId,new_status:"active",reason_text:null});
+                if(restore.error || restore.data===false){
+                    window.showToast?.(restore.error?.message||"Appeal updated, but listing could not be restored","warning");
+                    await openAppeals();
+                    return;
+                }
+            }
+            window.showToast?.(error?.message||"Could not process appeal","error");
                 return;
             }
 
