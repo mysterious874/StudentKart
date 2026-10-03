@@ -19958,3 +19958,15 @@ body:has(#marketplace:not(.hidden)) #marketplace .marketplace-page-header{
   top:0;
   z-index:100!important;
 }
+
+
+/* Marketplace page: remove its own top header bar */
+body:has(#marketplace:not(.hidden)) #marketplace .marketplace-page-header{
+  display:none!important;
+}
+body:has(#marketplace:not(.hidden)) #marketplace .marketplace-section-intro{
+  display:none!important;
+}
+body:has(#marketplace:not(.hidden)) #marketplace .hero-search-strip{
+  margin-top:0!important;
+}
