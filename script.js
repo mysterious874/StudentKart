@@ -12219,19 +12219,13 @@ document.addEventListener("DOMContentLoaded", () => {
     bottomChat.addEventListener('click', function(event){
       event.preventDefault();
       event.stopPropagation();
-      const chatButton = document.getElementById('chatButton');
-      if(chatButton){
-        chatButton.click();
+      if(typeof openModal !== 'function') return;
+      if(!currentUser){
+        openModal('loginModal');
+        if(typeof showToast === 'function') showToast('Please login to chat','warning');
         return;
       }
-      if(typeof openModal === 'function'){
-        if(!currentUser){
-          openModal('loginModal');
-          if(typeof showToast === 'function') showToast('Please login to chat','warning');
-        }else if(typeof openChat === 'function'){
-          openModal('inquiriesModal');
-        }
-      }
+      openModal('inquiriesModal');
     }, {passive:false});
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
