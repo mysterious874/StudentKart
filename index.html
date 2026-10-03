@@ -147,6 +147,30 @@
                     <button type="button" id="heroFilterButton" class="top-filter-button" aria-label="Filters" title="Filters"><i class="fas fa-sliders"></i></button>
                     <button type="button" id="heroSearchButton" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
                 </div>
+                <div class="hero-filter-panel hidden" id="heroFilterPanel" aria-label="Filter listings">
+                    <div class="hero-filter-header">
+                        <div><strong>Filter Listings</strong><small>Refine marketplace results</small></div>
+                        <button type="button" id="heroFilterClose" aria-label="Close filters">&times;</button>
+                    </div>
+                    <div class="hero-filter-grid">
+                        <label><span>Category</span><select id="heroFilterCategory">
+                            <option value="all">All Categories</option><option value="Books">Books</option><option value="Electronics">Electronics</option><option value="Vehicles">Vehicles</option><option value="Furniture">Furniture</option><option value="Services">Services</option><option value="Fashion">Fashion</option>
+                        </select></label>
+                        <label><span>Min Price</span><input id="heroFilterMin" type="number" min="0" placeholder="₹0"></label>
+                        <label><span>Max Price</span><input id="heroFilterMax" type="number" min="0" placeholder="No limit"></label>
+                        <label><span>Location</span><input id="heroFilterLocation" type="text" placeholder="University / city / area" autocomplete="off"></label>
+                        <label><span>Condition</span><select id="heroFilterCondition">
+                            <option value="all">Any Condition</option><option value="New">New</option><option value="Like New">Like New</option><option value="Good">Good</option><option value="Fair">Fair</option><option value="Used">Used</option>
+                        </select></label>
+                        <label><span>Sort By</span><select id="heroFilterSort">
+                            <option value="newest">Newest First</option><option value="oldest">Oldest First</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option>
+                        </select></label>
+                    </div>
+                    <div class="hero-filter-actions">
+                        <button type="button" class="btn btn-outline" id="heroFilterClear">Clear</button>
+                        <button type="button" class="btn btn-primary" id="heroFilterApply"><i class="fas fa-check"></i> Apply Filters</button>
+                    </div>
+                </div>
                 <div class="category-scroll-strip" aria-label="Browse categories">
                     <button type="button" class="category-scroll-box" data-category="Books"><i class="fas fa-book"></i><span>Books</span></button>
                     <button type="button" class="category-scroll-box" data-category="Electronics"><i class="fas fa-laptop"></i><span>Electronics</span></button>
