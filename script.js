@@ -4923,13 +4923,12 @@ async function saveEditedProfile(
         id: currentUser.id,
         name,
         username,
-        phone,
+        phone: currentUser.phone || "",
         college,
         state,
         city,
         area,
         email: currentUser.email || "",
-        phone: currentUser.phone || "",
         avatar_url: previewAvatarUrl,
         updated_at: new Date().toISOString()
     };
@@ -4952,10 +4951,6 @@ async function saveEditedProfile(
     }
 
     closeModal("editProfileModal", { instant: true });
-    showToast(
-        file ? "Profile photo updating..." : "Profile updated",
-        "success"
-    );
 
     // Change the authentication password only when the user entered a new one.
     // The password is never stored in the profile table or localStorage.
@@ -4972,7 +4967,6 @@ async function saveEditedProfile(
 
             $("editProfileNewPassword").value = "";
             $("editProfileConfirmPassword").value = "";
-            showToast("Profile updated and password changed", "success");
         } catch (passwordError) {
             console.error("Password update error:", passwordError);
             showToast(
@@ -5068,7 +5062,12 @@ async function saveEditedProfile(
             }
         }
 
-        showToast("Profile updated successfully", "success");
+        showToast(
+            newPassword
+                ? "Profile and password updated successfully"
+                : "Profile updated successfully",
+            "success"
+        );
 
         if (file && previewAvatarUrl.startsWith("blob:")) {
             URL.revokeObjectURL(previewAvatarUrl);
