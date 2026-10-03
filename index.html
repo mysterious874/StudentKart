@@ -209,12 +209,15 @@
         </section>
 
         <section id="searchResultsPage" class="search-results-page hidden" aria-label="Search results">
-            <div class="search-results-navbar"><div class="search-results-navbar-inner">
-                <button type="button" class="search-results-back" id="searchResultsBack" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
-                <div class="search-results-navbar-title"><span>SEARCH RESULTS</span><small id="searchResultsNavbarSubtitle">Products related to your search</small></div>
-            </div></div>
+            <div class="search-results-search-strip">
+                <button type="button" class="search-results-strip-back" id="searchResultsBack" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
+                <i class="fas fa-search search-results-search-icon"></i>
+                <div class="hero-search-input-wrap">
+                    <input type="text" id="searchResultsInput" placeholder="Search books, electronics, furniture, services..." autocomplete="off">
+                </div>
+                <button type="button" id="searchResultsSearchButton" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
+            </div>
             <div class="search-results-container">
-                <div class="search-results-heading"><div><span class="section-label">YOU SEARCHED FOR</span><h1 id="searchResultsQuery">Search</h1></div><span class="search-results-count" id="searchResultsCount">0 listings</span></div>
                 <div id="searchResultsProductContainer" class="products-grid"></div>
                 <div id="searchResultsEmptyState" class="empty-state hidden">
                     <div class="empty-icon"><i class="fas fa-magnifying-glass"></i></div>
