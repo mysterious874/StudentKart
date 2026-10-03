@@ -30,6 +30,44 @@ body.search-results-mobile-view #searchResultsPage .search-results-navbar::after
 .hero-search-suggestions,.navbar-search-suggestions{z-index:1000001!important}
 .product-image-wrap .wishlist-btn,.wishlist-button{z-index:5!important}
 </style>
+
+<style id="studentkart-hero-search-final-fix">
+/* Hero -> sticky search: it starts in normal page flow, then docks directly below navbar. */
+#heroSearchStrip {
+    position: sticky !important;
+    top: var(--studentkart-navbar-height, 76px) !important;
+    z-index: 900 !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+#heroSearchStrip .hero-search-inner {
+    width: min(1180px, calc(100% - 32px)) !important;
+    margin: 0 auto !important;
+}
+#heroSearchStrip .hero-search-suggestions {
+    z-index: 950 !important;
+}
+/* Never let the home search strip sit above another full-page view. */
+body.studentkart-modal-navigation-hidden #heroSearchStrip,
+body.search-results-mobile-view #heroSearchStrip,
+body.studentkart-search-results-open #heroSearchStrip,
+body.studentkart-category-page-open #heroSearchStrip,
+body.studentkart-product-page-open #heroSearchStrip {
+    display: none !important;
+}
+/* This old rule was making the search strip sit above everything. */
+.hero-search-strip,
+.navbar-search-panel { z-index: auto !important; }
+.navbar-search-panel { z-index: 9999 !important; }
+@media (max-width: 768px) {
+    #heroSearchStrip {
+        top: var(--studentkart-navbar-height, 68px) !important;
+    }
+    #heroSearchStrip .hero-search-inner {
+        width: calc(100% - 24px) !important;
+    }
+}
+</style>
 </head>
 
 <body>
@@ -964,6 +1002,55 @@ body.search-results-mobile-view #searchResultsPage .search-results-navbar::after
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js?v=20261003-chat-list-fix-1"></script>
     <script src="/push-notifications.js?v=20261003-push-mobile-1"></script>
-    </body>
+    
+<script id="studentkart-hero-search-final-script">
+(function () {
+    function updateNavbarHeight() {
+        const navbar = document.querySelector('.navbar');
+        if (!navbar) return;
+        document.documentElement.style.setProperty('--studentkart-navbar-height', navbar.getBoundingClientRect().height + 'px');
+    }
+
+    function syncHeroSearchPageState() {
+        const strip = document.getElementById('heroSearchStrip');
+        const marketplace = document.getElementById('marketplace');
+        const categoryPage = document.getElementById('categoryPage');
+        const searchPage = document.getElementById('searchResultsPage');
+        if (!strip) return;
+
+        const otherPageOpen =
+            (categoryPage && !categoryPage.classList.contains('hidden')) ||
+            (searchPage && !searchPage.classList.contains('hidden')) ||
+            document.body.classList.contains('search-results-mobile-view') ||
+            document.body.classList.contains('studentkart-search-results-open') ||
+            document.body.classList.contains('studentkart-category-page-open') ||
+            document.body.classList.contains('studentkart-product-page-open');
+
+        const marketplaceHidden = marketplace && marketplace.classList.contains('hidden');
+        strip.classList.toggle('studentkart-hero-search-hidden', Boolean(otherPageOpen || marketplaceHidden));
+    }
+
+    function boot() {
+        updateNavbarHeight();
+        syncHeroSearchPageState();
+        const observer = new MutationObserver(function () {
+            updateNavbarHeight();
+            syncHeroSearchPageState();
+        });
+        const body = document.body;
+        if (body) observer.observe(body, { attributes: true, attributeFilter: ['class'], subtree: true });
+        window.addEventListener('resize', updateNavbarHeight, { passive: true });
+        window.addEventListener('load', function () {
+            updateNavbarHeight();
+            syncHeroSearchPageState();
+        });
+        window.addEventListener('hashchange', syncHeroSearchPageState);
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+    else boot();
+})();
+</script>
+</body>
 
 </html>
