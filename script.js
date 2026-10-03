@@ -8391,12 +8391,10 @@ function setupAuthListener() {
                     // Start chat unread notifications for this logged-in user.
                     await updateChatUnreadCount();
                     await startChatUnreadRealtime();
-                    startStudentKartChatSync();
 
                 } else {
 
                     stopNotificationRefresh();
-                    stopStudentKartChatSync();
 
                     if (window.chatUnreadChannel) {
                         await supabaseClient.removeChannel(
@@ -10937,48 +10935,7 @@ async function markChatMessagesRead(inquiryId) {
     }
 }
 
-async let studentKartChatSyncTimer = null;
-let studentKartChatSyncBusy = false;
-
-function startStudentKartChatSync() {
-    if (studentKartChatSyncTimer) {
-        clearInterval(studentKartChatSyncTimer);
-    }
-
-    const sync = async () => {
-        if (!currentUser || studentKartChatSyncBusy) return;
-
-        studentKartChatSyncBusy = true;
-        try {
-            // Realtime is the primary path. This background sync is a
-            // reliability fallback for browsers/projects where Supabase
-            // Realtime is delayed or not enabled for the messages table.
-            await updateChatUnreadCount();
-            await loadReceivedInquiries();
-
-            if (currentChatInquiry) {
-                await loadChatMessages();
-            }
-        } catch (error) {
-            console.warn("StudentKart chat background sync failed:", error);
-        } finally {
-            studentKartChatSyncBusy = false;
-        }
-    };
-
-    void sync();
-    studentKartChatSyncTimer = window.setInterval(sync, 2500);
-}
-
-function stopStudentKartChatSync() {
-    if (studentKartChatSyncTimer) {
-        clearInterval(studentKartChatSyncTimer);
-        studentKartChatSyncTimer = null;
-    }
-    studentKartChatSyncBusy = false;
-}
-
-function startChatUnreadRealtime() {
+async function startChatUnreadRealtime() {
     if (!currentUser) return;
 
     if (window.chatUnreadChannel) {
