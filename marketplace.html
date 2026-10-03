@@ -96,10 +96,10 @@ body.marketplace-page-active .new-products-section{display:block!important;visib
   const tabs=[...document.querySelectorAll(".new-products-tab")];
 
   const LOCAL_PRODUCTS=[
-    {id:"sk-001",name:"HP 15 Laptop",category:"electronics",price:42999,source:"HP",url:"https://www.hp.com/in-en/shop/"},
-    {id:"sk-002",name:"Samsung Galaxy Smartphone",category:"electronics",price:18999,source:"Samsung",url:"https://www.samsung.com/in/smartphones/"},
-    {id:"sk-003",name:"Wireless Headphones",category:"electronics",price:2499,source:"Sony",url:"https://electronics.sony.com/audio/headphones"},
-    {id:"sk-004",name:"Programming Books",category:"books",price:799,source:"Amazon",url:"https://www.amazon.in/s?k=programming+books"},
+    {id:"sk-001",name:"HP 15 Laptop",category:"electronics",price:42999,source:"HP",image:"https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80",url:"https://www.hp.com/in-en/shop/"},
+    {id:"sk-002",name:"Samsung Galaxy Smartphone",category:"electronics",price:18999,source:"Samsung",image:"https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=80",url:"https://www.samsung.com/in/smartphones/"},
+    {id:"sk-003",name:"Wireless Headphones",category:"electronics",price:2499,source:"Sony",image:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80",url:"https://electronics.sony.com/audio/headphones"},
+    {id:"sk-004",name:"Programming Books",category:"books",price:799,source:"Amazon",image:"https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80",url:"https://www.amazon.in/s?k=programming+books"},
     {id:"sk-005",name:"Cybersecurity Books",category:"books",price:899,source:"Amazon",url:"https://www.amazon.in/s?k=cybersecurity+books"},
     {id:"sk-006",name:"College Backpack",category:"fashion",price:1299,source:"Myntra",url:"https://www.myntra.com/backpacks"},
     {id:"sk-007",name:"Study Table",category:"home",price:3499,source:"IKEA",url:"https://www.ikea.com/in/en/cat/desks-computer-desks-20649/"},
@@ -129,7 +129,9 @@ body.marketplace-page-active .new-products-section{display:block!important;visib
   }
 
   function card(p){
-    const image='<div class="fast-product-image"><i class="fas fa-box-open"></i></div>';
+    const image = p.image
+      ? '<img class="fast-product-image-real" src="' + esc(p.image) + '" alt="' + esc(p.name || "Product") + '" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class="fast-product-image"><i class="fas fa-box-open"></i></div>\'">'
+      : '<div class="fast-product-image"><i class="fas fa-box-open"></i></div>';
     return '<article class="new-product-card">'+
       '<div class="new-product-image-wrap">'+image+
       '<span class="new-product-badge">NEW</span>'+
@@ -166,7 +168,7 @@ body.marketplace-page-active .new-products-section{display:block!important;visib
       const key=String(p.name).toLowerCase();
       if(match&&!seen.has(key)){seen.add(key);return true;}
       return false;
-    }).slice(0,8);
+    });
     if(!list.length){suggestionPanel.classList.add("hidden");suggestionPanel.innerHTML="";return;}
     suggestionPanel.innerHTML=list.map(p=>
       '<button type="button" class="marketplace-page-suggestion" data-name="'+esc(p.name)+'">'+
@@ -189,23 +191,59 @@ body.marketplace-page-active .new-products-section{display:block!important;visib
 
   async function loadAdminProducts(){
     try{
-      const controller=new AbortController();
-      const timer=setTimeout(()=>controller.abort(),1200);
-      const response=await fetch(
-        SUPABASE_URL+"/rest/v1/new_products?select=id,name,category,price,source,image,url&order=created_at.desc",
-        {headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"},signal:controller.signal}
-      );
-      clearTimeout(timer);
-      if(!response.ok) return;
-      const remote=await response.json();
-      if(!Array.isArray(remote)||!remote.length) return;
+      const pageSize = 1000;
+      const remote = [];
+
+      // PostgREST may return a server-side page limit. Keep requesting
+      // batches until the catalog is exhausted, so there is no 10/1000
+      // product cap in the GlobeDisc marketplace UI.
+      for(let from = 0; ; from += pageSize){
+        const controller = new AbortController();
+        const timer = setTimeout(()=>controller.abort(), 5000);
+
+        try{
+          const response = await fetch(
+            SUPABASE_URL + "/rest/v1/new_products?select=id,name,category,price,source,image,url,created_at&order=created_at.desc&limit=" + pageSize + "&offset=" + from,
+            {
+              headers:{
+                apikey:SUPABASE_KEY,
+                Authorization:"Bearer " + SUPABASE_KEY,
+                Accept:"application/json"
+              },
+              signal:controller.signal
+            }
+          );
+
+          if(!response.ok) break;
+
+          const batch = await response.json();
+          if(!Array.isArray(batch) || !batch.length) break;
+          remote.push(...batch);
+
+          if(batch.length < pageSize) break;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      if(!remote.length){
+        status.innerHTML='<i class="fas fa-circle-check"></i> Showing the full catalog';
+        return;
+      }
 
       const ids=new Set(remote.map(p=>String(p.id)));
       products=remote.map(p=>({
-        id:p.id,name:p.name,category:p.category,price:Number(p.price||0),
-        source:p.source||"Store",url:p.url||"#"
+        id:p.id,
+        name:p.name,
+        category:p.category,
+        price:Number(p.price||0),
+        source:p.source||"Store",
+        image:p.image||"",
+        url:p.url||"#"
       })).concat(products.filter(p=>!ids.has(String(p.id))));
+
       render();
+      renderSuggestions();
     }catch(e){
       console.warn("Admin product feed unavailable:",e);
     }
