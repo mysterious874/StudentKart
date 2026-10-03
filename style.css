@@ -17797,3 +17797,109 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
     opacity: 1 !important;
     z-index: 3000 !important;
 }
+
+
+/* =========================================================
+   NAVBAR BUTTONS — PREMIUM POLISH
+   Give the header actions a refined, modern control style.
+   ========================================================= */
+.nav-actions {
+    align-items: center;
+    gap: 9px;
+}
+
+.nav-actions .btn {
+    position: relative;
+    min-height: 40px;
+    border-radius: 11px !important;
+    border: 1px solid rgba(255,255,255,.13) !important;
+    box-shadow: 0 5px 14px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.08);
+    transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+    overflow: hidden;
+}
+
+.nav-actions .btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.10), transparent 55%);
+    pointer-events: none;
+}
+
+.nav-actions .btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255,255,255,.25) !important;
+    box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10);
+}
+
+.nav-actions .btn:active {
+    transform: translateY(0) scale(.97);
+}
+
+.nav-actions .nav-search-button,
+.nav-actions .nav-profile-button {
+    width: 42px;
+    min-width: 42px;
+    padding: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #f5fbfb !important;
+    background: rgba(255,255,255,.075) !important;
+}
+
+.nav-actions .nav-search-button i,
+.nav-actions .nav-profile-button i {
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+.nav-actions #sellButton {
+    min-width: 82px;
+    padding: 0 15px !important;
+    gap: 7px;
+    color: #fff !important;
+    background: linear-gradient(135deg, #19a7a2, #0f8b8d) !important;
+    border-color: rgba(86,229,221,.38) !important;
+    box-shadow: 0 7px 18px rgba(15,139,141,.27), inset 0 1px 0 rgba(255,255,255,.16);
+}
+
+.nav-actions #sellButton:hover {
+    background: linear-gradient(135deg, #20b5b0, #108f91) !important;
+    box-shadow: 0 10px 22px rgba(15,139,141,.34), inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+.nav-actions #sellButton i {
+    font-size: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.nav-actions #sellButton span {
+    position: relative;
+    z-index: 1;
+    font-weight: 750;
+}
+
+@media (max-width: 520px) {
+    .nav-actions {
+        gap: 6px;
+    }
+
+    .nav-actions .btn {
+        min-height: 38px;
+        border-radius: 10px !important;
+    }
+
+    .nav-actions .nav-search-button,
+    .nav-actions .nav-profile-button {
+        width: 38px;
+        min-width: 38px;
+    }
+
+    .nav-actions #sellButton {
+        min-width: 70px;
+        padding: 0 11px !important;
+    }
+}
