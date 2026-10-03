@@ -17349,6 +17349,17 @@ body:not(.studentkart-search-results-active) #home.studentkart-top .category-scr
     position:relative!important;
     z-index:100001!important;
 }
+/* HARD PAGE-STATE GUARD — home search/categories must never leak onto other pages. */
+body.category-page-active #home.studentkart-top,
+body.studentkart-search-results-active #home.studentkart-top,
+body:has(.search-results-page:not(.hidden)) #home.studentkart-top{
+    display:none!important;
+}
+body.category-page-active #home.studentkart-top .studentkart-top-content,
+body.studentkart-search-results-active #home.studentkart-top .studentkart-top-content{
+    display:none!important;
+}
+
 /* If navigation hides home, never show its search/category strip on another page. */
 body:has(#home.hidden) #home.studentkart-top{
     display:none!important;
