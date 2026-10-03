@@ -18215,3 +18215,55 @@ input:focus,select:focus,textarea:focus{
   .hero h1{font-size:clamp(42px,13.5vw,66px)!important;}
   .hero p{font-size:15px!important;}
 }
+
+
+/* =========================================================
+   STUDENTKART FINAL — FLOATING NAV VISIBILITY + CHAT REPAIR
+   ========================================================= */
+.mobile-bottom-nav{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:fixed!important;
+  left:50%!important;
+  bottom:14px!important;
+  transform:translateX(-50%)!important;
+  z-index:120000!important;
+  pointer-events:auto!important;
+}
+.mobile-bottom-nav .bottom-nav-item,
+.mobile-bottom-nav .bottom-nav-item i,
+.mobile-bottom-nav .bottom-nav-item span,
+.mobile-bottom-nav .bottom-chat-nav-item .bottom-nav-icon-wrap{
+  visibility:visible!important;
+  opacity:1!important;
+}
+.mobile-bottom-nav .bottom-nav-item{
+  color:#52677e!important;
+  -webkit-text-fill-color:#52677e!important;
+}
+.mobile-bottom-nav .bottom-nav-item i{color:#0284c7!important;-webkit-text-fill-color:#0284c7!important;}
+.mobile-bottom-nav .bottom-nav-item:hover,
+.mobile-bottom-nav .bottom-nav-item:focus-visible{color:#0369a1!important;background:#eaf6ff!important;}
+.mobile-bottom-nav .chat-unread-count{z-index:3!important;}
+
+/* The floating nav is intentionally hidden only on full-screen/modal/detail views. */
+body.studentkart-modal-navigation-hidden .mobile-bottom-nav,
+body.studentkart-product-details-open .mobile-bottom-nav,
+body.studentkart-chat-open .mobile-bottom-nav,
+body.category-page-active .mobile-bottom-nav,
+body:has(#sellModal:not(.hidden)) .mobile-bottom-nav,
+body:has(#editProfileModal:not(.hidden)) .mobile-bottom-nav{
+  display:none!important;
+}
+
+@media(max-width:700px){
+  .mobile-bottom-nav{width:calc(100vw - 20px)!important;bottom:10px!important;padding:7px 6px!important;}
+  .bottom-nav-item{min-height:48px!important;font-size:9px!important;}
+  .bottom-nav-item i{font-size:16px!important;}
+}
+@media(min-width:701px){
+  .mobile-bottom-nav{width:min(92vw,620px)!important;bottom:18px!important;}
+  .bottom-nav-item{min-height:52px!important;font-size:11px!important;}
+  .bottom-nav-item i{font-size:18px!important;}
+}
