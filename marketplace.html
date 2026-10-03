@@ -66,13 +66,13 @@
         </div>
 
         <div id="newProductsStatus" class="new-products-status">
-            <i class="fas fa-spinner fa-spin"></i> Connecting to new-product feeds…
+            <i class="fas fa-spinner fa-spin"></i> Loading new products…
         </div>
         <div id="newProductsGrid" class="new-products-grid"></div>
         <div id="newProductsEmpty" class="new-products-empty hidden">
             <i class="fas fa-store"></i>
             <h3>New-product feed is ready</h3>
-            <p>Amazon and Flipkart API feeds will appear here after their official affiliate/API credentials are connected.</p>
+            <p>Products are added to StudentKart manually. No API or affiliate credentials are required.</p>
         </div>
     </section>
 </div>
@@ -82,8 +82,9 @@
 <script src="script.js?v=20261004-marketplace-engine-1"></script>
 <script>
 /* =========================================================
-   NEW PRODUCTS FEED — Amazon + Flipkart
-   Search + category filtering target only new products.
+   NEW PRODUCTS — MANUAL CATALOG MODE
+   No Amazon/Flipkart API required.
+   Add/edit products in the PRODUCTS array below.
    ========================================================= */
 document.addEventListener("DOMContentLoaded",()=>{
     const input=document.getElementById("marketplaceSearch");
@@ -91,91 +92,129 @@ document.addEventListener("DOMContentLoaded",()=>{
     const grid=document.getElementById("newProductsGrid");
     const status=document.getElementById("newProductsStatus");
     const empty=document.getElementById("newProductsEmpty");
-    const refresh=document.getElementById("newProductsRefresh");
     const tabs=[...document.querySelectorAll(".new-products-tab")];
     if(!input||!grid||!status)return;
 
+    /*
+      MANUAL PRODUCT CATALOG
+      sourceUrl can point to any website where the product is sold/displayed.
+      No API key, affiliate credential, or scraping is used.
+    */
+    const PRODUCTS=[
+      {id:"sk-001",name:"HP 15 Laptop",category:"electronics",price:42999,source:"HP",image:"https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c08972762.png",url:"https://www.hp.com/in-en/shop/"},
+      {id:"sk-002",name:"Samsung Galaxy Smartphone",category:"electronics",price:18999,source:"Samsung",image:"https://images.samsung.com/is/image/samsung/p6pim/in/sm-s721blbkins/gallery/in-galaxy-s24-fe-s721-sm-s721blbkins-thumb-543773685",url:"https://www.samsung.com/in/smartphones/"},
+      {id:"sk-003",name:"Wireless Headphones",category:"electronics",price:2499,source:"Sony",image:"https://electronics.sony.com/image/jp/1a7d7d6e5f8b7f6d8b2b7b7c7b6b7b7c",url:"https://electronics.sony.com/audio/headphones"},
+      {id:"sk-004",name:"Programming Books",category:"books",price:799,source:"Amazon",image:"",url:"https://www.amazon.in/s?k=programming+books"},
+      {id:"sk-005",name:"Cybersecurity Books",category:"books",price:899,source:"Amazon",image:"",url:"https://www.amazon.in/s?k=cybersecurity+books"},
+      {id:"sk-006",name:"College Backpack",category:"fashion",price:1299,source:"Myntra",image:"",url:"https://www.myntra.com/backpacks"},
+      {id:"sk-007",name:"Study Table",category:"home",price:3499,source:"IKEA",image:"",url:"https://www.ikea.com/in/en/cat/desks-computer-desks-20649/"},
+      {id:"sk-008",name:"Gaming Mouse",category:"gaming",price:1499,source:"Logitech",image:"",url:"https://www.logitech.com/en-in/shop/c/gaming-mice"},
+      {id:"sk-009",name:"Gaming Keyboard",category:"gaming",price:2499,source:"Logitech",image:"",url:"https://www.logitech.com/en-in/shop/c/gaming-keyboards"},
+      {id:"sk-010",name:"Smartwatch",category:"electronics",price:2999,source:"boAt",image:"",url:"https://www.boat-lifestyle.com/collections/smart-watches"}
+    ];
+
     let activeCategory="all";
-    let allNewProducts=[];
+    let products=[...PRODUCTS];
 
-    const catalog={
-        electronics:["Laptop","Mobile Phone","Tablet","Monitor","Keyboard","Mouse","Headphones","Earphones","Smartwatch","SSD","Power Bank","Charger","Speaker","Webcam"],
-        books:["BCA Books","Programming Books","Cybersecurity Books","DSA Books","DBMS Books","Networking Books","Web Development Books","Semester Books","Study Notes"],
-        fashion:["T-Shirts","Shirts","Jeans","Hoodies","Jackets","Shoes","Sneakers","Backpacks","Watches"],
-        home:["Study Table","Chair","Desk Lamp","Bookshelf","Mattress","Storage Box","Room Essentials"],
-        gaming:["Gaming Laptop","Gaming PC","PlayStation","Xbox","Gaming Monitor","Gaming Keyboard","Gaming Mouse","Gaming Headset","Game Controller"],
-        all:["Laptop","Mobile Phone","BCA Books","Headphones","Backpack","Gaming Laptop","Study Table","Smartwatch"]
-    };
-    const iconFor=c=>({electronics:"fa-laptop",books:"fa-book",fashion:"fa-shirt",home:"fa-house",gaming:"fa-gamepad"}[c]||"fa-tag");
     const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-    const money=v=>{const n=Number(v);return Number.isFinite(n)&&n>0?new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(n):"Price unavailable"};
+    const money=v=>{
+      const n=Number(v);
+      return Number.isFinite(n)&&n>0
+        ? new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(n)
+        : "Check price";
+    };
 
-    function render(list){
-        const filtered=activeCategory==="all"?list:list.filter(p=>String(p.category||"").toLowerCase()===activeCategory);
-        if(!filtered.length){grid.innerHTML="";empty.classList.remove("hidden");return;}
-        empty.classList.add("hidden");
-        grid.innerHTML=filtered.map(p=>{
-            const source=String(p.source||"Amazon").toLowerCase().includes("flip")?"Flipkart":"Amazon";
-            const url=p.url||p.link||"#";
-            return '<article class="new-product-card"><div class="new-product-image-wrap">'+
-                (p.image?'<img src="'+esc(p.image)+'" alt="'+esc(p.name||"New product")+'" loading="lazy">':'<div class="new-product-image-placeholder"><i class="fas fa-box"></i></div>')+
-                '<span class="new-product-badge">NEW</span><span class="new-product-source '+source.toLowerCase()+'">'+source+'</span></div>'+ 
-                '<div class="new-product-body"><span class="new-product-category">'+esc(p.category||"New product")+'</span><h3>'+esc(p.name||"New product")+'</h3><div class="new-product-price">'+money(p.price)+'</div>'+ 
-                (p.mrp?'<div class="new-product-mrp">MRP '+money(p.mrp)+'</div>':'')+
-                '<a class="new-product-buy" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer sponsored">Buy on '+source+' <i class="fas fa-arrow-up-right-from-square"></i></a></div></article>';
-        }).join("");
-    }
+    function render(){
+      const q=input.value.trim().toLowerCase();
+      let list=products.filter(p=>{
+        const matchesCategory=activeCategory==="all"||p.category===activeCategory;
+        const text=(p.name+" "+p.category+" "+p.source).toLowerCase();
+        return matchesCategory&&(!q||text.includes(q));
+      });
 
-    async function load(query="student essentials"){
-        status.innerHTML='<i class="fas fa-spinner fa-spin"></i> Loading new products…';
-        grid.innerHTML=""; empty.classList.add("hidden");
-        try{
-            if(typeof SUPABASE_URL==="undefined"||typeof SUPABASE_KEY==="undefined")throw new Error("Supabase configuration unavailable");
-            const response=await fetch(SUPABASE_URL+"/functions/v1/new-products?q="+encodeURIComponent(query),{
-                headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Accept":"application/json"}
-            });
-            if(!response.ok)throw new Error("HTTP "+response.status);
-            const data=await response.json();
-            allNewProducts=Array.isArray(data?.products)?data.products:[];
-            render(allNewProducts);
-            status.innerHTML=allNewProducts.length?'<i class="fas fa-circle-check"></i> Live new-product feed':'<i class="fas fa-circle-info"></i> No products returned for this search';
-        }catch(error){
-            console.warn("New products feed:",error);
-            allNewProducts=[];
-            status.innerHTML='<i class="fas fa-link"></i> Official Amazon/Flipkart feed connection pending';
-            empty.classList.remove("hidden");
-        }
+      if(!list.length){
+        grid.innerHTML="";
+        empty.classList.remove("hidden");
+        empty.querySelector("h3").textContent="No products found";
+        empty.querySelector("p").textContent="Try another product name or category.";
+        status.innerHTML='<i class="fas fa-circle-info"></i> No matching products';
+        return;
+      }
+
+      empty.classList.add("hidden");
+      status.innerHTML='<i class="fas fa-circle-check"></i> '+list.length+' new products available';
+      grid.innerHTML=list.map(p=>{
+        const source=esc(p.source||"Store");
+        const image=p.image
+          ? '<img src="'+esc(p.image)+'" alt="'+esc(p.name)+'" loading="lazy" onerror="this.parentElement.classList.add(\'image-failed\');this.remove()">'
+          : '<div class="new-product-image-placeholder"><i class="fas fa-box-open"></i></div>';
+        return '<article class="new-product-card">'+
+          '<div class="new-product-image-wrap">'+image+
+          '<span class="new-product-badge">NEW</span>'+
+          '<span class="new-product-source">'+source+'</span></div>'+
+          '<div class="new-product-body">'+
+          '<span class="new-product-category">'+esc(p.category)+'</span>'+
+          '<h3>'+esc(p.name)+'</h3>'+
+          '<div class="new-product-price">'+money(p.price)+'</div>'+
+          '<a class="new-product-buy" href="'+esc(p.url)+'" target="_blank" rel="noopener noreferrer sponsored">View Product <i class="fas fa-arrow-up-right-from-square"></i></a>'+
+          '</div></article>';
+      }).join("");
     }
 
     function suggestions(q){
-        const query=String(q||"").trim().toLowerCase(),out=[],seen=new Set();
-        Object.entries(catalog).forEach(([category,items])=>items.forEach(item=>{
-            if(!query||item.toLowerCase().includes(query)){
-                const key=item.toLowerCase(); if(seen.has(key))return; seen.add(key);
-                out.push({value:item,meta:category==="all"?"New product":"New product • "+category,icon:iconFor(category)});
-            }
-        }));
-        return out.slice(0,10);
+      const query=String(q||"").trim().toLowerCase();
+      const seen=new Set();
+      const out=[];
+      products.forEach(p=>{
+        if(!query||(p.name+" "+p.category+" "+p.source).toLowerCase().includes(query)){
+          const key=p.name.toLowerCase();
+          if(!seen.has(key)){seen.add(key);out.push(p);}
+        }
+      });
+      return out.slice(0,8);
     }
+
     function renderSuggestions(){
-        const list=suggestions(input.value);
-        if(!list.length){panel.classList.add("hidden");panel.innerHTML="";return;}
-        panel.innerHTML=list.map(x=>'<button type="button" class="marketplace-page-suggestion" data-value="'+esc(x.value)+'"><span class="marketplace-page-suggestion-icon"><i class="fas '+x.icon+'"></i></span><span class="marketplace-page-suggestion-copy"><strong>'+esc(x.value)+'</strong><small>'+esc(x.meta)+'</small></span><i class="fas fa-chevron-right"></i></button>').join("");
-        panel.classList.remove("hidden");
-        panel.querySelectorAll("button").forEach(b=>{b.addEventListener("mousedown",e=>e.preventDefault());b.addEventListener("click",()=>{input.value=b.dataset.value||"";panel.classList.add("hidden");activeCategory="all";tabs.forEach(t=>t.classList.toggle("active",t.dataset.newCategory==="all"));load(input.value);});});
+      const list=suggestions(input.value);
+      if(!list.length){panel.classList.add("hidden");panel.innerHTML="";return;}
+      panel.innerHTML=list.map(p=>
+        '<button type="button" class="marketplace-page-suggestion" data-value="'+esc(p.name)+'">'+
+        '<span class="marketplace-page-suggestion-icon"><i class="fas fa-box"></i></span>'+
+        '<span class="marketplace-page-suggestion-copy"><strong>'+esc(p.name)+'</strong><small>New product • '+esc(p.source)+'</small></span>'+
+        '<i class="fas fa-chevron-right"></i></button>'
+      ).join("");
+      panel.classList.remove("hidden");
+      panel.querySelectorAll("button").forEach(b=>{
+        b.addEventListener("mousedown",e=>e.preventDefault());
+        b.addEventListener("click",()=>{
+          input.value=b.dataset.value||"";
+          panel.classList.add("hidden");
+          activeCategory="all";
+          tabs.forEach(t=>t.classList.toggle("active",t.dataset.newCategory==="all"));
+          render();
+        });
+      });
     }
 
     tabs.forEach(tab=>tab.addEventListener("click",()=>{
-        tabs.forEach(t=>t.classList.remove("active"));tab.classList.add("active");
-        activeCategory=tab.dataset.newCategory||"all";render(allNewProducts);
+      tabs.forEach(t=>t.classList.remove("active"));
+      tab.classList.add("active");
+      activeCategory=tab.dataset.newCategory||"all";
+      render();
     }));
+
     input.addEventListener("focus",renderSuggestions);
-    input.addEventListener("input",renderSuggestions);
-    input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();panel.classList.add("hidden");load(input.value.trim()||"student essentials");}if(e.key==="Escape")panel.classList.add("hidden");});
+    input.addEventListener("input",()=>{renderSuggestions();render();});
+    input.addEventListener("keydown",e=>{
+      if(e.key==="Enter"){e.preventDefault();panel.classList.add("hidden");render();}
+      if(e.key==="Escape")panel.classList.add("hidden");
+    });
     input.addEventListener("blur",()=>setTimeout(()=>panel.classList.add("hidden"),160));
-    document.getElementById("marketplacePageSearchButton")?.addEventListener("click",()=>{panel.classList.add("hidden");load(input.value.trim()||"student essentials");});
-    refresh?.addEventListener("click",()=>load(input.value.trim()||"student essentials"));
-    load();
+    document.getElementById("marketplacePageSearchButton")?.addEventListener("click",()=>{
+      panel.classList.add("hidden");render();
+    });
+
+    render();
 });
 </script>
 </body>
