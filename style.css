@@ -17775,3 +17775,20 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
         grid-template-columns:1fr!important;
     }
 }
+
+
+/* =========================================================
+   FINAL NAVBAR VISIBILITY
+   Keep the main navbar pinned to the top while scrolling.
+   ========================================================= */
+.navbar {
+    position: sticky !important;
+    top: 0 !important;
+    transform: none !important;
+}
+
+.navbar.navbar-scroll-hidden {
+    transform: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
