@@ -3199,14 +3199,14 @@ async function loadReceivedInquiries() {
                 );
 
         if (error) {
-            throw error;
+            console.warn("Inquiry list unavailable; rebuilding chat list from messages:", error);
         }
 
         let inquiries = data || [];
 
-        // If the inquiry list is empty, rebuild the chat list from real messages.
-        // This keeps the Chat button usable even when an old/hidden inquiry row
-        // is missing while the messages themselves still exist.
+        // Always fall back to the messages table when the inquiry list is
+        // empty or unavailable. Messages are the source of truth for an
+        // already-started conversation.
         if (!inquiries.length) {
             const { data: messageRows, error: messageRowsError } = await supabaseClient
                 .from("messages")
