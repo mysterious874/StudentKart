@@ -175,3 +175,61 @@ create policy "Admins can insert moderation activity"
 on public.moderation_activity for insert to authenticated
 with check (exists (select 1 from public.admin_users where id = auth.uid()));
 
+
+
+-- Seller moderation appeals.
+create table if not exists public.moderation_appeals (
+    id uuid primary key default gen_random_uuid(),
+    product_id uuid not null references public.products(id) on delete cascade,
+    seller_id uuid not null references auth.users(id) on delete cascade,
+    message text not null,
+    status text not null default 'pending'
+        check (status in ('pending','reviewed','approved','rejected')),
+    admin_note text,
+    created_at timestamptz not null default now(),
+    reviewed_at timestamptz,
+    reviewed_by uuid references auth.users(id) on delete set null
+);
+
+create index if not exists moderation_appeals_product_id_idx
+    on public.moderation_appeals(product_id);
+create index if not exists moderation_appeals_seller_id_idx
+    on public.moderation_appeals(seller_id);
+create index if not exists moderation_appeals_status_idx
+    on public.moderation_appeals(status);
+
+create unique index if not exists moderation_appeals_pending_unique_idx
+    on public.moderation_appeals(product_id, seller_id)
+    where status = 'pending';
+
+alter table public.moderation_appeals enable row level security;
+
+drop policy if exists "Sellers can create own appeals" on public.moderation_appeals;
+create policy "Sellers can create own appeals"
+on public.moderation_appeals for insert to authenticated
+with check (
+    seller_id = auth.uid()
+    and exists (
+        select 1 from public.products
+        where products.id = product_id
+          and products.user_id = auth.uid()
+          and products.moderation_status = 'suspended'
+    )
+);
+
+drop policy if exists "Sellers can view own appeals" on public.moderation_appeals;
+create policy "Sellers can view own appeals"
+on public.moderation_appeals for select to authenticated
+using (seller_id = auth.uid());
+
+drop policy if exists "Admins can view appeals" on public.moderation_appeals;
+create policy "Admins can view appeals"
+on public.moderation_appeals for select to authenticated
+using (exists (select 1 from public.admin_users where id = auth.uid()));
+
+drop policy if exists "Admins can update appeals" on public.moderation_appeals;
+create policy "Admins can update appeals"
+on public.moderation_appeals for update to authenticated
+using (exists (select 1 from public.admin_users where id = auth.uid()))
+with check (exists (select 1 from public.admin_users where id = auth.uid()));
+
