@@ -223,6 +223,6 @@
             window.showToast?.("Report updated","success"); await load();
         }
     }
-    window.StudentKartAdminReports={openReports};
+    window.StudentKartAdminReports={openReports,openAppeals};
     document.addEventListener("click",e=>{if(e.target.closest("#adminReportsTool"))openReports();});
 })();
