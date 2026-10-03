@@ -14411,6 +14411,7 @@ setupPasswordVisibilityToggles();
     };
 
     function openTool(key){
+        if(key==="exchange"){ marketplaceView(); return; }
         const d=toolData[key]; if(!d) return;
         $("home")?.classList.add("hidden"); $("studentDashboard")?.classList.add("hidden"); $("marketplace")?.classList.add("hidden");
         document.querySelector(".navbar")?.classList.add("hidden"); document.querySelector(".mobile-bottom-nav")?.classList.add("hidden");
@@ -14430,7 +14431,6 @@ setupPasswordVisibilityToggles();
         if(action){showToast("This student tool is ready for the next module.","success");return;}
     });
 
-    $("bottomMarketplaceButton")?.addEventListener("click",()=>marketplaceView());
 
     // Keep browser/mobile back navigation intuitive for these views.
     window.addEventListener("popstate",()=>{
