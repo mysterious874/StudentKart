@@ -17736,3 +17736,29 @@ body:not(.studentkart-search-results-active) .how-section{
         min-height:0!important;
     }
 }
+
+
+/* DEVELOPER PHOTO — CROP THE CORRUPTED LOWER IMAGE AREA */
+.developer-hero-photo{
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    aspect-ratio:16 / 9!important;
+    overflow:hidden!important;
+    position:relative!important;
+    background:#102a43!important;
+}
+.developer-hero-photo img{
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    display:block!important;
+    object-fit:cover!important;
+    object-position:center top!important;
+}
+@media(max-width:700px){
+    .developer-hero-photo{
+        aspect-ratio:16 / 9!important;
+    }
+}
