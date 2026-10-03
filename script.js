@@ -12915,12 +12915,26 @@ document.addEventListener("DOMContentLoaded", () => {
         if(suggestionController)suggestionController.abort();
         suggestionController=new AbortController();
         try{
-            const url="https://en.wikipedia.org/w/api.php?action=opensearch&search="+encodeURIComponent(q)+"&limit=30&namespace=0&format=json&origin=*";
-            const response=await fetch(url,{signal:suggestionController.signal,headers:{"Accept":"application/json"}});
-            if(!response.ok)return [];
-            const data=await response.json();
-            const titles=Array.isArray(data?.[1])?data[1]:[];
-            return titles.map(title=>String(title||"").trim()).filter(Boolean);
+            const urls=[
+                "https://suggestqueries.google.com/complete/search?client=firefox&q="+encodeURIComponent(q),
+                "https://en.wikipedia.org/w/api.php?action=opensearch&search="+encodeURIComponent(q)+"&limit=30&namespace=0&format=json&origin=*"
+            ];
+            const results=await Promise.allSettled(urls.map(url=>fetchWithTimeout(url,{signal:suggestionController.signal,headers:{"Accept":"application/json"}},5000)));
+            const out=[];
+            const seen=new Set();
+            for(const result of results){
+                if(result.status!=="fulfilled"||!result.value.ok)continue;
+                try{
+                    const data=await result.value.json();
+                    const values=Array.isArray(data?.[1])?data[1]:[];
+                    values.forEach(value=>{
+                        const clean=String(value||"").trim();
+                        const key=clean.toLowerCase();
+                        if(clean&&!seen.has(key)){seen.add(key);out.push(clean);}
+                    });
+                }catch{}
+            }
+            return out;
         }catch(error){
             if(error?.name!=="AbortError")console.debug("World search suggestions unavailable:",error);
             return [];
@@ -12961,10 +12975,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const seen=new Set();
         const list=[];
-        local.forEach(x=>addUnique(list,seen,x.value,x.title,x.meta,x.icon));
-        world.forEach(title=>addUnique(list,seen,title,title,"Worldwide search suggestion","fa-globe"));
 
-        const limited=list.slice(0,15);
+        // Google-like natural-language query starters.
+        const base=query.trim();
+        const lower=base.toLowerCase();
+        const starters=[];
+        if(base && !/^(what|how|where|who|when|why|which|can|is|are|should|best)\\b/i.test(base)){
+            starters.push(
+                ["What is "+base+"?","Ask a question","fa-circle-question"],
+                ["How to "+base+"?","How-to guide","fa-circle-info"],
+                ["Where is "+base+"?","Find a place","fa-location-dot"],
+                ["Why is "+base+"?","Understand it","fa-lightbulb"]
+            );
+        }else if(base){
+            starters.push([base,"Search the web","fa-magnifying-glass"]);
+        }
+
+        starters.forEach(([value,meta,icon])=>addUnique(list,seen,value,value,meta,icon));
+        local.forEach(x=>addUnique(list,seen,x.value,x.title,x.meta,x.icon));
+        world.forEach(title=>addUnique(list,seen,title,title,"Web search suggestion","fa-globe"));
+
+        const limited=list.slice(0,20);
         if(!limited.length){hide();return;}
 
         panel.innerHTML=limited.map((x,i)=>'<button type="button" class="hero-search-suggestion" id="heroSearchSuggestion-'+i+'" role="option" aria-selected="false" data-suggestion-value="'+escapeHTML(x.value)+'"><span class="hero-search-suggestion-icon"><i class="fas '+x.icon+'"></i></span><span class="hero-search-suggestion-copy"><span class="hero-search-suggestion-title">'+escapeHTML(x.title)+'</span><span class="hero-search-suggestion-meta">'+escapeHTML(x.meta)+'</span></span><i class="fas fa-chevron-right hero-search-suggestion-arrow"></i></button>').join("");
