@@ -18163,7 +18163,18 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
         font-size: 14px;
     }
     .hero-search-filter {
-        display: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 42px;
+        padding: 0 11px;
+        flex: 0 0 auto;
+        font-size: 13px;
+        border-radius: 10px;
+    }
+    .hero-search-filter i {
+        font-size: 12px;
     }
     .hero-search-submit {
         width: 46px;
