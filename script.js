@@ -5868,6 +5868,9 @@ function getNotificationIcon(
                     ? "fa-circle-check"
                     : "fa-box";
 
+        case "listing_appeal_submitted":
+            return "fa-scale-balanced";
+
         case "listing_appeal_approved":
             return "fa-scale-balanced";
 
