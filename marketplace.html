@@ -225,7 +225,10 @@ document.addEventListener("DOMContentLoaded",()=>{
     });
 
     // Render the local catalog immediately; remote admin products are an enhancement only.
-    render();
+    try { render(); } catch(error) {
+      console.error("Marketplace render failed:", error);
+      status.innerHTML='<i class="fas fa-triangle-exclamation"></i> Products could not be rendered. Please refresh.';
+    }
     void loadAdminProducts();
 
     // Keep browser / Android back navigation natural. If this page was opened directly,
