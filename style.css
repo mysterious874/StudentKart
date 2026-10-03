@@ -18202,3 +18202,202 @@ body.studentkart-search-results-active{
     .internet-topic-body{padding:14px;}
     .internet-quick-link{padding:8px 10px;}
 }
+
+
+/* INTERNET SEARCH — INTERNAL DATA CONTROLS */
+.internet-quick-link{
+    font:inherit;
+    cursor:pointer;
+}
+.internet-topic-actions button{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 10px;
+    border-radius:9px;
+    background:#102a43;
+    color:#fff;
+    border:0;
+    font:inherit;
+    font-size:10px;
+    font-weight:800;
+    cursor:pointer;
+}
+.internet-topic-actions button:hover{
+    transform:translateY(-1px);
+}
+.internet-topic-detail{
+    margin-top:12px;
+    padding:11px 12px;
+    border-radius:11px;
+    background:#f3f9f9;
+    border:1px solid #d9e9e9;
+}
+.internet-topic-detail strong{
+    display:block;
+    color:#102a43;
+    font-size:11px;
+    margin-bottom:5px;
+}
+.internet-topic-detail p{
+    margin:0 0 5px;
+    display:block;
+    -webkit-line-clamp:unset;
+    color:#596d70;
+}
+.internet-topic-detail small{
+    color:#0f8b8d;
+    font-size:9px;
+}
+.internet-panel-card{
+    margin:0 0 22px;
+    padding:16px;
+    border:1px solid #dbe7e8;
+    border-radius:16px;
+    background:#fff;
+    box-shadow:0 6px 20px rgba(16,42,67,.06);
+}
+.internet-panel-card>p{
+    margin:5px 0 0;
+    color:#66777a;
+    font-size:12px;
+    line-height:1.6;
+}
+.internet-loading{
+    text-align:center;
+    padding:18px;
+    color:#0f6f72;
+    font-size:12px;
+}
+.internet-photo-grid{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:12px;
+}
+.internet-photo-card{
+    overflow:hidden;
+    border:1px solid #dbe7e8;
+    border-radius:13px;
+    background:#fff;
+}
+.internet-photo-card img{
+    width:100%;
+    aspect-ratio:4/3;
+    display:block;
+    object-fit:cover;
+}
+.internet-photo-card strong,
+.internet-photo-card small,
+.internet-photo-card p{
+    display:block;
+    margin-left:11px;
+    margin-right:11px;
+}
+.internet-photo-card strong{
+    margin-top:9px;
+    color:#102a43;
+    font-size:11px;
+}
+.internet-photo-card small{
+    margin-top:4px;
+    color:#0f8b8d;
+    font-size:9px;
+}
+.internet-photo-card p{
+    margin-top:5px;
+    margin-bottom:11px;
+    color:#748487;
+    font-size:9px;
+    line-height:1.4;
+}
+.internet-news-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+}
+.internet-news-card{
+    display:flex;
+    gap:11px;
+    padding:12px;
+    border:1px solid #dbe7e8;
+    border-radius:13px;
+    background:#fbffff;
+}
+.internet-news-card img{
+    width:110px;
+    height:78px;
+    flex:0 0 110px;
+    object-fit:cover;
+    border-radius:9px;
+}
+.internet-news-card div{
+    min-width:0;
+}
+.internet-news-card small{
+    display:block;
+    color:#0f8b8d;
+    font-size:9px;
+    margin-bottom:4px;
+}
+.internet-news-card strong{
+    display:block;
+    color:#102a43;
+    font-size:12px;
+    line-height:1.35;
+}
+.internet-news-card p{
+    margin:5px 0 0;
+    color:#748487;
+    font-size:10px;
+    line-height:1.4;
+}
+.internet-date-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+}
+.internet-date-card{
+    padding:12px;
+    border-radius:12px;
+    background:#f5faf9;
+    border:1px solid #dcebea;
+}
+.internet-date-card strong{
+    display:block;
+    color:#102a43;
+    font-size:11px;
+    margin-bottom:8px;
+}
+.internet-date-card span{
+    display:flex;
+    gap:6px;
+    align-items:flex-start;
+    color:#66777a;
+    font-size:9px;
+    line-height:1.4;
+    margin-top:4px;
+}
+.internet-date-card i{
+    color:#0f8b8d;
+    margin-top:2px;
+}
+.internet-internal-detail{
+    margin:0 0 22px;
+}
+.internet-internal-detail h3{
+    margin:4px 0 8px;
+    color:#102a43;
+}
+.internet-internal-detail .internet-panel-card>small{
+    color:#0f8b8d;
+    font-size:9px;
+}
+@media(max-width:900px){
+    .internet-photo-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+    .internet-date-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:650px){
+    .internet-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+    .internet-news-grid,.internet-date-grid{grid-template-columns:1fr;}
+    .internet-news-card img{width:90px;height:68px;flex-basis:90px;}
+}
