@@ -5860,7 +5860,19 @@ function getNotificationIcon(
             return "fa-heart";
 
         case "listing":
-            return "fa-box";
+        case "listing_suspended":
+        case "listing_restored":
+            return type === "listing_suspended"
+                ? "fa-ban"
+                : type === "listing_restored"
+                    ? "fa-circle-check"
+                    : "fa-box";
+
+        case "listing_appeal_approved":
+            return "fa-scale-balanced";
+
+        case "listing_appeal_rejected":
+            return "fa-circle-xmark";
 
         default:
             return "fa-bell";
