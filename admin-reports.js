@@ -211,9 +211,6 @@
                     return;
                 }
             }
-            window.showToast?.(error?.message||"Could not process appeal","error");
-                return;
-            }
 
             window.showToast?.(
                 status==="approved"
