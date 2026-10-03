@@ -50,6 +50,16 @@ body.search-results-mobile-view #searchResultsPage .search-results-navbar::after
 #heroSearchStrip ~ .section-heading {
     margin-top: 22px !important;
 }
+
+/* Keep the "Showing latest listings" row clearly separated from the sticky search. */
+#marketplace #filterStatus {
+    margin-top: 30px !important;
+}
+@media (max-width: 768px) {
+    #marketplace #filterStatus {
+        margin-top: 26px !important;
+    }
+}
 #heroSearchStrip .hero-search-suggestions {
     z-index: 950 !important;
 }
@@ -1011,6 +1021,9 @@ body.studentkart-product-page-open #heroSearchStrip {
     
 <script id="studentkart-hero-search-final-script">
 (function () {
+    let initialAutoScrollTimer = null;
+    let userInterruptedInitialScroll = false;
+
     function updateNavbarHeight() {
         const navbar = document.querySelector('.navbar');
         if (!navbar) return;
@@ -1036,18 +1049,55 @@ body.studentkart-product-page-open #heroSearchStrip {
         strip.classList.toggle('studentkart-hero-search-hidden', Boolean(otherPageOpen || marketplaceHidden));
     }
 
+    function autoDockHeroSearch() {
+        const strip = document.getElementById('heroSearchStrip');
+        const marketplace = document.getElementById('marketplace');
+        if (!strip || !marketplace || marketplace.classList.contains('hidden')) return;
+        if (userInterruptedInitialScroll) return;
+        if (document.body.classList.contains('search-results-mobile-view')) return;
+        if (document.body.classList.contains('studentkart-search-results-open')) return;
+        if (document.body.classList.contains('studentkart-category-page-open')) return;
+
+        updateNavbarHeight();
+        const navbarHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--studentkart-navbar-height')) || 76;
+        const targetY = Math.max(0, Math.round(strip.getBoundingClientRect().top + window.scrollY - navbarHeight));
+
+        window.scrollTo({ top: targetY, left: 0, behavior: 'smooth' });
+    }
+
     function boot() {
         updateNavbarHeight();
         syncHeroSearchPageState();
 
-        // On a fresh app/page open, start at the hero top.
-        // Do not interrupt normal scrolling after the page has loaded.
-        requestAnimationFrame(function () {
-            if (!sessionStorage.getItem('studentkartHeroInitialPosition')) {
-                sessionStorage.setItem('studentkartHeroInitialPosition', '1');
+        /*
+         * Initial home-screen behavior:
+         * show the hero briefly, then automatically move it upward until
+         * the search bar docks exactly below the navbar.
+         * This runs on every fresh page load instead of only once per session.
+         */
+        if (window.location.hash === '' || window.location.hash === '#home' || window.location.hash === '#marketplace') {
+            requestAnimationFrame(function () {
                 window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-            }
-        });
+                initialAutoScrollTimer = window.setTimeout(autoDockHeroSearch, 1200);
+            });
+
+            const cancelInitialAutoScroll = function () {
+                if (initialAutoScrollTimer !== null) {
+                    window.clearTimeout(initialAutoScrollTimer);
+                    initialAutoScrollTimer = null;
+                }
+                userInterruptedInitialScroll = true;
+            };
+
+            window.addEventListener('wheel', cancelInitialAutoScroll, { passive: true, once: true });
+            window.addEventListener('touchstart', cancelInitialAutoScroll, { passive: true, once: true });
+            window.addEventListener('keydown', function (event) {
+                if (['ArrowDown', 'PageDown', 'Space'].includes(event.code)) {
+                    cancelInitialAutoScroll();
+                }
+            }, { passive: true, once: true });
+        }
+
         const observer = new MutationObserver(function () {
             updateNavbarHeight();
             syncHeroSearchPageState();
