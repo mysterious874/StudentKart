@@ -9132,7 +9132,7 @@ async function deleteSelectedChatMessagesForEveryone() {
     const selectedElements = getSelectedChatMessageElements();
     const ownIds = selectedElements
         .filter(el => String(el.dataset.senderId) === String(currentUser.id))
-        .map(el => el.dataset.messageId)
+        .map(el => String(el.dataset.messageId || ""))
         .filter(Boolean);
 
     if (!ownIds.length) {
@@ -9141,30 +9141,62 @@ async function deleteSelectedChatMessagesForEveryone() {
         return;
     }
 
+    const confirmed = window.confirm(
+        "Delete " + ownIds.length + " message" + (ownIds.length === 1 ? "" : "s") +
+        " for everyone? This cannot be undone."
+    );
+    if (!confirmed) return;
+
     try {
-        const { error } = await supabaseClient
+        /*
+         * Delete only messages owned by the current user. The extra sender_id
+         * condition keeps the action safe even if the selected DOM is stale.
+         */
+        const { data: deletedRows, error } = await supabaseClient
             .from("messages")
             .delete()
+            .eq("sender_id", currentUser.id)
             .in("id", ownIds)
-            .eq("sender_id", currentUser.id);
+            .select("id");
 
         if (error) throw error;
 
-        closeSelectedChatDeletePopup();
-        selectedChatMessageIds.clear();
-        await loadChatMessages();
+        const deletedIds = (deletedRows || []).map(row => String(row.id));
 
-        const extra = ownIds.length < selectedElements.length
+        if (!deletedIds.length) {
+            throw new Error("No messages were deleted. Check the messages DELETE policy.");
+        }
+
+        deletedIds.forEach(id => {
+            document
+                .querySelectorAll('#chatMessages .chat-message[data-message-id="' + CSS.escape(id) + '"]')
+                .forEach(el => el.remove());
+        });
+
+        selectedChatMessageIds.clear();
+        closeSelectedChatDeletePopup();
+
+        const container = $("chatMessages");
+        if (container) delete container.dataset.messageSignature;
+
+        await loadChatMessages();
+        await updateChatUnreadCount();
+
+        const extra = deletedIds.length < selectedElements.length
             ? " Received messages were kept in the chat."
             : "";
+
         showToast(
-            ownIds.length + " message" + (ownIds.length === 1 ? "" : "s") +
+            deletedIds.length + " message" + (deletedIds.length === 1 ? "" : "s") +
             " deleted for everyone." + extra,
             "success"
         );
     } catch (error) {
         console.error("Delete for everyone error:", error);
-        showToast("Could not delete selected messages for everyone", "error");
+        showToast(
+            "Delete for Everyone failed. Your Supabase messages DELETE policy may be blocking it.",
+            "error"
+        );
     }
 }
 
