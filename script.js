@@ -10921,7 +10921,7 @@ async function startChatUnreadRealtime() {
 
                 if (!isOpenChatMessage) {
                     showToast("💬 New chat message received", "success");
-                    showChatBrowserNotification(message);
+                    showChatBrowserNotification(payload?.new);
                 }
             }
         )
