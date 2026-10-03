@@ -4883,9 +4883,21 @@ body { font-weight: 400; }
     }
 
     #sellButton {
-        min-width: 58px;
-        padding-left: 7px;
-        padding-right: 7px;
+        min-width: 66px;
+        width: auto;
+        padding: 7px 9px;
+        gap: 5px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    #sellButton span {
+        display: inline !important;
+    }
+
+    #sellButton i {
+        display: inline-block;
+        font-size: 11px;
     }
 }
 
