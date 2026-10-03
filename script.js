@@ -11339,18 +11339,20 @@ document.addEventListener("pointerdown", event => {
 });
 
 
-/* Footer information links */
-const bottomSettingsButton = $("bottomSettingsButton");
-if (bottomSettingsButton) {
-    bottomSettingsButton.addEventListener("click", event => {
+/* Mobile bottom Profile button */
+const bottomProfileButton = $("bottomProfileButton");
+if (bottomProfileButton) {
+    bottomProfileButton.addEventListener("click", async event => {
         event.preventDefault();
         event.stopImmediatePropagation();
 
-        if (currentUser) {
-            openModal("settingsModal");
-        } else {
+        if (!currentUser) {
             openModal("loginModal");
+            showToast("Please login to view your profile", "warning");
+            return;
         }
+
+        await openProfile();
     });
 }
 
