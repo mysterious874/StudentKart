@@ -19,6 +19,7 @@
                   <select id="adminReportsStatus"><option value="">All statuses</option><option value="pending">Pending</option><option value="reviewed">Reviewed</option><option value="resolved">Resolved</option><option value="dismissed">Dismissed</option></select>
                   <button type="button" class="btn btn-outline" id="adminReportsRefresh"><i class="fas fa-rotate"></i> Refresh</button>
                   <button type="button" class="btn btn-outline" id="adminModerationActivity"><i class="fas fa-clock-rotate-left"></i> Activity</button>
+                  <button type="button" class="btn btn-outline" id="adminModerationAppeals"><i class="fas fa-scale-balanced"></i> Appeals</button>
                 </div>
                 <div id="adminReportsCount" class="sk-admin-meta" style="margin-top:10px"></div>
                 <div id="adminReportsList" class="sk-admin-list"><div class="sk-admin-empty">Loading...</div></div>
@@ -28,6 +29,7 @@
             modal.querySelector("#adminReportsRefresh").addEventListener("click",load);
             modal.querySelector("#adminReportsStatus").addEventListener("change",render);
             modal.querySelector("#adminModerationActivity").addEventListener("click",openActivity);
+            modal.querySelector("#adminModerationAppeals").addEventListener("click",openAppeals);
         }
         modal.classList.remove("hidden"); await load();
         async function load(){
@@ -78,6 +80,32 @@
             if(error){list.innerHTML='<div class="sk-admin-empty">Activity log is not ready yet.<br><small>'+esc(error.message)+'</small></div>';return;}
             if(!data?.length){list.innerHTML='<div class="sk-admin-empty"><i class="fas fa-clock"></i><br>No moderation activity yet.</div>';return;}
             list.innerHTML=data.map(a=>'<article class="sk-admin-card"><strong>'+esc(a.action==="suspend"?"Listing suspended":"Listing restored")+'</strong><div class="sk-admin-meta">'+esc(new Date(a.created_at).toLocaleString("en-IN"))+'<br>Product ID: '+esc(a.product_id||"Deleted/unknown")+'<br>Admin ID: '+esc(a.admin_id||"Unknown")+(a.reason?'<br>Reason: '+esc(a.reason):"")+'</div></article>').join("");
+        }
+        async function openAppeals(){
+            const list=modal.querySelector("#adminReportsList");
+            list.innerHTML='<div class="sk-admin-empty"><i class="fas fa-spinner fa-spin"></i> Loading appeals...</div>';
+            const {data,error}=await supabaseClient.from("moderation_appeals").select("id,product_id,seller_id,message,status,admin_note,created_at,reviewed_at").order("created_at",{ascending:false}).limit(100);
+            if(error){list.innerHTML='<div class="sk-admin-empty">Appeals database is not ready yet.<br><small>'+esc(error.message)+'</small></div>';return;}
+            const rows=data||[]; const ids=[...new Set(rows.map(a=>a.product_id).filter(Boolean))]; const products={};
+            if(ids.length){const pr=await supabaseClient.from("products").select("id,name,price,moderation_status,moderation_reason,seller,seller_email").in("id",ids);if(!pr.error)(pr.data||[]).forEach(p=>products[p.id]=p);}
+            if(!rows.length){list.innerHTML='<div class="sk-admin-empty"><i class="fas fa-scale-balanced"></i><br>No appeals yet.</div>';return;}
+            list.innerHTML=rows.map(a=>{const p=products[a.product_id];return '<article class="sk-admin-card"><div class="sk-admin-card-head"><div><strong>'+esc(p?.name||"Deleted/unknown")+'</strong><div class="sk-admin-meta">Status: '+esc(a.status)+' · '+esc(new Date(a.created_at).toLocaleString("en-IN"))+'<br>Seller: '+esc(p?.seller||p?.seller_email||a.seller_id)+'<br>Product ID: '+esc(a.product_id||"Unknown")+'</div></div></div><div class="sk-admin-meta" style="margin-top:10px"><strong>Seller appeal:</strong><br>'+esc(a.message)+'</div>'+(p?.moderation_reason?'<div class="sk-admin-meta" style="margin-top:8px"><strong>Original moderation reason:</strong> '+esc(p.moderation_reason)+'</div>':"")+(a.admin_note?'<div class="sk-admin-meta" style="margin-top:8px"><strong>Admin note:</strong> '+esc(a.admin_note)+'</div>':"")+(a.status==="pending"?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-primary" type="button" data-approve-appeal="'+esc(a.id)+'" data-appeal-product="'+esc(a.product_id)+'"><i class="fas fa-check"></i> Approve & Restore</button><button class="btn btn-outline" type="button" data-reject-appeal="'+esc(a.id)+'"><i class="fas fa-xmark"></i> Reject</button></div>':"")+'</article>'}).join("");
+            list.querySelectorAll("[data-approve-appeal]").forEach(b=>b.addEventListener("click",()=>decideAppeal(b.dataset.approveAppeal,b.dataset.appealProduct,"approved")));
+            list.querySelectorAll("[data-reject-appeal]").forEach(b=>b.addEventListener("click",()=>decideAppeal(b.dataset.rejectAppeal,null,"rejected")));
+        }
+        async function decideAppeal(appealId,productId,status){
+            const note=prompt(status==="approved"?"Optional note to the seller (leave blank if none):":"Reason for rejecting this appeal (optional):","");
+            if(note===null)return;
+            if(status==="approved"){
+                if(!productId || !confirm("Approve this appeal and restore the listing?"))return;
+                const {data,error}=await supabaseClient.rpc("admin_set_listing_moderation",{target_product_id:productId,new_status:"active",reason_text:null});
+                if(error || data===false){window.showToast?.(error?.message||"Could not restore listing","error");return;}
+            }
+            const {data:userData}=await supabaseClient.auth.getUser();
+            const {error}=await supabaseClient.from("moderation_appeals").update({status,admin_note:note||null,reviewed_at:new Date().toISOString(),reviewed_by:userData?.user?.id||null}).eq("id",appealId);
+            if(error){window.showToast?.(error.message,"error");return;}
+            window.showToast?.(status==="approved"?"Appeal approved and listing restored":"Appeal rejected","success");
+            await openAppeals();
         }
         async function moderateListing(productId,status){
             if(status==="suspended" && !confirm("Suspend this listing from the marketplace?")) return;
