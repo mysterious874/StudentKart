@@ -76,6 +76,9 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+    listing_owner uuid;
+    listing_name text;
 begin
     if not exists (
         select 1 from public.admin_users
@@ -88,14 +91,47 @@ begin
         raise exception 'invalid moderation status';
     end if;
 
-    update public.products
-    set moderation_status = new_status,
-        moderation_reason = case when new_status = 'suspended' then reason_text else null end,
-        moderated_at = now(),
-        moderated_by = auth.uid()
-    where id = target_product_id;
+    select user_id, name
+      into listing_owner, listing_name
+      from public.products
+     where id = target_product_id;
 
-    return found;
+    if not found then
+        return false;
+    end if;
+
+    update public.products
+       set moderation_status = new_status,
+           moderation_reason = case when new_status = 'suspended' then reason_text else null end,
+           moderated_at = now(),
+           moderated_by = auth.uid()
+     where id = target_product_id;
+
+    if listing_owner is not null then
+        insert into public.notifications (
+            user_id,
+            type,
+            title,
+            message,
+            is_read,
+            created_at
+        )
+        values (
+            listing_owner,
+            case when new_status = 'suspended' then 'listing_suspended' else 'listing_restored' end,
+            case when new_status = 'suspended' then 'Listing suspended' else 'Listing restored' end,
+            case
+                when new_status = 'suspended'
+                    then coalesce(listing_name, 'Your listing') || ' was suspended after an admin moderation review. Reason: ' || coalesce(reason_text, 'Community report review')
+                else
+                    coalesce(listing_name, 'Your listing') || ' has been restored and is visible in the marketplace again.'
+            end,
+            false,
+            now()
+        );
+    end if;
+
+    return true;
 end;
 $$;
 
