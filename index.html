@@ -35,7 +35,7 @@ body.search-results-mobile-view #searchResultsPage .search-results-navbar::after
 /* Hero -> sticky search: it starts in normal page flow, then docks directly below navbar. */
 #heroSearchStrip {
     position: sticky !important;
-    top: calc(var(--studentkart-navbar-height, 76px) + 15px) !important;
+    top: var(--studentkart-navbar-height, 76px) !important;
     z-index: 900 !important;
     width: 100% !important;
     margin: 0 auto !important;
@@ -77,7 +77,7 @@ body.studentkart-product-page-open #heroSearchStrip {
 .navbar-search-panel { z-index: 9999 !important; }
 @media (max-width: 768px) {
     #heroSearchStrip {
-        top: calc(var(--studentkart-navbar-height, 68px) + 15px) !important;
+        top: var(--studentkart-navbar-height, 68px) !important;
     }
     #heroSearchStrip .hero-search-inner {
         width: calc(100% - 24px) !important;
@@ -1148,6 +1148,23 @@ body.studentkart-product-page-open #heroSearchStrip {
 
     function boot() {
         updateNavbarHeight();
+
+        /* Fresh-open: start on the Campus Exchange hero. */
+        if (window.location.hash === "") {
+            document.querySelectorAll("#home,#studentDashboard,#studentToolPage").forEach(function (el) {
+                el.classList.add("hidden");
+            });
+            const initialMarketplace = document.getElementById("marketplace");
+            const initialNavbar = document.querySelector(".navbar");
+            const initialBottomNav = document.querySelector(".mobile-bottom-nav");
+            initialMarketplace?.classList.remove("hidden");
+            initialNavbar?.classList.remove("hidden");
+            initialBottomNav?.classList.remove("hidden");
+            if (initialNavbar) initialNavbar.style.display = "";
+            if (initialBottomNav) initialBottomNav.style.display = "";
+            document.body.classList.remove("marketplace-page-active");
+        }
+
         syncHeroSearchPageState();
 
         /*
