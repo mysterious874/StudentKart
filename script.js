@@ -12903,8 +12903,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const getLocalSuggestions=query=>{
         const q=String(query||"").trim().toLowerCase();
-        if(!q)return [];
         const seen=new Set(),out=[];
+        if(!q){
+            [...currentProducts].slice(0,5).forEach(p=>{
+                const name=String(p.name||"").trim(),cat=String(p.category||"").trim(),loc=String(p.location||"").trim();
+                if(name) addUnique(out,seen,name,name,cat+(loc?" • "+loc:""),iconFor(cat));
+            });
+            ["Books","Electronics","Vehicles","Furniture","Services","Fashion"].forEach(cat=>{
+                addUnique(out,seen,cat,cat,"Browse marketplace category",iconFor(cat));
+            });
+            return out.slice(0,8);
+        }
 
         [...currentProducts].forEach(p=>{
             const name=String(p.name||"").trim(),cat=String(p.category||"").trim(),loc=String(p.location||"").trim();
@@ -13097,8 +13106,17 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     const getSuggestions=query=>{
         const q=String(query||"").trim().toLowerCase();
-        if(!q)return [];
         const seen=new Set(),out=[];
+        if(!q){
+            [...currentProducts].slice(0,5).forEach(p=>{
+                const name=String(p.name||"").trim(),cat=String(p.category||"").trim(),loc=String(p.location||"").trim();
+                if(name) add(name,name,cat+(loc?" • "+loc:""),iconFor(cat));
+            });
+            ["Books","Electronics","Vehicles","Furniture","Services","Fashion"].forEach(cat=>{
+                add(cat,cat,"Browse marketplace category","fa-layer-group");
+            });
+            return out.slice(0,8);
+        }
         const add=(value,title,meta,icon)=>{
             const key=String(value).toLowerCase(); if(!key||seen.has(key))return;
             seen.add(key);out.push({value,title,meta,icon});
