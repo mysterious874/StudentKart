@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#27aaa6">
+<title>StudentKart Marketplace</title>
+<link rel="icon" type="image/svg+xml" href="/icons/studentkart-icon.svg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="style.css?v=20261004-marketplace-1">
+<style>
+.hidden{display:none!important}
+</style>
+</head>
+<body class="marketplace-page-active">
+<main class="marketplace-page">
+<div class="marketplace-page-shell">
+    <header class="marketplace-page-header">
+        <button type="button" class="marketplace-page-back" onclick="history.back()" aria-label="Back">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="marketplace-page-title">
+            <span class="section-label">STUDENTKART MARKETPLACE</span>
+            <h1>Buy, sell & discover around campus</h1>
+            <p>Only marketplace listings are searched on this page.</p>
+        </div>
+    </header>
+
+    <div class="marketplace-page-search">
+        <i class="fas fa-search"></i>
+        <input id="marketplaceSearch" type="search" placeholder="Search products, books, phones, bikes..." autocomplete="off">
+        <button type="button" id="marketplacePageSearchButton" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
+        <div id="marketplacePageSuggestions" class="marketplace-page-suggestions hidden"></div>
+    </div>
+
+    <div class="marketplace-page-categories" id="marketplacePageCategories" aria-label="Marketplace categories">
+        <button type="button" class="marketplace-category-button active" data-category="all"><i class="fas fa-layer-group"></i> All</button>
+        <button type="button" class="marketplace-category-button" data-category="Books"><i class="fas fa-book"></i> Books</button>
+        <button type="button" class="marketplace-category-button" data-category="Electronics"><i class="fas fa-laptop"></i> Electronics</button>
+        <button type="button" class="marketplace-category-button" data-category="Vehicles"><i class="fas fa-motorcycle"></i> Vehicles</button>
+        <button type="button" class="marketplace-category-button" data-category="Furniture"><i class="fas fa-couch"></i> Furniture</button>
+        <button type="button" class="marketplace-category-button" data-category="Services"><i class="fas fa-handshake"></i> Services</button>
+        <button type="button" class="marketplace-category-button" data-category="Fashion"><i class="fas fa-shirt"></i> Fashion</button>
+        <button type="button" class="marketplace-category-button" data-category="Gaming"><i class="fas fa-gamepad"></i> Gaming</button>
+        <button type="button" class="marketplace-category-button" data-category="Other"><i class="fas fa-ellipsis"></i> Other</button>
+    </div>
+
+    <div class="marketplace-page-toolbar">
+        <span id="marketplacePageCount" class="marketplace-page-count">Loading listings...</span>
+        <button type="button" class="btn btn-outline" id="marketplacePageClearSearch"><i class="fas fa-xmark"></i> Clear</button>
+    </div>
+
+    <section id="marketplace" class="marketplace-section">
+        <div id="filterStatus" class="filter-status hidden">Showing latest listings</div>
+        <div id="productContainer" class="products-grid"></div>
+        <div id="emptyState" class="marketplace-page-empty hidden">
+            <i class="fas fa-box-open" style="font-size:32px"></i>
+            <h3>No marketplace listings found</h3>
+            <p>Try another product or category.</p>
+        </div>
+    </section>
+</div>
+</main>
+
+<div id="productModal" class="modal hidden">
+    <div class="modal-overlay" data-close-modal></div>
+    <div class="modal-content product-details-modal">
+        <button type="button" class="modal-close product-details-close" data-close-modal aria-label="Close"><i class="fas fa-xmark"></i></button>
+        <div class="details-image-container"><img id="detailsImage" src="" alt="Product"></div>
+        <div class="product-details-content">
+            <div class="product-details-top"><span id="detailsCategory" class="product-badge">Category</span><span id="detailsCondition" class="condition-badge">Condition</span></div>
+            <h2 id="detailsName">Product Name</h2>
+            <div class="details-price" id="detailsPrice">₹0</div>
+            <div class="details-meta"><div class="details-meta-card"><i class="fas fa-location-dot"></i><span><small>Location</small><strong id="detailsLocation">Location</strong></span></div></div>
+            <div class="details-description"><div class="details-section-heading"><i class="fas fa-align-left"></i><h3>Description</h3></div><p id="detailsDescription">Product description</p></div>
+            <div class="seller-box"><div id="detailsSellerAvatar" class="seller-avatar">S</div><div><small>Listed by</small><strong id="detailsSeller">Seller</strong></div></div>
+            <div class="details-actions">
+                <button type="button" class="btn btn-outline btn-full" id="viewSellerProfileButton"><i class="fas fa-user"></i> View Seller Profile</button>
+                <button type="button" class="btn btn-primary btn-full" id="contactSellerButton"><i class="fas fa-message"></i> Contact Seller</button>
+                <button type="button" class="btn btn-outline btn-full" id="reportProductButton"><i class="fas fa-flag"></i> Report Listing</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast hidden"><div id="toastIcon"><i class="fas fa-check"></i></div><span id="toastMessage"></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js?v=20261004-marketplace-engine-1"></script>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+    const input=document.getElementById("marketplaceSearch");
+    const panel=document.getElementById("marketplacePageSuggestions");
+    const count=document.getElementById("marketplacePageCount");
+    const clear=document.getElementById("marketplacePageClearSearch");
+    const searchBtn=document.getElementById("marketplacePageSearchButton");
+    const categories=[...document.querySelectorAll(".marketplace-category-button")];
+
+    const iconFor=c=>({Books:"fa-book",Electronics:"fa-laptop",Vehicles:"fa-motorcycle",Furniture:"fa-couch",Services:"fa-handshake",Fashion:"fa-shirt",Gaming:"fa-gamepad",Other:"fa-layer-group"}[c]||"fa-tag");
+
+    function suggestions(q){
+        const query=String(q||"").trim().toLowerCase();
+        const out=[],seen=new Set();
+        const add=(value,meta,icon)=>{
+            const key=String(value).toLowerCase();
+            if(!key||seen.has(key))return;
+            seen.add(key);out.push({value,meta,icon});
+        };
+        [...currentProducts].forEach(p=>{
+            const hay=[p.name,p.category,p.location,p.description].join(" ").toLowerCase();
+            if(!query || hay.includes(query)) add(p.name,(p.category||"Marketplace")+(p.location?" • "+p.location:""),iconFor(p.category));
+        });
+        ["Books","Electronics","Vehicles","Furniture","Services","Fashion","Gaming","Other"].forEach(c=>{
+            if(!query || c.toLowerCase().includes(query)) add(c,"Marketplace category",iconFor(c));
+        });
+        return out.slice(0,8);
+    }
+    function renderSuggestions(){
+        const list=suggestions(input.value);
+        if(!list.length){panel.classList.add("hidden");panel.innerHTML="";return;}
+        panel.innerHTML=list.map((x,i)=>`<button type="button" class="marketplace-page-suggestion" data-value="${escapeHTML(x.value)}"><span class="marketplace-page-suggestion-icon"><i class="fas ${x.icon}"></i></span><span class="marketplace-page-suggestion-copy"><strong>${escapeHTML(x.value)}</strong><small>${escapeHTML(x.meta)}</small></span><i class="fas fa-chevron-right"></i></button>`).join("");
+        panel.classList.remove("hidden");
+        panel.querySelectorAll("button").forEach(b=>b.addEventListener("mousedown",e=>e.preventDefault()));
+        panel.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+            input.value=b.dataset.value||"";
+            panel.classList.add("hidden");
+            run();
+        }));
+    }
+    function run(){
+        const value=input.value.trim().toLowerCase();
+        currentProducts.forEach(()=>{});
+        const cat=document.querySelector(".marketplace-category-button.active")?.dataset.category||"all";
+        let matches=[...currentProducts];
+        if(value) matches=matches.filter(p=>[p.name,p.category,p.location,p.condition,p.description,p.seller].join(" ").toLowerCase().includes(value));
+        if(cat!=="all") matches=matches.filter(p=>String(p.category).toLowerCase()===cat.toLowerCase());
+        renderProducts(matches,"productContainer","emptyState");
+        count.textContent=matches.length+(matches.length===1?" listing":" listings");
+    }
+    input.addEventListener("focus",()=>{window.scrollTo({top:0,behavior:"smooth"});renderSuggestions();});
+    input.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
+    input.addEventListener("input",renderSuggestions);
+    input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();panel.classList.add("hidden");run();}if(e.key==="Escape")panel.classList.add("hidden");});
+    input.addEventListener("blur",()=>setTimeout(()=>panel.classList.add("hidden"),160));
+    searchBtn.addEventListener("click",()=>{panel.classList.add("hidden");run();});
+    clear.addEventListener("click",()=>{input.value="";categories.forEach(b=>b.classList.toggle("active",b.dataset.category==="all"));run();renderSuggestions();});
+    categories.forEach(btn=>btn.addEventListener("click",()=>{
+        categories.forEach(b=>b.classList.remove("active"));btn.classList.add("active");
+        run();
+    }));
+    const syncCount=()=>{const n=document.querySelectorAll("#productContainer .product-card").length; if(n||currentProducts.length===0) count.textContent=n+(n===1?" listing":" listings");};
+    const observer=new MutationObserver(syncCount); observer.observe(document.getElementById("productContainer"),{childList:true});
+});
+</script>
+</body>
+</html>
