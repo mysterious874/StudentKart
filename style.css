@@ -17780,13 +17780,19 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
 
 
 /* =========================================================
-   FINAL NAVBAR STABILITY OVERRIDE
-   Prevent legacy responsive rules from hiding the navbar.
+   FINAL NAVBAR STABILITY + EDGE-TO-EDGE
+   Keep the navbar pinned, visible, and flush with the screen edges.
    ========================================================= */
 .navbar,
 .navbar.navbar-scroll-hidden {
     position: sticky !important;
     top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-radius: 0 !important;
     transform: translate3d(0, 0, 0) !important;
     visibility: visible !important;
     opacity: 1 !important;
