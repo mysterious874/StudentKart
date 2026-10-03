@@ -39,6 +39,8 @@ let notificationLongPressTriggered = false;
 let notificationRefreshTimer = null;
 let notificationRealtimeChannel = null;
 let productsRealtimeChannel = null;
+let lastChatAlertMessageId = null;
+let chatAlertBaselineReady = false;
 let toastTimer = null;
 const studentKartModalFocus = new Map();
 
@@ -8163,6 +8165,7 @@ async function refreshStudentKartData() {
 
         if (currentUser) {
             await updateChatUnreadCount();
+            await checkForNewChatAlerts();
             await loadReceivedInquiries();
         }
     } catch (error) {
@@ -10118,6 +10121,45 @@ async function showChatBrowserNotification(message) {
     }
 }
 
+async function checkForNewChatAlerts() {
+    if (!currentUser) return;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from("messages")
+            .select("id,inquiry_id,sender_id,receiver_id,message,created_at")
+            .eq("receiver_id", currentUser.id)
+            .eq("is_read", false)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+        if (error) throw error;
+
+        const latest = data?.[0];
+        const latestId = latest?.id ? String(latest.id) : null;
+
+        if (!chatAlertBaselineReady) {
+            lastChatAlertMessageId = latestId;
+            chatAlertBaselineReady = true;
+            return;
+        }
+
+        if (!latestId || latestId === lastChatAlertMessageId) return;
+
+        lastChatAlertMessageId = latestId;
+
+        const isOpenChatMessage = currentChatInquiry &&
+            String(latest.inquiry_id) === String(currentChatInquiry.id);
+
+        if (isOpenChatMessage) return;
+
+        showToast("💬 New chat message received", "success");
+        await showChatBrowserNotification(latest);
+    } catch (error) {
+        console.error("New chat alert check error:", error);
+    }
+}
+
 async function updateChatUnreadCount() {
     if (!currentUser) return;
 
@@ -10242,7 +10284,7 @@ async function startChatUnreadRealtime() {
 
                 if (!isOpenChatMessage) {
                     showToast("💬 New chat message received", "success");
-                    showChatBrowserNotification(message);
+                    showChatBrowserNotification(payload?.new);
                 }
             }
         )
