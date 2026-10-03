@@ -12316,6 +12316,42 @@ function populateStudentKartIndiaData() {
     }
 }
 
+
+function setupHeroSearchStrip() {
+    const input = document.getElementById("heroSearchInput");
+    const submit = document.getElementById("heroSearchSubmit");
+    const filter = document.getElementById("heroSearchFilterButton");
+    const navInput = document.getElementById("navbarSearchInput");
+    const navPanel = document.getElementById("navbarSearchPanel");
+    if (!input) return;
+
+    const runSearch = () => {
+        const query = input.value.trim();
+        if (navInput) {
+            navInput.value = query;
+            navInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        navPanel?.classList.remove("hidden");
+        document.getElementById("marketplace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        navInput?.focus();
+        navInput?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    };
+
+    submit?.addEventListener("click", runSearch);
+    input.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            runSearch();
+        }
+    });
+
+    filter?.addEventListener("click", () => {
+        navPanel?.classList.remove("hidden");
+        document.getElementById("navbarFilterPanel")?.classList.remove("hidden");
+        navInput?.focus();
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     populateStudentKartIndiaData();
     setupEditProfileCityLocationPicker();
