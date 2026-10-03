@@ -118,6 +118,7 @@ begin
     if listing_owner is not null then
         insert into public.notifications (
             user_id,
+            product_id,
             type,
             title,
             message,
@@ -126,6 +127,7 @@ begin
         )
         values (
             listing_owner,
+            target_product_id,
             case when new_status = 'suspended' then 'listing_suspended' else 'listing_restored' end,
             case when new_status = 'suspended' then 'Listing suspended' else 'Listing restored' end,
             case
