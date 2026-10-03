@@ -47,8 +47,8 @@
         if (!currentUser || typeof supabaseClient === "undefined") return false;
         const { data, error } = await supabaseClient
             .from("admin_users")
-            .select("user_id")
-            .eq("user_id", currentUser.id)
+            .select("id")
+            .eq("id", currentUser.id)
             .maybeSingle();
         if (error) {
             console.warn("Admin membership check:", error);
