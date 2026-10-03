@@ -47,14 +47,15 @@
         const { error } = await supabaseClient
           .from("push_subscriptions")
           .upsert({
-            user_id: window.currentUser.id,
+            user_id: currentUser.id,
             endpoint: subscription.endpoint,
             subscription: json,
             updated_at: new Date().toISOString()
           }, { onConflict: "endpoint" });
 
         if (error) {
-          console.warn("StudentKart push subscription save failed:", error);
+          console.error("StudentKart push subscription save failed:", error);
+          throw error;
         }
       }
 
