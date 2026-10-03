@@ -620,17 +620,27 @@ window.addEventListener("popstate", event => {
         marketplaceFilterPanel?.classList.add("hidden");
 
         const navbarSearchInput = document.getElementById("navbarSearchInput");
+        const navbarSearchButton = document.getElementById("navSearchButton");
+
         if (navbarSearchInput) {
+            // Move focus away before hiding the panel. This restores the
+            // exact pre-search visual state instead of hiding a focused input.
+            if (document.activeElement === navbarSearchInput) {
+                navbarSearchButton?.focus({ preventScroll: true });
+            }
+
             navbarSearchInput.blur();
-            navbarSearchInput.setAttribute("readonly", "readonly");
-            navbarSearchInput.classList.add("studentkart-search-closed");
-            navbarSearchInput.disabled = true;
-            window.setTimeout(() => {
+            navbarSearchButton?.blur();
+
+            // Restore the input exactly as it was before Search was opened.
+            navbarSearchInput.disabled = false;
+            navbarSearchInput.removeAttribute("readonly");
+            navbarSearchInput.classList.remove("studentkart-search-closed");
+
+            window.requestAnimationFrame(() => {
                 navbarSearchInput.blur();
-                if (document.activeElement === navbarSearchInput) {
-                    try { document.activeElement.blur(); } catch (error) {}
-                }
-            }, 0);
+                navbarSearchButton?.blur();
+            });
         }
 
         return;
@@ -12541,21 +12551,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // even after the panel is hidden, so blur again on the next frame.
     const closeNavbarSearch = () => {
         studentKartNavbarSearchOpen = false;
-        searchInput.blur();
-        searchInput.setAttribute("readonly", "readonly");
 
-        // Android can keep an input's native focus ring/caret painted even
-        // after blur when the containing overlay is removed. Temporarily
-        // disabling the field forces the native focus state to be released.
-        searchInput.disabled = true;
-        searchInput.classList.add("studentkart-search-closed");
+        // Move focus away before hiding the panel so Android cannot leave
+        // a ghost caret painted over the closed search field.
+        if (document.activeElement === searchInput) {
+            navSearchButton.focus({ preventScroll: true });
+        }
+
+        searchInput.blur();
+        navSearchButton.blur();
+
+        // Restore the input to its exact normal pre-search state.
+        searchInput.disabled = false;
+        searchInput.removeAttribute("readonly");
+        searchInput.classList.remove("studentkart-search-closed");
         searchPanel.classList.add("hidden");
 
         window.requestAnimationFrame(() => {
             searchInput.blur();
-            if (document.activeElement === searchInput) {
-                try { document.activeElement.blur(); } catch (error) {}
-            }
+            navSearchButton.blur();
         });
     };
 
