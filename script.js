@@ -14378,42 +14378,6 @@ setupPasswordVisibilityToggles();
 
 
 /* =========================================================
-   MARKETPLACE CHROME GUARD
-   Keeps the standalone marketplace free of home navigation,
-   regardless of which existing navigation path opened it.
-   ========================================================= */
-(function enforceStandaloneMarketplaceChrome(){
-    const sync = () => {
-        const marketplace = document.getElementById("marketplace");
-        if (!marketplace) return;
-        const isOpen = !marketplace.classList.contains("hidden");
-        const navbar = document.querySelector(".navbar");
-        const floatingBar = document.querySelector(".mobile-bottom-nav");
-
-        if (isOpen) {
-            document.body.classList.add("marketplace-page-active");
-            navbar?.classList.add("hidden");
-            floatingBar?.classList.add("hidden");
-            if (navbar) navbar.style.setProperty("display","none","important");
-            if (floatingBar) floatingBar.style.setProperty("display","none","important");
-        } else {
-            document.body.classList.remove("marketplace-page-active");
-            if (navbar) navbar.style.removeProperty("display");
-            if (floatingBar) floatingBar.style.removeProperty("display");
-        }
-    };
-
-    const marketplace = document.getElementById("marketplace");
-    if (marketplace) {
-        new MutationObserver(sync).observe(marketplace,{attributes:true,attributeFilter:["class"]});
-    }
-    new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:["class"]});
-    window.addEventListener("pageshow",sync);
-    window.addEventListener("resize",sync);
-    sync();
-})();
-
-/* =========================================================
    HOME DASHBOARD + SEPARATE MARKETPLACE / STUDENT TOOL VIEWS
    ========================================================= */
 (function initStudentKartHomeViews(){
