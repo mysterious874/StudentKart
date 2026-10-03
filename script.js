@@ -675,20 +675,10 @@ window.addEventListener("popstate", event => {
             });
             modalHistory = [];
 
-            // Back from the search-results page returns directly to the
-            // normal StudentKart page. Replace the temporary search-history
-            // entry so a second Back is not consumed by an invisible anchor.
-            window.history.replaceState(
-                {
-                    studentKart: true,
-                    modalId: null,
-                    modalStack: [],
-                    studentKartBase: true
-                },
-                "",
-                window.location.pathname + window.location.search
-            );
-
+            // Back from the search-results page always restores the normal
+            // StudentKart page. Do not replace the popped history entry here:
+            // replacing it during popstate can make Android consume another
+            // visual/scroll state before the page is restored.
             showHomePageFromSearch({ fromPopState: true });
             studentKartHandlingPopState = false;
             return;
@@ -6401,10 +6391,22 @@ function showSearchResultsPage(query, options = {}) {
     if(!selected) return;
     if(!options.fromPopState && !studentKartHandlingPopState){
         ensureStudentKartHistory();
-        const state={studentKart:true,modalId:null,modalStack:[],page:"search",searchQuery:selected};
-        const hash="#search-"+encodeURIComponent(selected);
-        if(window.history.state?.page==="search") window.history.replaceState(state,"",window.location.pathname+window.location.search+hash);
-        else window.history.pushState(state,"",window.location.pathname+window.location.search+hash);
+        const state={
+            studentKart:true,
+            modalId:null,
+            modalStack:[],
+            page:"search",
+            searchQuery:selected
+        };
+        const searchUrl=window.location.pathname+window.location.search+"#search-"+encodeURIComponent(selected);
+        // Every new result query owns exactly one history entry. Replace an
+        // existing result-query entry instead of stacking multiple search
+        // states, so mobile Back cannot step through visual/search states.
+        if(window.history.state?.page==="search"){
+            window.history.replaceState(state,"",searchUrl);
+        }else{
+            window.history.pushState(state,"",searchUrl);
+        }
     }
     document.querySelectorAll(".modal").forEach(modal=>{modal.classList.remove("modal-closing");modal.classList.add("hidden");});
     document.body.classList.remove("modal-open","studentkart-modal-navigation-hidden","category-page-active");
