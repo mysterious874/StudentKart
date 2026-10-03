@@ -107,6 +107,14 @@ begin
            moderated_by = auth.uid()
      where id = target_product_id;
 
+    insert into public.moderation_activity (product_id, admin_id, action, reason)
+    values (
+        target_product_id,
+        auth.uid(),
+        case when new_status = 'suspended' then 'suspend' else 'restore' end,
+        case when new_status = 'suspended' then reason_text else null end
+    );
+
     if listing_owner is not null then
         insert into public.notifications (
             user_id,
@@ -137,3 +145,33 @@ $$;
 
 revoke all on function public.admin_set_listing_moderation(uuid, text, text) from public;
 grant execute on function public.admin_set_listing_moderation(uuid, text, text) to authenticated;
+
+
+-- Moderation audit trail.
+create table if not exists public.moderation_activity (
+    id uuid primary key default gen_random_uuid(),
+    product_id uuid references public.products(id) on delete set null,
+    admin_id uuid references auth.users(id) on delete set null,
+    action text not null check (action in ('suspend','restore')),
+    reason text,
+    created_at timestamptz not null default now()
+);
+
+create index if not exists moderation_activity_created_at_idx
+    on public.moderation_activity(created_at desc);
+
+create index if not exists moderation_activity_product_id_idx
+    on public.moderation_activity(product_id);
+
+alter table public.moderation_activity enable row level security;
+
+drop policy if exists "Admins can view moderation activity" on public.moderation_activity;
+create policy "Admins can view moderation activity"
+on public.moderation_activity for select to authenticated
+using (exists (select 1 from public.admin_users where id = auth.uid()));
+
+drop policy if exists "Admins can insert moderation activity" on public.moderation_activity;
+create policy "Admins can insert moderation activity"
+on public.moderation_activity for insert to authenticated
+with check (exists (select 1 from public.admin_users where id = auth.uid()));
+
