@@ -34,7 +34,15 @@
             .sk-admin-dashboard-card strong{display:block;color:#102a43;font-size:14px}
             .sk-admin-dashboard-card span{display:block;margin-top:4px;color:#718083;font-size:11px;line-height:1.45}
             .sk-admin-dashboard-actions{display:grid;gap:9px}
-            @media(max-width:560px){.sk-admin-dashboard-grid{grid-template-columns:1fr}}
+            .sk-admin-product-modal .modal-content{max-width:760px}
+            .sk-admin-product-form{display:grid;gap:12px}
+            .sk-admin-product-form .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+            .sk-admin-product-form label{display:grid;gap:5px;color:#486581;font-size:11px;font-weight:700}
+            .sk-admin-product-form input,.sk-admin-product-form select{width:100%;border:1px solid #d9e2ec;border-radius:9px;padding:10px 11px;background:#fff;color:#102a43;outline:none}
+            .sk-admin-product-form input:focus,.sk-admin-product-form select:focus{border-color:#0f8b8d;box-shadow:0 0 0 3px rgba(15,139,141,.10)}
+            .sk-admin-product-message{padding:10px 12px;border-radius:9px;background:#eef8f7;color:#0f7779;font-size:11px;display:none}
+            .sk-admin-product-message.error{background:#fff2f2;color:#b42318}
+            @media(max-width:560px){.sk-admin-dashboard-grid{grid-template-columns:1fr}.sk-admin-product-form .row{grid-template-columns:1fr}}
         `;
         document.head.appendChild(style);
     }
@@ -96,6 +104,88 @@
         }
     }
 
+    function openAddProduct() {
+        const modalId = "adminAddProductModal";
+        let modal = document.getElementById(modalId);
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = modalId;
+            modal.className = "modal sk-admin-product-modal hidden";
+            modal.innerHTML = `
+                <div class="modal-overlay" data-close-add-product></div>
+                <div class="modal-content">
+                    <div class="settings-page-header">
+                        <div class="settings-title-wrap">
+                            <div class="settings-icon"><i class="fas fa-box-open"></i></div>
+                            <div>
+                                <span class="section-label">NEW PRODUCTS</span>
+                                <h2>Add New Product</h2>
+                                <p>Add a new, non-used product to the StudentKart marketplace.</p>
+                            </div>
+                        </div>
+                        <button type="button" class="modal-close" data-close-add-product aria-label="Close">&times;</button>
+                    </div>
+                    <form class="sk-admin-product-form" id="adminAddProductForm">
+                        <div class="row">
+                            <label>Product name<input name="name" required maxlength="180" placeholder="e.g. HP 15 Laptop"></label>
+                            <label>Category
+                                <select name="category" required>
+                                    <option value="electronics">Electronics</option>
+                                    <option value="books">Books</option>
+                                    <option value="fashion">Fashion</option>
+                                    <option value="home">Home</option>
+                                    <option value="gaming">Gaming</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="row">
+                            <label>Price (₹)<input name="price" type="number" min="0" step="1" required placeholder="42999"></label>
+                            <label>Store / Source<input name="source" required maxlength="80" placeholder="Amazon, Flipkart, HP, etc."></label>
+                        </div>
+                        <label>Product image URL<input name="image" type="url" maxlength="1000" placeholder="https://..."></label>
+                        <label>Product URL<input name="url" type="url" maxlength="1000" required placeholder="https://..."></label>
+                        <div class="sk-admin-product-message" id="adminAddProductMessage"></div>
+                        <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-plus"></i> Add Product</button>
+                    </form>
+                </div>`;
+            document.body.appendChild(modal);
+            const close=()=>modal.classList.add("hidden");
+            modal.querySelectorAll("[data-close-add-product]").forEach(el=>el.addEventListener("click",close));
+            modal.querySelector("#adminAddProductForm")?.addEventListener("submit", async (event)=>{
+                event.preventDefault();
+                const form=event.currentTarget;
+                const message=modal.querySelector("#adminAddProductMessage");
+                const button=form.querySelector("button[type=submit]");
+                const values=Object.fromEntries(new FormData(form).entries());
+                const payload={
+                    name:String(values.name||"").trim(),
+                    category:String(values.category||"electronics"),
+                    price:Number(values.price||0),
+                    source:String(values.source||"").trim(),
+                    image:String(values.image||"").trim()||null,
+                    url:String(values.url||"").trim()
+                };
+                message.className="sk-admin-product-message";
+                message.textContent="Saving product…";
+                message.style.display="block";
+                button.disabled=true;
+                try{
+                    if(typeof supabaseClient==="undefined") throw new Error("Supabase is not available.");
+                    const {error}=await supabaseClient.from("new_products").insert(payload);
+                    if(error) throw error;
+                    message.textContent="Product added successfully.";
+                    form.reset();
+                    setTimeout(close,700);
+                }catch(error){
+                    console.warn("Add new product:",error);
+                    message.className="sk-admin-product-message error";
+                    message.textContent=(error?.message||"Could not add product.")+" Run the new_products SQL migration if the table does not exist.";
+                }finally{button.disabled=false;}
+            });
+        }
+        modal.classList.remove("hidden");
+    }
+
     function openDashboard() {
         document.getElementById("settingsDetailModal")?.classList.add("hidden");
         let modal = document.getElementById("adminToolModal");
@@ -136,6 +226,9 @@
                             </button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminUsersTool"><i class="fas fa-users"></i><strong>Users</strong><span>View registered StudentKart profiles.</span></button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminListingsTool"><i class="fas fa-box-open"></i><strong>Listings</strong><span>Review marketplace listings.</span></button>
+                            <button type="button" class="sk-admin-dashboard-card" id="adminAddProductTool">
+                                <i class="fas fa-circle-plus"></i><strong>Add New Product</strong><span>Add a new product to the StudentKart New Products marketplace.</span>
+                            </button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminReportsTool"><i class="fas fa-flag"></i><strong>Reports</strong><span>Review and moderate reports.</span></button>
                         </div>
                         <button type="button" class="btn btn-outline btn-full" id="adminCloseDashboard"><i class="fas fa-arrow-left"></i> Back</button>
@@ -150,6 +243,9 @@
             };
             modal.querySelectorAll("[data-close-admin-tool]").forEach(el => el.addEventListener("click", close));
             modal.querySelector("#adminCloseDashboard")?.addEventListener("click", backToSettings);
+            modal.querySelector("#adminAddProductTool")?.addEventListener("click", () => {
+                openAddProduct();
+            });
             modal.querySelector("#adminVerificationTool")?.addEventListener("click", async () => {
                 close();
                 const campusModal = document.getElementById("campusModal");
