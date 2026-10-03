@@ -15,18 +15,8 @@
 <body class="marketplace-page-active">
 <main class="marketplace-page">
 <div class="marketplace-page-shell">
-    <header class="marketplace-page-header">
-        <button type="button" class="marketplace-page-back" onclick="history.back()" aria-label="Back">
-            <i class="fas fa-arrow-left"></i>
-        </button>
-        <div class="marketplace-page-title">
-            <span class="section-label">STUDENTKART MARKETPLACE</span>
-            <h1>Shop New Products</h1>
-            <p>Browse new products only. StudentKart student listings are not shown here.</p>
-        </div>
-    </header>
-
     <div class="marketplace-page-search">
+
         <i class="fas fa-search"></i>
         <input id="marketplaceSearch" type="search" placeholder="Search new products, laptops, books, phones..." autocomplete="off">
         <button type="button" id="marketplacePageSearchButton" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
@@ -119,9 +109,13 @@ document.addEventListener("DOMContentLoaded",()=>{
     async function loadAdminProducts(){
       try{
         if(typeof SUPABASE_URL==="undefined"||typeof SUPABASE_KEY==="undefined") return;
+        const controller=new AbortController();
+        const timeout=setTimeout(()=>controller.abort(),900);
         const response=await fetch(SUPABASE_URL+"/rest/v1/new_products?select=id,name,category,price,source,image,url&order=created_at.desc",{
-          headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"}
+          headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"},
+          signal:controller.signal
         });
+        clearTimeout(timeout);
         if(!response.ok)return;
         const remote=await response.json();
         if(Array.isArray(remote)&&remote.length){
@@ -230,8 +224,15 @@ document.addEventListener("DOMContentLoaded",()=>{
       panel.classList.add("hidden");render();
     });
 
+    // Render the local catalog immediately; remote admin products are an enhancement only.
     render();
     void loadAdminProducts();
+
+    // Keep browser / Android back navigation natural. If this page was opened directly,
+    // provide a safe fallback to the main app when history has no previous entry.
+    window.addEventListener("pageshow",()=>{
+      if(document.referrer && /studentskart\.netlify\.app|localhost|127\.0\.0\.1/i.test(document.referrer)) return;
+    });
 });
 </script>
 </body>
