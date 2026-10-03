@@ -474,6 +474,15 @@ window.addEventListener("popstate", event => {
     if (state?.studentKart === true) {
         studentKartHandlingPopState = true;
 
+        // Search results are a real page-level navigation state too.
+        // Restore the exact search page on browser/Android Forward, while
+        // the normal Home state is restored when Back lands on the base page.
+        if (state.page === "search") {
+            studentKartHandlingPopState = false;
+            showSearchResultsPage(state.searchQuery || "", { fromPopState: true });
+            return;
+        }
+
         // Category marketplace is a page-level navigation state rather than
         // a modal. Restore it directly when the user presses Android/browser Back.
         if (state.page === "category") {
@@ -13340,5 +13349,196 @@ document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();
                 window.scrollTo({top:0,behavior:"auto"});
             }
         },40);
+    });
+})();
+
+
+/* =========================================================
+   SEARCH RESULTS — MOBILE/HOME SEARCH SYNC
+   ========================================================= */
+(function () {
+    const SEARCH_CATEGORIES = [
+        ["Books", "fa-book"],
+        ["Electronics", "fa-laptop"],
+        ["Vehicles", "fa-car"],
+        ["Furniture", "fa-couch"],
+        ["Services", "fa-briefcase"],
+        ["Fashion", "fa-shirt"],
+        ["Gaming", "fa-gamepad"],
+        ["Other", "fa-layer-group"]
+    ];
+
+    function scrollSearchToTop(input) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.setTimeout(() => {
+            try {
+                input?.focus({ preventScroll: true });
+            } catch (_) {
+                input?.focus();
+            }
+        }, 180);
+    }
+
+    function resultSuggestionIcon(category) {
+        const found = SEARCH_CATEGORIES.find(
+            item => item[0].toLowerCase() === String(category || "").toLowerCase()
+        );
+        return found?.[1] || "fa-magnifying-glass";
+    }
+
+    function buildSearchSuggestions(query) {
+        const q = String(query || "").trim().toLowerCase();
+        const output = [];
+        const seen = new Set();
+
+        const add = (value, title, meta, icon) => {
+            const key = String(value || "").trim().toLowerCase();
+            if (!key || seen.has(key)) return;
+            seen.add(key);
+            output.push({ value: String(value).trim(), title, meta, icon });
+        };
+
+        const products = Array.isArray(currentProducts) ? currentProducts : [];
+
+        if (!q) {
+            products.slice(0, 5).forEach(product => {
+                const name = String(product?.name || "").trim();
+                const category = String(product?.category || "").trim();
+                const location = String(product?.location || "").trim();
+                if (name) {
+                    add(
+                        name,
+                        name,
+                        [category, location].filter(Boolean).join(" • ") || "StudentKart listing",
+                        resultSuggestionIcon(category)
+                    );
+                }
+            });
+
+            SEARCH_CATEGORIES.forEach(([category, icon]) => {
+                add(category, category, "Browse marketplace category", icon);
+            });
+
+            return output.slice(0, 8);
+        }
+
+        products.forEach(product => {
+            const name = String(product?.name || "").trim();
+            const category = String(product?.category || "").trim();
+            const location = String(product?.location || "").trim();
+            const haystack = [
+                name,
+                category,
+                location,
+                product?.condition,
+                product?.description
+            ].join(" ").toLowerCase();
+
+            if (name.toLowerCase().includes(q) || category.toLowerCase().includes(q) || haystack.includes(q)) {
+                add(
+                    name || category,
+                    name || category,
+                    [category, location].filter(Boolean).join(" • ") || "StudentKart listing",
+                    resultSuggestionIcon(category)
+                );
+            }
+        });
+
+        SEARCH_CATEGORIES.forEach(([category, icon]) => {
+            if (category.toLowerCase().includes(q)) {
+                add(category, category, "Browse marketplace category", icon);
+            }
+        });
+
+        if (!output.length) {
+            add(query, query, "Search StudentKart and the internet", "fa-globe");
+        }
+
+        return output.slice(0, 8);
+    }
+
+    function renderResultSuggestions() {
+        const input = document.getElementById("searchResultsInput");
+        const panel = document.getElementById("searchResultsSuggestions");
+        if (!input || !panel) return;
+
+        const suggestions = buildSearchSuggestions(input.value);
+
+        if (!suggestions.length) {
+            panel.classList.add("hidden");
+            panel.innerHTML = "";
+            return;
+        }
+
+        panel.innerHTML = suggestions.map(item => `
+            <button type="button" class="hero-search-suggestion" data-search-result-suggestion="${escapeHTML(item.value)}">
+                <span class="suggestion-icon"><i class="fas ${escapeHTML(item.icon)}"></i></span>
+                <span class="suggestion-content">
+                    <strong>${escapeHTML(item.title)}</strong>
+                    <small>${escapeHTML(item.meta)}</small>
+                </span>
+                <i class="fas fa-arrow-up-right-from-square suggestion-arrow"></i>
+            </button>
+        `).join("");
+
+        panel.classList.remove("hidden");
+
+        panel.querySelectorAll("[data-search-result-suggestion]").forEach(button => {
+            button.addEventListener("click", event => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const value = button.dataset.searchResultSuggestion || "";
+                input.value = value;
+                panel.classList.add("hidden");
+
+                // Replace the current search history entry so selecting a
+                // suggestion feels like continuing the same search screen.
+                showSearchResultsPage(value);
+                window.setTimeout(() => scrollSearchToTop(input), 40);
+            });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const input = document.getElementById("searchResultsInput");
+        if (!input) return;
+
+        input.addEventListener("click", () => {
+            scrollSearchToTop(input);
+            renderResultSuggestions();
+        });
+
+        input.addEventListener("focus", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            renderResultSuggestions();
+        });
+
+        input.addEventListener("input", () => {
+            renderResultSuggestions();
+        });
+
+        input.addEventListener("keydown", event => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                const value = input.value.trim();
+                if (!value) return;
+                document.getElementById("searchResultsSuggestions")?.classList.add("hidden");
+                showSearchResultsPage(value);
+                window.setTimeout(() => scrollSearchToTop(input), 40);
+            }
+
+            if (event.key === "Escape") {
+                document.getElementById("searchResultsSuggestions")?.classList.add("hidden");
+            }
+        });
+
+        document.addEventListener("click", event => {
+            const panel = document.getElementById("searchResultsSuggestions");
+            const wrap = input.closest(".hero-search-input-wrap");
+            if (panel && wrap && !wrap.contains(event.target)) {
+                panel.classList.add("hidden");
+            }
+        });
     });
 })();
