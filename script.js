@@ -12353,6 +12353,10 @@ async function saveStudentKartSettings(nextSettings, silent = false) {
         );
     } catch (_) {}
 
+    // Apply the local state before the network request so switches,
+    // theme and privacy controls respond immediately.
+    applyStudentKartSettings();
+
     const { data, error } = await supabaseClient.auth.updateUser({
         data: {
             ...(currentUser.user_metadata || {}),
@@ -12427,9 +12431,7 @@ async function settingsToggle(path) {
     const key = parts[parts.length - 1];
     obj[key] = !Boolean(obj[key]);
 
-    // Settings switches are intentionally optimistic: the visual change
-    // happens immediately, while the account sync continues in the background.
-    applyStudentKartSettings();
+    // The save helper applies the local state before syncing the account.
     return saveStudentKartSettings(settings);
 }
 
