@@ -18049,3 +18049,12 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
     color: #64748b !important;
     font-weight: 600;
 }
+
+#signupEmailHelp.username-status-taken {
+    color: #d64545 !important;
+    font-weight: 700;
+}
+#signupEmailHelp.username-status-checking {
+    color: #64748b !important;
+    font-weight: 600;
+}
