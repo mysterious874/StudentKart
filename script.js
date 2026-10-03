@@ -10178,14 +10178,16 @@ async function sendChatMessage(event) {
             messageToSend = createChatReplyMessage(messageToSend, chatReplyTarget);
         }
 
-        const { error } = await supabaseClient
+        const { data: insertedMessage, error } = await supabaseClient
             .from("messages")
             .insert({
                 inquiry_id: currentChatInquiry.id,
                 sender_id: currentUser.id,
                 receiver_id: receiverId,
                 message: messageToSend
-            });
+            })
+            .select("*")
+            .single();
 
         if (error) throw error;
 
@@ -10214,14 +10216,16 @@ async function sendChatMessage(event) {
         clearChatReplyPreview();
         removeChatUploadStatus();
 
-        appendChatMessageToUI({
-            id: crypto.randomUUID(),
-            inquiry_id: currentChatInquiry.id,
-            sender_id: currentUser.id,
-            receiver_id: receiverId,
-            message: messageToSend,
-            created_at: new Date().toISOString()
-        });
+        appendChatMessageToUI(
+            insertedMessage || {
+                id: crypto.randomUUID(),
+                inquiry_id: currentChatInquiry.id,
+                sender_id: currentUser.id,
+                receiver_id: receiverId,
+                message: messageToSend,
+                created_at: new Date().toISOString()
+            }
+        );
         await loadChatMessages();
 
         // The chat list is message-driven: this is the moment the
@@ -10607,7 +10611,11 @@ function appendChatMessageToUI(message) {
     if (!messageId) return;
 
     // Never duplicate a message already rendered by the database query/realtime.
-    if (container.querySelector('[data-message-id="' + CSS.escape(messageId) + '"]')) {
+    const existingMessage = Array.from(
+        container.querySelectorAll(".chat-message[data-message-id]")
+    ).some(element => String(element.dataset.messageId) === messageId);
+
+    if (existingMessage) {
         return;
     }
 
@@ -11075,6 +11083,8 @@ async function updateChatUnreadCount() {
 async function markChatMessagesRead(inquiryId) {
     if (!currentUser || !inquiryId) return;
 
+    // Read status is secondary UI state. A failure here must NEVER prevent
+    // the conversation itself from loading or showing messages.
     try {
         const { error } = await supabaseClient
             .from("messages")
@@ -11083,55 +11093,31 @@ async function markChatMessagesRead(inquiryId) {
             .eq("receiver_id", currentUser.id)
             .eq("is_read", false);
 
-        if (error) throw error;
-
-        // Verify that Supabase actually persisted the read state.
-        // This prevents a stale unread badge when an UPDATE policy blocks
-        // the write or when another realtime refresh races with this one.
-        const { data: remainingUnread, error: verifyError } =
-            await supabaseClient
-                .from("messages")
-                .select("id")
-                .eq("inquiry_id", inquiryId)
-                .eq("receiver_id", currentUser.id)
-                .eq("is_read", false);
-
-        if (verifyError) {
-            throw verifyError;
+        if (error) {
+            console.warn("Chat read-status sync failed:", error);
         }
+    } catch (error) {
+        console.warn("Chat read-status sync exception:", error);
+    }
 
-        const unreadRemaining = remainingUnread?.length || 0;
+    const badge = $("chatUnreadCount");
+    const bottomBadge = $("chatBottomUnreadCount");
 
-        if (unreadRemaining > 0) {
-            console.warn(
-                "⚠️ Some chat messages are still unread after mark-read:",
-                unreadRemaining
-            );
-        }
+    [badge, bottomBadge].filter(Boolean).forEach(element => {
+        element.textContent = "0";
+        element.classList.add("hidden");
+    });
 
+    document.querySelectorAll(".whatsapp-unread")
+        .forEach(element => element.remove());
+
+    try {
         await updateChatUnreadCount();
-
-        // Force the visible chat badge/list state to match the verified
-        // database state immediately.
-        const badge = $("chatUnreadCount");
-        if (badge && unreadRemaining === 0) {
-            badge.textContent = "0";
-            badge.classList.add("hidden");
-        }
-
-        document
-            .querySelectorAll(".whatsapp-unread")
-            .forEach(element => {
-                element.remove();
-            });
-
         await loadReceivedInquiries();
     } catch (error) {
-        console.error("Mark chat messages read error:", error);
-        showToast("Could not sync chat read status", "error");
+        console.warn("Silent chat read-status refresh failed:", error);
     }
 }
-
 async function startChatUnreadRealtime() {
     if (!currentUser) return;
 
