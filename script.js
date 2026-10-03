@@ -3359,14 +3359,20 @@ async function loadReceivedInquiries() {
         const inquiryIds = visibleInquiries.map(inquiry => inquiry.id);
         let latestMessages = {};
         let unreadCounts = {};
+        let messageListQueryFailed = false;
 
         if (inquiryIds.length) {
-            const { data: messages } =
+            const { data: messages, error: messagesError } =
                 await supabaseClient
                     .from("messages")
                     .select("inquiry_id,sender_id,receiver_id,message,created_at,is_read")
                     .in("inquiry_id", inquiryIds)
                     .order("created_at", { ascending: false });
+
+            if (messagesError) {
+                messageListQueryFailed = true;
+                console.warn("Chat message list query failed:", messagesError);
+            }
 
             (messages || []).forEach(message => {
                 if (!latestMessages[String(message.inquiry_id)]) {
@@ -3389,9 +3395,11 @@ async function loadReceivedInquiries() {
         // one real message exists. Opening a direct chat creates the
         // conversation record in the background, but that empty record
         // must stay out of the list until a message is actually sent.
-        visibleInquiries = visibleInquiries.filter(
-            inquiry => Boolean(latestMessages[String(inquiry.id)])
-        );
+        if (!messageListQueryFailed) {
+            visibleInquiries = visibleInquiries.filter(
+                inquiry => Boolean(latestMessages[String(inquiry.id)])
+            );
+        }
 
         // WhatsApp-style ordering: the conversation with the newest
         // message is always shown at the top of the chat list.
