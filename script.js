@@ -12321,34 +12321,88 @@ function setupHeroSearchStrip() {
     const input = document.getElementById("heroSearchInput");
     const submit = document.getElementById("heroSearchSubmit");
     const filter = document.getElementById("heroSearchFilterButton");
+    const searchPanel = document.getElementById("navbarSearchPanel");
     const navInput = document.getElementById("navbarSearchInput");
-    const navPanel = document.getElementById("navbarSearchPanel");
+    const marketplaceSearch = document.getElementById("marketplaceSearch");
+    const marketplace = document.getElementById("marketplace");
     if (!input) return;
+
+    const scrollToMarketplaceSearch = () => {
+        const target = document.getElementById("heroSearchStrip");
+        if (!target) return;
+        const headerOffset = 76;
+        const top = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    };
 
     const runSearch = () => {
         const query = input.value.trim();
-        if (navInput) {
-            navInput.value = query;
-            navInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+        if (navInput) navInput.value = query;
+        if (marketplaceSearch) marketplaceSearch.value = query;
+
+        // Keep the search interaction local to the marketplace search bar.
+        searchPanel?.classList.add("hidden");
+        document.getElementById("navbarFilterPanel")?.classList.add("hidden");
+
+        if (typeof applyFilters === "function") applyFilters();
+
+        scrollToMarketplaceSearch();
+
+        input.focus({ preventScroll: true });
+
+        if (window.location.hash !== "#marketplace-search") {
+            history.pushState({ studentKartMarketplaceSearch: true }, "", "#marketplace-search");
         }
-        navPanel?.classList.remove("hidden");
-        document.getElementById("marketplace")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        navInput?.focus();
-        navInput?.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     };
 
     submit?.addEventListener("click", runSearch);
+
+    input.addEventListener("focus", () => {
+        scrollToMarketplaceSearch();
+    });
+
     input.addEventListener("keydown", event => {
         if (event.key === "Enter") {
             event.preventDefault();
             runSearch();
+        } else if (event.key === "Escape") {
+            input.blur();
         }
     });
 
     filter?.addEventListener("click", () => {
-        navPanel?.classList.remove("hidden");
-        document.getElementById("navbarFilterPanel")?.classList.remove("hidden");
-        navInput?.focus();
+        // Open the filter controls for this marketplace search interaction,
+        // without opening a second search bar.
+        searchPanel?.classList.add("hidden");
+        const filterPanel = document.getElementById("navbarFilterPanel");
+        filterPanel?.classList.remove("hidden");
+
+        scrollToMarketplaceSearch();
+
+        if (window.location.hash !== "#marketplace-filters") {
+            history.pushState({ studentKartMarketplaceFilters: true }, "", "#marketplace-filters");
+        }
+    });
+
+    window.addEventListener("popstate", event => {
+        const isLocalSearchState =
+            event.state?.studentKartMarketplaceSearch ||
+            event.state?.studentKartMarketplaceFilters ||
+            window.location.hash === "#marketplace-search" ||
+            window.location.hash === "#marketplace-filters";
+
+        if (!isLocalSearchState) return;
+
+        searchPanel?.classList.add("hidden");
+        document.getElementById("navbarFilterPanel")?.classList.add("hidden");
+
+        input.value = "";
+        if (navInput) navInput.value = "";
+        if (marketplaceSearch) marketplaceSearch.value = "";
+
+        if (typeof applyFilters === "function") applyFilters();
+        marketplace?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 }
 
