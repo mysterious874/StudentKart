@@ -4744,7 +4744,11 @@ async function signupUser(event) {
     }
 
     const button = $("signupForm")?.querySelector('button[type="submit"]');
-    if (button) button.disabled = true;
+    if (button) {
+        button.disabled = true;
+        button.dataset.originalText = button.textContent;
+        button.textContent = "Creating account…";
+    }
 
     try {
         const usernameCheck = await checkStudentKartUsername(username);
@@ -4767,40 +4771,31 @@ async function signupUser(event) {
 
         if (error) throw error;
 
-        // With Supabase Email Confirmations disabled, signUp returns an active
-        // session. Keep the new user logged in instead of opening Login again.
         if (data?.user && data?.session) {
             currentUser = data.user;
-            await ensureProfileAfterPasswordSignup(data.user);
-
             localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
 
-            closeModal("signupModal");
+            // Authentication is complete. Do not wait for profile, wishlist,
+            // notifications or marketplace requests before closing the form.
+            closeModal("signupModal", { instant: true });
             closeModal("loginModal", { instant: true });
             updateNavbar();
-
-            try {
-                await loadUserData();
-                await loadMarketplace();
-                await loadNotifications();
-                await updateChatUnreadCount();
-            } catch (loadError) {
-                console.error("Post-signup data load failed:", loadError);
-            }
 
             showToast("Account created. You're now logged in.", "success");
             return;
         }
 
-        // If email confirmation is still enabled in Supabase, do not pretend
-        // the user is logged in. Tell them what is required.
-        closeModal("signupModal");
+        closeModal("signupModal", { instant: true });
         showToast("Account created. Please complete the required email confirmation.", "warning");
     } catch (error) {
         console.error("Signup error:", error);
         showToast(error?.message || "Could not create account", "error");
     } finally {
-        if (button) button.disabled = false;
+        if (button) {
+            button.disabled = false;
+            button.textContent = button.dataset.originalText || "Create Account";
+            delete button.dataset.originalText;
+        }
     }
 }
 async function ensureProfileAfterPasswordSignup(user) {
