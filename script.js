@@ -237,6 +237,7 @@ let modalHistory = [];
 let studentKartHistoryReady = false;
 let studentKartHandlingPopState = false;
 let studentKartSkipNextPopState = false;
+let studentKartNavbarSearchOpen = false;
 let studentKartModalCloseTimers = new Map();
 
 function ensureStudentKartHistory() {
@@ -547,6 +548,24 @@ window.addEventListener("popstate", event => {
      * visible Chat back arrow.
      */
     const state = event.state;
+
+    // Navbar search is a transient overlay. Android/browser Back must
+    // close it before the app's normal history/modal navigation runs.
+    if (studentKartNavbarSearchOpen) {
+        const navbarSearchPanel = document.getElementById("navbarSearchPanel");
+        const navbarFilterPanel = document.getElementById("navbarFilterPanel");
+        const marketplaceFilterPanel = document.getElementById("marketplaceFilterPanel");
+
+        studentKartNavbarSearchOpen = false;
+        navbarSearchPanel?.classList.add("hidden");
+        navbarFilterPanel?.classList.add("hidden");
+        marketplaceFilterPanel?.classList.add("hidden");
+
+        const navbarSearchInput = document.getElementById("navbarSearchInput");
+        if (navbarSearchInput) navbarSearchInput.blur();
+
+        return;
+    }
 
     if (state?.studentKart === true) {
         studentKartHandlingPopState = true;
@@ -12453,10 +12472,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!opening) {
             searchPanel.classList.add("hidden");
+            studentKartNavbarSearchOpen = false;
             return;
         }
 
         searchPanel.classList.remove("hidden");
+        studentKartNavbarSearchOpen = true;
 
         // Give the open search panel its own browser-history entry so
         // Android/browser Back closes the search first instead of navigating
@@ -12488,18 +12509,12 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             runSearch();
         } else if (event.key === "Escape") {
-            if (window.history.state?.studentKartNavbarSearch === true) {
+            if (studentKartNavbarSearchOpen) {
                 window.history.back();
             } else {
                 searchPanel.classList.add("hidden");
             }
         }
-    });
-
-    // Close navbar search when Android/browser Back returns to the previous page state.
-    window.addEventListener("popstate", event => {
-        if (event.state?.studentKartNavbarSearch === true) return;
-        searchPanel.classList.add("hidden");
     });
 
     searchSubmit?.addEventListener("click", runSearch);
