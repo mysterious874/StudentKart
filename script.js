@@ -3614,7 +3614,7 @@ async function searchStudentKartUsers(query) {
     if (!box || !currentUser) return;
 
     const raw = String(query || "").trim();
-    let digits = raw.replace(/\\D/g, "");
+    let digits = raw.replace(/\D/g, "");
 
     if (digits.startsWith("91") && digits.length > 10) digits = digits.slice(-10);
 
@@ -3640,14 +3640,14 @@ async function searchStudentKartUsers(query) {
         if (error) throw error;
 
         const matches = (data || []).filter(profile => {
-            const p = String(profile.phone || "").replace(/\\D/g, "");
+            const p = String(profile.phone || "").replace(/\D/g, "");
             const normalized = p.startsWith("91") && p.length > 10 ? p.slice(-10) : p;
             return normalized.startsWith(digits);
         });
 
         // Always include the logged-in account when its own registered number matches.
         if (currentUser?.id && currentUser?.phone) {
-            const currentDigits = String(currentUser.phone).replace(/\\D/g, "").slice(-10);
+            const currentDigits = String(currentUser.phone).replace(/\D/g, "").slice(-10);
             if (currentDigits.startsWith(digits) && !matches.some(x => String(x.id) === String(currentUser.id))) {
                 matches.unshift({
                     id: currentUser.id,
@@ -3675,7 +3675,7 @@ async function searchStudentKartUsers(query) {
             '</small></div>' +
             matches.slice(0, 20).map(x => {
                 const n = x.username || x.name || "Student";
-                const phoneDigits = String(x.phone || "").replace(/\\D/g, "").slice(-10);
+                const phoneDigits = String(x.phone || "").replace(/\D/g, "").slice(-10);
                 const a = x.avatar_url
                     ? '<img src="' + escapeHTML(x.avatar_url) + '" alt="">'
                     : '<span>' + escapeHTML(getInitials(n)) + '</span>';
