@@ -1,19 +1,19 @@
-/* StudentKart Web Push Service Worker */
+/* GlobeDisc Web Push Service Worker */
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", event => event.waitUntil(self.clients.claim()));
 
 self.addEventListener("push", event => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch (_) {
-    data = { body: event.data ? event.data.text() : "You have a new StudentKart message." };
+    data = { body: event.data ? event.data.text() : "You have a new GlobeDisc message." };
   }
 
-  const title = data.title || "StudentKart • New message";
+  const title = data.title || "GlobeDisc • New message";
   const options = {
     body: data.body || "You have received a new message.",
-    icon: data.icon || "/icons/studentkart-icon.svg",
-    badge: data.badge || "/icons/studentkart-icon.svg",
-    tag: data.tag || "studentkart-chat",
+    icon: data.icon || "/icons/globedisc-icon-v2.svg",
+    badge: data.badge || "/icons/globedisc-icon-v2.svg",
+    tag: data.tag || "globedisc-chat",
     renotify: true,
     data: {
       url: data.url || "/#chat"
