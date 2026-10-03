@@ -623,6 +623,8 @@ window.addEventListener("popstate", event => {
         if (navbarSearchInput) {
             navbarSearchInput.blur();
             navbarSearchInput.setAttribute("readonly", "readonly");
+            navbarSearchInput.classList.add("studentkart-search-closed");
+            navbarSearchInput.disabled = true;
             window.setTimeout(() => {
                 navbarSearchInput.blur();
                 if (document.activeElement === navbarSearchInput) {
@@ -12546,6 +12548,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // after blur when the containing overlay is removed. Temporarily
         // disabling the field forces the native focus state to be released.
         searchInput.disabled = true;
+        searchInput.classList.add("studentkart-search-closed");
         searchPanel.classList.add("hidden");
 
         window.requestAnimationFrame(() => {
@@ -12572,6 +12575,7 @@ document.addEventListener("DOMContentLoaded", () => {
         searchPanel.classList.remove("hidden");
         studentKartNavbarSearchOpen = true;
         searchInput.disabled = false;
+        searchInput.classList.remove("studentkart-search-closed");
         searchInput.removeAttribute("readonly");
 
         // Give the open search panel its own browser-history entry so
