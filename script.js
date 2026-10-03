@@ -11906,7 +11906,7 @@ function settingsDeleteAccount() {
     });
 }
 async function handleSettingAction(action) {
-    if (!currentUser) {
+    if (!currentUser && action !== "developer") {
         closeModal("settingsModal");
         openModal("loginModal");
         return;
