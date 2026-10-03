@@ -3755,6 +3755,7 @@ async function openStudentKartUserChat(userId) {
 
     try {
         // Reuse an existing conversation between these two students when possible.
+        // Direct chats are not tied to a listing, so product_id intentionally stays NULL.
         const pairFilter =
             "and(buyer_id.eq." + currentUser.id + ",seller_id.eq." + userId + ")," +
             "and(buyer_id.eq." + userId + ",seller_id.eq." + currentUser.id + ")";
@@ -3771,35 +3772,11 @@ async function openStudentKartUserChat(userId) {
         let inquiry = existingInquiries?.[0] || null;
 
         if (!inquiry) {
-            // The current inquiries table requires product_id. For a new
-            // person-to-person chat, anchor the conversation to that
-            // student's latest active listing instead of inserting NULL.
-            const { data: targetProduct, error: productLookupError } =
-                await supabaseClient
-                    .from("products")
-                    .select("id,name")
-                    .eq("user_id", userId)
-                    .order("created_at", { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
-
-            if (productLookupError) {
-                throw productLookupError;
-            }
-
-            if (!targetProduct?.id) {
-                showToast(
-                    "This student does not have a listing yet, so a new chat cannot be started.",
-                    "warning"
-                );
-                return;
-            }
-
             const { data: createdInquiry, error: createError } =
                 await supabaseClient
                     .from("inquiries")
                     .insert({
-                        product_id: targetProduct.id,
+                        product_id: null,
                         buyer_id: currentUser.id,
                         seller_id: userId,
                         message: "Direct chat",
