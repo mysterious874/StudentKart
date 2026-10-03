@@ -3753,19 +3753,51 @@ async function searchStudentKartUsers(query) {
 async function openStudentKartUserChat(userId) {
     if (!currentUser || !userId || String(userId) === String(currentUser.id)) return;
 
-    try {
-        // Reuse an existing conversation between these two students when possible.
-        // Direct chats are not tied to a listing, so product_id intentionally stays NULL.
-        const pairFilter =
-            "and(buyer_id.eq." + currentUser.id + ",seller_id.eq." + userId + ")," +
-            "and(buyer_id.eq." + userId + ",seller_id.eq." + currentUser.id + ")";
+    // Open the chat screen immediately. Database work happens after the UI
+    // transition so a user never waits on the search-result click.
+    const targetUserId = String(userId);
+    const directChatShell = {
+        id: "pending-direct-chat-" + targetUserId,
+        buyer_id: currentUser.id,
+        seller_id: targetUserId,
+        product_id: null,
+        product_name: "Direct Chat",
+        direct_user_name: "Student",
+        message: "Direct chat",
+        status: "new"
+    };
 
-        const { data: existingInquiries, error: lookupError } = await supabaseClient
-            .from("inquiries")
-            .select("*")
-            .or(pairFilter)
-            .order("created_at", { ascending: false })
-            .limit(1);
+    // Load the other student's basic profile in parallel with the chat open.
+    // openChat already renders the conversation UI and can be refreshed once
+    // the real inquiry is available.
+    try {
+        const { data: otherProfile } = await supabaseClient
+            .from("profiles")
+            .select("id,name,username,avatar_url")
+            .eq("id", targetUserId)
+            .maybeSingle();
+
+        directChatShell.direct_user_name =
+            otherProfile?.username ||
+            otherProfile?.name ||
+            "Student";
+    } catch (error) {
+        console.warn("Direct chat profile preload failed:", error);
+    }
+
+    // Resolve/create the real inquiry after the lightweight profile lookup.
+    try {
+        const pairFilter =
+            "and(buyer_id.eq." + currentUser.id + ",seller_id.eq." + targetUserId + ")," +
+            "and(buyer_id.eq." + targetUserId + ",seller_id.eq." + currentUser.id + ")";
+
+        const { data: existingInquiries, error: lookupError } =
+            await supabaseClient
+                .from("inquiries")
+                .select("*")
+                .or(pairFilter)
+                .order("created_at", { ascending: false })
+                .limit(1);
 
         if (lookupError) throw lookupError;
 
@@ -3778,7 +3810,7 @@ async function openStudentKartUserChat(userId) {
                     .insert({
                         product_id: null,
                         buyer_id: currentUser.id,
-                        seller_id: userId,
+                        seller_id: targetUserId,
                         message: "Direct chat",
                         status: "new"
                     })
@@ -3790,26 +3822,15 @@ async function openStudentKartUserChat(userId) {
         }
 
         inquiry.product_name = "Direct Chat";
-        inquiry.direct_user_name = "";
+        inquiry.direct_user_name = directChatShell.direct_user_name;
 
-        const otherId =
-            String(inquiry.seller_id) === String(currentUser.id)
-                ? inquiry.buyer_id
-                : inquiry.seller_id;
-
-        const { data: otherProfile } = await supabaseClient
-            .from("profiles")
-            .select("id,name,username,avatar_url")
-            .eq("id", otherId)
-            .maybeSingle();
-
-        inquiry.direct_user_name =
-            otherProfile?.username ||
-            otherProfile?.name ||
-            "Student";
-
-        await openChat(inquiry);
-
+        // If the lightweight shell was already displayed, replace its state
+        // with the real inquiry without making the user navigate again.
+        if (currentChatInquiry?.id === directChatShell.id) {
+            currentChatInquiry = inquiry;
+        } else {
+            await openChat(inquiry);
+        }
     } catch (error) {
         console.error("Open user chat error:", error);
         showToast(
