@@ -12442,11 +12442,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const runResultSearch=()=>{ const q=resultInput?.value?.trim(); if(q) showSearchResultsPage(q); };
     $("searchResultsSearchButton")?.addEventListener("click",runResultSearch);
     resultInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();runResultSearch();}});
-        $("searchResultsBack")?.addEventListener("click", () => {
-        if (window.history.state?.page === "search") window.history.back();
-        else showHomePageFromSearch();
-    });
-    $("searchResultsBrowseAll")?.addEventListener("click", () => {
+        $("searchResultsBrowseAll")?.addEventListener("click", () => {
         showHomePageFromSearch();
         document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
     });
