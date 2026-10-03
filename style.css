@@ -17197,3 +17197,19 @@ body.studentkart-search-results-active .navbar{display:none!important}
     }
     .hero-search-suggestion{min-height:52px!important}
 }
+
+
+/* FINAL FIX — DO NOT CLIP LIVE SEARCH DROPDOWN */
+.studentkart-top{
+    position:relative!important;
+    overflow:visible!important;
+    z-index:100!important;
+}
+.studentkart-top-content{
+    position:relative!important;
+    z-index:101!important;
+}
+.marketplace-section{
+    position:relative!important;
+    z-index:1!important;
+}
