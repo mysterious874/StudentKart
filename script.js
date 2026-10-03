@@ -556,6 +556,24 @@ window.addEventListener("popstate", event => {
         const navbarFilterPanel = document.getElementById("navbarFilterPanel");
         const marketplaceFilterPanel = document.getElementById("marketplaceFilterPanel");
 
+        // The Back gesture has already consumed the temporary search entry.
+        // Restore a stable StudentKart base entry immediately so the next
+        // Back gesture is handled by the app instead of falling through to
+        // document/app exit when the page was opened directly.
+        const baseState = {
+            studentKart: true,
+            modalId: null,
+            modalStack: []
+        };
+
+        if (window.history.state?.studentKartNavbarSearch === true) {
+            window.history.replaceState(
+                baseState,
+                "",
+                window.location.pathname + window.location.search
+            );
+        }
+
         studentKartNavbarSearchOpen = false;
         navbarSearchPanel?.classList.add("hidden");
         navbarFilterPanel?.classList.add("hidden");
