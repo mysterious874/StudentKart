@@ -18760,3 +18760,123 @@ border-radius:14px;
     }
 }
 
+
+
+/* =========================================================
+   COMPACT FOOTER POLISH
+   ========================================================= */
+.footer {
+    padding: 34px 0 0 !important;
+}
+
+.footer-container {
+    padding-top: 0 !important;
+    padding-bottom: 24px !important;
+    gap: 28px !important;
+}
+
+.footer-brand p {
+    margin: 10px 0 12px !important;
+    line-height: 1.45 !important;
+    font-size: 12px !important;
+    max-width: 330px !important;
+}
+
+.footer-brand-badge {
+    padding: 6px 9px !important;
+    font-size: 10px !important;
+}
+
+.footer-link-group {
+    gap: 7px !important;
+}
+
+.footer-link-group strong,
+.footer-creator > strong {
+    margin-bottom: 5px !important;
+    font-size: 12px !important;
+}
+
+.footer-link-group button,
+.footer-contact-link {
+    min-height: 26px !important;
+    padding: 2px 0 !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+}
+
+.footer-creator-name {
+    margin: 3px 0 2px !important;
+    font-size: 13px !important;
+}
+
+.footer-creator > span {
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+    margin-bottom: 5px !important;
+}
+
+.footer-actions .btn {
+    min-height: 36px !important;
+    padding: 7px 12px !important;
+    font-size: 11px !important;
+}
+
+.footer-bottom {
+    min-height: 42px !important;
+    padding: 10px max(20px, calc((100% - 1240px) / 2)) !important;
+    font-size: 10px !important;
+}
+
+@media (max-width: 700px) {
+    .footer {
+        padding: 26px 0 0 !important;
+    }
+
+    .footer-container {
+        padding: 0 16px 20px !important;
+        gap: 20px !important;
+    }
+
+    .footer-brand p {
+        margin: 8px 0 10px !important;
+        font-size: 11px !important;
+        max-width: 100% !important;
+    }
+
+    .footer-link-group {
+        gap: 4px !important;
+    }
+
+    .footer-link-group strong,
+    .footer-creator > strong {
+        margin-bottom: 3px !important;
+        font-size: 11px !important;
+    }
+
+    .footer-link-group button,
+    .footer-contact-link {
+        min-height: 24px !important;
+        font-size: 10.5px !important;
+    }
+
+    .footer-creator-name {
+        font-size: 12px !important;
+    }
+
+    .footer-creator > span {
+        font-size: 9.5px !important;
+    }
+
+    .footer-actions .btn {
+        min-height: 34px !important;
+        font-size: 10.5px !important;
+    }
+
+    .footer-bottom {
+        min-height: 38px !important;
+        padding: 9px 16px !important;
+        font-size: 9.5px !important;
+        gap: 6px !important;
+    }
+}
