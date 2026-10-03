@@ -12391,6 +12391,56 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 
 
+/* =========================================================
+   CAMPUS QUICK BUTTON
+   ========================================================= */
+(function initCampusQuickButton(){
+    const campuses = [
+        "Manipal University",
+        "G H Raisoni University",
+        "University of Mumbai",
+        "Savitribai Phule Pune University",
+        "Other Campus"
+    ];
+
+    function updateCampusLabel(){
+        const label=document.getElementById("bottomCampusLabel");
+        const selected=localStorage.getItem("studentkartCampus");
+        if(label) label.textContent=selected ? "Campus" : "Campus";
+    }
+
+    function renderCampusPicker(){
+        const list=document.getElementById("campusPickerList");
+        if(!list) return;
+        const selected=localStorage.getItem("studentkartCampus") || "";
+        list.innerHTML=campuses.map(c=>`
+            <button type="button" class="campus-picker-option ${selected===c ? "is-selected" : ""}" data-campus="${escapeHTML(c)}">
+                <span class="campus-picker-icon"><i class="fas fa-building-columns"></i></span>
+                <span><strong>${escapeHTML(c)}</strong><small>${selected===c ? "Currently selected" : "Select this campus"}</small></span>
+                <i class="fas fa-chevron-right campus-picker-arrow"></i>
+            </button>`).join("");
+        list.querySelectorAll("[data-campus]").forEach(btn=>{
+            btn.addEventListener("click",()=>{
+                const campus=btn.dataset.campus || "";
+                localStorage.setItem("studentkartCampus",campus);
+                closeModal("campusModal");
+                updateCampusLabel();
+                if(typeof showToast==="function") showToast("Campus set to "+campus,"success");
+            });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded",()=>{
+        const button=document.getElementById("bottomCampusButton");
+        if(!button) return;
+        updateCampusLabel();
+        button.addEventListener("click",()=>{
+            renderCampusPicker();
+            openModal("campusModal");
+        });
+    });
+})();
+ 
 /* Homepage search suggestions */
 document.addEventListener("DOMContentLoaded", () => {
     const input=document.getElementById("heroSearchInput");
