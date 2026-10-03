@@ -12323,7 +12323,6 @@ function setupHeroSearchStrip() {
     const filter = document.getElementById("heroSearchFilterButton");
     const filterPanel = document.getElementById("navbarFilterPanel");
     const marketplaceFilterPanel = document.getElementById("marketplaceFilterPanel");
-    const marketplaceFilterPanel = document.getElementById("marketplaceFilterPanel");
     const navInput = document.getElementById("navbarSearchInput");
     const marketplace = document.getElementById("marketplace");
     if (!input) return;
