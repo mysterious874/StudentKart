@@ -168,6 +168,22 @@
             </div>
         </section>
 
+        <section id="searchResultsPage" class="search-results-page hidden" aria-label="Search results">
+            <div class="search-results-navbar"><div class="search-results-navbar-inner">
+                <button type="button" class="search-results-back" id="searchResultsBack" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
+                <div class="search-results-navbar-title"><span>SEARCH RESULTS</span><small id="searchResultsNavbarSubtitle">Products related to your search</small></div>
+            </div></div>
+            <div class="search-results-container">
+                <div class="search-results-heading"><div><span class="section-label">YOU SEARCHED FOR</span><h1 id="searchResultsQuery">Search</h1></div><span class="search-results-count" id="searchResultsCount">0 listings</span></div>
+                <div id="searchResultsProductContainer" class="products-grid"></div>
+                <div id="searchResultsEmptyState" class="empty-state hidden">
+                    <div class="empty-icon"><i class="fas fa-magnifying-glass"></i></div>
+                    <h3>No related listings found</h3><p>Try another search or browse the marketplace.</p>
+                    <button type="button" class="btn btn-primary" id="searchResultsBrowseAll"><i class="fas fa-store"></i> Browse Marketplace</button>
+                </div>
+            </div>
+        </section>
+
         <section id="marketplace" class="section marketplace-section">
         <div class="hero-search-strip" id="heroSearchStrip" aria-label="Search StudentKart">
             <div class="hero-search-inner">
