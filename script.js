@@ -604,6 +604,7 @@ window.addEventListener("popstate", event => {
         $("home")?.classList.remove("hidden");
         $("marketplace")?.classList.remove("hidden");
         $("how-it-works")?.classList.remove("hidden");
+        setHomeSearchStripVisibility(true);
         document.querySelector("main")?.classList.remove("category-page-active");
         window.scrollTo({top: 0, behavior: "auto"});
         studentKartHandlingPopState = false;
@@ -5960,6 +5961,7 @@ function performSearch() {
 }
 
 function showHomePageFromCategory() {
+    setHomeSearchStripVisibility(true);
     document.body.classList.remove("category-page-active");
     $("categoryPage")?.classList.add("hidden");
     document.querySelector("main")?.classList.remove("category-page-active");
@@ -5970,6 +5972,7 @@ function showHomePageFromCategory() {
 }
 
 function closeCategoryPage() {
+    setHomeSearchStripVisibility(true);
     document.body.classList.remove("category-page-active");
     $("categoryPage")?.classList.add("hidden");
     document.querySelector("main")?.classList.remove("category-page-active");
