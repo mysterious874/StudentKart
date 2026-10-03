@@ -12541,6 +12541,11 @@ document.addEventListener("DOMContentLoaded", () => {
         studentKartNavbarSearchOpen = false;
         searchInput.blur();
         searchInput.setAttribute("readonly", "readonly");
+
+        // Android can keep an input's native focus ring/caret painted even
+        // after blur when the containing overlay is removed. Temporarily
+        // disabling the field forces the native focus state to be released.
+        searchInput.disabled = true;
         searchPanel.classList.add("hidden");
 
         window.requestAnimationFrame(() => {
@@ -12566,6 +12571,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         searchPanel.classList.remove("hidden");
         studentKartNavbarSearchOpen = true;
+        searchInput.disabled = false;
         searchInput.removeAttribute("readonly");
 
         // Give the open search panel its own browser-history entry so
