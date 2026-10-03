@@ -18552,3 +18552,10 @@ border-radius:14px;
 .search-results-filter-card .filter-panel-grid{grid-template-columns:1fr}
 .search-results-filter-card .filter-panel-actions{flex-direction:row}
 }@media(max-width:600px){.search-results-filter-panel{padding:76px 10px 18px}.search-results-filter-grid{grid-template-columns:1fr}.search-results-filter-card{padding:15px;border-radius:16px}}
+
+/* =========================================================
+   HOME HERO -> SEARCH STRIP TRANSITION
+   ========================================================= */
+#heroSearchStrip.hero-search-docked{position:sticky!important;top:72px!important;z-index:1000000!important}
+body.studentkart-search-strip-hidden #heroSearchStrip{display:none!important}
+@media(max-width:768px){#heroSearchStrip.hero-search-docked{top:58px!important}}
