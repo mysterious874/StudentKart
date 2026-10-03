@@ -9315,11 +9315,21 @@ async function loadChatMessages() {
 
         container.innerHTML = profileIntroHtml + visibleMessages.map(message => {
             const isMine = message.sender_id === currentUser.id;
-            const reply = parseChatReplyMessage(message.message);
+            const isDeletedForEveryone = String(message.message || "") === CHAT_DELETED_MESSAGE;
+            const reply = isDeletedForEveryone ? null : parseChatReplyMessage(message.message);
             const actualMessage = reply ? reply.content : message.message;
-            const image = parseChatMediaMessage(actualMessage);
+            const image = isDeletedForEveryone ? null : parseChatMediaMessage(actualMessage);
             let content = "";
             let replyHtml = "";
+
+            if (isDeletedForEveryone) {
+                content = `
+                    <div class="chat-message-bubble chat-message-deleted">
+                        <i class="fas fa-ban"></i>
+                        <span>${isMine ? "You deleted this message" : "This message was deleted"}</span>
+                    </div>
+                `;
+            }
             if (reply) {
                 const quoted = reply.replyTo || {};
                 const quotedText = quoted.text || (quoted.mediaType === "video" ? "Video" : quoted.mediaType === "image" ? "Photo" : "Message");
