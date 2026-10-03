@@ -17792,3 +17792,17 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
     visibility: visible !important;
     opacity: 1 !important;
 }
+
+
+/* =========================================================
+   FINAL NAVBAR STABILITY OVERRIDE
+   Prevent legacy responsive rules from hiding the navbar.
+   ========================================================= */
+.navbar,
+.navbar.navbar-scroll-hidden {
+    position: sticky !important;
+    top: 0 !important;
+    transform: translate3d(0, 0, 0) !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
