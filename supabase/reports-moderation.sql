@@ -53,3 +53,51 @@ with check (
         where id = auth.uid()
     )
 );
+
+
+-- Soft-moderation for marketplace listings.
+alter table public.products
+    add column if not exists moderation_status text not null default 'active'
+        check (moderation_status in ('active','suspended')),
+    add column if not exists moderation_reason text,
+    add column if not exists moderated_at timestamptz,
+    add column if not exists moderated_by uuid references auth.users(id) on delete set null;
+
+create index if not exists products_moderation_status_idx
+    on public.products(moderation_status);
+
+create or replace function public.admin_set_listing_moderation(
+    target_product_id uuid,
+    new_status text,
+    reason_text text default null
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+    if not exists (
+        select 1 from public.admin_users
+        where id = auth.uid()
+    ) then
+        raise exception 'admin access required';
+    end if;
+
+    if new_status not in ('active','suspended') then
+        raise exception 'invalid moderation status';
+    end if;
+
+    update public.products
+    set moderation_status = new_status,
+        moderation_reason = case when new_status = 'suspended' then reason_text else null end,
+        moderated_at = now(),
+        moderated_by = auth.uid()
+    where id = target_product_id;
+
+    return found;
+end;
+$$;
+
+revoke all on function public.admin_set_listing_moderation(uuid, text, text) from public;
+grant execute on function public.admin_set_listing_moderation(uuid, text, text) to authenticated;
