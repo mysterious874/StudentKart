@@ -185,6 +185,7 @@ body.studentkart-product-page-open #heroSearchStrip {
       <span class="logo-text">StudentKart</span>
     </a>
     <div class="nav-actions">
+      <button type="button" class="nav-profile-button" id="profileButton" aria-label="Profile" title="Profile"><i class="fas fa-user"></i><span>Profile</span></button>
       <button type="button" class="btn btn-primary" id="sellButton"><i class="fas fa-plus"></i><span>Sell</span></button>
     </div>
   </div>
@@ -209,11 +210,8 @@ body.studentkart-product-page-open #heroSearchStrip {
         <a href="#home" class="bottom-nav-item">
             <i class="fas fa-house"></i><span>Home</span>
         </a>
-        <button type="button" class="bottom-nav-item" id="bottomCategoriesButton">
-            <i class="fas fa-layer-group"></i><span>Categories</span>
-        </button>
-        <button type="button" class="bottom-nav-item" id="bottomProfileButton" aria-label="Profile">
-            <i class="fas fa-user"></i><span>Profile</span>
+        <button type="button" class="bottom-nav-item bottom-marketplace-nav-item" id="bottomMarketplaceButton" aria-label="Marketplace">
+            <i class="fas fa-store"></i><span>Marketplace</span>
         </button>
         <button type="button" class="bottom-nav-item bottom-chat-nav-item" id="bottomChatButton" aria-label="Chat">
             <span class="bottom-nav-icon-wrap">
@@ -402,7 +400,12 @@ body.studentkart-product-page-open #heroSearchStrip {
             </div>
         </section>
 
-        <section id="marketplace" class="section marketplace-section">
+        <section id="marketplace" class="section marketplace-section" aria-label="Campus Marketplace">
+        <div class="marketplace-section-intro">
+            <span class="section-label">CAMPUS EXCHANGE</span>
+            <h2>Marketplace</h2>
+            <p>Buy, sell and discover useful things around your campus.</p>
+        </div>
         <div class="hero-search-strip" id="heroSearchStrip" aria-label="Search StudentKart">
             <div class="hero-search-inner">
                 <div class="hero-search-field">
