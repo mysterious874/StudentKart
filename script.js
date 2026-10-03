@@ -14160,40 +14160,40 @@ const footerInfoContent = {
     about: {
         title: "About StudentKart",
         body: `
-            <div class="info-intro">StudentKart is a student-focused marketplace designed to make campus buying, selling, renting and discovering useful products easier.</div>
+            <div class="info-intro">StudentKart is a student-focused digital space designed to make studying, building skills, exploring opportunities and staying connected easier.</div>
             <div class="info-section">
                 <h3><i class="fas fa-store"></i> What is StudentKart?</h3>
-                <p>StudentKart brings student-to-student listings into one simple place. Students can browse products, compare listings, save favourites, chat with sellers and publish their own listings.</p>
+                <p>StudentKart brings useful student tools and campus discovery into one simple place. The Campus Exchange module lets students browse listings, save favourites, chat with sellers and publish their own listings.</p>
             </div>
             <div class="info-section">
                 <h3><i class="fas fa-bullseye"></i> Our Purpose</h3>
-                <p>Our goal is to make useful products and services around student communities easier to discover, while keeping the buying and selling process simple and organized.</p>
+                <p>Our goal is to help students organize everyday study, skill-building and campus life while keeping useful campus discovery simple and organized.</p>
             </div>
             <div class="info-section">
                 <h3><i class="fas fa-handshake"></i> How StudentKart Works</h3>
-                <p>StudentKart connects buyers and sellers. It does not act as the buyer or seller in a transaction. Users are responsible for checking products, sellers, prices and transaction details before making a deal.</p>
+                <p>StudentKart provides a student-focused ecosystem with tools for learning, planning, career growth and campus discovery. The Campus Exchange module connects buyers and sellers; StudentKart does not act as the buyer or seller in a transaction. Users are responsible for checking products, sellers, prices and transaction details before making a deal.</p>
             </div>
         `
     },
     how: {
         title: "How StudentKart Works",
         body: `
-            <div class="info-intro">Buying and selling should be simple. Here is how StudentKart works from start to finish.</div>
+            <div class="info-intro">Student life should be easier to organize. StudentKart brings your study, goals, opportunities and campus discovery into one place.</div>
             <div class="info-section">
-                <h3><span class="step-number">01</span><i class="fas fa-user-plus"></i> Create an Account</h3>
-                <p>Sign up and create your student profile.</p>
+                <h3><span class="step-number">01</span><i class="fas fa-user-plus"></i> Set Up Your Space</h3>
+                <p>Sign up and create your student profile and preferences.</p>
             </div>
             <div class="info-section">
-                <h3><span class="step-number">02</span><i class="fas fa-camera"></i> List Your Product</h3>
-                <p>Add photos, price, condition and details.</p>
+                <h3><span class="step-number">02</span><i class="fas fa-camera"></i> Add What You Need</h3>
+                <p>Set up your goals, resources and campus preferences. You can also publish a Campus Exchange listing.</p>
             </div>
             <div class="info-section">
-                <h3><span class="step-number">03</span><i class="fas fa-magnifying-glass"></i> Find What You Need</h3>
-                <p>Browse products and contact sellers directly.</p>
+                <h3><span class="step-number">03</span><i class="fas fa-magnifying-glass"></i> Learn & Explore</h3>
+                <p>Explore study resources, skills, opportunities and campus listings.</p>
             </div>
             <div class="info-section">
                 <h3><span class="step-number">04</span><i class="fas fa-handshake"></i> Connect &amp; Deal</h3>
-                <p>Discuss the product and complete your deal.</p>
+                <p>Build skills, track progress and connect with other students.</p>
             </div>
         `
     },
