@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="StudentKart - Buy, sell and discover products made for students.">
+    <meta name="description" content="StudentKart - the student super app for study, skills, career and campus life.">
     <meta name="theme-color" content="#27aaa6">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/icons/studentkart-icon.svg">
     <link rel="apple-touch-icon" href="/icons/studentkart-icon.svg">
-    <title>StudentKart — Student Marketplace</title>
+    <title>StudentKart — Student Super App</title>
     <link rel="preconnect" href="https://yymzfjfkmsrymqhpnfqz.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="//yymzfjfkmsrymqhpnfqz.supabase.co">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -51,7 +51,7 @@ body.search-results-mobile-view #searchResultsPage .search-results-navbar::after
     margin-top: 22px !important;
 }
 
-/* Keep the "Showing latest listings" row clearly separated from the sticky search. */
+/* Keep the "Campus Exchange" row clearly separated from the sticky search. */
 #marketplace #filterStatus {
     margin-top: 30px !important;
 }
@@ -193,7 +193,7 @@ body.studentkart-product-page-open #heroSearchStrip {
         <div class="navbar-search-inner">
             <div class="navbar-search-field">
                 <i class="fas fa-search"></i>
-                <input type="text" id="navbarSearchInput" placeholder="Search books, electronics, furniture..." autocomplete="off" aria-autocomplete="list" aria-controls="navbarSearchSuggestions">
+                <input type="text" id="navbarSearchInput" placeholder="Search notes, skills, internships, campus resources..." autocomplete="off" aria-autocomplete="list" aria-controls="navbarSearchSuggestions">
                 <div id="navbarSearchSuggestions" class="navbar-search-suggestions hidden" role="listbox" aria-label="Search suggestions"></div>
             </div>
             <button type="button" class="navbar-filter-button" id="navbarFilterButton">
@@ -234,21 +234,21 @@ body.studentkart-product-page-open #heroSearchStrip {
         <div class="modal-overlay" data-close-modal></div>
         <div class="modal-content category-picker-modal">
             <div class="modal-header page-popup-header category-picker-header">
-                <h2>Browse Categories</h2>
-                <p>Choose a category to explore listings.</p>
+                <h2>Explore Campus</h2>
+                <p>Explore campus listings by category.</p>
             </div>
             <div class="category-picker-grid">
                 <button type="button" class="category-picker-card" data-category="Books">
                     <span class="category-picker-icon purple-bg"><i class="fas fa-book"></i></span>
-                    <strong>Books</strong><small>Textbooks & study material</small>
+                    <strong>Books</strong><small>Study material & books</small>
                 </button>
                 <button type="button" class="category-picker-card" data-category="Electronics">
                     <span class="category-picker-icon blue-bg"><i class="fas fa-laptop"></i></span>
-                    <strong>Electronics</strong><small>Laptops, phones & gadgets</small>
+                    <strong>Electronics</strong><small>Devices & student tech</small>
                 </button>
                 <button type="button" class="category-picker-card" data-category="Furniture">
                     <span class="category-picker-icon orange-bg"><i class="fas fa-couch"></i></span>
-                    <strong>Furniture</strong><small>Room essentials</small>
+                    <strong>Furniture</strong><small>Hostel & room essentials</small>
                 </button>
                 <button type="button" class="category-picker-card" data-category="Vehicles">
                     <span class="category-picker-icon cyan-bg"><i class="fas fa-motorcycle"></i></span>
@@ -256,7 +256,7 @@ body.studentkart-product-page-open #heroSearchStrip {
                 </button>
                 <button type="button" class="category-picker-card" data-category="Gaming">
                     <span class="category-picker-icon pink-bg"><i class="fas fa-gamepad"></i></span>
-                    <strong>Gaming</strong><small>Games & accessories</small>
+                    <strong>Gaming</strong><small>Games & student hobbies</small>
                 </button>
                 <button type="button" class="category-picker-card" data-category="Other">
                     <span class="category-picker-icon green-bg"><i class="fas fa-layer-group"></i></span>
@@ -280,7 +280,7 @@ body.studentkart-product-page-open #heroSearchStrip {
             </div>
             <div class="new-user-gate-icon"><i class="fas fa-user-circle"></i></div>
             <h2 id="newUserGateTitle">Welcome to StudentKart</h2>
-            <p class="new-user-gate-subtitle">Your student marketplace for buying, selling and discovering around campus.</p>
+            <p class="new-user-gate-subtitle">Your student space for study, skills, career and campus life.</p>
             <div class="new-user-gate-actions">
                 <button type="button" class="new-user-gate-button new-user-gate-primary" id="newUserLoginButton"><i class="fas fa-right-to-bracket"></i><span>Login</span></button>
                 <button type="button" class="new-user-gate-button new-user-gate-secondary" id="newUserSignupButton"><i class="fas fa-user-plus"></i><span>Sign Up</span></button>
@@ -296,7 +296,7 @@ body.studentkart-product-page-open #heroSearchStrip {
             <div class="hero-container">
                 <div class="hero-content">
                     <div class="hero-badge"><i class="fas fa-graduation-cap"></i> Built for Students</div>
-                    <h1>Buy, Sell &amp; <span>Discover.</span></h1>
+                    <h1>Study. Build. <span>Grow.</span></h1>
                     <p>StudentKart is a simple student marketplace where you can buy, sell and discover useful products
                         around your campus.</p>
                     <div class="hero-trust"><span><i class="fas fa-shield-halved"></i> Student-focused</span><span><i
@@ -311,8 +311,8 @@ body.studentkart-product-page-open #heroSearchStrip {
                 <div class="category-page-navbar-inner">
                     <button type="button" class="category-page-back" id="categoryPageBack" aria-label="Back to categories" title="Back to categories"><i class="fas fa-arrow-left"></i></button>
                     <div class="category-page-navbar-title">
-                        <span>CATEGORY MARKETPLACE</span>
-                        <small id="categoryPageNavbarSubtitle">Products listed in this category</small>
+                        <span>CAMPUS EXCHANGE</span>
+                        <small id="categoryPageNavbarSubtitle">Campus listings in this category</small>
                     </div>
                 </div>
             </div>
@@ -347,6 +347,63 @@ body.studentkart-product-page-open #heroSearchStrip {
             </div>
         </section>
 
+
+        <section id="studentDashboard" class="student-dashboard-section" aria-label="Student dashboard">
+            <div class="dashboard-shell">
+                <div class="dashboard-heading">
+                    <div>
+                        <span class="section-label">YOUR STUDENT SPACE</span>
+                        <h2>Everything you need to <span>move forward.</span></h2>
+                        <p>Study, organize, build skills and discover opportunities — from one place.</p>
+                    </div>
+                    <div class="dashboard-date"><i class="fas fa-sparkles"></i><span>Made for student life</span></div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <button class="dashboard-card dashboard-card-primary" type="button" data-dashboard-card="study">
+                        <span class="dashboard-card-icon"><i class="fas fa-book-open"></i></span>
+                        <span class="dashboard-card-copy"><b>Study Hub</b><small>Notes, resources & study material</small></span>
+                        <i class="fas fa-arrow-up-right-from-square dashboard-card-arrow"></i>
+                    </button>
+                    <button class="dashboard-card" type="button" data-dashboard-card="tasks">
+                        <span class="dashboard-card-icon"><i class="fas fa-list-check"></i></span>
+                        <span class="dashboard-card-copy"><b>Tasks & Deadlines</b><small>Keep assignments and goals on track</small></span>
+                        <i class="fas fa-chevron-right dashboard-card-arrow"></i>
+                    </button>
+                    <button class="dashboard-card" type="button" data-dashboard-card="career">
+                        <span class="dashboard-card-icon"><i class="fas fa-briefcase"></i></span>
+                        <span class="dashboard-card-copy"><b>Career Hub</b><small>Skills, projects & opportunities</small></span>
+                        <i class="fas fa-chevron-right dashboard-card-arrow"></i>
+                    </button>
+                    <button class="dashboard-card" type="button" data-dashboard-card="cyber">
+                        <span class="dashboard-card-icon"><i class="fas fa-shield-halved"></i></span>
+                        <span class="dashboard-card-copy"><b>Cybersecurity</b><small>Learn, practice & track your progress</small></span>
+                        <i class="fas fa-chevron-right dashboard-card-arrow"></i>
+                    </button>
+                </div>
+
+                <div class="dashboard-lower-grid">
+                    <article class="dashboard-panel">
+                        <div class="dashboard-panel-head"><div><span class="panel-kicker">TODAY</span><h3>Your student checklist</h3></div><i class="fas fa-calendar-check"></i></div>
+                        <div class="dashboard-checklist">
+                            <div><span class="check-circle"><i class="fas fa-check"></i></span><div><b>Review today's priorities</b><small>Plan before you start studying.</small></div></div>
+                            <div><span class="check-circle"><i class="fas fa-arrow-right"></i></span><div><b>Build one useful skill</b><small>Small progress compounds over time.</small></div></div>
+                            <div><span class="check-circle"><i class="fas fa-arrow-right"></i></span><div><b>Explore one opportunity</b><small>Keep internships and projects moving.</small></div></div>
+                        </div>
+                    </article>
+                    <article class="dashboard-panel dashboard-panel-accent">
+                        <div class="dashboard-panel-head"><div><span class="panel-kicker">QUICK ACCESS</span><h3>Campus tools</h3></div><i class="fas fa-grid-2"></i></div>
+                        <div class="quick-tools">
+                            <button type="button" data-dashboard-card="community"><i class="fas fa-users"></i><span>Community</span></button>
+                            <button type="button" data-dashboard-card="resources"><i class="fas fa-folder-open"></i><span>Resources</span></button>
+                            <button type="button" data-dashboard-card="progress"><i class="fas fa-chart-line"></i><span>Progress</span></button>
+                            <button type="button" data-dashboard-card="exchange"><i class="fas fa-right-left"></i><span>Exchange</span></button>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
         <section id="marketplace" class="section marketplace-section">
         <div class="hero-search-strip" id="heroSearchStrip" aria-label="Search StudentKart">
             <div class="hero-search-inner">
@@ -366,7 +423,7 @@ body.studentkart-product-page-open #heroSearchStrip {
 
             <div class="marketplace-filter-panel hidden" id="marketplaceFilterPanel">
                 <div class="filter-panel-header">
-                    <div><strong>Filter Listings</strong><small>Refine marketplace results</small></div>
+                    <div><strong>Filter Listings</strong><small>Refine campus listings</small></div>
                     <button type="button" class="filter-panel-close" id="navbarFilterClose">&times;</button>
                 </div>
                 <div class="filter-panel-grid">
@@ -413,7 +470,7 @@ body.studentkart-product-page-open #heroSearchStrip {
             <div id="productContainer" class="products-grid"></div>
             <div id="emptyState" class="empty-state hidden">
                 <div class="empty-icon"><i class="fas fa-box-open"></i></div>
-                <h3>No listings found</h3>
+                <h3>Nothing found here</h3>
                 <p>Try changing your search or filters.</p><button type="button" class="btn btn-primary"
                     id="emptySellButton"><i class="fas fa-plus"></i> Create a Listing</button>
             </div>
@@ -427,7 +484,7 @@ body.studentkart-product-page-open #heroSearchStrip {
         <div class="modal-overlay" data-close-modal></div>
         <div class="modal-content settings-modal-content">
             <div class="settings-page-header">
-                <div class="settings-title-wrap"><div class="settings-icon"><i class="fas fa-gear"></i></div><div><span class="section-label">ACCOUNT SETTINGS</span><h2>Settings</h2><p>Manage your StudentKart account, privacy and preferences.</p></div></div>
+                <div class="settings-title-wrap"><div class="settings-icon"><i class="fas fa-gear"></i></div><div><span class="section-label">STUDENTKART</span><h2>Settings</h2><p>Manage your account, privacy, preferences and student experience.</p></div></div>
                 <button type="button" class="modal-close" data-close-modal aria-label="Close">&times;</button>
             </div>
             <div class="settings-grid">
