@@ -3307,6 +3307,14 @@ async function loadReceivedInquiries() {
             });
         }
 
+        // A conversation belongs in the Chat List only after at least
+        // one real message exists. Opening a direct chat creates the
+        // conversation record in the background, but that empty record
+        // must stay out of the list until a message is actually sent.
+        visibleInquiries = visibleInquiries.filter(
+            inquiry => Boolean(latestMessages[String(inquiry.id)])
+        );
+
         // WhatsApp-style ordering: the conversation with the newest
         // message is always shown at the top of the chat list.
         visibleInquiries.sort((a, b) => {
@@ -10071,6 +10079,10 @@ async function sendChatMessage(event) {
         removeChatUploadStatus();
 
         await loadChatMessages();
+
+        // The chat list is message-driven: this is the moment the
+        // conversation becomes visible after the first real message.
+        await loadReceivedInquiries();
 
     } catch (error) {
         console.error("Send chat message error:", error);
