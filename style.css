@@ -17711,3 +17711,28 @@ body:not(.studentkart-search-results-active) .how-section{
     .developer-footer-card{align-items:flex-start;flex-direction:column}
     .developer-footer-card .btn{width:100%;justify-content:center}
 }
+
+
+/* DEVELOPER PHOTO — FIX MOBILE/DESKTOP HALF-CROP + GREY EMPTY AREA */
+.developer-hero-photo{
+    width:100%;
+    height:auto!important;
+    min-height:0!important;
+    aspect-ratio:3 / 4!important;
+    overflow:hidden!important;
+    background:#102a43!important;
+}
+.developer-hero-photo img{
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    display:block!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+}
+@media(max-width:700px){
+    .developer-hero-photo,
+    .developer-hero-photo img{
+        min-height:0!important;
+    }
+}
