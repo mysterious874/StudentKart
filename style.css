@@ -1,4 +1,16 @@
-/* Restored StudentKart search-page colour styling */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+/* =========================================================
+   GLOBEDISC / STUDENTKART STYLES
+   Read this file from top to bottom:
+   1. Search page
+   2. Main design variables
+   3. Basic page styles
+   4. Components
+   5. Mobile and final overrides
+   ========================================================= */
+
+/* 1. Search results page */
 .search-results-page{
     min-height:calc(100vh - 76px);
     background:linear-gradient(180deg,#eefaf9 0%,#f7faf9 36%,#ffffff 100%);
@@ -63,12 +75,9 @@
     .search-results-container{padding:16px 12px 100px}
     .search-results-heading{padding:15px;align-items:flex-start;flex-direction:column;gap:10px}
 }
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-/* =========================================================
-   STUDENTKART
-   Clean Student Marketplace UI
-   ========================================================= */
+
+/* 2. Main design settings */
 
 :root {
     --bg: #f3f7f8;
@@ -108,9 +117,7 @@
 }
 
 
-/* =========================================================
-   RESET
-   ========================================================= */
+/* 3. Basic browser reset */
 
 * {
     margin: 0;
@@ -18974,4 +18981,10 @@ body.marketplace-page-active .new-product-card img{
 }
 #inquiriesModal #chatUserSearchResults[data-search-open="true"].hidden{
   display:block!important;
+}
+
+
+/* Small reusable modal size. Keep sizing in CSS instead of inline HTML. */
+.modal-content-narrow {
+    max-width: 520px;
 }
