@@ -149,6 +149,32 @@ body.studentkart-product-page-open #heroSearchStrip {
     }
 }
 </style>
+<style id="studentkart-desktop-search-results-full-page">
+/* STUDENTKART DESKTOP SEARCH RESULTS FULL-PAGE VIEW */
+@media (min-width: 769px) {
+    /* Search results is its own desktop page: hide the home chrome behind it. */
+    body:has(#searchResultsPage:not(.hidden)) > .navbar,
+    body:has(#searchResultsPage:not(.hidden)) > .footer,
+    body:has(#searchResultsPage:not(.hidden)) > .mobile-bottom-nav,
+    body:has(#searchResultsPage:not(.hidden)) > #navbarSearchPanel,
+    body:has(#searchResultsPage:not(.hidden)) #heroSearchStrip {
+        display: none !important;
+    }
+
+    body:has(#searchResultsPage:not(.hidden)) {
+        overflow-x: hidden !important;
+    }
+
+    body:has(#searchResultsPage:not(.hidden)) #searchResultsPage {
+        display: block !important;
+        min-height: 100vh !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 0 48px !important;
+    }
+}
+</style>
+
 </head>
 
 <body>
