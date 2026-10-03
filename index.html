@@ -212,7 +212,8 @@
             <div class="search-results-search-strip">
                 <button type="button" class="search-results-strip-back" id="searchResultsBack" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
                 <div class="hero-search-input-wrap">
-                    <input type="text" id="searchResultsInput" placeholder="Search books, electronics, furniture, services..." autocomplete="off">
+                    <input type="text" id="searchResultsInput" placeholder="Search books, electronics, furniture, services..." autocomplete="off" aria-autocomplete="list" aria-controls="searchResultsSuggestions">
+                    <div id="searchResultsSuggestions" class="hero-search-suggestions hidden" role="listbox"></div>
                 </div>
                 <button type="button" class="search-results-filter-button" id="searchResultsFilterButton" aria-label="Filters" title="Filters"><i class="fas fa-sliders"></i></button>
                 <button type="button" class="search-results-search-button" id="searchResultsSearchButton" aria-label="Search" title="Search"><i class="fas fa-search"></i></button>
