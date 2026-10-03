@@ -935,8 +935,13 @@ button:disabled {
     z-index: 1200;
 }
 
-.navbar-search-panel.marketplace-local-filter .navbar-search-inner {
+.navbar-search-panel.marketplace-local-filter .navbar-search-inner > .navbar-search-field,
+.navbar-search-panel.marketplace-local-filter .navbar-search-inner > .navbar-filter-button {
     display: none;
+}
+
+.navbar-search-panel.marketplace-local-filter .navbar-search-inner {
+    display: block;
 }
 
 .navbar-search-panel.marketplace-local-filter .navbar-filter-panel {
