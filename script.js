@@ -9961,13 +9961,12 @@ async function loadChatMessages() {
                     ...(receivedResult.data || [])
                 ];
 
-                const inquiryMessages = participantMessages.filter(message =>
-                    !message.inquiry_id ||
-                    String(message.inquiry_id) === inquiryId
-                );
-
-                if (inquiryMessages.length > 0) {
-                    data = inquiryMessages.sort((a, b) =>
+                // If the exact inquiry has no rows, prefer the actual
+                // participant conversation over inquiry_id. Older messages
+                // and direct chats can carry a different inquiry_id.
+                // The sender/receiver pair is the reliable conversation key.
+                if (participantMessages.length > 0) {
+                    data = participantMessages.sort((a, b) =>
                         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
                     );
                 }
