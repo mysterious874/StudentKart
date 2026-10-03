@@ -18034,3 +18034,18 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
     font-size: 14px;
     pointer-events: none;
 }
+
+
+/* Live username availability feedback */
+#signupUsernameHelp.username-status-available {
+    color: #16834b !important;
+    font-weight: 700;
+}
+#signupUsernameHelp.username-status-taken {
+    color: #d64545 !important;
+    font-weight: 700;
+}
+#signupUsernameHelp.username-status-checking {
+    color: #64748b !important;
+    font-weight: 600;
+}
