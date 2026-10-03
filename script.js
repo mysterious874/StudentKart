@@ -3623,7 +3623,6 @@ async function searchStudentKartUsers(query) {
         return;
     }
 
-    // Refresh the auth session if the chat modal opened before auth state finished loading.
     if (!currentUser) {
         try {
             const { data: sessionData } = await supabaseClient.auth.getSession();
@@ -3638,42 +3637,65 @@ async function searchStudentKartUsers(query) {
         '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Searching registered mobile numbers...</span></div>';
 
     try {
-        // Search the profiles table and normalize every stored phone format.
-        const { data, error } = await supabaseClient
+        // Phone numbers are stored in profiles.phone. Search the normalized
+        // digits as a substring so +91, 91, spaces, or plain 10-digit input work.
+        const candidates = new Map();
+
+        const { data: directMatches, error: directError } = await supabaseClient
             .from("profiles")
             .select("id,name,username,phone,email,college,avatar_url,city,area")
             .not("phone", "is", null)
-            .limit(500);
+            .ilike("phone", "%" + digits + "%")
+            .order("name", { ascending: true })
+            .limit(50);
 
-        if (error) throw error;
+        if (directError) throw directError;
 
-        const matches = (data || []).filter(profile => {
-            const p = String(profile.phone || "").replace(/\D/g, "");
-            const normalized = p.startsWith("91") && p.length > 10 ? p.slice(-10) : p;
-            return normalized.startsWith(digits);
+        (directMatches || []).forEach(profile => {
+            const stored = String(profile.phone || "").replace(/\D/g, "");
+            const normalized = stored.startsWith("91") && stored.length > 10
+                ? stored.slice(-10)
+                : stored;
+            if (normalized.startsWith(digits)) candidates.set(String(profile.id), profile);
         });
 
-        // If this is the logged-in account, fetch its profile directly as a guaranteed fallback.
-        if (currentUser?.id && !matches.some(x => String(x.id) === String(currentUser.id))) {
-            try {
-                const { data: ownProfile } = await supabaseClient
-                    .from("profiles")
-                    .select("id,name,username,phone,email,college,avatar_url,city,area")
-                    .eq("id", currentUser.id)
-                    .maybeSingle();
+        // Keep a small broad fallback for unusual formatting.
+        if (!candidates.size) {
+            const { data: broadMatches, error: broadError } = await supabaseClient
+                .from("profiles")
+                .select("id,name,username,phone,email,college,avatar_url,city,area")
+                .not("phone", "is", null)
+                .limit(1000);
 
-                if (ownProfile?.phone) {
-                    const ownDigits = String(ownProfile.phone).replace(/\D/g, "");
-                    const normalizedOwn = ownDigits.startsWith("91") && ownDigits.length > 10
-                        ? ownDigits.slice(-10)
-                        : ownDigits;
+            if (broadError) throw broadError;
 
-                    if (normalizedOwn.startsWith(digits)) matches.unshift(ownProfile);
-                }
-            } catch (e) {
-                console.debug("Own profile fallback failed:", e);
+            (broadMatches || []).forEach(profile => {
+                const stored = String(profile.phone || "").replace(/\D/g, "");
+                const normalized = stored.startsWith("91") && stored.length > 10
+                    ? stored.slice(-10)
+                    : stored;
+                if (normalized.startsWith(digits)) candidates.set(String(profile.id), profile);
+            });
+        }
+
+        // Always check the current user's profile directly as a final fallback.
+        if (currentUser?.id && !candidates.has(String(currentUser.id))) {
+            const { data: ownProfile } = await supabaseClient
+                .from("profiles")
+                .select("id,name,username,phone,email,college,avatar_url,city,area")
+                .eq("id", currentUser.id)
+                .maybeSingle();
+
+            if (ownProfile?.phone) {
+                const stored = String(ownProfile.phone).replace(/\D/g, "");
+                const normalized = stored.startsWith("91") && stored.length > 10
+                    ? stored.slice(-10)
+                    : stored;
+                if (normalized.startsWith(digits)) candidates.set(String(ownProfile.id), ownProfile);
             }
         }
+
+        const matches = [...candidates.values()];
 
         if (!matches.length) {
             box.innerHTML =
@@ -3685,7 +3707,7 @@ async function searchStudentKartUsers(query) {
             '<div class="chat-user-search-title"><span>MOBILE MATCHES</span><small>' +
             matches.length + (matches.length === 1 ? " result" : " results") +
             '</small></div>' +
-            matches.slice(0, 20).map(x => {
+            matches.map(x => {
                 const n = x.username || x.name || "Student";
                 const phoneDigits = String(x.phone || "").replace(/\D/g, "").slice(-10);
                 const a = x.avatar_url
@@ -3718,7 +3740,9 @@ async function searchStudentKartUsers(query) {
     } catch (error) {
         console.error("Student mobile search error:", error);
         box.innerHTML =
-            '<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>Please try again.</span></div>';
+            '<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>' +
+            escapeHTML(error?.message || "Please try again.") +
+            '</span></div>';
     }
 }
 async function openStudentKartUserChat(userId) {
