@@ -5377,7 +5377,11 @@ async function enrichWikiFacts(items){
             return {
                 ...item,
                 date:formatDate(dateValue),
-                location:entityLabels[locationId]||"",
+                location:entityLabels[locationId] || (
+                    (item.latitude!==null && item.longitude!==null)
+                        ? "Coordinates: "+Number(item.latitude).toFixed(4)+", "+Number(item.longitude).toFixed(4)
+                        : ""
+                ),
                 latitude:item.latitude ?? coordinates?.latitude ?? null,
                 longitude:item.longitude ?? coordinates?.longitude ?? null
             };
