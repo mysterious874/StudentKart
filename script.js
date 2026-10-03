@@ -6100,7 +6100,7 @@ function openCategoryPage(category, options = {}) {
 
 
 
-function showHomePageFromSearch(options={}) {
+) {
     $("searchResultsPage")?.classList.add("hidden");
     document.body.classList.remove("search-results-mobile-view");
     $("categoryPage")?.classList.add("hidden");
