@@ -4373,6 +4373,21 @@ function normalizeAuthPhone(raw) {
 }
 function isSixDigitPassword(value) { return /^\d{6}$/.test(String(value || "")); }
 
+(function setupAuthPinInputs() {
+    const apply = () => {
+        ["loginIdentifier","loginPassword","signupIdentifier","signupPassword","signupPasswordConfirm"].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el || el.dataset.pinGuardReady === "1") return;
+            el.dataset.pinGuardReady = "1";
+            el.addEventListener("input", () => {
+                el.value = el.value.replace(/\D/g, "").slice(0, el.id.includes("Identifier") ? 10 : 6);
+            });
+        });
+    };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", apply, { once: true });
+    else apply();
+})();
+
 async function loginUser(event) {
     event.preventDefault();
     const phone = normalizeAuthPhone($("loginIdentifier")?.value);
