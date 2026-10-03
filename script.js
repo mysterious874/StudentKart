@@ -10174,7 +10174,14 @@ function clearChatImageSelection() {
     if (input) input.value = "";
     if (cameraInput) cameraInput.value = "";
     if (videoInput) videoInput.value = "";
-    if (image) image.src = "";
+
+    if (image) {
+        if (image.src.startsWith("blob:")) {
+            URL.revokeObjectURL(image.src);
+        }
+        image.src = "";
+    }
+
     if (name) name.textContent = "";
     preview?.classList.add("hidden");
 }
@@ -10204,10 +10211,29 @@ function showChatImageSelection(file) {
         return;
     }
 
-    // Keep the selected media preview visible above the composer.
-    // It is cleared immediately after Send/upload succeeds.
     const preview = $("chatImagePreview");
-    if (preview) preview.classList.remove("hidden");
+    const image = $("chatImagePreviewImg");
+    const name = $("chatImagePreviewName");
+
+    if (image) {
+        if (image.src.startsWith("blob:")) {
+            URL.revokeObjectURL(image.src);
+        }
+
+        if (isImage) {
+            image.src = URL.createObjectURL(file);
+            image.classList.remove("hidden");
+        } else {
+            image.src = "";
+            image.classList.add("hidden");
+        }
+    }
+
+    if (name) {
+        name.textContent = file.name || (isVideo ? "Selected video" : "Selected image");
+    }
+
+    preview?.classList.remove("hidden");
 }
 
 function clearChatReplyPreview() {
@@ -10601,6 +10627,7 @@ function handleChatMediaInput(event) {
 $("chatImageInput")?.addEventListener("change", handleChatMediaInput);
 $("chatCameraInput")?.addEventListener("change", handleChatMediaInput);
 $("chatVideoInput")?.addEventListener("change", handleChatMediaInput);
+$("removeChatImage")?.addEventListener("click", clearChatImageSelection);
 
 $("chatEmojiButton")?.addEventListener("click", () => {
     $("chatEmojiPicker")?.classList.toggle("hidden");
