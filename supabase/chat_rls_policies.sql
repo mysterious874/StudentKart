@@ -10,6 +10,33 @@ alter table public.messages enable row level security;
 alter table public.hidden_chats enable row level security;
 
 -- =========================================================
+-- MESSAGES: SELECT
+-- =========================================================
+-- A participant can read only messages they sent or received.
+drop policy if exists "messages_select_participants" on public.messages;
+create policy "messages_select_participants"
+on public.messages
+for select
+to authenticated
+using (
+    auth.uid() = sender_id
+    or auth.uid() = receiver_id
+);
+
+-- =========================================================
+-- MESSAGES: INSERT
+-- =========================================================
+-- A user may create only messages where they are the sender.
+drop policy if exists "messages_insert_sender" on public.messages;
+create policy "messages_insert_sender"
+on public.messages
+for insert
+to authenticated
+with check (
+    auth.uid() = sender_id
+);
+
+-- =========================================================
 -- MESSAGES: DELETE
 -- =========================================================
 -- A user can physically delete only messages they sent.
