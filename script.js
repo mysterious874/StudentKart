@@ -12632,7 +12632,23 @@ document.addEventListener("DOMContentLoaded", () => {
             escapeHTML(item.meta) + '</span></span><i class="fas fa-chevron-right navbar-search-suggestion-arrow"></i></button>'
         ).join("");
 
+        // Position the dropdown from the actual input rectangle. This avoids
+        // mobile flex/overflow/transform issues inside the navbar search panel.
+        const positionSuggestions = () => {
+            if (!searchInput || suggestionsPanel.classList.contains("hidden")) return;
+            const rect = searchInput.getBoundingClientRect();
+            suggestionsPanel.style.position = "fixed";
+            suggestionsPanel.style.top = (rect.bottom + 6) + "px";
+            suggestionsPanel.style.left = rect.left + "px";
+            suggestionsPanel.style.width = rect.width + "px";
+            suggestionsPanel.style.right = "auto";
+            suggestionsPanel.style.zIndex = "100000";
+        };
+
         suggestionsPanel.classList.remove("hidden");
+        positionSuggestions();
+        window.requestAnimationFrame(positionSuggestions);
+
         suggestionsPanel.querySelectorAll(".navbar-search-suggestion").forEach(button => {
             button.addEventListener("mousedown", event => event.preventDefault());
             button.addEventListener("click", () => {
@@ -12756,8 +12772,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     searchInput.addEventListener("focus", () => {
-        if (searchInput.value.trim()) renderSearchSuggestions(searchInput.value);
+        if (searchInput.value.trim()) {
+            renderSearchSuggestions(searchInput.value);
+        }
     });
+
+    window.addEventListener("resize", () => {
+        if (!suggestionsPanel?.classList.contains("hidden") && searchInput.value.trim()) {
+            const rect = searchInput.getBoundingClientRect();
+            suggestionsPanel.style.top = (rect.bottom + 6) + "px";
+            suggestionsPanel.style.left = rect.left + "px";
+            suggestionsPanel.style.width = rect.width + "px";
+        }
+    }, { passive: true });
 
     searchInput.addEventListener("blur", () => {
         window.setTimeout(hideSearchSuggestions, 120);
