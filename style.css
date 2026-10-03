@@ -16370,21 +16370,6 @@ body:not(:has(.modal:not(.hidden))):not(:has(#categoryPage:not(.hidden))) .mobil
     pointer-events: auto !important;
 }
 
-/* =========================================================
-   FINAL NAVBAR SCROLL VISIBILITY
-   Hide/reveal the navbar vertically using TOP, never transform.
-   This prevents any horizontal/sideways slide or transform conflict.
-   ========================================================= */
-.navbar {
-    transition: top 0.22s ease, opacity 0.18s ease !important;
-    will-change: top, opacity;
-}
-
-.navbar.navbar-scroll-hidden {
-    top: -110px !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
 
 
 /* =========================================================
