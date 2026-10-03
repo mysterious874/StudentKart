@@ -551,6 +551,12 @@ window.addEventListener("popstate", event => {
     if (state?.studentKart === true) {
         studentKartHandlingPopState = true;
 
+        // Delete menus/popups are transient children of Chat. When Back
+        // lands on the underlying chat history entry, close these overlays
+        // first and keep the Chat modal visible.
+        closeChatDeleteMenu({ fromPopState: true });
+        closeSelectedChatDeletePopup({ fromPopState: true });
+
         // Category marketplace is a page-level navigation state rather than
         // a modal. Restore it directly when the user presses Android/browser Back.
         if (state.page === "category") {
@@ -8519,10 +8525,33 @@ async function bulkDeleteInquiriesForMe() {
     }
 }
 
-function closeChatDeleteMenu() {
+function closeChatDeleteMenu(options = {}) {
     const menu = $("chatDeleteMenu");
     if (menu) {
         menu.classList.add("hidden");
+    }
+
+    // The delete menu gets its own browser-history entry so Android/system
+    // Back closes the menu first instead of leaving the Chat screen.
+    if (
+        !options.fromPopState &&
+        window.history.state?.studentKart === true &&
+        window.history.state?.chatOverlay === "delete-menu"
+    ) {
+        const stack = Array.isArray(window.history.state.modalStack)
+            ? window.history.state.modalStack
+            : ["inquiriesModal", "chatModal"];
+
+        window.history.replaceState(
+            {
+                ...window.history.state,
+                modalId: "chatModal",
+                modalStack: stack,
+                chatOverlay: null
+            },
+            "",
+            window.location.pathname + window.location.search + "#chatModal"
+        );
     }
 }
 
@@ -9102,23 +9131,68 @@ function replyToSelectedChatMessage() {
 
 function openSelectedChatDeletePopup() {
     if (!selectedChatMessageIds.size) return;
+
     const modal = $("chatSelectionDeleteModal");
     const text = $("chatSelectionDeleteText");
     const count = selectedChatMessageIds.size;
+
     if (text) {
-        text.textContent = "Choose how you want to delete " + count + " selected message" + (count === 1 ? "" : "s") + ".";
+        text.textContent =
+            "Choose how you want to delete " +
+            count +
+            " selected message" +
+            (count === 1 ? "" : "s") +
+            ".";
     }
+
     if (modal) {
         modal.classList.remove("hidden");
         modal.setAttribute("aria-hidden", "false");
+
+        ensureStudentKartHistory();
+
+        if (
+            !studentKartHandlingPopState &&
+            window.history.state?.studentKart === true &&
+            window.history.state?.modalId === "chatModal" &&
+            window.history.state?.chatOverlay !== "selection-delete"
+        ) {
+            window.history.pushState(
+                {
+                    ...window.history.state,
+                    studentKart: true,
+                    modalId: "chatModal",
+                    chatOverlay: "selection-delete"
+                },
+                "",
+                window.location.pathname + window.location.search + "#chatModal"
+            );
+        }
     }
 }
 
-function closeSelectedChatDeletePopup() {
+function closeSelectedChatDeletePopup(options = {}) {
     const modal = $("chatSelectionDeleteModal");
+
     if (modal) {
         modal.classList.add("hidden");
         modal.setAttribute("aria-hidden", "true");
+    }
+
+    if (
+        !options.fromPopState &&
+        window.history.state?.studentKart === true &&
+        window.history.state?.chatOverlay === "selection-delete"
+    ) {
+        window.history.replaceState(
+            {
+                ...window.history.state,
+                modalId: "chatModal",
+                chatOverlay: null
+            },
+            "",
+            window.location.pathname + window.location.search + "#chatModal"
+        );
     }
 }
 
@@ -10106,7 +10180,39 @@ $("bulkDeleteForMeButton")?.addEventListener(
 $("chatDeleteButton")?.addEventListener(
     "click",
     () => {
-        $("chatDeleteMenu")?.classList.toggle("hidden");
+        const menu = $("chatDeleteMenu");
+        if (!menu) return;
+
+        const willOpen = menu.classList.contains("hidden");
+
+        if (!willOpen) {
+            closeChatDeleteMenu();
+            return;
+        }
+
+        menu.classList.remove("hidden");
+
+        // Give the popup its own history entry. Pressing Android/system Back
+        // now returns to the exact same Chat screen and only closes this menu.
+        ensureStudentKartHistory();
+
+        if (
+            !studentKartHandlingPopState &&
+            window.history.state?.studentKart === true &&
+            window.history.state?.modalId === "chatModal" &&
+            window.history.state?.chatOverlay !== "delete-menu"
+        ) {
+            window.history.pushState(
+                {
+                    ...window.history.state,
+                    studentKart: true,
+                    modalId: "chatModal",
+                    chatOverlay: "delete-menu"
+                },
+                "",
+                window.location.pathname + window.location.search + "#chatModal"
+            );
+        }
     }
 );
 
