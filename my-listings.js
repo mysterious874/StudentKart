@@ -31,14 +31,8 @@ const m=document.createElement("div");m.id="listingAppealModal";m.className="mod
 const user=await getUser(),msg=m.querySelector("#listingAppealMessage").value.trim(),btn=m.querySelector("#submitListingAppeal");if(!msg){window.showToast?.("Please explain your appeal","warning");return}btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';
 const {data:appealRow,error}=await supabaseClient.from("moderation_appeals").insert({product_id:productId,seller_id:user.id,message:msg}).select("id").single();
 if(error){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Appeal';window.showToast?.(error.code==="23505"?"You already have a pending appeal for this listing.":error.message,"error");return}
-try{
-const {data:admins}=await supabaseClient.from("admin_users").select("id");
-const adminRows=admins||[];
-if(adminRows.length){
-const notifications=adminRows.map(a=>({user_id:a.id,product_id:productId,type:"listing_appeal_submitted",title:"New listing appeal",message:(product?.name||"A listing")+" has received a new seller appeal.",is_read:false}));
-await supabaseClient.from("notifications").insert(notifications);
-}
-}catch(notificationError){console.warn("Admin appeal notification error:",notificationError)}
+const {error:notificationError}=await supabaseClient.rpc("notify_admins_about_listing_appeal",{target_appeal_id:appealRow.id});
+if(notificationError){console.warn("Admin appeal notification error:",notificationError)}
 m.remove();window.showToast?.("Appeal submitted to admin","success");await open();
 });
 }
