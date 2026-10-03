@@ -3860,7 +3860,6 @@ function setupChatListControls() {
         input.addEventListener("input", () => {
             clear?.classList.toggle("hidden", !input.value);
             applyChatListFilter();
-            searchStudentKartUsers(input.value);
         });
     }
 
