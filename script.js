@@ -11960,10 +11960,23 @@ async function handleSettingAction(action) {
         const title = $("footerInfoTitle"), body = $("footerInfoBody");
         if (title) title.textContent = "Developer";
         if (body) body.innerHTML = `
-            <div class="info-intro">StudentKart is built and developed by Harish Rathod.</div>
-            <div class="info-contact-card">
-                <div class="info-contact-icon"><i class="fas fa-code"></i></div>
-                <div><span>Developer</span><strong>Harish Rathod</strong></div>
+            <div class="developer-profile-card">
+                <div class="developer-photo-wrap">
+                    <img class="developer-photo" src="assets/developer-photo.jpg" alt="Harish Rathod - Developer of StudentKart">
+                </div>
+                <div class="developer-profile-copy">
+                    <span class="developer-eyebrow"><i class="fas fa-code"></i> StudentKart Developer</span>
+                    <h3>Harish Rathod</h3>
+                    <p>Founder & Developer of StudentKart</p>
+                </div>
+            </div>
+            <div class="developer-quote-card">
+                <i class="fas fa-quote-left"></i>
+                <p>“Building with curiosity, learning with every line of code, and creating technology that makes student life easier.”</p>
+            </div>
+            <div class="developer-quote-card developer-vision-quote">
+                <i class="fas fa-lightbulb"></i>
+                <p>“StudentKart is built with the vision of making campus life more connected, convenient, and student-friendly.”</p>
             </div>
             <div class="info-section">
                 <h3><i class="fas fa-user-tie"></i> Role</h3>

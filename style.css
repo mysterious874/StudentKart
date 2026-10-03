@@ -17381,3 +17381,91 @@ body:not(.studentkart-search-results-active) .how-section{
 @media(max-width:700px){
     body:not(.studentkart-search-results-active) #home.studentkart-top .studentkart-top-content{width:calc(100% - 20px)}
 }
+
+
+/* Developer profile */
+.developer-profile-card{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:18px;
+    margin-bottom:16px;
+    border:1px solid rgba(39,170,166,.18);
+    border-radius:20px;
+    background:linear-gradient(135deg,rgba(39,170,166,.10),rgba(255,255,255,.02));
+}
+.developer-photo-wrap{
+    flex:0 0 92px;
+    width:92px;
+    height:116px;
+    border-radius:18px;
+    overflow:hidden;
+    background:#e9eeee;
+    box-shadow:0 10px 28px rgba(0,0,0,.16);
+}
+.developer-photo{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:cover;
+    object-position:center 34%;
+}
+.developer-profile-copy{
+    min-width:0;
+}
+.developer-eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-size:.76rem;
+    font-weight:700;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:#27aaa6;
+    margin-bottom:7px;
+}
+.developer-profile-copy h3{
+    margin:0 0 4px;
+    font-size:1.35rem;
+    line-height:1.2;
+}
+.developer-profile-copy p{
+    margin:0;
+    color:var(--muted-text,#6b7280);
+    font-size:.92rem;
+}
+.developer-quote-card{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    padding:15px 16px;
+    margin:12px 0;
+    border-radius:16px;
+    background:rgba(39,170,166,.07);
+    border-left:3px solid #27aaa6;
+}
+.developer-quote-card i{
+    color:#27aaa6;
+    margin-top:2px;
+    font-size:.95rem;
+}
+.developer-quote-card p{
+    margin:0;
+    line-height:1.55;
+    font-size:.92rem;
+    font-style:italic;
+}
+.developer-vision-quote{
+    background:rgba(99,102,241,.07);
+    border-left-color:#6366f1;
+}
+.developer-vision-quote i{
+    color:#6366f1;
+}
+@media (max-width:600px){
+    .developer-profile-card{padding:15px;gap:14px;}
+    .developer-photo-wrap{flex-basis:78px;width:78px;height:100px;border-radius:15px;}
+    .developer-profile-copy h3{font-size:1.18rem;}
+    .developer-profile-copy p{font-size:.84rem;}
+    .developer-quote-card{padding:13px 14px;font-size:.88rem;}
+}
