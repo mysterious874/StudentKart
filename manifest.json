@@ -6,10 +6,11 @@
   "display": "standalone",
   "background_color": "#102a43",
   "theme_color": "#0f8b8d",
+  "id": "/?app=globedisc-v2",
   "description": "A global search and discovery platform for exploring the web, news, places, media and more.",
   "icons": [
     {
-      "src": "/icons/globedisc-icon.svg",
+      "src": "/icons/globedisc-icon-v2.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
