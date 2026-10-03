@@ -17213,3 +17213,79 @@ body.studentkart-search-results-active .navbar{display:none!important}
     position:relative!important;
     z-index:1!important;
 }
+
+
+/* SEARCH RESULTS — CLEAN LISTING PAGE */
+body.studentkart-search-results-active .footer,
+body.studentkart-search-results-active .mobile-bottom-nav,
+body.studentkart-search-results-active .site-side-nav{
+    display:none!important;
+}
+body.studentkart-search-results-active .search-results-page{
+    min-height:100vh!important;
+    background:#f7faf9!important;
+}
+body.studentkart-search-results-active .search-results-search-strip{
+    position:sticky!important;
+    top:0!important;
+    z-index:100050!important;
+    width:100%!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+    margin:0!important;
+    padding:10px 20px!important;
+    background:#fff!important;
+    border-bottom:1px solid #dbe4ee!important;
+    box-shadow:0 4px 14px rgba(16,42,67,.07)!important;
+}
+body.studentkart-search-results-active .search-results-search-strip .hero-search-input-wrap{
+    height:42px!important;
+}
+body.studentkart-search-results-active .search-results-search-strip input{
+    width:100%!important;
+    height:42px!important;
+    box-sizing:border-box!important;
+    border:0!important;
+    outline:0!important;
+    background:#f5f8fb!important;
+    border-radius:11px!important;
+    padding:0 12px!important;
+    font-size:15px!important;
+    color:#102a43!important;
+}
+body.studentkart-search-results-active .search-results-search-icon{
+    color:#0f8b8d!important;
+    flex:0 0 auto!important;
+}
+body.studentkart-search-results-active .search-results-strip-back{
+    width:40px!important;height:40px!important;flex:0 0 40px!important;
+    border:0!important;border-radius:11px!important;
+    background:#e8f6f6!important;color:#0f8b8d!important;
+    display:grid!important;place-items:center!important;cursor:pointer!important;
+}
+body.studentkart-search-results-active .search-results-search-strip>button:last-child{
+    width:40px!important;height:40px!important;flex:0 0 40px!important;
+    border:0!important;border-radius:11px!important;
+    background:#0f8b8d!important;color:#fff!important;
+    display:grid!important;place-items:center!important;cursor:pointer!important;
+}
+body.studentkart-search-results-active .search-results-container{
+    max-width:1180px!important;
+    margin:0 auto!important;
+    padding:20px 20px 70px!important;
+}
+body.studentkart-search-results-active #searchResultsProductContainer{
+    margin-top:0!important;
+}
+body.studentkart-search-results-active .search-results-heading{
+    display:none!important;
+}
+@media(max-width:700px){
+    body.studentkart-search-results-active .search-results-search-strip{
+        padding:8px 10px!important;
+        gap:7px!important;
+    }
+    body.studentkart-search-results-active .search-results-container{
+        padding:14px 10px 50px!important;
+    }
+}
