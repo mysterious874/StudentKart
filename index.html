@@ -139,16 +139,21 @@
 
 
     <main>
-        <section id="home" class="hero">
-            <div class="hero-container">
-                <div class="hero-content">
-                    <div class="hero-badge"><i class="fas fa-graduation-cap"></i> Built for Students</div>
-                    <h1>Buy, Sell &amp; <span>Discover.</span></h1>
-                    <p>StudentKart is a simple student marketplace where you can buy, sell and discover useful products
-                        around your campus.</p>
-                    <div class="hero-trust"><span><i class="fas fa-shield-halved"></i> Student-focused</span><span><i
-                                class="fas fa-bolt"></i> Easy to use</span><span><i class="fas fa-users"></i> Campus
-                            marketplace</span></div>
+        <section id="home" class="hero studentkart-top">
+            <div class="studentkart-top-content">
+                <div class="top-search-strip">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="heroSearchInput" placeholder="Search books, electronics, furniture, services..." autocomplete="off">
+                    <button type="button" id="heroSearchButton" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
+                </div>
+                <div class="category-scroll-strip" aria-label="Browse categories">
+                    <button type="button" class="category-scroll-box" data-category="Books"><i class="fas fa-book"></i><span>Books</span></button>
+                    <button type="button" class="category-scroll-box" data-category="Electronics"><i class="fas fa-laptop"></i><span>Electronics</span></button>
+                    <button type="button" class="category-scroll-box" data-category="Vehicles"><i class="fas fa-motorcycle"></i><span>Vehicles</span></button>
+                    <button type="button" class="category-scroll-box" data-category="Furniture"><i class="fas fa-couch"></i><span>Furniture</span></button>
+                    <button type="button" class="category-scroll-box" data-category="Services"><i class="fas fa-handshake"></i><span>Services</span></button>
+                    <button type="button" class="category-scroll-box" data-category="Fashion"><i class="fas fa-shirt"></i><span>Fashion</span></button>
+                    <button type="button" class="category-scroll-box" data-category="All"><i class="fas fa-border-all"></i><span>All</span></button>
                 </div>
             </div>
         </section>
