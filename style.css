@@ -16951,3 +16951,7 @@ header.navbar,
  .category-scroll-strip{gap:8px;padding-top:9px}
  .category-scroll-box{min-width:100px;height:52px;border-radius:12px;font-size:13px}
 }
+
+.top-filter-button{width:40px;height:40px;border:1px solid #dbe4ee;border-radius:11px;background:#f8fafc;color:#475569;display:grid;place-items:center;cursor:pointer;flex:0 0 auto}
+.top-filter-button:hover{background:#eef4fa;border-color:#b9c9da;color:#173b68}
+@media(max-width:700px){.top-filter-button{width:36px;height:36px}}
