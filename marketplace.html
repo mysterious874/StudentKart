@@ -98,22 +98,99 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     const iconFor=c=>({Books:"fa-book",Electronics:"fa-laptop",Vehicles:"fa-motorcycle",Furniture:"fa-couch",Services:"fa-handshake",Fashion:"fa-shirt",Gaming:"fa-gamepad",Other:"fa-layer-group"}[c]||"fa-tag");
 
+    /* =========================================================
+       MARKETPLACE SEARCH SUGGESTIONS
+       Category + category-specific products/services + live listings
+       ========================================================= */
+    const suggestionCatalog={
+        Books:[
+            "BCA Books","Programming Books","Computer Science Books","Cybersecurity Books",
+            "Data Science Books","AI & Machine Learning Books","Web Development Books",
+            "DBMS Books","Operating Systems Books","Networking Books","DSA Books",
+            "Semester Notes","Study Notes","Question Papers","Novels","Competitive Exam Books"
+        ],
+        Electronics:[
+            "Laptop","Desktop PC","Monitor","Mobile Phone","Tablet","iPad","Smartwatch",
+            "Keyboard","Mouse","Headphones","Earphones","Speakers","Power Bank","Charger",
+            "Hard Drive","SSD","Pen Drive","Webcam","Printer","Calculator","USB Hub",
+            "Wi-Fi Router","Gaming Console","Projector"
+        ],
+        Vehicles:[
+            "Bicycle","Mountain Bicycle","Electric Bicycle","Scooter","Bike","Electric Scooter",
+            "Helmet","Cycle Accessories","Bike Accessories","Vehicle Parts"
+        ],
+        Furniture:[
+            "Study Table","Chair","Office Chair","Gaming Chair","Bookshelf","Cupboard",
+            "Bed","Mattress","Study Lamp","Table Lamp","Desk","Sofa","Storage Box",
+            "Clothes Stand","Hostel Furniture"
+        ],
+        Services:[
+            "Tutoring","Academic Help","Assignment Help","Web Development","App Development",
+            "Graphic Design","Video Editing","Photography","Event Photography","Resume Making",
+            "Digital Marketing","Social Media Management","Laptop Repair","Mobile Repair",
+            "Bike Repair","Printing","Notes Printing","Delivery Service","Moving Help"
+        ],
+        Fashion:[
+            "T-Shirts","Shirts","Jeans","Trousers","Hoodies","Jackets","Shoes","Sneakers",
+            "Sandals","Bags","Backpacks","Watches","Accessories","College Uniform","Sportswear"
+        ],
+        Gaming:[
+            "Gaming Laptop","Gaming PC","PlayStation","Xbox","Nintendo","Gaming Monitor",
+            "Gaming Keyboard","Gaming Mouse","Gaming Headset","Game Controller","Gaming Chair",
+            "PC Games","Console Games","Game Accessories"
+        ],
+        Other:[
+            "Sports Equipment","Cricket Bat","Football","Badminton Racket","Guitar",
+            "Musical Instruments","Gym Equipment","Cycle Accessories","Stationery","Water Bottle",
+            "Lunch Box","Hostel Essentials","Room Essentials","Kitchen Items","Decor Items",
+            "Event Supplies","Tickets","Miscellaneous"
+        ]
+    };
+
     function suggestions(q){
         const query=String(q||"").trim().toLowerCase();
         const out=[],seen=new Set();
-        const add=(value,meta,icon)=>{
+        const add=(value,meta,icon,category="")=>{
             const key=String(value).toLowerCase();
             if(!key||seen.has(key))return;
-            seen.add(key);out.push({value,meta,icon});
+            seen.add(key);
+            out.push({value,meta,icon,category});
         };
+
+        const categoriesList=Object.keys(suggestionCatalog);
+
+        // Show category matches first.
+        categoriesList.forEach(category=>{
+            if(!query || category.toLowerCase().includes(query)){
+                add(category,"Marketplace category",iconFor(category),category);
+            }
+        });
+
+        // Then show category-specific search terms.
+        categoriesList.forEach(category=>{
+            suggestionCatalog[category].forEach(item=>{
+                const hay=(item+" "+category).toLowerCase();
+                if(!query || hay.includes(query)){
+                    add(item,category,iconFor(category),category);
+                }
+            });
+        });
+
+        // Finally include actual listings from the database, so real inventory
+        // still gets priority over generic suggestions when the user types.
         [...currentProducts].forEach(p=>{
             const hay=[p.name,p.category,p.location,p.description].join(" ").toLowerCase();
-            if(!query || hay.includes(query)) add(p.name,(p.category||"Marketplace")+(p.location?" • "+p.location:""),iconFor(p.category));
+            if(!query || hay.includes(query)){
+                add(
+                    p.name,
+                    (p.category||"Marketplace")+(p.location?" • "+p.location:""),
+                    iconFor(p.category),
+                    p.category||""
+                );
+            }
         });
-        ["Books","Electronics","Vehicles","Furniture","Services","Fashion","Gaming","Other"].forEach(c=>{
-            if(!query || c.toLowerCase().includes(query)) add(c,"Marketplace category",iconFor(c));
-        });
-        return out.slice(0,8);
+
+        return out.slice(0,10);
     }
     function renderSuggestions(){
         const list=suggestions(input.value);
