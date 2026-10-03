@@ -18,6 +18,7 @@
                 <div class="sk-admin-listings-toolbar">
                   <select id="adminReportsStatus"><option value="">All statuses</option><option value="pending">Pending</option><option value="reviewed">Reviewed</option><option value="resolved">Resolved</option><option value="dismissed">Dismissed</option></select>
                   <button type="button" class="btn btn-outline" id="adminReportsRefresh"><i class="fas fa-rotate"></i> Refresh</button>
+                  <button type="button" class="btn btn-outline" id="adminModerationActivity"><i class="fas fa-clock-rotate-left"></i> Activity</button>
                 </div>
                 <div id="adminReportsCount" class="sk-admin-meta" style="margin-top:10px"></div>
                 <div id="adminReportsList" class="sk-admin-list"><div class="sk-admin-empty">Loading...</div></div>
@@ -26,6 +27,7 @@
             modal.querySelectorAll("[data-close-admin-reports]").forEach(x=>x.addEventListener("click",()=>modal.classList.add("hidden")));
             modal.querySelector("#adminReportsRefresh").addEventListener("click",load);
             modal.querySelector("#adminReportsStatus").addEventListener("change",render);
+            modal.querySelector("#adminModerationActivity").addEventListener("click",openActivity);
         }
         modal.classList.remove("hidden"); await load();
         async function load(){
@@ -68,6 +70,14 @@
                 modal.classList.add("hidden");
                 await window.StudentKartOpenProductDetails(productId);
             }));
+        }
+        async function openActivity(){
+            const list=modal.querySelector("#adminReportsList");
+            list.innerHTML='<div class="sk-admin-empty"><i class="fas fa-spinner fa-spin"></i> Loading activity...</div>';
+            const {data,error}=await supabaseClient.from("moderation_activity").select("id,product_id,admin_id,action,reason,created_at").order("created_at",{ascending:false}).limit(100);
+            if(error){list.innerHTML='<div class="sk-admin-empty">Activity log is not ready yet.<br><small>'+esc(error.message)+'</small></div>';return;}
+            if(!data?.length){list.innerHTML='<div class="sk-admin-empty"><i class="fas fa-clock"></i><br>No moderation activity yet.</div>';return;}
+            list.innerHTML=data.map(a=>'<article class="sk-admin-card"><strong>'+esc(a.action==="suspend"?"Listing suspended":"Listing restored")+'</strong><div class="sk-admin-meta">'+esc(new Date(a.created_at).toLocaleString("en-IN"))+'<br>Product ID: '+esc(a.product_id||"Deleted/unknown")+'<br>Admin ID: '+esc(a.admin_id||"Unknown")+(a.reason?'<br>Reason: '+esc(a.reason):"")+'</div></article>').join("");
         }
         async function moderateListing(productId,status){
             if(status==="suspended" && !confirm("Suspend this listing from the marketplace?")) return;
