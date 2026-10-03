@@ -16,6 +16,8 @@
             .sk-admin-settings-badge{display:inline-flex;align-items:center;gap:5px;margin-left:8px;padding:4px 8px;border-radius:999px;background:#e0f7f5;color:#0f7779;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
             .sk-admin-tool-modal .modal-content{max-width:720px}
             .sk-admin-dashboard{display:grid;gap:14px}
+            .sk-admin-user-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.sk-admin-user-stats>div{padding:12px;border:1px solid #dce7ed;border-radius:14px;background:#f8fbff;text-align:center}.sk-admin-user-stats strong{display:block;font-size:20px;color:#102a43}.sk-admin-user-stats span{font-size:10px;color:#718083}@media(max-width:520px){.sk-admin-user-stats{grid-template-columns:1fr 1fr}.sk-admin-user-stats>div:last-child{grid-column:1/-1}}
+
             .sk-admin-dashboard-hero{padding:18px;border-radius:18px;background:linear-gradient(135deg,#102a43,#0f8b8d);color:#fff}
             .sk-admin-dashboard-hero h3{margin:0;font-size:20px}
             .sk-admin-dashboard-hero p{margin:6px 0 0;color:#d9f5f3;font-size:12px;line-height:1.5}
