@@ -4665,94 +4665,73 @@ async function submitProduct(event) {
     }
 }
 
-async function deleteProduct(
-    productId
-) {
+async function deleteProduct(productId) {
+    if (!currentUser) return;
 
-    if (!currentUser) {
-        return;
-    }
+    const product = currentProducts.find(
+        item => String(item.id) === String(productId)
+    );
 
-    const product =
-        currentProducts.find(
-            item =>
-                String(item.id) ===
-                String(productId)
-        );
-
-    if (!product) {
-        return;
-    }
+    if (!product) return;
 
     if (!isMyProduct(product)) {
-
-        showToast(
-            "You can only delete your own listing",
-            "error"
-        );
-
+        showToast("You can only delete your own listing", "error");
         return;
     }
 
-    const confirmed =
-        window.confirm(
-            "Delete this listing?"
-        );
+    if (!window.confirm("Delete this listing?")) return;
 
-    if (!confirmed) {
-        return;
-    }
+    const productKey = String(productId);
+    const productIndex = currentProducts.findIndex(
+        item => String(item.id) === productKey
+    );
+    const previousProducts = [...currentProducts];
+
+    // Remove it from the visible UI immediately.
+    currentProducts = currentProducts.filter(
+        item => String(item.id) !== productKey
+    );
+    document
+        .querySelectorAll(`[data-my-listing-id="${CSS.escape(productKey)}"]`)
+        .forEach(card => card.remove());
+
+    showToast("Listing deleted", "success");
 
     try {
+        const { error } = await supabaseClient
+            .from("products")
+            .delete()
+            .eq("id", productId)
+            .eq("user_id", currentUser.id);
 
-        const {
-            error
-        } =
-            await supabaseClient
-                .from("products")
-                .delete()
-                .eq(
-                    "id",
-                    productId
-                )
-                .eq(
-                    "user_id",
-                    currentUser.id
-                );
-
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         if (product.image) {
-            await deleteStorageImage(
-                product.image
-            );
+            // Storage cleanup must never delay the visible delete.
+            void deleteStorageImage(product.image).catch(error => {
+                console.error("Listing image cleanup error:", error);
+            });
         }
 
-        showToast(
-            "Listing deleted",
-            "success"
-        );
-
-        await loadProducts();
-
-        await loadMyListings();
-
+        // Refresh marketplace data silently.
+        void loadProducts().catch(error => {
+            console.error("Marketplace refresh after delete failed:", error);
+        });
     } catch (error) {
+        console.error("Delete product error:", error);
 
-        console.error(
-            "Delete product error:",
-            error
-        );
+        // Roll back the optimistic deletion.
+        currentProducts = previousProducts;
+        if (productIndex >= 0) {
+            currentProducts.splice(productIndex, 0, product);
+        }
 
-        showToast(
-            "Could not delete listing",
-            "error"
-        );
+        showToast("Could not delete listing. Restored.", "error");
+        void loadMyListings().catch(refreshError => {
+            console.error("My listings rollback refresh failed:", refreshError);
+        });
     }
 }
-
 
 /* =========================================================
    LOGIN / SIGNUP / LOGOUT
@@ -6900,67 +6879,36 @@ async function deleteNotification(notificationId) {
 }
 
 
-async function markNotificationAsRead(
-    notificationId
-) {
+async function markNotificationAsRead(notificationId) {
+    if (!currentUser || !notificationId) return null;
 
-    if (
-        !currentUser ||
-        !notificationId
-    ) {
-        return;
-    }
+    const notification = currentNotifications.find(
+        item => String(item.id) === String(notificationId)
+    );
+    if (!notification) return null;
 
-    try {
+    const wasRead = Boolean(notification.is_read);
 
-        const {
-            error
-        } =
-            await supabaseClient
-                .from("notifications")
-                .update({
-                    is_read: true
-                })
-                .eq(
-                    "id",
-                    notificationId
-                )
-                .eq(
-                    "user_id",
-                    currentUser.id
-                );
+    // Optimistic read state: remove the unread state immediately.
+    notification.is_read = true;
+    updateNotificationNavbar();
+    renderNotifications();
 
-        if (error) {
-            throw error;
-        }
+    void supabaseClient
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("id", notificationId)
+        .eq("user_id", currentUser.id)
+        .then(({ error }) => {
+            if (error) {
+                notification.is_read = wasRead;
+                updateNotificationNavbar();
+                renderNotifications();
+                console.error("Mark notification error:", error);
+            }
+        });
 
-        const notification =
-            currentNotifications.find(
-                item =>
-                    String(item.id) ===
-                    String(
-                        notificationId
-                    )
-            );
-
-        if (notification) {
-            notification.is_read = true;
-        }
-
-        updateNotificationNavbar();
-        renderNotifications();
-
-        return notification;
-
-    } catch (error) {
-
-        console.error(
-            "Mark notification error:",
-            error
-        );
-
-        return null;
-    }
+    return notification;
 }
 
 async function markAllNotificationsAsRead() {
@@ -7053,9 +7001,7 @@ async function openNotification(
         return;
     }
 
-    await markNotificationAsRead(
-        notificationId
-    );
+    markNotificationAsRead(notificationId);
 
     if (
         notification.product_id
