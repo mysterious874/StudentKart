@@ -12353,6 +12353,7 @@ function setupHeroSearchStrip() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    setupHeroSearchStrip();
     populateStudentKartIndiaData();
     setupEditProfileCityLocationPicker();
     setupSellProductLocationPicker();
