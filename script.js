@@ -14163,29 +14163,25 @@ const footerInfoContent = {
         `
     },
     how: {
-        title: "How It Works",
+        title: "How StudentKart Works",
         body: `
+            <div class="info-intro">Buying and selling should be simple. Here is how StudentKart works from start to finish.</div>
             <div class="info-section">
-                <h3><i class="fas fa-cart-shopping"></i> Buying on StudentKart</h3>
-                <ol class="info-steps">
-                    <li>Browse the marketplace or choose a category.</li>
-                    <li>Search and filter listings to find what you need.</li>
-                    <li>Open a listing and check its price, condition, location and seller details.</li>
-                    <li>Contact the seller through StudentKart chat.</li>
-                    <li>Discuss the product and agree on the transaction details before paying.</li>
-                </ol>
+                <h3><span class="step-number">01</span><i class="fas fa-user-plus"></i> Create an Account</h3>
+                <p>Sign up and create your student profile.</p>
             </div>
             <div class="info-section">
-                <h3><i class="fas fa-tag"></i> Selling on StudentKart</h3>
-                <ol class="info-steps">
-                    <li>Sign in to your StudentKart account.</li>
-                    <li>Select <strong>Sell</strong> and add the product details.</li>
-                    <li>Add the name, category, price, location, condition, description and photos.</li>
-                    <li>Publish your listing.</li>
-                    <li>Respond to interested buyers through chat and complete the transaction safely.</li>
-                </ol>
+                <h3><span class="step-number">02</span><i class="fas fa-camera"></i> List Your Product</h3>
+                <p>Add photos, price, condition and details.</p>
             </div>
-            <div class="info-note"><i class="fas fa-circle-info"></i><span>Always inspect an item and confirm the final price, payment method and meeting details before completing a transaction.</span></div>
+            <div class="info-section">
+                <h3><span class="step-number">03</span><i class="fas fa-magnifying-glass"></i> Find What You Need</h3>
+                <p>Browse products and contact sellers directly.</p>
+            </div>
+            <div class="info-section">
+                <h3><span class="step-number">04</span><i class="fas fa-handshake"></i> Connect &amp; Deal</h3>
+                <p>Discuss the product and complete your deal.</p>
+            </div>
         `
     },
     safety: {
