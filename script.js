@@ -16,7 +16,6 @@ const supabaseClient =
     );
 
 const STORAGE_BUCKET = "product-images";
-const CHAT_DELETED_MESSAGE = "__STUDENTKART_DELETED__";
 
 let currentUser = null;
 // ===============================
@@ -40,10 +39,7 @@ let notificationLongPressTriggered = false;
 let notificationRefreshTimer = null;
 let notificationRealtimeChannel = null;
 let productsRealtimeChannel = null;
-let lastChatAlertMessageId = null;
-let chatAlertBaselineReady = false;
 let toastTimer = null;
-const studentKartModalFocus = new Map();
 
 
 /* =========================================================
@@ -235,10 +231,8 @@ function showToast(message, type = "success") {
 
 let modalHistory = [];
 let studentKartHistoryReady = false;
-let studentKartBaseHistorySeeded = false;
 let studentKartHandlingPopState = false;
 let studentKartSkipNextPopState = false;
-let studentKartNavbarSearchOpen = false;
 let studentKartModalCloseTimers = new Map();
 
 function ensureStudentKartHistory() {
@@ -247,52 +241,13 @@ function ensureStudentKartHistory() {
     }
 
     const currentState = window.history.state;
-    const baseUrl =
-        window.location.pathname +
-        window.location.search;
-
-    const baseState = {
-        ...(currentState || {}),
-        studentKart: true,
-        modalId: null,
-        modalStack: [],
-        studentKartBase: true
-    };
 
     if (!currentState || currentState.studentKart !== true) {
-        // Establish the app's first stable history point.
-        // Do not keep a hash here: search/filter overlays own their hashes.
         window.history.replaceState(
-            baseState,
+            { ...(currentState || {}), studentKart: true, modalId: null },
             "",
-            baseUrl
+            window.location.href
         );
-    } else if (currentState.modalId || currentState.studentKartNavbarSearch) {
-        // If the app was restored directly on an overlay state, normalize
-        // the underlying entry before creating the stable base anchor.
-        window.history.replaceState(
-            baseState,
-            "",
-            baseUrl
-        );
-    } else if (currentState.studentKartBase !== true) {
-        window.history.replaceState(
-            { ...currentState, ...baseState },
-            "",
-            baseUrl
-        );
-    }
-
-    // Keep one duplicate base entry inside the same document. This gives
-    // Android/browser Back one safe app-level step after a transient search
-    // overlay closes, instead of immediately leaving the StudentKart page.
-    if (!studentKartBaseHistorySeeded) {
-        window.history.pushState(
-            { ...baseState, studentKartBaseAnchor: true },
-            "",
-            baseUrl
-        );
-        studentKartBaseHistorySeeded = true;
     }
 
     studentKartHistoryReady = true;
@@ -332,19 +287,6 @@ function openModal(id, options = {}) {
             ".modal:not(.hidden)"
         );
 
-    // Never create duplicate browser-history entries when the same modal is
-    // already the active destination. Duplicate entries are what make Android
-    // Back appear to require two taps.
-    if (
-        !options.fromPopState &&
-        !studentKartHandlingPopState &&
-        window.history.state?.studentKart === true &&
-        window.history.state?.modalId === id &&
-        currentModal?.id === id
-    ) {
-        return;
-    }
-
     // If another modal is in the middle of its close animation, cancel that
     // animation and treat it as the real parent of the new modal. This keeps
     // modal navigation/history in the same order the user sees on screen.
@@ -365,18 +307,8 @@ function openModal(id, options = {}) {
             historyId => historyId !== id
         );
         modalHistory.push(currentModal.id);
-
-        // Some confirmation dialogs (such as Logout) must appear above
-        // the current page/modal instead of replacing it. This keeps the
-        // current screen visible behind the dark confirmation overlay.
-        if (!options.overlayOnParent) {
-            currentModal.classList.add("hidden");
-            currentModal.classList.remove("modal-closing");
-        }
-    }
-
-    if (!options.fromPopState && document.activeElement instanceof HTMLElement) {
-        studentKartModalFocus.set(id, document.activeElement);
+        currentModal.classList.add("hidden");
+        currentModal.classList.remove("modal-closing");
     }
 
     modal.classList.remove("modal-closing");
@@ -384,13 +316,6 @@ function openModal(id, options = {}) {
 
     document.body.classList.add("modal-open");
     document.body.classList.add("studentkart-modal-navigation-hidden");
-
-    const firstFocusable = modal.querySelector(
-        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    window.requestAnimationFrame(() => {
-        (firstFocusable || modal).focus?.();
-    });
 
     if (!options.fromPopState && !studentKartHandlingPopState) {
         window.history.pushState(
@@ -402,47 +327,6 @@ function openModal(id, options = {}) {
             "",
             window.location.pathname + window.location.search + "#" + id
         );
-    }
-}
-
-function trapStudentKartModalFocus(event) {
-    if (event.key !== "Tab") {
-        return;
-    }
-
-    const modal = event.target.closest(".modal:not(.hidden)");
-    if (!modal) {
-        return;
-    }
-
-    const focusable = [...modal.querySelectorAll(
-        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    )].filter(element => element.offsetParent !== null);
-
-    if (!focusable.length) {
-        event.preventDefault();
-        modal.focus();
-        return;
-    }
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-    }
-}
-
-function restoreStudentKartModalFocus(id) {
-    const trigger = studentKartModalFocus.get(id);
-    studentKartModalFocus.delete(id);
-
-    if (trigger instanceof HTMLElement && document.contains(trigger)) {
-        window.requestAnimationFrame(() => trigger.focus());
     }
 }
 
@@ -491,7 +375,6 @@ function closeModal(id, options = {}) {
         const anyOpen = document.querySelector(".modal:not(.hidden)");
 
         if (!anyOpen) {
-            restoreStudentKartModalFocus(id);
             document.body.classList.remove("modal-open");
             document.body.classList.remove("studentkart-modal-navigation-hidden");
 
@@ -544,7 +427,6 @@ function closeModal(id, options = {}) {
             );
 
         if (!anyOpen) {
-            restoreStudentKartModalFocus(id);
             document.body.classList.remove("modal-open");
             document.body.classList.remove("studentkart-modal-navigation-hidden");
 
@@ -552,7 +434,7 @@ function closeModal(id, options = {}) {
                 setStudentKartModalHistory(null, []);
             }
         }
-    }, 120);
+    }, 220);
     studentKartModalCloseTimers.set(id, closeTimer);
 }
 
@@ -589,92 +471,8 @@ window.addEventListener("popstate", event => {
      */
     const state = event.state;
 
-    // Search-results is a full page state on mobile. Handle Back before any
-    // other StudentKart history/overlay logic so no navbar/search visual state
-    // can intercept the gesture.
-    if (document.body.classList.contains("search-results-mobile-view")) {
-        studentKartHandlingPopState = true;
-        document.querySelectorAll(".modal").forEach(modal => {
-            modal.classList.remove("modal-closing");
-            modal.classList.add("hidden");
-        });
-        modalHistory = [];
-        forceCloseSearchResultsPage();
-        $("categoryPage")?.classList.add("hidden");
-        $("home")?.classList.remove("hidden");
-        $("marketplace")?.classList.remove("hidden");
-        $("how-it-works")?.classList.remove("hidden");
-        document.querySelector("main")?.classList.remove("category-page-active");
-        window.scrollTo({top: 0, behavior: "auto"});
-        studentKartHandlingPopState = false;
-        return;
-    }
-
-    // Navbar search is a transient overlay. Android/browser Back must
-    // close it before the app's normal history/modal navigation runs.
-    if (studentKartNavbarSearchOpen) {
-        const navbarSearchPanel = document.getElementById("navbarSearchPanel");
-        const navbarFilterPanel = document.getElementById("navbarFilterPanel");
-        const marketplaceFilterPanel = document.getElementById("marketplaceFilterPanel");
-
-        // The Back gesture has already consumed the temporary search entry.
-        // Restore a stable StudentKart base entry immediately so the next
-        // Back gesture is handled by the app instead of falling through to
-        // document/app exit when the page was opened directly.
-        const baseState = {
-            studentKart: true,
-            modalId: null,
-            modalStack: []
-        };
-
-        if (window.history.state?.studentKartNavbarSearch === true) {
-            window.history.replaceState(
-                baseState,
-                "",
-                window.location.pathname + window.location.search
-            );
-        }
-
-        studentKartNavbarSearchOpen = false;
-        navbarSearchPanel?.classList.add("hidden");
-        navbarFilterPanel?.classList.add("hidden");
-        marketplaceFilterPanel?.classList.add("hidden");
-
-        const navbarSearchInput = document.getElementById("navbarSearchInput");
-        const navbarSearchButton = document.getElementById("navSearchButton");
-
-        if (navbarSearchInput) {
-            // Move focus away before hiding the panel. This restores the
-            // exact pre-search visual state instead of hiding a focused input.
-            if (document.activeElement === navbarSearchInput) {
-                navbarSearchButton?.focus({ preventScroll: true });
-            }
-
-            navbarSearchInput.blur();
-            navbarSearchButton?.blur();
-
-            // Restore the input exactly as it was before Search was opened.
-            navbarSearchInput.disabled = false;
-            navbarSearchInput.removeAttribute("readonly");
-            navbarSearchInput.classList.remove("studentkart-search-closed");
-
-            window.requestAnimationFrame(() => {
-                navbarSearchInput.blur();
-                navbarSearchButton?.blur();
-            });
-        }
-
-        return;
-    }
-
     if (state?.studentKart === true) {
         studentKartHandlingPopState = true;
-
-        // Delete menus/popups are transient children of Chat. When Back
-        // lands on the underlying chat history entry, close these overlays
-        // first and keep the Chat modal visible.
-        closeChatDeleteMenu({ fromPopState: true });
-        closeSelectedChatDeletePopup({ fromPopState: true });
 
         // Category marketplace is a page-level navigation state rather than
         // a modal. Restore it directly when the user presses Android/browser Back.
@@ -685,22 +483,6 @@ window.addEventListener("popstate", event => {
             });
             modalHistory = [];
             openCategoryPage(state.category || "Other", { fromPopState: true });
-            studentKartHandlingPopState = false;
-            return;
-        }
-
-        if (state.page === "search") {
-            document.querySelectorAll(".modal").forEach(modal => {
-                modal.classList.remove("modal-closing");
-                modal.classList.add("hidden");
-            });
-            modalHistory = [];
-
-            // Back from the search-results page always restores the normal
-            // StudentKart page. Do not replace the popped history entry here:
-            // replacing it during popstate can make Android consume another
-            // visual/scroll state before the page is restored.
-            showHomePageFromSearch({ fromPopState: true });
             studentKartHandlingPopState = false;
             return;
         }
@@ -1137,85 +919,44 @@ async function addToWishlist(productId) {
    ----------------------------------------- */
 
 async function toggleWishlist(productId) {
-    if (!productId) return;
+
+    if (!productId) {
+        return;
+    }
 
     if (!currentUser) {
+
         openModal("loginModal");
-        showToast("Please login to use wishlist", "warning");
+
+        showToast(
+            "Please login to use wishlist",
+            "warning"
+        );
+
         return;
     }
 
-    const productKey = String(productId);
-    const active = isWishlisted(productKey);
+    const active =
+        isWishlisted(productId);
 
-    // Optimistic UI: respond to the tap immediately.
     if (active) {
-        currentWishlist = currentWishlist.filter(
-            item => String(item.product_id) !== productKey
+
+        await removeFromWishlist(
+            productId
         );
+
     } else {
-        currentWishlist.unshift({
-            user_id: currentUser.id,
-            product_id: productKey,
-            optimistic: true
-        });
+
+        await addToWishlist(
+            productId
+        );
     }
+
+    await getWishlist();
 
     updateWishlistButtons();
-    updateWishlistNavbar();
 
-    const sync = active
-        ? supabaseClient
-            .from("wishlists")
-            .delete()
-            .eq("user_id", currentUser.id)
-            .eq("product_id", productKey)
-        : supabaseClient
-            .from("wishlists")
-            .insert({
-                user_id: currentUser.id,
-                product_id: productKey
-            });
-
-    const { data, error } = await sync;
-
-    if (error) {
-        // Roll back only when the server rejects the action.
-        if (active) {
-            currentWishlist.unshift({
-                user_id: currentUser.id,
-                product_id: productKey
-            });
-        } else {
-            currentWishlist = currentWishlist.filter(
-                item => String(item.product_id) !== productKey
-            );
-        }
-
-        updateWishlistButtons();
-        updateWishlistNavbar();
-
-        if (error.code !== "23505") {
-            console.error("Wishlist sync error:", error);
-            showToast("Wishlist could not be updated", "error");
-        }
-        return;
-    }
-
-    if (!active && data?.[0]) {
-        const optimistic = currentWishlist.find(
-            item => String(item.product_id) === productKey && item.optimistic
-        );
-        if (optimistic) {
-            Object.assign(optimistic, data[0]);
-            delete optimistic.optimistic;
-        }
-    }
-
-    showToast(
-        active ? "Removed from wishlist" : "Added to wishlist ❤️",
-        "success"
-    );
+    renderWishlist();
 }
 
 async function renderWishlist() {
@@ -1381,11 +1122,9 @@ async function openWishlist() {
         return;
     }
 
-    // Open immediately; refresh the contents in the background.
+    await renderWishlist();
+
     openModal("wishlistModal");
-    void renderWishlist().catch(error => {
-        console.error("Wishlist background refresh error:", error);
-    });
 }
 
 async function removeFromWishlist(productId) {
@@ -2343,12 +2082,6 @@ async function openProductDetails(productId) {
             product.location;
     }
 
-    if ($("detailsPosted")) {
-        $("detailsPosted")
-            .textContent =
-            getRelativeDate(product.createdAt || product.created_at);
-    }
-
     if ($("detailsDescription")) {
         $("detailsDescription")
             .textContent =
@@ -2423,106 +2156,6 @@ async function openProductDetails(productId) {
 
             profileButton.onclick = null;
         }
-    }
-
-    const shareButton =
-        $("shareProductButton");
-
-    if (shareButton) {
-        shareButton.disabled = false;
-        shareButton.onclick = async event => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const shareUrl =
-                window.location.origin +
-                window.location.pathname +
-                "#product-" +
-                encodeURIComponent(product.id);
-
-            const shareData = {
-                title: product.name || "StudentKart listing",
-                text: `Check out this listing on StudentKart: ${product.name || "Product"} — ${formatPrice(product.price)}`,
-                url: shareUrl
-            };
-
-            try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                    return;
-                }
-
-                await navigator.clipboard.writeText(shareUrl);
-                showToast("Listing link copied");
-            } catch (error) {
-                if (error?.name === "AbortError") {
-                    return;
-                }
-
-                try {
-                    const fallbackInput = document.createElement("input");
-                    fallbackInput.value = shareUrl;
-                    fallbackInput.setAttribute("readonly", "");
-                    fallbackInput.style.position = "fixed";
-                    fallbackInput.style.opacity = "0";
-                    document.body.appendChild(fallbackInput);
-                    fallbackInput.select();
-                    document.execCommand("copy");
-                    fallbackInput.remove();
-                    showToast("Listing link copied");
-                } catch (_) {
-                    showToast("Could not share listing", "error");
-                }
-            }
-        };
-    }
-
-    const reportButton =
-        $("reportProductButton");
-
-    if (reportButton) {
-        reportButton.disabled = false;
-        reportButton.onclick = event => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const productName = product.name || "Listing";
-            const subject = encodeURIComponent("StudentKart Listing Report");
-            const body = encodeURIComponent(
-                "I want to report this StudentKart listing.\n\n" +
-                "Listing: " + productName + "\\n" +
-                "Product ID: " + product.id + "\n" +
-                "Seller: " + (product.seller || "Student") + "\n" +
-                "Price: " + formatPrice(product.price) + "\n\n" +
-                "Reason:\n"
-            );
-
-            window.location.href =
-                "mailto:rathodharish004@gmail.com?subject=" + subject + "&body=" + body;
-        };
-    }
-
-    const detailsWishlistButton =
-        $("detailsWishlistButton");
-
-    if (detailsWishlistButton) {
-        const saved = isWishlisted(product.id);
-        detailsWishlistButton.classList.toggle("active", saved);
-        detailsWishlistButton.setAttribute("aria-pressed", String(saved));
-        detailsWishlistButton.innerHTML = saved
-            ? '<i class="fas fa-heart"></i> Saved to Wishlist'
-            : '<i class="far fa-heart"></i> Save to Wishlist';
-        detailsWishlistButton.onclick = async event => {
-            event.preventDefault();
-            event.stopPropagation();
-            await toggleWishlist(product.id);
-            const active = isWishlisted(product.id);
-            detailsWishlistButton.classList.toggle("active", active);
-            detailsWishlistButton.setAttribute("aria-pressed", String(active));
-            detailsWishlistButton.innerHTML = active
-                ? '<i class="fas fa-heart"></i> Saved to Wishlist'
-                : '<i class="far fa-heart"></i> Save to Wishlist';
-        };
     }
 
     const contactButton =
@@ -3244,23 +2877,6 @@ async function submitInquiry(event) {
             throw messageError;
         }
 
-        // Trigger mobile push independently so chat sending stays instant.
-        if (typeof supabaseClient.functions?.invoke === "function") {
-            void supabaseClient.functions
-                .invoke("send-chat-push", {
-                    body: {
-                        record: {
-                            id: crypto.randomUUID(),
-                            inquiry_id: inquiry.id,
-                            sender_id: currentUser.id,
-                            receiver_id: selectedInquiryProduct.userId,
-                            message
-                        }
-                    }
-                })
-                .catch(error => console.warn("Chat push trigger failed:", error));
-        }
-
         inquiry.product_name =
             selectedInquiryProduct.name || "Product Chat";
 
@@ -3334,41 +2950,23 @@ async function loadReceivedInquiries() {
                 );
 
         if (error) {
-            console.warn("Inquiry list unavailable; rebuilding chat list from messages:", error);
+            throw error;
         }
 
         let inquiries = data || [];
 
-        // Always fall back to the messages table when the inquiry list is
-        // empty or unavailable. Messages are the source of truth for an
-        // already-started conversation.
+        // If the inquiry list is empty, rebuild the chat list from real messages.
+        // This keeps the Chat button usable even when an old/hidden inquiry row
+        // is missing while the messages themselves still exist.
         if (!inquiries.length) {
-            const [sentResult, receivedResult] = await Promise.all([
-                supabaseClient
-                    .from("messages")
-                    .select("id,inquiry_id,sender_id,receiver_id,message,created_at")
-                    .eq("sender_id", currentUser.id)
-                    .order("created_at", { ascending: false })
-                    .limit(500),
-                supabaseClient
-                    .from("messages")
-                    .select("id,inquiry_id,sender_id,receiver_id,message,created_at")
-                    .eq("receiver_id", currentUser.id)
-                    .order("created_at", { ascending: false })
-                    .limit(500)
-            ]);
+            const { data: messageRows, error: messageRowsError } = await supabaseClient
+                .from("messages")
+                .select("id,inquiry_id,sender_id,receiver_id,message,created_at,is_read")
+                .or("sender_id.eq." + currentUser.id + ",receiver_id.eq." + currentUser.id)
+                .order("created_at", { ascending: false })
+                .limit(500);
 
-            const messageRowsError = sentResult.error || receivedResult.error;
-            const messageRows = [
-                ...(sentResult.data || []),
-                ...(receivedResult.data || [])
-            ].sort(
-                (a, b) =>
-                    new Date(b.created_at || 0).getTime() -
-                    new Date(a.created_at || 0).getTime()
-            );
-
-            if (!messageRowsError && messageRows.length) {
+            if (!messageRowsError && messageRows?.length) {
                 const grouped = new Map();
 
                 messageRows.forEach(row => {
@@ -3415,7 +3013,7 @@ async function loadReceivedInquiries() {
             (hiddenChats || []).map(row => String(row.inquiry_id))
         );
 
-        let visibleInquiries = inquiries.filter(
+        const visibleInquiries = inquiries.filter(
             inquiry => !hiddenInquiryIds.has(String(inquiry.id))
         );
 
@@ -3494,20 +3092,14 @@ async function loadReceivedInquiries() {
         const inquiryIds = visibleInquiries.map(inquiry => inquiry.id);
         let latestMessages = {};
         let unreadCounts = {};
-        let messageListQueryFailed = false;
 
         if (inquiryIds.length) {
-            const { data: messages, error: messagesError } =
+            const { data: messages } =
                 await supabaseClient
                     .from("messages")
                     .select("inquiry_id,sender_id,receiver_id,message,created_at,is_read")
                     .in("inquiry_id", inquiryIds)
                     .order("created_at", { ascending: false });
-
-            if (messagesError) {
-                messageListQueryFailed = true;
-                console.warn("Chat message list query failed:", messagesError);
-            }
 
             (messages || []).forEach(message => {
                 if (!latestMessages[String(message.inquiry_id)]) {
@@ -3524,64 +3116,6 @@ async function loadReceivedInquiries() {
                     unreadCounts[key] = (unreadCounts[key] || 0) + 1;
                 }
             });
-        }
-
-        // Recover from an inquiry-scoped query that is blocked, delayed,
-        // or returns no rows by reading the participant's messages.
-        if (messageListQueryFailed || !Object.keys(latestMessages).length) {
-            const [sentMessagesResult, receivedMessagesResult] = await Promise.all([
-                supabaseClient
-                    .from("messages")
-                    .select("id,inquiry_id,sender_id,receiver_id,message,created_at,is_read")
-                    .eq("sender_id", currentUser.id)
-                    .order("created_at", { ascending: false })
-                    .limit(500),
-                supabaseClient
-                    .from("messages")
-                    .select("id,inquiry_id,sender_id,receiver_id,message,created_at,is_read")
-                    .eq("receiver_id", currentUser.id)
-                    .order("created_at", { ascending: false })
-                    .limit(500)
-            ]);
-
-            const fallbackMessages = [
-                ...(sentMessagesResult.data || []),
-                ...(receivedMessagesResult.data || [])
-            ].sort(
-                (a, b) =>
-                    new Date(b.created_at || 0).getTime() -
-                    new Date(a.created_at || 0).getTime()
-            );
-
-            fallbackMessages.forEach(message => {
-                const key = String(message.inquiry_id || "");
-                if (!key) return;
-
-                if (!latestMessages[key]) {
-                    latestMessages[key] = message;
-                }
-
-                if (
-                    String(message.receiver_id) === String(currentUser.id) &&
-                    message.is_read === false
-                ) {
-                    unreadCounts[key] = (unreadCounts[key] || 0) + 1;
-                }
-            });
-
-            messageListQueryFailed = false;
-        }
-
-        // A conversation belongs in the Chat List only after at least
-        // one real message exists. Opening a direct chat creates the
-        // conversation record in the background, but that empty record
-        // must stay out of the list until a message is actually sent.
-        if (!messageListQueryFailed && Object.keys(latestMessages).length) {
-            visibleInquiries = visibleInquiries.filter(
-                inquiry =>
-                    Boolean(latestMessages[String(inquiry.id)]) ||
-                    Boolean(String(inquiry.message || "").trim())
-            );
         }
 
         // WhatsApp-style ordering: the conversation with the newest
@@ -3637,31 +3171,10 @@ async function loadReceivedInquiries() {
                             String(inquiry.id)
                         ];
 
-                    const rawPreview =
+                    const preview =
                         latest?.message ||
                         inquiry.message ||
                         "Started a conversation";
-
-                    // Media messages are stored as encoded data in the message
-                    // field. Never expose that internal payload in the chat list.
-                    // Show a simple WhatsApp-style media preview instead.
-                    const previewReply = parseChatReplyMessage(rawPreview);
-                    const previewMessage = previewReply ? previewReply.content : rawPreview;
-                    const previewMedia = parseChatMediaMessage(previewMessage);
-
-                    let preview = "";
-                    if (previewMedia) {
-                        preview = previewMedia.mediaType === "video"
-                            ? "Video"
-                            : "Photo";
-                    } else {
-                        const normalizedPreview = String(previewMessage || "")
-                            .replace(/\s+/g, " ")
-                            .trim();
-
-                        preview = normalizedPreview.slice(0, 52) +
-                            (normalizedPreview.length > 52 ? "…" : "");
-                    }
 
                     const unread =
                         unreadCounts[
@@ -3705,9 +3218,13 @@ async function loadReceivedInquiries() {
 
                                 <div class="whatsapp-inquiry-bottom">
                                     <div class="whatsapp-inquiry-preview">
+                                        <span class="whatsapp-product-name">
+                                            ${escapeHTML(product?.name || "Product")}
+                                        </span>
                                         <span class="whatsapp-message-preview">
                                             ${escapeHTML(preview)}
-                                        </span>                                    </div>
+                                        </span>
+                                    </div>
 
                                     <div class="whatsapp-inquiry-meta">
                                         ${unread
@@ -3890,247 +3407,97 @@ function bindChatLongPress() {
     });
 }
 
-let studentKartUserSearchTimer = null;
-let studentKartUserSearchRequest = 0;
-
 async function searchStudentKartUsers(query) {
-    const box = $("chatUserSearchResults");
-
-    if (!box || !currentUser) {
-        return;
-    }
-
+    const box = $("chatUserSearchResults"); if (!box || !currentUser) return;
     const q = String(query || "").trim();
-
-    window.clearTimeout(studentKartUserSearchTimer);
-
-    if (q.length < 2) {
-        box.innerHTML = "";
-        box.classList.add("hidden");
-        return;
-    }
-
-    const requestId = ++studentKartUserSearchRequest;
-
-    studentKartUserSearchTimer = window.setTimeout(async () => {
-        box.classList.remove("hidden");
-        box.innerHTML = '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding students...</span></div>';
-
-        try {
-            // Escape PostgREST wildcard characters so a user's search text
-            // cannot accidentally turn into a broad wildcard query.
-            const escapedQuery = q
-                .replace(/\\/g, "\\\\")
-                .replace(/%/g, "\\%")
-                .replace(/_/g, "\\_");
-
-            const pattern = "%" + escapedQuery + "%";
-
-            const { data, error } = await supabaseClient
-                .from("profiles")
-                .select("id,name,username,phone,email,college,avatar_url,city,area")
-                .neq("id", currentUser.id)
-                .or(
-                    "username.ilike." + pattern +
-                    ",phone.ilike." + pattern +
-                    ",email.ilike." + pattern +
-                    ",name.ilike." + pattern
-                )
-                .limit(20);
-
-            // Ignore an older request if the user has already typed something newer.
-            if (requestId !== studentKartUserSearchRequest) {
-                return;
-            }
-
-            if (error) {
-                throw error;
-            }
-
-            if (!data?.length) {
-                box.innerHTML = '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No student found</strong><span>Try username, mobile or email.</span></div>';
-                return;
-            }
-
-            box.innerHTML =
-                '<div class="chat-user-search-title"><span>STUDENTKART USERS</span><small>' +
-                data.length +
-                ' result' +
-                (data.length === 1 ? "" : "s") +
-                '</small></div>' +
-                data.map(user => {
-                    const displayName =
-                        user.username ||
-                        user.name ||
-                        "Student";
-
-                    const secondary =
-                        user.username && user.name
-                            ? user.name
-                            : (user.email ||
-                               user.phone ||
-                               user.college ||
-                               "");
-
-                    const avatar = user.avatar_url
-                        ? '<img src="' + escapeHTML(user.avatar_url) + '" alt="">'
-                        : '<span>' + escapeHTML(getInitials(displayName)) + '</span>';
-
-                    return (
-                        '<button type="button" class="chat-user-search-card" ' +
-                        'data-user-search-id="' + escapeHTML(user.id) + '">' +
-                            '<span class="chat-user-search-avatar">' + avatar + '</span>' +
-                            '<span class="chat-user-search-main">' +
-                                '<strong>' + escapeHTML(displayName) + '</strong>' +
-                                '<small>' + escapeHTML(secondary) + '</small>' +
-                            '</span>' +
-                            '<i class="fas fa-chevron-right"></i>' +
-                        '</button>'
-                    );
-                }).join("");
-
-            box.querySelectorAll("[data-user-search-id]").forEach(card => {
-                card.addEventListener("click", async () => {
-                    const targetId = card.dataset.userSearchId;
-
-                    box.classList.add("hidden");
-                    box.innerHTML = "";
-
-                    const searchInput = $("chatListSearchInput");
-                    const clearButton = $("chatListSearchClear");
-
-                    if (searchInput) {
-                        searchInput.value = "";
-                    }
-
-                    if (clearButton) {
-                        clearButton.classList.add("hidden");
-                    }
-
-                    applyChatListFilter();
-                    await openStudentKartUserChat(targetId);
-                });
+    if (q.length < 2) { box.innerHTML = ""; box.classList.add("hidden"); return; }
+    box.classList.remove("hidden"); box.innerHTML = '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding students...</span></div>';
+    try {
+        const p = "%" + q.replace(/%/g, "\\%").replace(/_/g, "\\_") + "%";
+        const r = await supabaseClient.from("profiles").select("id,name,username,phone,email,college,avatar_url,city,area").or("username.ilike."+p+",phone.ilike."+p+",email.ilike."+p+",name.ilike."+p).neq("id", currentUser.id).limit(20);
+        if (r.error) throw r.error;
+        if (!r.data?.length) { box.innerHTML = '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No student found</strong><span>Try username, mobile or email.</span></div>'; return; }
+        box.innerHTML = '<div class="chat-user-search-title"><span>STUDENTKART USERS</span><small>'+r.data.length+' result'+(r.data.length===1?"":"s")+'</small></div>'+r.data.map(x=>{const n=x.username||x.name||"Student";const s=x.username&&x.name?x.name:(x.email||x.phone||x.college||"");const a=x.avatar_url?'<img src="'+escapeHTML(x.avatar_url)+'" alt="">':'<span>'+escapeHTML(getInitials(n))+'</span>';return '<button type="button" class="chat-user-search-card" data-user-search-id="'+escapeHTML(x.id)+'"><span class="chat-user-search-avatar">'+a+'</span><span class="chat-user-search-main"><strong>'+escapeHTML(n)+'</strong><small>'+escapeHTML(s)+'</small></span><i class="fas fa-chevron-right"></i></button>';}).join("");
+        box.querySelectorAll("[data-user-search-id]").forEach(c => {
+            c.addEventListener("click", async () => {
+                const targetId = c.dataset.userSearchId;
+                box.classList.add("hidden");
+                box.innerHTML = "";
+                const searchInput = $("chatListSearchInput");
+                if (searchInput) searchInput.value = "";
+                await openStudentKartUserChat(targetId);
             });
-        } catch (error) {
-            if (requestId !== studentKartUserSearchRequest) {
-                return;
-            }
-
-            console.error("Student search error:", error);
-
-            box.innerHTML =
-                '<div class="chat-user-search-empty error">' +
-                    '<i class="fas fa-triangle-exclamation"></i>' +
-                    '<strong>Search unavailable</strong>' +
-                    '<span>Could not search students right now. Please try again.</span>' +
-                '</div>';
-        }
-    }, 280);
+        });
+    } catch(e) { console.error("Student search error:",e); box.innerHTML='<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>Please try again.</span></div>'; }
 }
+
 async function openStudentKartUserChat(userId) {
     if (!currentUser || !userId || String(userId) === String(currentUser.id)) return;
 
-    const targetUserId = String(userId);
+    try {
+        // Reuse an existing conversation between these two students when possible.
+        const pairFilter =
+            "and(buyer_id.eq." + currentUser.id + ",seller_id.eq." + userId + ")," +
+            "and(buyer_id.eq." + userId + ",seller_id.eq." + currentUser.id + ")";
 
-    // Open the Chat UI immediately. Never make the user wait for Supabase.
-    // The temporary inquiry is replaced with the real conversation as soon as
-    // the database lookup finishes.
-    const instantChat = {
-        id: "pending-direct-chat-" + targetUserId,
-        buyer_id: currentUser.id,
-        seller_id: targetUserId,
-        product_id: null,
-        product_name: "Direct Chat",
-        direct_user_name: "Student",
-        message: "Direct chat",
-        status: "new"
-    };
+        const { data: existingInquiries, error: lookupError } = await supabaseClient
+            .from("inquiries")
+            .select("*")
+            .or(pairFilter)
+            .order("created_at", { ascending: false })
+            .limit(1);
 
-    openChat(instantChat);
+        if (lookupError) throw lookupError;
 
-    // Resolve the real profile + inquiry in the background.
-    void (async () => {
-        try {
-            const [profileResult, inquiryResult] = await Promise.all([
-                supabaseClient
-                    .from("profiles")
-                    .select("id,name,username,avatar_url")
-                    .eq("id", targetUserId)
-                    .maybeSingle(),
+        let inquiry = existingInquiries?.[0] || null;
 
-                (async () => {
-                    const pairFilter =
-                        "and(buyer_id.eq." + currentUser.id + ",seller_id.eq." + targetUserId + ")," +
-                        "and(buyer_id.eq." + targetUserId + ",seller_id.eq." + currentUser.id + ")";
+        if (!inquiry) {
+            // Direct chats use a null product_id. The inquiry row is only the
+            // conversation container; actual messages live in messages.
+            const { data: createdInquiry, error: createError } = await supabaseClient
+                .from("inquiries")
+                .insert({
+                    product_id: null,
+                    buyer_id: currentUser.id,
+                    seller_id: userId,
+                    message: "Direct chat",
+                    status: "new"
+                })
+                .select("*")
+                .single();
 
-                    return supabaseClient
-                        .from("inquiries")
-                        .select("*")
-                        .or(pairFilter)
-                        .order("created_at", { ascending: false })
-                        .limit(1);
-                })()
-            ]);
-
-            const otherProfile = profileResult?.data;
-            const existingInquiries = inquiryResult?.data;
-            const lookupError = inquiryResult?.error;
-
-            if (lookupError) throw lookupError;
-
-            const displayName =
-                otherProfile?.username ||
-                otherProfile?.name ||
-                "Student";
-
-            // Update the visible header immediately when the profile result arrives.
-            if (currentChatInquiry?.id === instantChat.id) {
-                currentChatInquiry.direct_user_name = displayName;
-                if ($("chatUserName")) {
-                    $("chatUserName").textContent = displayName;
-                }
-            }
-
-            let inquiry = existingInquiries?.[0] || null;
-
-            if (!inquiry) {
-                const { data: createdInquiry, error: createError } =
-                    await supabaseClient
-                        .from("inquiries")
-                        .insert({
-                            product_id: null,
-                            buyer_id: currentUser.id,
-                            seller_id: targetUserId,
-                            message: "Direct chat",
-                            status: "new"
-                        })
-                        .select("*")
-                        .single();
-
-                if (createError) throw createError;
-                inquiry = createdInquiry;
-            }
-
-            inquiry.product_name = "Direct Chat";
-            inquiry.direct_user_name = displayName;
-
-            // Replace the temporary shell with the real inquiry without
-            // navigating or creating another browser-history entry.
-            if (currentChatInquiry?.id === instantChat.id) {
-                openChat(inquiry);
-            }
-        } catch (error) {
-            console.error("Open user chat error:", error);
-
-            // Keep the already-open chat screen; only report the backend issue.
-            if (currentChatInquiry?.id === instantChat.id) {
-                showToast(
-                    error?.message || "Could not load this chat",
-                    "error"
-                );
-            }
+            if (createError) throw createError;
+            inquiry = createdInquiry;
         }
-    })();
+
+        inquiry.product_name = "Direct Chat";
+        inquiry.direct_user_name = "";
+
+        const otherId =
+            String(inquiry.seller_id) === String(currentUser.id)
+                ? inquiry.buyer_id
+                : inquiry.seller_id;
+
+        const { data: otherProfile } = await supabaseClient
+            .from("profiles")
+            .select("id,name,username,avatar_url")
+            .eq("id", otherId)
+            .maybeSingle();
+
+        inquiry.direct_user_name =
+            otherProfile?.username ||
+            otherProfile?.name ||
+            "Student";
+
+        await openChat(inquiry);
+
+    } catch (error) {
+        console.error("Open user chat error:", error);
+        showToast(
+            error?.message || "Could not open chat with this student",
+            "error"
+        );
+    }
 }
 
 async function openStudentKartUserProfile(id) {
@@ -4891,67 +4258,94 @@ async function submitProduct(event) {
     }
 }
 
-async function deleteProduct(productId) {
-    if (!currentUser) return;
+async function deleteProduct(
+    productId
+) {
 
-    const product = currentProducts.find(
-        item => String(item.id) === String(productId)
-    );
-
-    if (!product) return;
-
-    if (!isMyProduct(product)) {
-        showToast("You can only delete your own listing", "error");
+    if (!currentUser) {
         return;
     }
 
-    if (!window.confirm("Delete this listing?")) return;
+    const product =
+        currentProducts.find(
+            item =>
+                String(item.id) ===
+                String(productId)
+        );
 
-    const productKey = String(productId);
-    const previousProducts = [...currentProducts];
+    if (!product) {
+        return;
+    }
 
-    // Remove it from the visible UI immediately.
-    currentProducts = currentProducts.filter(
-        item => String(item.id) !== productKey
-    );
-    document
-        .querySelectorAll(`[data-my-listing-id="${CSS.escape(productKey)}"]`)
-        .forEach(card => card.remove());
+    if (!isMyProduct(product)) {
 
-    showToast("Listing deleted", "success");
+        showToast(
+            "You can only delete your own listing",
+            "error"
+        );
+
+        return;
+    }
+
+    const confirmed =
+        window.confirm(
+            "Delete this listing?"
+        );
+
+    if (!confirmed) {
+        return;
+    }
 
     try {
-        const { error } = await supabaseClient
-            .from("products")
-            .delete()
-            .eq("id", productId)
-            .eq("user_id", currentUser.id);
 
-        if (error) throw error;
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("products")
+                .delete()
+                .eq(
+                    "id",
+                    productId
+                )
+                .eq(
+                    "user_id",
+                    currentUser.id
+                );
 
-        if (product.image) {
-            // Storage cleanup must never delay the visible delete.
-            void deleteStorageImage(product.image).catch(error => {
-                console.error("Listing image cleanup error:", error);
-            });
+        if (error) {
+            throw error;
         }
 
-        // Refresh marketplace data silently.
-        void loadProducts().catch(error => {
-            console.error("Marketplace refresh after delete failed:", error);
-        });
+        if (product.image) {
+            await deleteStorageImage(
+                product.image
+            );
+        }
+
+        showToast(
+            "Listing deleted",
+            "success"
+        );
+
+        await loadProducts();
+
+        await loadMyListings();
+
     } catch (error) {
-        console.error("Delete product error:", error);
 
-        // Roll back the optimistic deletion.
-        currentProducts = previousProducts;
+        console.error(
+            "Delete product error:",
+            error
+        );
 
-        showToast("Could not delete listing. Restored.", "error");
-        void loadMyListings().catch(refreshError => {
-            console.error("My listings rollback refresh failed:", refreshError);
-        });
+        showToast(
+            "Could not delete listing",
+            "error"
+        );
     }
 }
+
 
 /* =========================================================
    LOGIN / SIGNUP / LOGOUT
@@ -4965,52 +4359,16 @@ function normalizeAuthEmail(raw) {
 async function loginUser(event) {
     event.preventDefault();
 
-    const emailInput = $("loginIdentifier");
-    const passwordInput = $("loginPassword");
-    const emailHelp = $("loginEmailHelp");
-    const passwordHelp = $("loginPasswordHelp");
-
-    const clearLoginValidation = () => {
-        [emailInput, passwordInput].forEach(input => input?.classList.remove("input-validation-error"));
-        [emailHelp, passwordHelp].forEach(help => {
-            if (!help) return;
-            help.textContent = "";
-            help.classList.add("hidden");
-        });
-    };
-
-    const showLoginError = (input, help, message) => {
-        input?.classList.add("input-validation-error");
-        if (help) {
-            help.textContent = message;
-            help.classList.remove("hidden");
-        }
-    };
-
-    clearLoginValidation();
-
-    const rawEmail = String(emailInput?.value || "").trim().toLowerCase();
-    const password = passwordInput?.value || "";
-    const email = normalizeAuthEmail(rawEmail);
-
-    if (!email) {
-        showLoginError(emailInput, emailHelp, "Invalid email");
-    }
-
-    if (!password) {
-        showLoginError(passwordInput, passwordHelp, "Invalid password");
-    }
+    const email = normalizeAuthEmail($("loginIdentifier")?.value);
+    const password = $("loginPassword")?.value || "";
 
     if (!email || !password) {
+        showToast("Enter your email and password", "warning");
         return;
     }
 
     const button = $("loginForm")?.querySelector('button[type="submit"]');
-    if (button) {
-        button.disabled = true;
-        button.dataset.originalText = button.textContent;
-        button.textContent = "Signing in…";
-    }
+    if (button) button.disabled = true;
 
     try {
         const { error } = await supabaseClient.auth.signInWithPassword({
@@ -5018,264 +4376,30 @@ async function loginUser(event) {
             password
         });
 
-        if (error) {
-            const emailCheck = await checkStudentKartEmail(email);
+        if (error) throw error;
 
-            if (!emailCheck.error && emailCheck.available === false) {
-                showLoginError(passwordInput, passwordHelp, "Invalid password");
-            } else if (!emailCheck.error && emailCheck.available === true) {
-                showLoginError(emailInput, emailHelp, "Invalid email");
-            } else {
-                showLoginError(passwordInput, passwordHelp, "Invalid password");
-                showLoginError(emailInput, emailHelp, "Invalid email");
-            }
-
-            return;
-        }
-
-        closeModal("loginModal", { instant: true });
+        closeModal("loginModal");
         localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
         updateNavbar();
         showToast("Logged in successfully", "success");
     } catch (error) {
         console.error("Login error:", error);
-        showLoginError(passwordInput, passwordHelp, "Invalid password");
+        showToast(error?.message || "Could not login. Check your email and password.", "error");
     } finally {
-        if (button) {
-            button.disabled = false;
-            button.textContent = button.dataset.originalText || "Login";
-            delete button.dataset.originalText;
-        }
+        if (button) button.disabled = false;
     }
-}
-
-function normalizeStudentKartUsername(value) {
-    return String(value || "").trim().toLowerCase().replace(/\\s+/g, "");
-}
-
-function isValidStudentKartUsername(username) {
-    return /^[a-z0-9._]{3,30}$/.test(username);
-}
-
-async function checkStudentKartUsername(username) {
-    const normalized = normalizeStudentKartUsername(username);
-    if (!isValidStudentKartUsername(normalized)) return { available: false, valid: false };
-
-    const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("id")
-        .ilike("username", normalized)
-        .limit(1);
-
-    return { available: !error && !(data || []).length, error };
-}
-
-async function checkStudentKartEmail(email) {
-    const normalized = normalizeAuthEmail(email);
-    if (!normalized) return { available: false, valid: false };
-
-    const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("id")
-        .ilike("email", normalized)
-        .limit(1);
-
-    return { available: !error && !(data || []).length, error };
-}
-
-function setupSignupUsernameSuggestions() {
-    const input = $("signupUsername");
-    const box = $("signupUsernameSuggestions");
-    const help = $("signupUsernameHelp");
-    if (!input || !box) return;
-
-    let availabilityTimer = null;
-    let availabilityRequest = 0;
-
-    const setUsernameStatus = (message, type = "") => {
-        if (!help) return;
-        help.textContent = message;
-        help.classList.remove("username-status-available", "username-status-taken", "username-status-checking");
-        if (type) help.classList.add("username-status-" + type);
-    };
-
-    const checkAvailabilityLive = async username => {
-        const requestId = ++availabilityRequest;
-
-        if (username.length < 3) {
-            setUsernameStatus("Use 3–30 letters, numbers, dots or underscores.");
-            return;
-        }
-
-        if (!isValidStudentKartUsername(username)) {
-            setUsernameStatus("Only letters, numbers, dots and underscores are allowed.", "taken");
-            return;
-        }
-
-        setUsernameStatus("Checking username…", "checking");
-
-        try {
-            const result = await checkStudentKartUsername(username);
-
-            if (requestId !== availabilityRequest) return;
-
-            if (result.error) {
-                setUsernameStatus("Could not check username right now.");
-                return;
-            }
-
-            if (result.available) {
-                setUsernameStatus("✓ Username is available", "available");
-            } else {
-                setUsernameStatus("✕ Username already taken", "taken");
-            }
-        } catch (error) {
-            if (requestId !== availabilityRequest) return;
-            console.error("Live username availability check failed:", error);
-            setUsernameStatus("Could not check username right now.");
-        }
-    };
-
-    input.addEventListener("input", () => {
-        const username = normalizeStudentKartUsername(input.value)
-            .replace(/[^a-z0-9._]/g, "")
-            .slice(0, 30);
-
-        input.value = username;
-
-        clearTimeout(availabilityTimer);
-        availabilityRequest++;
-
-        if (username.length < 2) {
-            box.innerHTML = "";
-            box.classList.add("hidden");
-            setUsernameStatus("Use 3–30 letters, numbers, dots or underscores.");
-            return;
-        }
-
-        const suggestions = [...new Set([
-            username,
-            username + "01",
-            username + "123",
-            username + "07",
-            username + "24"
-        ])].filter(item => item.length >= 3 && item.length <= 30);
-
-        box.innerHTML = suggestions.map(item => `
-            <button type="button" class="username-suggestion" data-username-suggestion="${escapeHTML(item)}">@${escapeHTML(item)}</button>
-        `).join("");
-
-        box.classList.remove("hidden");
-
-        box.querySelectorAll("[data-username-suggestion]").forEach(button => {
-            button.addEventListener("click", () => {
-                input.value = button.dataset.usernameSuggestion || "";
-                box.classList.add("hidden");
-                input.focus();
-                input.dispatchEvent(new Event("input", { bubbles: true }));
-            });
-        });
-
-        availabilityTimer = setTimeout(() => {
-            checkAvailabilityLive(username);
-        }, 450);
-    });
-
-    input.addEventListener("blur", () => {
-        setTimeout(() => box.classList.add("hidden"), 150);
-    });
-}
-
-function setupSignupEmailAvailability() {
-    const input = $("signupIdentifier");
-    const help = $("signupEmailHelp");
-    if (!input || !help) return;
-
-    let availabilityTimer = null;
-    let availabilityRequest = 0;
-
-    const setEmailStatus = (message, type = "") => {
-        help.textContent = message;
-        help.classList.remove(
-            "username-status-available",
-            "username-status-taken",
-            "username-status-checking"
-        );
-        if (type) help.classList.add("username-status-" + type);
-    };
-
-    const checkAvailabilityLive = async email => {
-        const requestId = ++availabilityRequest;
-
-        if (!email) {
-            setEmailStatus("Enter a valid email address.");
-            return;
-        }
-
-        setEmailStatus("Checking email…", "checking");
-
-        try {
-            const result = await checkStudentKartEmail(email);
-
-            if (requestId !== availabilityRequest) return;
-
-            if (result.error) {
-                setEmailStatus("Could not check email right now.");
-                return;
-            }
-
-            if (result.available) {
-                setEmailStatus("");
-            } else {
-                setEmailStatus("✕ Email already taken", "taken");
-            }
-        } catch (error) {
-            if (requestId !== availabilityRequest) return;
-            console.error("Live email availability check failed:", error);
-            setEmailStatus("Could not check email right now.");
-        }
-    };
-
-    input.addEventListener("input", () => {
-        const email = String(input.value || "").trim().toLowerCase();
-
-        clearTimeout(availabilityTimer);
-        availabilityRequest++;
-
-        if (!email) {
-            setEmailStatus("Enter a valid email address.");
-            return;
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setEmailStatus("Enter a valid email address.");
-            return;
-        }
-
-        input.value = email;
-
-        availabilityTimer = setTimeout(() => {
-            checkAvailabilityLive(email);
-        }, 450);
-    });
 }
 
 async function signupUser(event) {
     event.preventDefault();
 
     const name = $("signupName")?.value?.trim();
-    const username = normalizeStudentKartUsername($("signupUsername")?.value);
+    const college = $("signupCollege")?.value?.trim();
     const email = normalizeAuthEmail($("signupIdentifier")?.value);
     const password = $("signupPassword")?.value || "";
 
-    if (!name || !username || !email || !password) {
+    if (!name || !college || !state || !city || !email || !password) {
         showToast("Please fill all fields correctly", "warning");
-        return;
-    }
-
-    if (!isValidStudentKartUsername(username)) {
-        showToast("Username must be 3–30 characters using letters, numbers, dots or underscores.", "warning");
-        $("signupUsername")?.focus();
         return;
     }
 
@@ -5285,101 +4409,51 @@ async function signupUser(event) {
     }
 
     const button = $("signupForm")?.querySelector('button[type="submit"]');
-    if (button) {
-        button.disabled = true;
-        button.dataset.originalText = button.textContent;
-        button.textContent = "Creating account…";
-    }
+    if (button) button.disabled = true;
 
     try {
-        const usernameCheck = await checkStudentKartUsername(username);
-
-        if (usernameCheck.error) {
-            throw new Error("Could not check username availability. Please try again.");
-        }
-
-        if (!usernameCheck.available) {
-            showToast("That username is already taken. Please choose another.", "warning");
-            $("signupUsername")?.focus();
-            return;
-        }
-
-        const emailCheck = await checkStudentKartEmail(email);
-
-        if (emailCheck.error) {
-            throw new Error("Could not check email availability. Please try again.");
-        }
-
-        if (!emailCheck.available) {
-            showToast("That email is already taken. Please use another email.", "warning");
-            $("signupIdentifier")?.focus();
-            return;
-        }
-
         const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
-            options: { data: { name, username } }
+            options: {
+                data: { name, college, state, city, area }
+            }
         });
 
         if (error) throw error;
 
         if (data?.user && data?.session) {
-            currentUser = data.user;
-            localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
-
-            // Authentication is complete. Do not wait for profile, wishlist,
-            // notifications or marketplace requests before closing the form.
-            closeModal("signupModal", { instant: true });
-            closeModal("loginModal", { instant: true });
-            updateNavbar();
-
-            showToast("Account created. You're now logged in.", "success");
-            return;
+            await ensureProfileAfterPasswordSignup(data.user);
         }
 
-        // Some Supabase projects require email confirmation, so signUp()
-        // may return a user without a session. Try the credentials immediately
-        // instead of sending the new user to the Login page.
-        const { data: loginData, error: loginError } =
-            await supabaseClient.auth.signInWithPassword({
-                email,
-                password
-            });
+        closeModal("signupModal");
+        localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
+        updateNavbar();
 
-        if (!loginError && loginData?.session?.user) {
-            currentUser = loginData.session.user;
-            localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
-            closeModal("signupModal", { instant: true });
-            closeModal("loginModal", { instant: true });
-            updateNavbar();
-            showToast("Account created. You're now logged in.", "success");
-            return;
-        }
-
-        // Email confirmation is genuinely required by Supabase in this case.
-        // Keep the user on the signup flow instead of opening Login.
         showToast(
-            "Account created. Please confirm your email, then you can log in.",
-            "warning"
+            data?.session
+                ? "Account created successfully"
+                : "Account created. Check your email to confirm, then login.",
+            "success"
         );
     } catch (error) {
         console.error("Signup error:", error);
         showToast(error?.message || "Could not create account", "error");
     } finally {
-        if (button) {
-            button.disabled = false;
-            button.textContent = button.dataset.originalText || "Create Account";
-            delete button.dataset.originalText;
-        }
+        if (button) button.disabled = false;
     }
 }
+
 async function ensureProfileAfterPasswordSignup(user) {
     if (!user) return;
 
     try {
         const { data: existingProfile, error: fetchError } =
-            await supabaseClient.from("profiles").select("id").eq("id", user.id).maybeSingle();
+            await supabaseClient
+                .from("profiles")
+                .select("id")
+                .eq("id", user.id)
+                .maybeSingle();
 
         if (fetchError) {
             console.error("Profile lookup error:", fetchError);
@@ -5389,15 +4463,21 @@ async function ensureProfileAfterPasswordSignup(user) {
         if (existingProfile) return;
 
         const metadata = user.user_metadata || {};
+
         const profile = {
             id: user.id,
             name: metadata.name || user.email?.split("@")[0] || "Student",
-            username: normalizeStudentKartUsername(metadata.username || ""),
+            college: metadata.college || "",
+            state: metadata.state || "",
+            city: metadata.city || "",
+            area: metadata.area || "",
             email: user.email || "",
             avatar_url: ""
         };
 
-        const { error: profileError } = await supabaseClient.from("profiles").insert(profile);
+        const { error: profileError } =
+            await supabaseClient.from("profiles").insert(profile);
+
         if (profileError) {
             console.error("Profile creation error:", profileError);
             return;
@@ -5411,7 +4491,7 @@ async function ensureProfileAfterPasswordSignup(user) {
 
 function openLogoutConfirmation() {
     if (!currentUser) return;
-    openModal("logoutConfirmModal", { overlayOnParent: true });
+    openModal("logoutConfirmModal");
 }
 
 async function logoutUser() {
@@ -5462,19 +4542,15 @@ async function logoutUser() {
 async function openProfile() {
 
     if (!currentUser) {
+
         openModal("loginModal");
+
         return;
     }
 
-    // Open the profile immediately so navigation never feels unresponsive.
-    openModal("profileModal");
+    await updateProfileUI();
 
-    try {
-        await updateProfileUI();
-    } catch (error) {
-        console.error("StudentKart profile load failed:", error);
-        showToast("Profile opened, but some details could not be loaded.", "error");
-    }
+    openModal("profileModal");
 }
 
 async function updateProfileUI() {
@@ -6080,7 +5156,7 @@ function showHomePageFromCategory() {
     $("home")?.classList.remove("hidden");
     $("marketplace")?.classList.remove("hidden");
     $("how-it-works")?.classList.remove("hidden");
-    window.scrollTo({ top: 0, behavior: "auto" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function closeCategoryPage() {
@@ -6090,7 +5166,7 @@ function closeCategoryPage() {
     $("home")?.classList.remove("hidden");
     $("marketplace")?.classList.remove("hidden");
     $("how-it-works")?.classList.remove("hidden");
-    window.scrollTo({ top: 0, behavior: "auto" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function openCategoryPage(category, options = {}) {
@@ -6160,323 +5236,7 @@ function openCategoryPage(category, options = {}) {
     if (count) count.textContent = filtered.length + (filtered.length === 1 ? " listing" : " listings");
 
     renderProducts(filtered, "categoryProductContainer", "categoryEmptyState");
-    window.scrollTo({ top: 0, behavior: "auto" });
-}
-
-function getSearchResultMatches(query) {
-    const q = String(query || "").trim().toLowerCase();
-    if (!q) return [];
-    const terms = q.split(/\s+/).filter(Boolean);
-    const categoryQuery = ["books","electronics","vehicles","furniture","services","fashion","gaming","other"].includes(q);
-    return [...currentProducts].filter(product => {
-        const haystack = [product.name,product.category,product.location,product.condition,product.description,product.seller].join(" ").toLowerCase();
-        return categoryQuery
-            ? String(product.category || "").toLowerCase() === q
-            : terms.every(term => haystack.includes(term));
-    }).sort((a,b) => {
-        const an=String(a.name||"").toLowerCase(), bn=String(b.name||"").toLowerCase();
-        return (Number(bn.startsWith(q))-Number(an.startsWith(q))) || (new Date(b.createdAt)-new Date(a.createdAt));
-    });
-}
-
-function getResultPageSuggestions(query) {
-    const q = String(query || "").trim().toLowerCase();
-    if (!q) return [];
-    const seen = new Set();
-    const results = [];
-    const add = (title, meta, icon, value) => {
-        const key = String(title || "").trim().toLowerCase();
-        if (!key || seen.has(key)) return;
-        seen.add(key);
-        results.push({ title, meta, icon, value });
-    };
-    const popular = [
-        ["Laptop","Electronics","fa-laptop"],["Laptop Stand","Electronics","fa-laptop"],
-        ["Mobile Phone","Electronics","fa-mobile-screen"],["Headphones","Electronics","fa-headphones"],
-        ["Programming Books","Books","fa-book"],["Textbooks","Books","fa-book-open"],
-        ["Bicycle","Vehicles","fa-bicycle"],["Calculator","Electronics","fa-calculator"],
-        ["Study Table","Furniture","fa-table"],["Chair","Furniture","fa-chair"],
-        ["Room for Rent","Services","fa-house"],["Notes","Books","fa-note-sticky"]
-    ];
-    popular.filter(x => x[0].toLowerCase().includes(q))
-        .sort((a,b)=>Number(!a[0].toLowerCase().startsWith(q))-Number(!b[0].toLowerCase().startsWith(q)))
-        .forEach(x=>add(x[0],x[1],x[2],x[0]));
-    ["Books","Electronics","Vehicles","Furniture","Services","Fashion"].filter(x=>x.toLowerCase().includes(q))
-        .forEach(x=>add(x,"Category","fa-layer-group",x));
-    currentProducts.filter(p=>[p.name,p.category,p.location,p.description,p.condition].join(" ").toLowerCase().includes(q))
-        .sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")))
-        .forEach(p=>add(p.name,p.category||"Listing","fa-tag",p.name));
-    return results.slice(0,7);
-}
-
-function setupSearchResultsSearch() {
-    const input = $("searchResultsSearchInput");
-    const page = $("searchResultsPage");
-    if (!input || !page || input.dataset.resultSearchBound === "true") return;
-    input.dataset.resultSearchBound = "true";
-
-    let panel = $("searchResultsSuggestions");
-    if (!panel) {
-        panel = document.createElement("div");
-        panel.id = "searchResultsSuggestions";
-        panel.className = "search-results-suggestions hidden";
-        page.querySelector(".search-results-search-field")?.appendChild(panel);
-    }
-
-    const hide = () => {
-        panel.classList.add("hidden");
-        panel.innerHTML = "";
-    };
-
-    const render = () => {
-        const items = getResultPageSuggestions(input.value);
-        if (!items.length) { hide(); return; }
-        panel.innerHTML = items.map(item =>
-            '<button type="button" class="search-results-suggestion" data-suggestion-value="' +
-            escapeHTML(item.value) + '">' +
-            '<span class="search-results-suggestion-icon"><i class="fas ' + escapeHTML(item.icon) + '"></i></span>' +
-            '<span class="search-results-suggestion-copy"><strong>' + escapeHTML(item.title) +
-            '</strong><small>' + escapeHTML(item.meta) + '</small></span>' +
-            '<i class="fas fa-chevron-right search-results-suggestion-arrow"></i></button>'
-        ).join("");
-        panel.classList.remove("hidden");
-        panel.querySelectorAll(".search-results-suggestion").forEach(button => {
-            button.addEventListener("click", () => {
-                const value = button.dataset.suggestionValue || "";
-                hide();
-                if (value) showSearchResultsPage(value);
-            });
-        });
-    };
-
-    input.addEventListener("input", render);
-    input.addEventListener("focus", () => { if (input.value.trim()) render(); });
-    document.addEventListener("click", event => {
-        if (!page.contains(event.target)) hide();
-    });
-}
-
-function setupSearchResultsFilter() {
-    const button = $("searchResultsFilterButton");
-    const page = $("searchResultsPage");
-    if (!button || !page || button.dataset.filterBound === "true") return;
-    button.dataset.filterBound = "true";
-
-    const closePanel = panel => panel?.classList.add("hidden");
-
-    button.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        let panel = $("searchResultsFilterPanel");
-        if (!panel) {
-            panel = document.createElement("div");
-            panel.id = "searchResultsFilterPanel";
-            panel.className = "search-results-filter-panel hidden";
-            panel.innerHTML =
-                '<div class="search-results-filter-card">' +
-                    '<div class="filter-panel-header">' +
-                        '<div><strong>Filter Listings</strong><small>Refine marketplace results</small></div>' +
-                        '<button type="button" class="filter-panel-close" id="searchResultsFilterClose" aria-label="Close">&times;</button>' +
-                    '</div>' +
-                    '<div class="filter-panel-grid">' +
-                        '<label><span>Category</span><select id="resultFilterCategory">' +
-                            '<option value="all">All Categories</option><option value="Books">Books</option><option value="Electronics">Electronics</option><option value="Vehicles">Vehicles</option><option value="Furniture">Furniture</option><option value="Services">Services</option><option value="Fashion">Fashion</option>' +
-                        '</select></label>' +
-                        '<label><span>Min Price</span><input id="resultFilterMin" type="number" min="0" placeholder="₹0"></label>' +
-                        '<label><span>Max Price</span><input id="resultFilterMax" type="number" min="0" placeholder="No limit"></label>' +
-                        '<label class="marketplace-location-filter"><span>Location</span><div class="marketplace-location-search-wrap">' +
-                            '<input id="resultFilterLocation" type="text" autocomplete="off" placeholder="University / city / village / area">' +
-                            '<div id="resultFilterLocationSuggestions" class="studentkart-location-suggestions hidden" role="listbox" aria-label="Location suggestions"></div>' +
-                        '</div></label>' +
-                        '<label><span>Condition</span><select id="resultFilterCondition">' +
-                            '<option value="all">Any Condition</option><option value="New">New</option><option value="Like New">Like New</option><option value="Good">Good</option><option value="Fair">Fair</option><option value="Used">Used</option>' +
-                        '</select></label>' +
-                        '<label><span>Sort By</span><select id="resultFilterSort">' +
-                            '<option value="newest">Newest First</option><option value="oldest">Oldest First</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option>' +
-                        '</select></label>' +
-                    '</div>' +
-                    '<div class="filter-panel-actions">' +
-                        '<button type="button" class="btn btn-outline" id="resultFilterClear">Clear</button>' +
-                        '<button type="button" class="btn btn-primary" id="resultFilterApply"><i class="fas fa-check"></i> Apply Filters</button>' +
-                    '</div>' +
-                '</div>';
-            page.appendChild(panel);
-
-            $("searchResultsFilterClose")?.addEventListener("click", () => closePanel(panel));
-
-            const applyButton = $("resultFilterApply");
-            const clearButton = $("resultFilterClear");
-
-            applyButton?.addEventListener("click", () => {
-                applySearchResultFilter();
-                showToast("Filters applied", "success");
-            });
-
-            clearButton?.addEventListener("click", () => {
-                ["resultFilterMin","resultFilterMax","resultFilterLocation"].forEach(id => {
-                    const el = $(id);
-                    if (el) el.value = "";
-                });
-                const category = $("resultFilterCategory");
-                const condition = $("resultFilterCondition");
-                const sort = $("resultFilterSort");
-                if (category) category.value = "all";
-                if (condition) condition.value = "all";
-                if (sort) sort.value = "newest";
-                $("resultFilterLocationSuggestions")?.classList.add("hidden");
-                applySearchResultFilter();
-                closePanel(panel);
-            });
-
-            // Keep the filter panel open while the user is entering values.
-            // Results are applied when "Apply Filters" is pressed, matching the
-            // marketplace filter behaviour.
-            ["resultFilterCategory","resultFilterCondition","resultFilterSort"].forEach(id => {
-                $(id)?.addEventListener("change", () => {});
-            });
-
-            const locationInput = $("resultFilterLocation");
-            if (locationInput) {
-                locationInput.addEventListener("input", async () => {
-                    const value = locationInput.value.trim();
-                    if (value.length < 2) {
-                        $("resultFilterLocationSuggestions")?.classList.add("hidden");
-                        return;
-                    }
-                    const originalInput = $("locationFilter");
-                    const originalBox = $("studentkartLocationSuggestions");
-                    if (!originalInput || !originalBox || typeof searchStudentKartIndiaLocations !== "function") return;
-                    const originalValue = originalInput.value;
-                    originalInput.value = value;
-                    await searchStudentKartIndiaLocations(value);
-                    const sourceButtons = originalBox.querySelectorAll(".studentkart-location-option");
-                    const targetBox = $("resultFilterLocationSuggestions");
-                    if (!targetBox) return;
-                    targetBox.innerHTML = Array.from(sourceButtons).slice(0, 10).map(option =>
-                        '<button type="button" class="studentkart-location-option" data-location-value="' +
-                        escapeHTML(option.dataset.locationValue || "") + '">' + option.innerHTML + '</button>'
-                    ).join("");
-                    targetBox.classList.toggle("hidden", !targetBox.children.length);
-                    targetBox.querySelectorAll(".studentkart-location-option").forEach(option => {
-                        option.addEventListener("click", () => {
-                            locationInput.value = option.dataset.locationValue || "";
-                            targetBox.classList.add("hidden");
-                        });
-                    });
-                    originalInput.value = originalValue;
-                    originalBox.classList.add("hidden");
-                });
-            }
-        }
-
-        panel.classList.toggle("hidden");
-    });
-
-    function applySearchResultFilter() {
-        const query = $("searchResultsSearchInput")?.value || window.history.state?.searchQuery || "";
-        let matches = getSearchResultMatches(query);
-        const category = $("resultFilterCategory")?.value || "all";
-        const condition = $("resultFilterCondition")?.value || "all";
-        const location = String($("resultFilterLocation")?.value || "").trim().toLowerCase();
-        const min = Number($("resultFilterMin")?.value || 0);
-        const maxValue = $("resultFilterMax")?.value;
-        const max = maxValue === "" || maxValue == null ? Infinity : Number(maxValue);
-        const sort = $("resultFilterSort")?.value || "newest";
-
-        matches = matches.filter(p => {
-            const productLocation = String(p.location || "").toLowerCase();
-            return (category === "all" || String(p.category || "").toLowerCase() === category.toLowerCase()) &&
-                (condition === "all" || String(p.condition || "").toLowerCase() === condition.toLowerCase()) &&
-                (!location || productLocation.includes(location)) &&
-                Number(p.price || 0) >= min &&
-                Number(p.price || 0) <= max;
-        });
-
-        matches.sort((a,b) =>
-            sort === "oldest" ? new Date(a.createdAt) - new Date(b.createdAt) :
-            sort === "price-low" ? Number(a.price || 0) - Number(b.price || 0) :
-            sort === "price-high" ? Number(b.price || 0) - Number(a.price || 0) :
-            new Date(b.createdAt) - new Date(a.createdAt)
-        );
-
-        renderProducts(matches, "searchResultsProductContainer", "searchResultsEmptyState");
-        const count = $("searchResultsCount");
-        if (count) count.textContent = matches.length + (matches.length === 1 ? " listing" : " listings");
-        $("searchResultsFilterPanel")?.classList.add("hidden");
-    }
-}
-
-function showSearchResultsPage(query, options = {}) {
-    const selected=String(query||"").trim();
-    if(!selected) return;
-    if(!options.fromPopState && !studentKartHandlingPopState){
-        ensureStudentKartHistory();
-        const state={
-            studentKart:true,
-            modalId:null,
-            modalStack:[],
-            page:"search",
-            searchQuery:selected
-        };
-        const searchUrl=window.location.pathname+window.location.search+"#search-"+encodeURIComponent(selected);
-        // Every new result query owns exactly one history entry. Replace an
-        // existing result-query entry instead of stacking multiple search
-        // states, so mobile Back cannot step through visual/search states.
-        if(window.history.state?.page==="search"){
-            window.history.replaceState(state,"",searchUrl);
-        }else{
-            window.history.pushState(state,"",searchUrl);
-        }
-    }
-    document.querySelectorAll(".modal").forEach(modal=>{modal.classList.remove("modal-closing");modal.classList.add("hidden");});
-    document.body.classList.remove("modal-open","studentkart-modal-navigation-hidden","category-page-active");
-    document.querySelector("main")?.classList.remove("category-page-active");
-    ["home","marketplace","how-it-works","categoryPage"].forEach(id=>$(id)?.classList.add("hidden"));
-    $("searchResultsPage")?.classList.remove("hidden");
-    document.body.classList.add("search-results-mobile-view");
-    const title=$("searchResultsQuery"), subtitle=$("searchResultsNavbarSubtitle");
-    if(title) title.textContent=selected;
-    if(subtitle) subtitle.textContent="Products related to “"+selected+"”";
-    const resultInput = $("searchResultsSearchInput");
-    if(resultInput) resultInput.value = selected;
-    $("searchResultsSuggestions")?.classList.add("hidden");
-    const matches=getSearchResultMatches(selected);
-    const count=$("searchResultsCount");
-    if(count) count.textContent=matches.length+(matches.length===1?" listing":" listings");
-    renderProducts(matches,"searchResultsProductContainer","searchResultsEmptyState");
-    window.scrollTo({top:0,behavior:"auto"});
-}
-
-function forceCloseSearchResultsPage() {
-    const page = $("searchResultsPage");
-    if (!page) return;
-    page.classList.add("hidden");
-    document.body.classList.remove("search-results-mobile-view");
-    page.style.removeProperty("display");
-    page.style.removeProperty("position");
-    page.style.removeProperty("inset");
-    page.style.removeProperty("height");
-    page.style.removeProperty("overflow");
-    page.style.removeProperty("transform");
-    document.documentElement.style.removeProperty("overflow");
-    document.body.style.removeProperty("overflow");
-}
-
-function showHomePageFromSearch(options={}) {
-    $("searchResultsPage")?.classList.add("hidden");
-    document.body.classList.remove("search-results-mobile-view");
-    $("categoryPage")?.classList.add("hidden");
-    $("home")?.classList.remove("hidden");
-    $("marketplace")?.classList.remove("hidden");
-    $("how-it-works")?.classList.remove("hidden");
-    document.body.classList.remove("category-page-active");
-    document.querySelector("main")?.classList.remove("category-page-active");
-    $("navbarSearchInput")&&( $("navbarSearchInput").value="" );
-    $("heroSearchInput")&&( $("heroSearchInput").value="" );
-    $("navbarSearchSuggestions")?.classList.add("hidden");
-    $("heroSearchSuggestions")?.classList.add("hidden");
-    window.scrollTo({top:0,behavior:"auto"});
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function selectCategory(category) {
@@ -7415,36 +6175,67 @@ async function deleteNotification(notificationId) {
 }
 
 
-async function markNotificationAsRead(notificationId) {
-    if (!currentUser || !notificationId) return null;
+async function markNotificationAsRead(
+    notificationId
+) {
 
-    const notification = currentNotifications.find(
-        item => String(item.id) === String(notificationId)
-    );
-    if (!notification) return null;
+    if (
+        !currentUser ||
+        !notificationId
+    ) {
+        return;
+    }
 
-    const wasRead = Boolean(notification.is_read);
+    try {
 
-    // Optimistic read state: remove the unread state immediately.
-    notification.is_read = true;
-    updateNotificationNavbar();
-    renderNotifications();
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("notifications")
+                .update({
+                    is_read: true
+                })
+                .eq(
+                    "id",
+                    notificationId
+                )
+                .eq(
+                    "user_id",
+                    currentUser.id
+                );
 
-    void supabaseClient
-        .from("notifications")
-        .update({ is_read: true })
-        .eq("id", notificationId)
-        .eq("user_id", currentUser.id)
-        .then(({ error }) => {
-            if (error) {
-                notification.is_read = wasRead;
-                updateNotificationNavbar();
-                renderNotifications();
-                console.error("Mark notification error:", error);
-            }
-        });
+        if (error) {
+            throw error;
+        }
 
-    return notification;
+        const notification =
+            currentNotifications.find(
+                item =>
+                    String(item.id) ===
+                    String(
+                        notificationId
+                    )
+            );
+
+        if (notification) {
+            notification.is_read = true;
+        }
+
+        updateNotificationNavbar();
+        renderNotifications();
+
+        return notification;
+
+    } catch (error) {
+
+        console.error(
+            "Mark notification error:",
+            error
+        );
+
+        return null;
+    }
 }
 
 async function markAllNotificationsAsRead() {
@@ -7537,7 +6328,9 @@ async function openNotification(
         return;
     }
 
-    markNotificationAsRead(notificationId);
+    await markNotificationAsRead(
+        notificationId
+    );
 
     if (
         notification.product_id
@@ -7816,29 +6609,7 @@ function setupEventListeners() {
     document.addEventListener("pointercancel", clearPress, {passive:true});
     document.addEventListener("pointerleave", clearPress, {passive:true});
 
-    document.addEventListener("keydown", trapStudentKartModalFocus);
-
-document.addEventListener("keydown", event => {
-    if (event.key !== "Escape") {
-        return;
-    }
-
-    const openModalElement = document.querySelector(".modal:not(.hidden)");
-    if (!openModalElement) {
-        return;
-    }
-
-    const closeButton = openModalElement.querySelector(
-        "[data-close-modal], .modal-close"
-    );
-
-    if (closeButton instanceof HTMLElement) {
-        event.preventDefault();
-        closeButton.click();
-    }
-});
-
-document.addEventListener("click", event => {
+    document.addEventListener("click", event => {
         if (event.target.closest("[data-close-product-image-preview]")) {
             event.preventDefault();
             closeProductImagePreview();
@@ -7906,31 +6677,11 @@ document.addEventListener("click", event => {
                         ".modal"
                     );
 
-                if (!modal) {
-                    return;
+                if (modal) {
+                    closeModal(
+                        modal.id
+                    );
                 }
-
-                /*
-                 * User-facing modal Back/Close must move the browser history
-                 * backwards instead of replacing the current entry. Replacing
-                 * it leaves the previous copy of the same modal underneath,
-                 * which makes Android Back require two taps.
-                 *
-                 * popstate then restores the exact previous screen instantly.
-                 */
-                const activeModalId = window.history.state?.studentKart === true
-                    ? window.history.state?.modalId
-                    : null;
-
-                if (
-                    activeModalId === modal.id &&
-                    window.history.length > 1
-                ) {
-                    window.history.back();
-                    return;
-                }
-
-                closeModal(modal.id);
             }
         }
     );
@@ -8015,13 +6766,13 @@ document.addEventListener("click", event => {
                     return;
                 }
 
-                // Open immediately; notification data refreshes in the background.
-                openModal("notificationsModal");
-                void loadNotifications()
-                    .then(() => renderNotifications())
-                    .catch(error => {
-                        console.error("Notifications background refresh error:", error);
-                    });
+                await loadNotifications();
+
+                renderNotifications();
+
+                openModal(
+                    "notificationsModal"
+                );
             }
         );
 
@@ -8239,7 +6990,7 @@ document.addEventListener("click", event => {
         showHomePageFromCategory();
         modalHistory = [];
         setStudentKartModalHistory(null, []);
-        $("marketplace")?.scrollIntoView({ behavior: "auto", block: "start" });
+        $("marketplace")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
     /* -----------------------------------------
@@ -8283,22 +7034,11 @@ document.addEventListener("click", event => {
             loginUser
         );
 
-    // Force the Login action through the form submit handler. This also
-    // prevents mobile browsers from treating the button tap as a no-op.
-    const loginSubmitButton = $("loginForm")?.querySelector('button[type="submit"]');
-    loginSubmitButton?.addEventListener("click", event => {
-        event.preventDefault();
-        $("loginForm")?.requestSubmit();
-    });
-
     $("signupForm")
         ?.addEventListener(
             "submit",
             signupUser
         );
-
-    setupSignupUsernameSuggestions();
-    setupSignupEmailAvailability();
 
     $("switchToSignup")
         ?.addEventListener(
@@ -8399,50 +7139,56 @@ document.addEventListener("click", event => {
     $("myListingsButton")
         ?.addEventListener(
             "click",
-            () => {
+            async () => {
 
-                // Open immediately; listing data refreshes without blocking navigation.
-                openModal("myListingsModal");
-                void loadMyListings().catch(error => {
-                    console.error("My listings background refresh error:", error);
-                });
+                await loadMyListings();
+
+                openModal(
+                    "myListingsModal"
+                );
             }
         );
 
     $("myInquiriesButton")
         ?.addEventListener(
             "click",
-            () => {
+            async () => {
 
-                // Open immediately; conversations refresh in the background.
-                openModal("inquiriesModal");
-                void loadReceivedInquiries().catch(error => {
-                    console.error("My inquiries background refresh error:", error);
-                });
+                await loadReceivedInquiries();
+
+                openModal(
+                    "inquiriesModal"
+                );
             }
         );
 
-    const openChatListFromNavigation = () => {
-        if (!currentUser) {
-            openModal("loginModal");
-            showToast("Please login to chat", "warning");
-            return;
-        }
+    $("chatButton")
+        ?.addEventListener(
+            "click",
+            () => {
 
-        if ("Notification" in window && Notification.permission === "default") {
-            Notification.requestPermission().catch(() => {});
-        }
+                if (!currentUser) {
+                    openModal("loginModal");
+                    showToast("Please login to chat", "warning");
+                    return;
+                }
 
-        setupChatListControls();
-        openModal("inquiriesModal");
+                // The Chat button is a user gesture, so it is a safe place
+                // to request browser notification permission for incoming messages.
+                if ("Notification" in window && Notification.permission === "default") {
+                    Notification.requestPermission().catch(() => {});
+                }
 
-        void loadReceivedInquiries().catch(error => {
-            console.error("Chat section background refresh error:", error);
-        });
-    };
+                // Open the Chat section immediately on the first tap.
+                setupChatListControls();
+                openModal("inquiriesModal");
 
-    $("chatButton")?.addEventListener("click", openChatListFromNavigation);
-    $("bottomChatButton")?.addEventListener("click", openChatListFromNavigation);
+                // Refresh chat list silently after the section is visible.
+                void loadReceivedInquiries().catch(error => {
+                    console.error("Chat section background refresh error:", error);
+                });
+            }
+        );
 
     $("logoutButton")
         ?.addEventListener(
@@ -8546,12 +7292,6 @@ document.addEventListener("click", event => {
             }
         );
 
-
-    $("shareProductButton")
-        ?.addEventListener("click", event => {
-            // The listing-specific handler is rebound in openProductDetails().
-            event.preventDefault();
-        });
 
     /* -----------------------------------------
        MARKETPLACE PRODUCTS
@@ -8748,7 +7488,7 @@ document.addEventListener("click", event => {
                     // close the Edit modal again.
                     window.setTimeout(() => {
                         openEditProduct(productId);
-                    }, 140);
+                    }, 260);
 
                     return;
                 }
@@ -8895,14 +7635,6 @@ function setupAuthListener() {
 
                 if (currentUser) {
                     await ensureProfileAfterPasswordSignup(currentUser);
-
-                    // If browser notification permission is already granted,
-                    // silently keep this device's Web Push subscription synced.
-                    if (typeof window.ensureStudentKartPushSubscription === "function") {
-                        void window.ensureStudentKartPushSubscription().catch(error => {
-                            console.warn("StudentKart push subscription sync failed:", error);
-                        });
-                    }
                 }
 
                 updateNavbar();
@@ -8928,14 +7660,11 @@ function setupAuthListener() {
                         window.chatUnreadChannel = null;
                     }
 
-                    const chatBadges = [
-                        $("chatUnreadCount"),
-                        $("chatBottomUnreadCount")
-                    ].filter(Boolean);
-                    chatBadges.forEach(chatBadge => {
+                    const chatBadge = $("chatUnreadCount");
+                    if (chatBadge) {
                         chatBadge.textContent = "0";
                         chatBadge.classList.add("hidden");
-                    });
+                    }
 
                     currentNotifications = [];
 
@@ -8988,17 +7717,6 @@ function showNewUserGate() {
     document.documentElement.classList.add("new-user-gate-lock");
     document.body.style.top = `-${studentKartGateScrollY}px`;
     gate.classList.remove("hidden");
-
-    // Bind the welcome actions directly as a safety net so they still work
-    // even if another optional event listener fails during page initialization.
-    const loginButton = $("newUserLoginButton");
-    const signupButton = $("newUserSignupButton");
-    const guestButton = $("newUserGuestButton");
-
-    if (loginButton) loginButton.onclick = openLoginFromNewUserGate;
-    if (signupButton) signupButton.onclick = openSignupFromNewUserGate;
-    if (guestButton) guestButton.onclick = enterStudentKartGuestMode;
-
     document.body.classList.add("new-user-gate-open");
 }
 
@@ -9183,17 +7901,7 @@ async function refreshStudentKartData() {
 
         if (currentUser) {
             await updateChatUnreadCount();
-            await checkForNewChatAlerts();
             await loadReceivedInquiries();
-
-            // Keep the currently open conversation in sync even when
-            // Supabase Realtime is delayed or unavailable.
-            if (
-                currentChatInquiry &&
-                !$("chatModal")?.classList.contains("hidden")
-            ) {
-                await loadChatMessages();
-            }
         }
     } catch (error) {
         console.error("Auto refresh error:", error);
@@ -9533,33 +8241,10 @@ async function bulkDeleteInquiriesForMe() {
     }
 }
 
-function closeChatDeleteMenu(options = {}) {
+function closeChatDeleteMenu() {
     const menu = $("chatDeleteMenu");
     if (menu) {
         menu.classList.add("hidden");
-    }
-
-    // The delete menu gets its own browser-history entry so Android/system
-    // Back closes the menu first instead of leaving the Chat screen.
-    if (
-        !options.fromPopState &&
-        window.history.state?.studentKart === true &&
-        window.history.state?.chatOverlay === "delete-menu"
-    ) {
-        const stack = Array.isArray(window.history.state.modalStack)
-            ? window.history.state.modalStack
-            : ["inquiriesModal", "chatModal"];
-
-        window.history.replaceState(
-            {
-                ...window.history.state,
-                modalId: "chatModal",
-                modalStack: stack,
-                chatOverlay: null
-            },
-            "",
-            window.location.pathname + window.location.search + "#chatModal"
-        );
     }
 }
 
@@ -9832,16 +8517,29 @@ $("chatBackButton")?.addEventListener("click", event => {
     const chatModal = $("chatModal");
     if (!chatModal || chatModal.classList.contains("hidden")) return;
 
-    if (
-        window.history.state?.studentKart === true &&
-        window.history.state?.modalId === "chatModal" &&
-        window.history.length > 1
-    ) {
-        window.history.back();
-        return;
-    }
+    const parentId = modalHistory.length
+        ? modalHistory[modalHistory.length - 1]
+        : "inquiriesModal";
 
-    showChatsFromChat();
+    const parentModal = $(parentId) || $("inquiriesModal");
+
+    chatModal.classList.remove("modal-closing");
+    chatModal.classList.add("hidden");
+    document.body.classList.remove("studentkart-chat-open");
+
+    if (parentModal) {
+        parentModal.classList.remove("modal-closing");
+        parentModal.classList.remove("hidden");
+        document.body.classList.add("modal-open");
+        document.body.classList.add("studentkart-modal-navigation-hidden");
+        modalHistory = [];
+        setStudentKartModalHistory(parentModal.id, [parentModal.id]);
+    } else {
+        modalHistory = [];
+        document.body.classList.remove("modal-open");
+        document.body.classList.remove("studentkart-modal-navigation-hidden");
+        setStudentKartModalHistory(null, []);
+    }
 });
 
 
@@ -10139,68 +8837,23 @@ function replyToSelectedChatMessage() {
 
 function openSelectedChatDeletePopup() {
     if (!selectedChatMessageIds.size) return;
-
     const modal = $("chatSelectionDeleteModal");
     const text = $("chatSelectionDeleteText");
     const count = selectedChatMessageIds.size;
-
     if (text) {
-        text.textContent =
-            "Choose how you want to delete " +
-            count +
-            " selected message" +
-            (count === 1 ? "" : "s") +
-            ".";
+        text.textContent = "Choose how you want to delete " + count + " selected message" + (count === 1 ? "" : "s") + ".";
     }
-
     if (modal) {
         modal.classList.remove("hidden");
         modal.setAttribute("aria-hidden", "false");
-
-        ensureStudentKartHistory();
-
-        if (
-            !studentKartHandlingPopState &&
-            window.history.state?.studentKart === true &&
-            window.history.state?.modalId === "chatModal" &&
-            window.history.state?.chatOverlay !== "selection-delete"
-        ) {
-            window.history.pushState(
-                {
-                    ...window.history.state,
-                    studentKart: true,
-                    modalId: "chatModal",
-                    chatOverlay: "selection-delete"
-                },
-                "",
-                window.location.pathname + window.location.search + "#chatModal"
-            );
-        }
     }
 }
 
-function closeSelectedChatDeletePopup(options = {}) {
+function closeSelectedChatDeletePopup() {
     const modal = $("chatSelectionDeleteModal");
-
     if (modal) {
         modal.classList.add("hidden");
         modal.setAttribute("aria-hidden", "true");
-    }
-
-    if (
-        !options.fromPopState &&
-        window.history.state?.studentKart === true &&
-        window.history.state?.chatOverlay === "selection-delete"
-    ) {
-        window.history.replaceState(
-            {
-                ...window.history.state,
-                modalId: "chatModal",
-                chatOverlay: null
-            },
-            "",
-            window.location.pathname + window.location.search + "#chatModal"
-        );
     }
 }
 
@@ -10209,29 +8862,13 @@ async function deleteSelectedChatMessagesForMe() {
 
     const ids = Array.from(selectedChatMessageIds).map(String);
     const hidden = getHiddenChatMessageIds();
-
     ids.forEach(id => hidden.add(id));
     saveHiddenChatMessageIds(hidden);
 
-    // Hide immediately on this device. The local hidden-message list is
-    // intentionally user-specific, so the other participant is unaffected.
-    ids.forEach(id => {
-        document.querySelector(`#chatMessages .chat-message[data-message-id="${CSS.escape(id)}"]`)?.remove();
-    });
-
-    selectedChatMessageIds.clear();
     closeSelectedChatDeletePopup();
-
-    const container = $("chatMessages");
-    if (container) delete container.dataset.messageSignature;
-
+    selectedChatMessageIds.clear();
     await loadChatMessages();
-
-    showToast(
-        ids.length + " message" + (ids.length === 1 ? "" : "s") +
-        " deleted for you",
-        "success"
-    );
+    showToast(ids.length + " message" + (ids.length === 1 ? "" : "s") + " deleted for you", "success");
 }
 
 async function deleteSelectedChatMessagesForEveryone() {
@@ -10240,7 +8877,7 @@ async function deleteSelectedChatMessagesForEveryone() {
     const selectedElements = getSelectedChatMessageElements();
     const ownIds = selectedElements
         .filter(el => String(el.dataset.senderId) === String(currentUser.id))
-        .map(el => String(el.dataset.messageId || ""))
+        .map(el => el.dataset.messageId)
         .filter(Boolean);
 
     if (!ownIds.length) {
@@ -10249,48 +8886,30 @@ async function deleteSelectedChatMessagesForEveryone() {
         return;
     }
 
-    const confirmed = window.confirm(
-        "Delete " + ownIds.length + " message" + (ownIds.length === 1 ? "" : "s") +
-        " for everyone?"
-    );
-    if (!confirmed) return;
-
     try {
-        const { data: updatedRows, error } = await supabaseClient
+        const { error } = await supabaseClient
             .from("messages")
-            .update({ message: CHAT_DELETED_MESSAGE })
-            .eq("sender_id", currentUser.id)
+            .delete()
             .in("id", ownIds)
-            .select("id");
+            .eq("sender_id", currentUser.id);
 
         if (error) throw error;
 
-        const updatedIds = (updatedRows || []).map(row => String(row.id));
-        if (!updatedIds.length) {
-            throw new Error("No selected messages were updated. Check the messages_update_own RLS policy.");
-        }
-
-        // WhatsApp-style: keep the message slot and show a deleted bubble.
-        selectedChatMessageIds.clear();
         closeSelectedChatDeletePopup();
-
-        const container = $("chatMessages");
-        if (container) delete container.dataset.messageSignature;
-
+        selectedChatMessageIds.clear();
         await loadChatMessages();
-        await updateChatUnreadCount();
 
+        const extra = ownIds.length < selectedElements.length
+            ? " Received messages were kept in the chat."
+            : "";
         showToast(
             ownIds.length + " message" + (ownIds.length === 1 ? "" : "s") +
-            " deleted for everyone.",
+            " deleted for everyone." + extra,
             "success"
         );
     } catch (error) {
         console.error("Delete for everyone error:", error);
-        showToast(
-            "Delete for Everyone failed. Make sure the messages UPDATE policy is enabled.",
-            "error"
-        );
+        showToast("Could not delete selected messages for everyone", "error");
     }
 }
 
@@ -10384,98 +9003,22 @@ async function loadChatMessages() {
     const container = $("chatMessages");
     if (!container) return;
 
+    /*
+     * Message refresh is intentionally silent.
+     * Keep the current chat visible while Supabase fetches in the
+     * background so realtime refreshes never show a loading bubble.
+     */
     try {
-        const inquiryId = String(currentChatInquiry.id);
-        const otherUserId =
-            String(currentChatInquiry.seller_id) === String(currentUser.id)
-                ? currentChatInquiry.buyer_id
-                : currentChatInquiry.seller_id;
-
-        /*
-         * Primary path: load the exact conversation by inquiry_id.
-         * Fallback: some older/externally-created messages can have a
-         * missing or mismatched inquiry_id even though the sender and
-         * receiver identify the same conversation.
-         */
-        let { data, error } = await supabaseClient
+        const { data, error } = await supabaseClient
             .from("messages")
             .select("*")
             .eq("inquiry_id", currentChatInquiry.id)
             .order("created_at", { ascending: true });
 
-        if (error) {
-            console.warn("Primary chat message query failed; trying participant fallback:", error);
-        }
-
-        if (error || !Array.isArray(data)) {
-            const [sentResult, receivedResult] = await Promise.all([
-                supabaseClient
-                    .from("messages")
-                    .select("*")
-                    .eq("sender_id", currentUser.id)
-                    .eq("receiver_id", otherUserId)
-                    .order("created_at", { ascending: true }),
-                supabaseClient
-                    .from("messages")
-                    .select("*")
-                    .eq("sender_id", otherUserId)
-                    .eq("receiver_id", currentUser.id)
-                    .order("created_at", { ascending: true })
-            ]);
-
-            const fallbackError = sentResult.error || receivedResult.error;
-            if (fallbackError) throw fallbackError;
-
-            data = [
-                ...(sentResult.data || []),
-                ...(receivedResult.data || [])
-            ].sort((a, b) =>
-                new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-            );
-        } else if (data.length === 0) {
-            /*
-             * If the exact inquiry has no rows, check the two participants.
-             * Only use messages that belong to this inquiry when that field
-             * is populated; allow legacy null inquiry_id messages through.
-             */
-            const [sentResult, receivedResult] = await Promise.all([
-                supabaseClient
-                    .from("messages")
-                    .select("*")
-                    .eq("sender_id", currentUser.id)
-                    .eq("receiver_id", otherUserId)
-                    .order("created_at", { ascending: true }),
-                supabaseClient
-                    .from("messages")
-                    .select("*")
-                    .eq("sender_id", otherUserId)
-                    .eq("receiver_id", currentUser.id)
-                    .order("created_at", { ascending: true })
-            ]);
-
-            const fallbackError = sentResult.error || receivedResult.error;
-            if (!fallbackError) {
-                const participantMessages = [
-                    ...(sentResult.data || []),
-                    ...(receivedResult.data || [])
-                ];
-
-                // If the exact inquiry has no rows, prefer the actual
-                // participant conversation over inquiry_id. Older messages
-                // and direct chats can carry a different inquiry_id.
-                // The sender/receiver pair is the reliable conversation key.
-                if (participantMessages.length > 0) {
-                    data = participantMessages.sort((a, b) =>
-                        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-                    );
-                }
-            }
-        }
+        if (error) throw error;
 
         const hiddenMessageIds = getHiddenChatMessageIds();
-        const visibleMessages = (data || []).filter(
-            message => !hiddenMessageIds.has(String(message.id))
-        );
+        const visibleMessages = (data || []).filter(message => !hiddenMessageIds.has(String(message.id)));
 
         const nextSignature = JSON.stringify(visibleMessages.map(message => [
             message.id,
@@ -10490,7 +9033,7 @@ async function loadChatMessages() {
         const profileIntro = container.querySelector("#chatProfileIntro");
         const profileIntroHtml = profileIntro ? profileIntro.outerHTML : "";
 
-        if (!visibleMessages.length) {
+        if (!visibleMessages || visibleMessages.length === 0) {
             container.innerHTML = profileIntroHtml + `
                 <div class="chat-empty">
                     <i class="fas fa-comment-dots"></i>
@@ -10500,68 +9043,47 @@ async function loadChatMessages() {
             return;
         }
 
+
+
         container.innerHTML = profileIntroHtml + visibleMessages.map(message => {
-            const isMine = String(message.sender_id) === String(currentUser.id);
-            const isDeletedForEveryone = String(message.message || "") === CHAT_DELETED_MESSAGE;
-            const reply = isDeletedForEveryone ? null : parseChatReplyMessage(message.message);
+            const isMine = message.sender_id === currentUser.id;
+            const reply = parseChatReplyMessage(message.message);
             const actualMessage = reply ? reply.content : message.message;
-            const image = isDeletedForEveryone ? null : parseChatMediaMessage(actualMessage);
+            const image = parseChatMediaMessage(actualMessage);
             let content = "";
             let replyHtml = "";
-
-            if (isDeletedForEveryone) {
-                content = `
-                    <div class="chat-message-bubble chat-message-deleted">
-                        <i class="fas fa-ban"></i>
-                        <span>${isMine ? "You deleted this message" : "This message was deleted"}</span>
-                    </div>
-                `;
-            }
-
             if (reply) {
                 const quoted = reply.replyTo || {};
-                const quotedText = quoted.text ||
-                    (quoted.mediaType === "video" ? "Video" :
-                        quoted.mediaType === "image" ? "Photo" : "Message");
-
-                replyHtml =
-                    '<div class="chat-quoted-message" data-reply-to-id="' +
-                    escapeHtml(String(quoted.id || "")) +
-                    '" role="button" tabindex="0">' +
-                    '<span class="chat-quoted-line"></span>' +
-                    '<div class="chat-quoted-content"><strong>Replying to</strong><span>' +
-                    escapeHtml(quotedText).slice(0, 180) +
-                    '</span></div></div>';
+                const quotedText = quoted.text || (quoted.mediaType === "video" ? "Video" : quoted.mediaType === "image" ? "Photo" : "Message");
+                replyHtml = '<div class="chat-quoted-message" data-reply-to-id="' + escapeHtml(String(quoted.id || "")) + '" role="button" tabindex="0"><span class="chat-quoted-line"></span><div class="chat-quoted-content"><strong>Replying to</strong><span>' + escapeHtml(quotedText).slice(0, 180) + '</span></div></div>';
             }
 
-            if (!isDeletedForEveryone) {
-                if (image) {
-                    const safeUrl = escapeHtml(image.url);
-                    const caption = image.caption
-                        ? `<div class="chat-image-caption">${escapeHtml(image.caption)}</div>`
-                        : "";
+            if (image) {
+                const safeUrl = escapeHtml(image.url);
+                const caption = image.caption
+                    ? `<div class="chat-image-caption">${escapeHtml(image.caption)}</div>`
+                    : "";
 
-                    if (image.mediaType === "video") {
-                        content = `
-                            <video class="chat-message-video" controls playsinline preload="metadata">
-                                <source src="${safeUrl}">
-                                Your browser does not support video playback.
-                            </video>
-                            ${caption}
-                        `;
-                    } else {
-                        content = `
-                            <img class="chat-message-image"
-                                 src="${safeUrl}"
-                                 alt="Shared photo"
-                                 loading="lazy"
-                                 data-chat-image="${safeUrl}">
-                            ${caption}
-                        `;
-                    }
+                if (image.mediaType === "video") {
+                    content = `
+                        <video class="chat-message-video" controls playsinline preload="metadata">
+                            <source src="${safeUrl}">
+                            Your browser does not support video playback.
+                        </video>
+                        ${caption}
+                    `;
                 } else {
-                    content = `<div class="chat-message-bubble">${escapeHtml(actualMessage)}</div>`;
+                    content = `
+                        <img class="chat-message-image"
+                             src="${safeUrl}"
+                             alt="Shared photo"
+                             loading="lazy"
+                             data-chat-image="${safeUrl}">
+                        ${caption}
+                    `;
                 }
+            } else {
+                content = `<div class="chat-message-bubble">${escapeHtml(actualMessage)}</div>`;
             }
 
             return `
@@ -10586,10 +9108,13 @@ async function loadChatMessages() {
         const profileIntro = container.querySelector("#chatProfileIntro");
         container.innerHTML = (profileIntro ? profileIntro.outerHTML : "") + `
             <div class="chat-empty">
-                Could not load messages. Please reopen this chat.
+                Could not load messages.
             </div>`;
+    } finally {
+        /* No visible loading state here — chat refresh stays in background. */
     }
 }
+
 async function sendChatMessage(event) {
 
     event.preventDefault();
@@ -10677,59 +9202,23 @@ async function sendChatMessage(event) {
             messageToSend = createChatReplyMessage(messageToSend, chatReplyTarget);
         }
 
-        const { data: insertedMessage, error } = await supabaseClient
+        const { error } = await supabaseClient
             .from("messages")
             .insert({
                 inquiry_id: currentChatInquiry.id,
                 sender_id: currentUser.id,
                 receiver_id: receiverId,
                 message: messageToSend
-            })
-            .select("*")
-            .single();
+            });
 
         if (error) throw error;
-
-        // Fire mobile push in the background. The message itself is already
-        // saved, so notification delivery can never slow down chat sending.
-        if (typeof supabaseClient.functions?.invoke === "function") {
-            void supabaseClient.functions
-                .invoke("send-chat-push", {
-                    body: {
-                        record: {
-                            id: crypto.randomUUID(),
-                            inquiry_id: currentChatInquiry.id,
-                            sender_id: currentUser.id,
-                            receiver_id: receiverId,
-                            message: messageToSend
-                        }
-                    }
-                })
-                .catch(pushError => {
-                    console.warn("Chat push trigger failed:", pushError);
-                });
-        }
 
         if (input) input.value = "";
         clearChatImageSelection();
         clearChatReplyPreview();
         removeChatUploadStatus();
 
-        appendChatMessageToUI(
-            insertedMessage || {
-                id: crypto.randomUUID(),
-                inquiry_id: currentChatInquiry.id,
-                sender_id: currentUser.id,
-                receiver_id: receiverId,
-                message: messageToSend,
-                created_at: new Date().toISOString()
-            }
-        );
         await loadChatMessages();
-
-        // The chat list is message-driven: this is the moment the
-        // conversation becomes visible after the first real message.
-        await loadReceivedInquiries();
 
     } catch (error) {
         console.error("Send chat message error:", error);
@@ -10996,24 +9485,6 @@ async function startChatPresence(otherUserId) {
     }, 30000);
 }
 
-function handleChatRealtimeMessage(payloadMessage) {
-    const message = payloadMessage;
-    if (!message || !currentUser || !currentChatInquiry) return;
-
-    const isMyMessage =
-        message.sender_id === currentUser.id ||
-        message.receiver_id === currentUser.id;
-
-    const isCurrentChat =
-        String(message.inquiry_id) === String(currentChatInquiry.id);
-
-    if (!isMyMessage || !isCurrentChat) return;
-
-    console.log("💬 Realtime chat message changed:", message);
-    loadChatMessages();
-    updateChatUnreadCount();
-}
-
 function startChatRealtime() {
 
     stopChatRealtime();
@@ -11036,52 +9507,62 @@ function startChatRealtime() {
                     table: "messages"
                 },
                 async payload => {
-                    const message = payload?.new;
-                    if (!message) return;
 
-                    appendChatMessageToUI(message);
-                    handleChatRealtimeMessage(message);
+                    const message = payload?.new;
+
+                    if (!message) {
+                        return;
+                    }
+
+                    // RLS already limits which message rows this user can receive.
+                    // Keep a client-side guard so unrelated accessible rows never
+                    // affect the currently open conversation.
+                    const isMyMessage =
+                        message.sender_id === currentUser.id ||
+                        message.receiver_id === currentUser.id;
+
+                    const isCurrentChat =
+                        String(message.inquiry_id) ===
+                        String(currentChatInquiry?.id);
+
+                    if (!isMyMessage || !isCurrentChat) {
+                        return;
+                    }
+
+                    console.log("💬 Realtime chat message received:", message);
+
+                    await loadChatMessages();
 
                     if (
                         message.receiver_id === currentUser.id &&
                         message.is_read === false
                     ) {
-                        await markChatMessagesRead(currentChatInquiry.id);
+                        await markChatMessagesRead(
+                            currentChatInquiry.id
+                        );
                     }
-                }
-            )
-            .on(
-                "postgres_changes",
-                {
-                    event: "UPDATE",
-                    schema: "public",
-                    table: "messages"
-                },
-                payload => {
-                    handleChatRealtimeMessage(payload?.new);
-                }
-            )
-            .on(
-                "postgres_changes",
-                {
-                    event: "DELETE",
-                    schema: "public",
-                    table: "messages"
-                },
-                payload => {
-                    handleChatRealtimeMessage(payload?.old);
+
+                    await updateChatUnreadCount();
                 }
             )
             .subscribe(status => {
-                console.log("Chat realtime status:", status);
+
+                console.log(
+                    "Chat realtime status:",
+                    status
+                );
 
                 if (status === "SUBSCRIBED") {
                     console.log("✅ Chat realtime connected");
+                    // Catch messages that arrived immediately before subscription.
                     loadChatMessages();
                 }
 
                 if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-                    console.error("❌ Chat realtime connection failed:", status);
+                    console.error(
+                        "❌ Chat realtime connection failed:",
+                        status
+                    );
                 }
             });
 }
@@ -11099,90 +9580,6 @@ function stopChatRealtime() {
     }
 }
 
-
-function appendChatMessageToUI(message) {
-    if (!message || !currentUser || !currentChatInquiry) return;
-
-    const container = $("chatMessages");
-    if (!container) return;
-
-    const messageId = String(message.id || "");
-    if (!messageId) return;
-
-    // Never duplicate a message already rendered by the database query/realtime.
-    const existingMessage = Array.from(
-        container.querySelectorAll(".chat-message[data-message-id]")
-    ).some(element => String(element.dataset.messageId) === messageId);
-
-    if (existingMessage) {
-        return;
-    }
-
-    const isMine = String(message.sender_id) === String(currentUser.id);
-    const isDeletedForEveryone = String(message.message || "") === CHAT_DELETED_MESSAGE;
-    const reply = isDeletedForEveryone ? null : parseChatReplyMessage(message.message);
-    const actualMessage = reply ? reply.content : message.message;
-    const image = isDeletedForEveryone ? null : parseChatMediaMessage(actualMessage);
-
-    let content = "";
-    let replyHtml = "";
-
-    if (isDeletedForEveryone) {
-        content = '<div class="chat-message-bubble chat-message-deleted"><i class="fas fa-ban"></i><span>' +
-            (isMine ? "You deleted this message" : "This message was deleted") +
-            '</span></div>';
-    }
-
-    if (reply) {
-        const quoted = reply.replyTo || {};
-        const quotedText = quoted.text ||
-            (quoted.mediaType === "video" ? "Video" :
-                quoted.mediaType === "image" ? "Photo" : "Message");
-
-        replyHtml =
-            '<div class="chat-quoted-message" data-reply-to-id="' +
-            escapeHtml(String(quoted.id || "")) +
-            '" role="button" tabindex="0">' +
-            '<span class="chat-quoted-line"></span>' +
-            '<div class="chat-quoted-content"><strong>Replying to</strong><span>' +
-            escapeHtml(quotedText).slice(0, 180) +
-            '</span></div></div>';
-    }
-
-    if (!isDeletedForEveryone) {
-        if (image) {
-            const safeUrl = escapeHtml(image.url);
-            const caption = image.caption
-                ? '<div class="chat-image-caption">' + escapeHtml(image.caption) + '</div>'
-                : "";
-
-            content = image.mediaType === "video"
-                ? '<video class="chat-message-video" controls playsinline preload="metadata"><source src="' +
-                    safeUrl + '">Your browser does not support video playback.</video>' + caption
-                : '<img class="chat-message-image" src="' + safeUrl +
-                    '" alt="Shared photo" loading="lazy" data-chat-image="' + safeUrl + '">' + caption;
-        } else {
-            content = '<div class="chat-message-bubble">' + escapeHtml(actualMessage) + '</div>';
-        }
-    }
-
-    const wrapper = document.createElement("div");
-    wrapper.innerHTML =
-        '<div class="chat-message ' + (isMine ? "chat-message-own sent" : "chat-message-other received") +
-        '" data-message-id="' + escapeHtml(messageId) +
-        '" data-sender-id="' + escapeHtml(String(message.sender_id || "")) +
-        '" data-message-type="' + (image ? image.mediaType : "text") + '">' +
-        '<span class="chat-message-selection-check" aria-hidden="true"><i class="fas fa-check"></i></span>' +
-        replyHtml + content +
-        '<small class="chat-message-time">' + formatChatTime(message.created_at) + '</small></div>';
-
-    const element = wrapper.firstElementChild;
-    if (!element) return;
-
-    container.appendChild(element);
-    updateChatMessageSelectionUI();
-    scrollChatToBottom();
-}
 
 function scrollChatToBottom() {
 
@@ -11391,39 +9788,7 @@ $("bulkDeleteForMeButton")?.addEventListener(
 $("chatDeleteButton")?.addEventListener(
     "click",
     () => {
-        const menu = $("chatDeleteMenu");
-        if (!menu) return;
-
-        const willOpen = menu.classList.contains("hidden");
-
-        if (!willOpen) {
-            closeChatDeleteMenu();
-            return;
-        }
-
-        menu.classList.remove("hidden");
-
-        // Give the popup its own history entry. Pressing Android/system Back
-        // now returns to the exact same Chat screen and only closes this menu.
-        ensureStudentKartHistory();
-
-        if (
-            !studentKartHandlingPopState &&
-            window.history.state?.studentKart === true &&
-            window.history.state?.modalId === "chatModal" &&
-            window.history.state?.chatOverlay !== "delete-menu"
-        ) {
-            window.history.pushState(
-                {
-                    ...window.history.state,
-                    studentKart: true,
-                    modalId: "chatModal",
-                    chatOverlay: "delete-menu"
-                },
-                "",
-                window.location.pathname + window.location.search + "#chatModal"
-            );
-        }
+        $("chatDeleteMenu")?.classList.toggle("hidden");
     }
 );
 
@@ -11504,54 +9869,11 @@ async function showChatBrowserNotification(message) {
     }
 }
 
-async function checkForNewChatAlerts() {
-    if (!currentUser) return;
-
-    try {
-        const { data, error } = await supabaseClient
-            .from("messages")
-            .select("id,inquiry_id,sender_id,receiver_id,message,created_at")
-            .eq("receiver_id", currentUser.id)
-            .eq("is_read", false)
-            .order("created_at", { ascending: false })
-            .limit(1);
-
-        if (error) throw error;
-
-        const latest = data?.[0];
-        const latestId = latest?.id ? String(latest.id) : null;
-
-        if (!chatAlertBaselineReady) {
-            lastChatAlertMessageId = latestId;
-            chatAlertBaselineReady = true;
-            return;
-        }
-
-        if (!latestId || latestId === lastChatAlertMessageId) return;
-
-        lastChatAlertMessageId = latestId;
-
-        const isOpenChatMessage = currentChatInquiry &&
-            String(latest.inquiry_id) === String(currentChatInquiry.id);
-
-        if (isOpenChatMessage) return;
-
-        showToast("💬 New chat message received", "success");
-        await showChatBrowserNotification(latest);
-    } catch (error) {
-        console.error("New chat alert check error:", error);
-    }
-}
-
 async function updateChatUnreadCount() {
     if (!currentUser) return;
 
     const badge = $("chatUnreadCount");
-    const bottomBadge = $("chatBottomUnreadCount");
-
-    // The desktop badge may not exist; the mobile bottom-nav badge is the
-    // primary chat indicator on the current StudentKart layout.
-    if (!badge && !bottomBadge) return;
+    if (!badge) return;
 
     try {
         const { count, error } = await supabaseClient
@@ -11565,11 +9887,10 @@ async function updateChatUnreadCount() {
         const unread = count || 0;
         const label = unread > 99 ? "99+" : String(unread);
 
-        if (badge) {
-            badge.textContent = label;
-            badge.classList.toggle("hidden", unread === 0);
-        }
+        badge.textContent = label;
+        badge.classList.toggle("hidden", unread === 0);
 
+        const bottomBadge = $("chatBottomUnreadCount");
         if (bottomBadge) {
             bottomBadge.textContent = label;
             bottomBadge.classList.toggle("hidden", unread === 0);
@@ -11582,8 +9903,6 @@ async function updateChatUnreadCount() {
 async function markChatMessagesRead(inquiryId) {
     if (!currentUser || !inquiryId) return;
 
-    // Read status is secondary UI state. A failure here must NEVER prevent
-    // the conversation itself from loading or showing messages.
     try {
         const { error } = await supabaseClient
             .from("messages")
@@ -11592,31 +9911,55 @@ async function markChatMessagesRead(inquiryId) {
             .eq("receiver_id", currentUser.id)
             .eq("is_read", false);
 
-        if (error) {
-            console.warn("Chat read-status sync failed:", error);
+        if (error) throw error;
+
+        // Verify that Supabase actually persisted the read state.
+        // This prevents a stale unread badge when an UPDATE policy blocks
+        // the write or when another realtime refresh races with this one.
+        const { data: remainingUnread, error: verifyError } =
+            await supabaseClient
+                .from("messages")
+                .select("id")
+                .eq("inquiry_id", inquiryId)
+                .eq("receiver_id", currentUser.id)
+                .eq("is_read", false);
+
+        if (verifyError) {
+            throw verifyError;
         }
-    } catch (error) {
-        console.warn("Chat read-status sync exception:", error);
-    }
 
-    const badge = $("chatUnreadCount");
-    const bottomBadge = $("chatBottomUnreadCount");
+        const unreadRemaining = remainingUnread?.length || 0;
 
-    [badge, bottomBadge].filter(Boolean).forEach(element => {
-        element.textContent = "0";
-        element.classList.add("hidden");
-    });
+        if (unreadRemaining > 0) {
+            console.warn(
+                "⚠️ Some chat messages are still unread after mark-read:",
+                unreadRemaining
+            );
+        }
 
-    document.querySelectorAll(".whatsapp-unread")
-        .forEach(element => element.remove());
-
-    try {
         await updateChatUnreadCount();
+
+        // Force the visible chat badge/list state to match the verified
+        // database state immediately.
+        const badge = $("chatUnreadCount");
+        if (badge && unreadRemaining === 0) {
+            badge.textContent = "0";
+            badge.classList.add("hidden");
+        }
+
+        document
+            .querySelectorAll(".whatsapp-unread")
+            .forEach(element => {
+                element.remove();
+            });
+
         await loadReceivedInquiries();
     } catch (error) {
-        console.warn("Silent chat read-status refresh failed:", error);
+        console.error("Mark chat messages read error:", error);
+        showToast("Could not sync chat read status", "error");
     }
 }
+
 async function startChatUnreadRealtime() {
     if (!currentUser) return;
 
@@ -11650,7 +9993,7 @@ async function startChatUnreadRealtime() {
 
                 if (!isOpenChatMessage) {
                     showToast("💬 New chat message received", "success");
-                    showChatBrowserNotification(payload?.new);
+                    showChatBrowserNotification(message);
                 }
             }
         )
@@ -11764,10 +10107,15 @@ function goToHomeFromModal() {
     // Return to the app's real Home state without creating another history entry.
     setStudentKartModalHistory(null, []);
 
-    const homeSection = document.getElementById("home");
-    if (homeSection) {
-        homeSection.scrollIntoView({ behavior: "auto", block: "start" });
-    }
+    window.setTimeout(() => {
+        const homeSection = document.getElementById("home");
+        if (homeSection) {
+            homeSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    }, 20);
 }
 
 function addHomeButtonsToBackArrows(root = document) {
@@ -12767,124 +11115,7 @@ function populateStudentKartIndiaData() {
     }
 }
 
-
-function setupHeroSearchStrip() {
-    const input = document.getElementById("heroSearchInput");
-    const submit = document.getElementById("heroSearchSubmit");
-    const filter = document.getElementById("heroSearchFilterButton");
-    const filterPanel = document.getElementById("navbarFilterPanel");
-    const marketplaceFilterPanel = document.getElementById("marketplaceFilterPanel");
-    const navInput = document.getElementById("navbarSearchInput");
-    const marketplace = document.getElementById("marketplace");
-    if (!input) return;
-
-    const scrollToMarketplaceSearch = () => {
-        const target = document.getElementById("heroSearchStrip");
-        if (!target) return;
-        const headerOffset = 76;
-        const top = target.getBoundingClientRect().top + window.scrollY - headerOffset;
-        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-    };
-
-    const closeMarketplaceFilters = () => {
-        marketplaceFilterPanel?.classList.add("hidden");
-    };
-
-    const runSearch = () => {
-        const query = input.value.trim();
-        if (navInput) navInput.value = query;
-
-        closeMarketplaceFilters();
-        if (typeof applyFilters === "function") applyFilters();
-
-        scrollToMarketplaceSearch();
-        input.focus({ preventScroll: true });
-
-        if (window.location.hash !== "#marketplace-search") {
-            history.pushState({ studentKartMarketplaceSearch: true }, "", "#marketplace-search");
-        }
-    };
-
-    submit?.addEventListener("click", runSearch);
-
-    input.addEventListener("focus", scrollToMarketplaceSearch);
-
-    input.addEventListener("keydown", event => {
-        if (event.key === "ArrowDown") {
-            event.preventDefault();
-            moveSearchSuggestion(1);
-        } else if (event.key === "ArrowUp") {
-            event.preventDefault();
-            moveSearchSuggestion(-1);
-        } else if (event.key === "Enter") {
-            event.preventDefault();
-            const activeItem = suggestionsPanel?.querySelector(".navbar-search-suggestion.is-active");
-            if (activeItem) searchInput.value = activeItem.dataset.suggestionValue || searchInput.value;
-            runSearch();
-        } else if (event.key === "Escape") {
-            hideSearchSuggestions();
-            input.blur();
-        }
-    });
-
-    filter?.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        filterPanel?.classList.add("hidden");
-        marketplaceFilterPanel?.classList.toggle("hidden");
-
-        scrollToMarketplaceSearch();
-
-        if (window.location.hash !== "#marketplace-filters") {
-            history.pushState({ studentKartMarketplaceFilters: true }, "", "#marketplace-filters");
-        }
-    });
-
-    document.getElementById("navbarFilterClose")?.addEventListener("click", () => {
-        closeMarketplaceFilters();
-    });
-
-    window.addEventListener("popstate", event => {
-        const localState =
-            event.state?.studentKartMarketplaceSearch ||
-            event.state?.studentKartMarketplaceFilters ||
-            window.location.hash === "#marketplace-search" ||
-            window.location.hash === "#marketplace-filters";
-
-        if (!localState) return;
-
-        closeMarketplaceFilters();
-        filterPanel?.classList.add("hidden");
-        input.value = "";
-
-        if (navInput) navInput.value = "";
-        if (typeof applyFilters === "function") applyFilters();
-        marketplace?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-    setupSearchResultsSearch();
-    setupSearchResultsFilter();
-
-    $("searchResultsSearchButton")?.addEventListener("click", () => {
-        const input = $("searchResultsSearchInput");
-        input?.focus({ preventScroll: true });
-    });
-
-    $("searchResultsSearchInput")?.addEventListener("keydown", event => {
-        if(event.key !== "Enter") return;
-        event.preventDefault();
-        const value = event.currentTarget.value.trim();
-        if(value) showSearchResultsPage(value);
-    });
-    $("searchResultsBrowseAll")?.addEventListener("click", () => {
-        showHomePageFromSearch();
-        document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
-    });
-
-    setupHeroSearchStrip();
     populateStudentKartIndiaData();
     setupEditProfileCityLocationPicker();
     setupSellProductLocationPicker();
@@ -12921,282 +11152,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!navSearchButton || !searchPanel || !searchInput) return;
 
-    const suggestionsPanel = document.getElementById("navbarSearchSuggestions");
-    let activeSuggestionIndex = -1;
-
-    const suggestionCategories = ["Books", "Electronics", "Vehicles", "Furniture", "Services", "Fashion"];
-
-    const popularSearchSuggestions = [
-        ["Laptop", "Electronics", "fa-laptop"],
-        ["Laptop Stand", "Electronics", "fa-laptop"],
-        ["Mobile Phone", "Electronics", "fa-mobile-screen"],
-        ["Headphones", "Electronics", "fa-headphones"],
-        ["Programming Books", "Books", "fa-book"],
-        ["Textbooks", "Books", "fa-book-open"],
-        ["Bicycle", "Vehicles", "fa-bicycle"],
-        ["Calculator", "Electronics", "fa-calculator"],
-        ["Study Table", "Furniture", "fa-table"],
-        ["Chair", "Furniture", "fa-chair"],
-        ["Room for Rent", "Services", "fa-house"],
-        ["Notes", "Books", "fa-note-sticky"]
-    ];
-
-    const hideSearchSuggestions = () => {
-        if (!suggestionsPanel) return;
-        suggestionsPanel.classList.add("hidden");
-        suggestionsPanel.innerHTML = "";
-        activeSuggestionIndex = -1;
-        searchInput?.removeAttribute("aria-activedescendant");
-    };
-
-    const getSearchSuggestions = query => {
-        const q = String(query || "").trim().toLowerCase();
-        if (!q) return [];
-
-        const results = [];
-        const seen = new Set();
-        const add = (title, meta, icon, value) => {
-            const key = String(title || "").trim().toLowerCase();
-            if (!key || seen.has(key)) return;
-            seen.add(key);
-            results.push({ title, meta, icon, value });
-        };
-
-        popularSearchSuggestions
-            .filter(item => item[0].toLowerCase().includes(q))
-            .sort((a, b) => Number(!a[0].toLowerCase().startsWith(q)) - Number(!b[0].toLowerCase().startsWith(q)))
-            .forEach(item => add(item[0], item[1], item[2], item[0]));
-
-        suggestionCategories
-            .filter(category => category.toLowerCase().includes(q))
-            .sort((a, b) => Number(!a.toLowerCase().startsWith(q)) - Number(!b.toLowerCase().startsWith(q)))
-            .forEach(category => add(category, "Category", "fa-layer-group", category));
-
-        [...currentProducts]
-            .filter(product => [
-                product.name, product.category, product.location, product.description, product.condition
-            ].join(" ").toLowerCase().includes(q))
-            .sort((a, b) => {
-                const an = String(a.name || "").toLowerCase();
-                const bn = String(b.name || "").toLowerCase();
-                return Number(!an.startsWith(q)) - Number(!bn.startsWith(q)) || an.localeCompare(bn);
-            })
-            .forEach(product => add(product.name, product.category || "Listing", "fa-tag", product.name));
-
-        return results.slice(0, 7);
-    };
-
-    const renderSearchSuggestions = query => {
-        if (!suggestionsPanel) return;
-        const suggestions = getSearchSuggestions(query);
-        if (!suggestions.length) {
-            hideSearchSuggestions();
-            return;
-        }
-
-        suggestionsPanel.innerHTML = suggestions.map((item, index) =>
-            '<button type="button" class="navbar-search-suggestion" id="navbarSearchSuggestion-' + index +
-            '" role="option" aria-selected="false" data-suggestion-index="' + index +
-            '" data-suggestion-value="' + escapeHTML(item.value) + '">' +
-            '<span class="navbar-search-suggestion-icon"><i class="fas ' + item.icon + '"></i></span>' +
-            '<span class="navbar-search-suggestion-copy"><span class="navbar-search-suggestion-title">' +
-            escapeHTML(item.title) + '</span><span class="navbar-search-suggestion-meta">' +
-            escapeHTML(item.meta) + '</span></span><i class="fas fa-chevron-right navbar-search-suggestion-arrow"></i></button>'
-        ).join("");
-
-        // Position the dropdown from the actual input rectangle. This avoids
-        // mobile flex/overflow/transform issues inside the navbar search panel.
-        const positionSuggestions = () => {
-            if (!searchInput || suggestionsPanel.classList.contains("hidden")) return;
-            const rect = searchInput.getBoundingClientRect();
-            suggestionsPanel.style.position = "fixed";
-            suggestionsPanel.style.top = (rect.bottom + 6) + "px";
-            suggestionsPanel.style.left = rect.left + "px";
-            suggestionsPanel.style.width = rect.width + "px";
-            suggestionsPanel.style.right = "auto";
-            suggestionsPanel.style.zIndex = "100000";
-        };
-
-        suggestionsPanel.classList.remove("hidden");
-        positionSuggestions();
-        window.requestAnimationFrame(positionSuggestions);
-
-        suggestionsPanel.querySelectorAll(".navbar-search-suggestion").forEach(button => {
-            button.addEventListener("mousedown", event => event.preventDefault());
-            button.addEventListener("click", () => {
-                const value = button.dataset.suggestionValue || "";
-                searchInput.value = value;
-                if (marketplaceSearch) marketplaceSearch.value = value;
-                hideSearchSuggestions();
-                showSearchResultsPage(value);
-            });
-        });
-    };
-
-    const moveSearchSuggestion = direction => {
-        if (!suggestionsPanel || suggestionsPanel.classList.contains("hidden")) return;
-        const items = [...suggestionsPanel.querySelectorAll(".navbar-search-suggestion")];
-        if (!items.length) return;
-        activeSuggestionIndex = (activeSuggestionIndex + direction + items.length) % items.length;
-        items.forEach((item, index) => {
-            const active = index === activeSuggestionIndex;
-            item.classList.toggle("is-active", active);
-            item.setAttribute("aria-selected", active ? "true" : "false");
-        });
-        const activeItem = items[activeSuggestionIndex];
-        searchInput.setAttribute("aria-activedescendant", activeItem.id);
-        activeItem.scrollIntoView({ block: "nearest" });
-    };
-
     const runSearch = () => {
-        hideSearchSuggestions();
         if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
         applyFilters();
         document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
     };
 
-    // Fully release the search input when the overlay closes. On some
-    // Android browsers the caret can remain visually active for a moment
-    // even after the panel is hidden, so blur again on the next frame.
-    const closeNavbarSearch = () => {
-        studentKartNavbarSearchOpen = false;
-
-        // Move focus away before hiding the panel so Android cannot leave
-        // a ghost caret painted over the closed search field.
-        if (document.activeElement === searchInput) {
-            navSearchButton.focus({ preventScroll: true });
-        }
-
-        searchInput.blur();
-        navSearchButton.blur();
-
-        // Restore the input to its exact normal pre-search state.
-        searchInput.disabled = false;
-        searchInput.removeAttribute("readonly");
-        searchInput.classList.remove("studentkart-search-closed");
-        searchPanel.classList.add("hidden");
-
-        window.requestAnimationFrame(() => {
-            searchInput.blur();
-            navSearchButton.blur();
-        });
-    };
-
     navSearchButton.addEventListener("click", () => {
         const opening = searchPanel.classList.contains("hidden");
-
-        if (!opening) {
-            hideSearchSuggestions();
-            closeNavbarSearch();
-            return;
-        }
-
-        // Seed a stable StudentKart history anchor before creating the
-        // temporary search entry. This is important when the page was opened
-        // directly on Android and has no earlier in-app history entry.
-        ensureStudentKartHistory();
-
-        searchPanel.classList.remove("hidden");
-        studentKartNavbarSearchOpen = true;
-        searchInput.disabled = false;
-        searchInput.classList.remove("studentkart-search-closed");
-        searchInput.removeAttribute("readonly");
-
-        // Give the open search panel its own browser-history entry so
-        // Android/browser Back closes the search first instead of navigating
-        // away from the current page.
-        if (
-            !studentKartHandlingPopState &&
-            window.history.state?.studentKartNavbarSearch !== true
-        ) {
-            window.history.pushState(
-                {
-                    ...(window.history.state || {}),
-                    studentKart: true,
-                    studentKartNavbarSearch: true
-                },
-                "",
-                window.location.pathname + window.location.search + "#search"
-            );
-        }
-
-        setTimeout(() => searchInput.focus(), 80);
+        searchPanel.classList.toggle("hidden");
+        if (opening) setTimeout(() => searchInput.focus(), 80);
     });
 
-    // Show matching products immediately while the user is typing.
-    // Do not wait for the Search button or Enter key.
     searchInput.addEventListener("input", () => {
-        const query = searchInput.value || "";
-
-        if (marketplaceSearch) {
-            marketplaceSearch.value = query;
-        }
-
-        activeSuggestionIndex = -1;
-        renderSearchSuggestions(query);
-
-        // Keep the suggestions visible even when the input event is followed
-        // by another mobile/browser focus update.
-        window.requestAnimationFrame(() => {
-            if (searchInput.value.trim()) {
-                renderSearchSuggestions(searchInput.value);
-            }
-        });
-    });
-
-    searchInput.addEventListener("focus", () => {
-        if (searchInput.value.trim()) {
-            renderSearchSuggestions(searchInput.value);
-        }
-    });
-
-    window.addEventListener("resize", () => {
-        if (!suggestionsPanel?.classList.contains("hidden") && searchInput.value.trim()) {
-            const rect = searchInput.getBoundingClientRect();
-            suggestionsPanel.style.top = (rect.bottom + 6) + "px";
-            suggestionsPanel.style.left = rect.left + "px";
-            suggestionsPanel.style.width = rect.width + "px";
-        }
-    }, { passive: true });
-
-    searchInput.addEventListener("blur", () => {
-        window.setTimeout(hideSearchSuggestions, 120);
+        if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
     });
 
     searchInput.addEventListener("keydown", event => {
-        if (event.key === "ArrowDown") {
+        if (event.key === "Enter") {
             event.preventDefault();
-            moveSearchSuggestion(1);
-        } else if (event.key === "ArrowUp") {
-            event.preventDefault();
-            moveSearchSuggestion(-1);
-        } else if (event.key === "Enter") {
-            event.preventDefault();
-            const activeItem = suggestionsPanel?.querySelector(".navbar-search-suggestion.is-active");
-            if (activeItem) searchInput.value = activeItem.dataset.suggestionValue || searchInput.value;
             runSearch();
         } else if (event.key === "Escape") {
-            if (studentKartNavbarSearchOpen) {
-                window.history.back();
-            } else {
-                closeNavbarSearch();
-            }
+            searchPanel.classList.add("hidden");
         }
     });
 
     searchSubmit?.addEventListener("click", runSearch);
 
     filterButton?.addEventListener("click", () => {
-        hideSearchSuggestions();
-        filterPanel?.classList.add("hidden");
-        marketplaceFilterPanel?.classList.toggle("hidden");
-        document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
+        filterPanel?.classList.toggle("hidden");
     });
 
     filterClose?.addEventListener("click", () => {
-        hideSearchSuggestions();
         filterPanel?.classList.add("hidden");
-        marketplaceFilterPanel?.classList.add("hidden");
     });
 
     ["categoryFilter","minPrice","maxPrice","locationFilter","conditionFilter","sortFilter"].forEach(id => {
@@ -13208,15 +11196,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     $("applyMarketplaceFilters")?.addEventListener("click", () => {
-        hideSearchSuggestions();
         applyFilters();
         filterPanel?.classList.add("hidden");
-        marketplaceFilterPanel?.classList.add("hidden");
         showToast("Filters applied", "success");
     });
 
     $("cancelMarketplaceFilters")?.addEventListener("click", () => {
-        hideSearchSuggestions();
         const search = $("navbarSearchInput");
         if (search) search.value = "";
         ["minPrice","maxPrice","locationFilter"].forEach(id => { const el=$(id); if(el) el.value=""; });
@@ -13226,42 +11211,8 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedMarketplaceCategory="all";
         applyFilters();
         filterPanel?.classList.add("hidden");
-        marketplaceFilterPanel?.classList.add("hidden");
     });
 });
-
-/* =========================================================
-   HERO SEARCH — LIVE OLX-STYLE AUTOCOMPLETE
-   ========================================================= */
-document.addEventListener("DOMContentLoaded", () => {
-    const input=document.getElementById("heroSearchInput"), panel=document.getElementById("heroSearchSuggestions"), navInput=document.getElementById("navbarSearchInput");
-    if(!input||!panel) return;
-    let activeIndex=-1;
-    const hide=()=>{panel.classList.add("hidden");panel.innerHTML="";activeIndex=-1;input.removeAttribute("aria-activedescendant");};
-    const getSuggestions=query=>{
-        const q=String(query||"").trim().toLowerCase(); if(!q) return [];
-        const popular=[["Laptop","Electronics","fa-laptop"],["Laptop Stand","Electronics","fa-laptop"],["Mobile Phone","Electronics","fa-mobile-screen"],["Headphones","Electronics","fa-headphones"],["Programming Books","Books","fa-book"],["Textbooks","Books","fa-book-open"],["Bicycle","Vehicles","fa-bicycle"],["Calculator","Electronics","fa-calculator"],["Study Table","Furniture","fa-table"],["Chair","Furniture","fa-chair"],["Room for Rent","Services","fa-house"],["Notes","Books","fa-note-sticky"]];
-        const categories=["Books","Electronics","Vehicles","Furniture","Services","Fashion"], results=[], seen=new Set();
-        const add=(title,meta,icon,value)=>{const key=String(title||"").trim().toLowerCase();if(!key||seen.has(key))return;seen.add(key);results.push({title,meta,icon,value});};
-        popular.filter(x=>x[0].toLowerCase().includes(q)).sort((a,b)=>Number(!a[0].toLowerCase().startsWith(q))-Number(!b[0].toLowerCase().startsWith(q))).forEach(x=>add(x[0],x[1],x[2],x[0]));
-        categories.filter(x=>x.toLowerCase().includes(q)).sort((a,b)=>Number(!a.toLowerCase().startsWith(q))-Number(!b.toLowerCase().startsWith(q))).forEach(x=>add(x,"Category","fa-layer-group",x));
-        [...(Array.isArray(currentProducts)?currentProducts:[])].filter(p=>[p.name,p.category,p.location,p.description,p.condition].join(" ").toLowerCase().includes(q)).sort((a,b)=>{const an=String(a.name||"").toLowerCase(),bn=String(b.name||"").toLowerCase();return Number(!an.startsWith(q))-Number(!bn.startsWith(q))||an.localeCompare(bn);}).forEach(p=>add(p.name,p.category||"Listing","fa-tag",p.name));
-        return results.slice(0,7);
-    };
-    const position=()=>{if(panel.classList.contains("hidden"))return;const r=input.getBoundingClientRect();panel.style.top=(r.bottom+6)+"px";panel.style.left=r.left+"px";panel.style.width=r.width+"px";};
-    const render=query=>{
-        const list=getSuggestions(query);if(!list.length){hide();return;}
-        panel.innerHTML=list.map((x,i)=>'<button type="button" class="hero-search-suggestion" id="heroSearchSuggestion-'+i+'" role="option" aria-selected="false" data-suggestion-value="'+escapeHTML(x.value)+'"><span class="hero-search-suggestion-icon"><i class="fas '+x.icon+'"></i></span><span class="hero-search-suggestion-copy"><span class="hero-search-suggestion-title">'+escapeHTML(x.title)+'</span><span class="hero-search-suggestion-meta">'+escapeHTML(x.meta)+'</span></span><i class="fas fa-chevron-right hero-search-suggestion-arrow"></i></button>').join("");
-        panel.classList.remove("hidden");position();
-        panel.querySelectorAll(".hero-search-suggestion").forEach(b=>{b.addEventListener("mousedown",e=>e.preventDefault());b.addEventListener("click",()=>{const value=b.dataset.suggestionValue||"";input.value=value;if(navInput)navInput.value=value;hide();showSearchResultsPage(value);});});
-    };
-    const move=d=>{if(panel.classList.contains("hidden"))return;const items=[...panel.querySelectorAll(".hero-search-suggestion")];if(!items.length)return;activeIndex=(activeIndex+d+items.length)%items.length;items.forEach((x,i)=>{const a=i===activeIndex;x.classList.toggle("is-active",a);x.setAttribute("aria-selected",a?"true":"false");});input.setAttribute("aria-activedescendant",items[activeIndex].id);items[activeIndex].scrollIntoView({block:"nearest"});};
-    input.addEventListener("input",()=>{activeIndex=-1;if(navInput)navInput.value=input.value;render(input.value);});
-    input.addEventListener("focus",()=>{if(input.value.trim())render(input.value);});
-    input.addEventListener("keydown",e=>{if(e.key==="ArrowDown"){e.preventDefault();move(1);}else if(e.key==="ArrowUp"){e.preventDefault();move(-1);}else if(e.key==="Enter"){e.preventDefault();const a=panel.querySelector(".hero-search-suggestion.is-active");const value=a?(a.dataset.suggestionValue||""):input.value.trim();if(!value)return;if(navInput)navInput.value=value;hide();showSearchResultsPage(value);}else if(e.key==="Escape"){hide();input.blur();}});
-    input.addEventListener("blur",()=>setTimeout(hide,120));window.addEventListener("resize",position,{passive:true});window.addEventListener("scroll",position,{passive:true});
-});
-
 
 
 /* =========================================================
@@ -13290,17 +11241,11 @@ document.addEventListener("pointerdown", event => {
 
     window.setTimeout(() => ripple.remove(), 170);
 
-    // Respect the user's interaction-feedback preference on supported mobile browsers.
-    if (currentUser && getStudentKartSettings().preferences.vibration && navigator.vibrate) {
-        navigator.vibrate(10);
-    }
 
 });
 
 
 /* Footer information links */
-/* Marketplace navigation is handled by initStudentKartHomeViews below. */
-
 const bottomSettingsButton = $("bottomSettingsButton");
 if (bottomSettingsButton) {
     bottomSettingsButton.addEventListener("click", () => {
@@ -13309,13 +11254,6 @@ if (bottomSettingsButton) {
         } else {
             openModal("loginModal");
         }
-    });
-}
-
-const bottomProfileButton = $("bottomProfileButton");
-if (bottomProfileButton) {
-    bottomProfileButton.addEventListener("click", () => {
-        openProfile();
     });
 }
 
@@ -13419,10 +11357,6 @@ async function saveStudentKartSettings(nextSettings, silent = false) {
         );
     } catch (_) {}
 
-    // Apply the local state before the network request so switches,
-    // theme and privacy controls respond immediately.
-    applyStudentKartSettings();
-
     const { data, error } = await supabaseClient.auth.updateUser({
         data: {
             ...(currentUser.user_metadata || {}),
@@ -13496,8 +11430,6 @@ async function settingsToggle(path) {
     for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
     const key = parts[parts.length - 1];
     obj[key] = !Boolean(obj[key]);
-
-    // The save helper applies the local state before syncing the account.
     return saveStudentKartSettings(settings);
 }
 
@@ -13889,56 +11821,16 @@ function settingsAccountSecurity() {
 function settingsDeleteAccount() {
     openSettingsActionModal({
         title:"Delete Account",
-        description:"This permanently deletes your StudentKart account. Your authenticated account will be removed from Supabase. This action cannot be undone.",
-        fields:[{id:"confirm",label:"Type DELETE to permanently delete",placeholder:"DELETE"}],
-        confirmText:"Delete Permanently",
+        description:"Account deletion is permanent. Send a deletion request so it can be processed safely on the server.",
+        fields:[{id:"confirm",label:"Type DELETE to continue",placeholder:"DELETE"}],
+        confirmText:"Request Deletion",
         danger:true,
         onConfirm:async values=>{
-            if(values.confirm!=="DELETE"){
-                showToast("Type DELETE exactly to continue","warning");
-                return false;
-            }
-
-            if(!currentUser){
-                showToast("Please login again before deleting your account","warning");
-                return false;
-            }
-
-            const confirmed = window.confirm(
-                "Permanently delete your StudentKart account? This cannot be undone."
-            );
-            if(!confirmed) return false;
-
-            try {
-                const userId = String(currentUser.id);
-
-                const { error } = await supabaseClient.rpc("delete_my_account");
-                if(error) throw error;
-
-                try {
-                    localStorage.removeItem("studentkart_settings_" + userId);
-                    localStorage.removeItem("studentkart_profile_" + userId);
-                } catch (_) {}
-
-                currentUser = null;
-                closeAllModals({ fromPopState: true });
-
-                try {
-                    await supabaseClient.auth.signOut();
-                } catch (_) {}
-
-                showToast("Your StudentKart account has been permanently deleted.", "success");
-                return true;
-            } catch (error) {
-                console.error("Account deletion error:", error);
-                showToast(
-                    error?.message?.includes("delete_my_account")
-                        ? "Account deletion is not enabled yet. Run supabase/delete_my_account.sql in Supabase SQL Editor first."
-                        : (error?.message || "Could not delete your account"),
-                    "error"
-                );
-                return false;
-            }
+            if(values.confirm!=="DELETE"){showToast("Type DELETE exactly to continue","warning");return false;}
+            const subject=encodeURIComponent("StudentKart account deletion request");
+            const body=encodeURIComponent("Please delete my StudentKart account. Account ID: "+(currentUser?.id||"unknown"));
+            window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
+            showToast("Deletion request prepared","warning");
         }
     });
 }
@@ -13971,54 +11863,14 @@ async function handleSettingAction(action) {
 
     if (action === "push-notifications") {
         const settings = getStudentKartSettings();
-
-        // Turning push ON is a real browser permission + Web Push setup,
-        // not just a visual preference. Complete the subscription first.
-        if (!settings.notifications.push) {
-            if (!("Notification" in window)) {
-                showToast("Push notifications are not supported on this browser", "warning");
-                return;
-            }
-
-            let permission = Notification.permission;
-
-            if (permission === "default") {
-                permission = await Notification.requestPermission();
-            }
-
+        if (!settings.notifications.push && "Notification" in window) {
+            const permission = await Notification.requestPermission();
             if (permission !== "granted") {
-                if (permission === "denied") {
-                    showToast("Notifications are blocked for StudentKart. Allow notifications in your browser/site settings, then try again.", "warning");
-                } else {
-                    showToast("Browser notification permission was not granted", "warning");
-                }
-                return;
-            }
-
-            if (typeof window.registerStudentKartPush !== "function") {
-                showToast("Push service is still loading. Please try again.", "warning");
-                return;
-            }
-
-            try {
-                const subscription = await window.registerStudentKartPush();
-                if (!subscription) {
-                    showToast("Could not enable push notifications on this device", "error");
-                    return;
-                }
-            } catch (error) {
-                console.error("Push notification setup error:", error);
-                showToast(
-                    error?.message || "Could not save this device for push notifications",
-                    "error"
-                );
+                showToast("Browser notification permission was not granted", "warning");
                 return;
             }
         }
-
-        await settingsToggle("notifications.push");
-        applyStudentKartSettings();
-        return; 
+        return settingsToggle("notifications.push");
     }
 
     if (action === "profile-visibility") return settingsProfileVisibility();
@@ -14026,12 +11878,15 @@ async function handleSettingAction(action) {
     if (action === "hide-email") return settingsToggle("privacy.hideEmail");
     if (action === "blocked-users") return settingsBlockedUsers();
 
-    if (action === "report-problem") return settingsReportProblem();
+    if (action === "report-problem") {
+        const body = encodeURIComponent("StudentKart problem report:\n\n");
+        window.location.href = `mailto:rathodharish004@gmail.com?subject=StudentKart%20Problem%20Report&body=${body}`;
+        return;
+    }
 
-    if (action === "how" || action === "safety-tips" || action === "safety-about" || action === "about" ||
+    if (action === "safety-tips" || action === "safety-about" || action === "about" ||
         action === "terms" || action === "privacy-policy" || action === "contact") {
         const map = {
-            how: "how",
             "safety-tips": "safety",
             "safety-about": "safety",
             about: "about",
@@ -14039,19 +11894,8 @@ async function handleSettingAction(action) {
             "privacy-policy": "privacy",
             contact: "contact"
         };
-        const info = footerInfoContent[map[action]];
-        if (info) {
-            closeModal("settingsModal");
-            const title = $("settingsDetailTitle");
-            const subtitle = $("settingsDetailSubtitle");
-            const icon = $("settingsDetailIcon");
-            const content = $("settingsDetailContent");
-            if (title) title.textContent = info.title;
-            if (subtitle) subtitle.textContent = "StudentKart information and guidance.";
-            if (icon) icon.className = "fas fa-circle-info";
-            if (content) content.innerHTML = info.body;
-            openModal("settingsDetailModal");
-        }
+        closeModal("settingsModal");
+        document.querySelector(`[data-footer-info="${map[action]}"]`)?.click();
         return;
     }
 
@@ -14070,6 +11914,7 @@ async function handleSettingAction(action) {
     if (action === "delete-account") return settingsDeleteAccount();
 
     if (action === "logout") {
+        closeModal("settingsModal");
         $("logoutButton")?.click();
         return;
     }
@@ -14080,10 +11925,6 @@ const SETTINGS_SECTION_TEMPLATES = {
         title: "Account", icon: "fa-user", subtitle: "Manage your profile and account details.",
         html: `
             <button class="settings-row" type="button" data-setting-action="edit-profile"><span><i class="fas fa-pen"></i><b>Edit Profile</b><small>Update your profile details</small></span><i class="fas fa-chevron-right"></i></button>
-            <button class="settings-row" type="button" data-setting-action="email"><span><i class="fas fa-envelope"></i><b>Email Address</b><small>Change the email connected to your account</small></span><i class="fas fa-chevron-right"></i></button>
-            <button class="settings-row" type="button" data-setting-action="mobile"><span><i class="fas fa-mobile-screen"></i><b>Mobile Number</b><small>Change your mobile number</small></span><i class="fas fa-chevron-right"></i></button>
-            <button class="settings-row" type="button" data-setting-action="college"><span><i class="fas fa-building-columns"></i><b>College / University</b><small>Update your education details</small></span><i class="fas fa-chevron-right"></i></button>
-            <button class="settings-row" type="button" data-setting-action="profile-photo"><span><i class="fas fa-camera"></i><b>Profile Photo</b><small>Update your profile picture</small></span><i class="fas fa-chevron-right"></i></button>
         `
     },
     notifications: {
@@ -14118,8 +11959,7 @@ const SETTINGS_SECTION_TEMPLATES = {
         <button class="settings-row" type="button" data-setting-action="logout-all"><span><i class="fas fa-right-from-bracket"></i><b>Logout from All Devices</b><small>Sign out of other sessions</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="account-security"><span><i class="fas fa-shield"></i><b>Account Security</b><small>Review account security</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row danger-row" type="button" data-setting-action="delete-account"><span><i class="fas fa-trash-can"></i><b>Delete Account</b><small>Permanently remove your account</small></span><i class="fas fa-chevron-right"></i></button>`},
-    about:{title:"About & Help",icon:"fa-circle-info",subtitle:"StudentKart information, guidance and support.",html:`
-        <button class="settings-row" type="button" data-setting-action="how"><span><i class="fas fa-route"></i><b>How It Works</b><small>Learn how buying and selling works</small></span><i class="fas fa-chevron-right"></i></button>
+    about:{title:"About",icon:"fa-circle-info",subtitle:"StudentKart information and support.",html:`
         <button class="settings-row" type="button" data-setting-action="about"><span><i class="fas fa-circle-info"></i><b>About StudentKart</b><small>Learn more about StudentKart</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="terms"><span><i class="fas fa-file-contract"></i><b>Terms & Conditions</b><small>Platform terms</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="privacy-policy"><span><i class="fas fa-user-shield"></i><b>Privacy Policy</b><small>How information is handled</small></span><i class="fas fa-chevron-right"></i></button>
@@ -14162,41 +12002,45 @@ const footerInfoContent = {
     about: {
         title: "About StudentKart",
         body: `
-            <div class="info-intro">StudentKart is a student-focused digital space designed to make studying, building skills, exploring opportunities and staying connected easier.</div>
+            <div class="info-intro">StudentKart is a student-focused marketplace designed to make campus buying, selling, renting and discovering useful products easier.</div>
             <div class="info-section">
                 <h3><i class="fas fa-store"></i> What is StudentKart?</h3>
-                <p>StudentKart brings useful student tools and campus discovery into one simple place. The Campus Exchange module lets students browse listings, save favourites, chat with sellers and publish their own listings.</p>
+                <p>StudentKart brings student-to-student listings into one simple place. Students can browse products, compare listings, save favourites, chat with sellers and publish their own listings.</p>
             </div>
             <div class="info-section">
                 <h3><i class="fas fa-bullseye"></i> Our Purpose</h3>
-                <p>Our goal is to help students organize everyday study, skill-building and campus life while keeping useful campus discovery simple and organized.</p>
+                <p>Our goal is to make useful products and services around student communities easier to discover, while keeping the buying and selling process simple and organized.</p>
             </div>
             <div class="info-section">
                 <h3><i class="fas fa-handshake"></i> How StudentKart Works</h3>
-                <p>StudentKart provides a student-focused ecosystem with tools for learning, planning, career growth and campus discovery. The Campus Exchange module connects buyers and sellers; StudentKart does not act as the buyer or seller in a transaction. Users are responsible for checking products, sellers, prices and transaction details before making a deal.</p>
+                <p>StudentKart connects buyers and sellers. It does not act as the buyer or seller in a transaction. Users are responsible for checking products, sellers, prices and transaction details before making a deal.</p>
             </div>
         `
     },
     how: {
-        title: "How StudentKart Works",
+        title: "How It Works",
         body: `
-            <div class="info-intro">Student life should be easier to organize. StudentKart brings your study, goals, opportunities and campus discovery into one place.</div>
             <div class="info-section">
-                <h3><span class="step-number">01</span><i class="fas fa-user-plus"></i> Set Up Your Space</h3>
-                <p>Sign up and create your student profile and preferences.</p>
+                <h3><i class="fas fa-cart-shopping"></i> Buying on StudentKart</h3>
+                <ol class="info-steps">
+                    <li>Browse the marketplace or choose a category.</li>
+                    <li>Search and filter listings to find what you need.</li>
+                    <li>Open a listing and check its price, condition, location and seller details.</li>
+                    <li>Contact the seller through StudentKart chat.</li>
+                    <li>Discuss the product and agree on the transaction details before paying.</li>
+                </ol>
             </div>
             <div class="info-section">
-                <h3><span class="step-number">02</span><i class="fas fa-camera"></i> Add What You Need</h3>
-                <p>Set up your goals, resources and campus preferences. You can also publish a Campus Exchange listing.</p>
+                <h3><i class="fas fa-tag"></i> Selling on StudentKart</h3>
+                <ol class="info-steps">
+                    <li>Sign in to your StudentKart account.</li>
+                    <li>Select <strong>Sell</strong> and add the product details.</li>
+                    <li>Add the name, category, price, location, condition, description and photos.</li>
+                    <li>Publish your listing.</li>
+                    <li>Respond to interested buyers through chat and complete the transaction safely.</li>
+                </ol>
             </div>
-            <div class="info-section">
-                <h3><span class="step-number">03</span><i class="fas fa-magnifying-glass"></i> Learn & Explore</h3>
-                <p>Explore study resources, skills, opportunities and campus listings.</p>
-            </div>
-            <div class="info-section">
-                <h3><span class="step-number">04</span><i class="fas fa-handshake"></i> Connect &amp; Deal</h3>
-                <p>Build skills, track progress and connect with other students.</p>
-            </div>
+            <div class="info-note"><i class="fas fa-circle-info"></i><span>Always inspect an item and confirm the final price, payment method and meeting details before completing a transaction.</span></div>
         `
     },
     safety: {
@@ -14310,144 +12154,56 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================================================
-   SHARED LISTING LINKS
-   ========================================================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-    const productHash = window.location.hash.match(/^#product-(.+)$/);
-
-    if (!productHash) {
-        return;
-    }
-
-    const productId = decodeURIComponent(productHash[1]);
-
-    // Give the initial product fetch a moment to populate the marketplace.
-    window.setTimeout(() => {
-        if (typeof openProductDetails === "function") {
-            void openProductDetails(productId);
-        }
-    }, 450);
-});
-
-/* =========================================================
    FINAL NAVBAR SCROLL BEHAVIOR
-   The main navbar stays visible while scrolling.
+   Hide navbar while scrolling down, reveal it while scrolling up.
+   Bottom floating navigation is intentionally untouched.
    ========================================================= */
 (function initNavbarScrollBehavior() {
-    function keepNavbarVisible() {
+    let lastScrollY = window.scrollY || 0;
+    let scrollTicking = false;
+    const DOWN_THRESHOLD = 8;
+    const TOP_OFFSET = 12;
+
+    function updateNavbarScrollState() {
         const navbar = document.querySelector(".navbar");
-        if (!navbar) return;
-        navbar.classList.remove("navbar-scroll-hidden");
+        if (!navbar) {
+            scrollTicking = false;
+            return;
+        }
+
+        const currentY = Math.max(0, window.scrollY || 0);
+        const hasBlockingView =
+            document.body.classList.contains("studentkart-modal-navigation-hidden") ||
+            document.body.classList.contains("studentkart-product-details-open") ||
+            document.body.classList.contains("studentkart-chat-open") ||
+            document.body.classList.contains("category-page-active") ||
+            !!document.querySelector(".modal:not(.hidden)") ||
+            !!document.querySelector("#categoryPage:not(.hidden)");
+
+        if (currentY <= TOP_OFFSET) {
+            navbar.classList.remove("navbar-scroll-hidden");
+        } else if (!hasBlockingView && currentY > lastScrollY + DOWN_THRESHOLD) {
+            navbar.classList.add("navbar-scroll-hidden");
+        } else if (currentY < lastScrollY - DOWN_THRESHOLD) {
+            navbar.classList.remove("navbar-scroll-hidden");
+        }
+
+        lastScrollY = currentY;
+        scrollTicking = false;
     }
 
-    window.addEventListener("scroll", keepNavbarVisible, { passive: true });
-    window.addEventListener("resize", keepNavbarVisible, { passive: true });
-    window.addEventListener("load", keepNavbarVisible);
-    keepNavbarVisible();
-})();
-
-
-/* Password visibility toggles */
-function setupPasswordVisibilityToggles() {
-    document.querySelectorAll("[data-password-toggle]").forEach(button => {
-        if (button.dataset.passwordToggleReady === "true") return;
-        button.dataset.passwordToggleReady = "true";
-
-        button.addEventListener("click", () => {
-            const inputId = button.dataset.passwordToggle;
-            const input = inputId ? document.getElementById(inputId) : null;
-            const icon = button.querySelector("i");
-
-            if (!input) return;
-
-            const showing = input.type === "text";
-            input.type = showing ? "password" : "text";
-
-            if (icon) {
-                icon.className = showing ? "far fa-eye" : "far fa-eye-slash";
-            }
-
-            button.setAttribute("aria-label", showing ? "Show password" : "Hide password");
-            button.setAttribute("title", showing ? "Show password" : "Hide password");
-        });
-    });
-}
-
-setupPasswordVisibilityToggles();
-
-
-/* =========================================================
-   HOME DASHBOARD + SEPARATE MARKETPLACE / STUDENT TOOL VIEWS
-   ========================================================= */
-(function initStudentKartHomeViews(){
-    const homeViews = () => {
-        document.querySelectorAll("#home,#studentDashboard").forEach(el=>el.classList.remove("hidden"));
-        $("marketplace")?.classList.add("hidden");
-        $("studentToolPage")?.classList.add("hidden");
-        const navbar = document.querySelector(".navbar");
-        const floatingBar = document.querySelector(".mobile-bottom-nav");
-        navbar?.classList.remove("hidden");
-        floatingBar?.classList.remove("hidden");
-        if (navbar) navbar.style.display = "";
-        if (floatingBar) floatingBar.style.display = "";
-        document.body.classList.remove("marketplace-page-active");
-        window.scrollTo({top:0,behavior:"smooth"});
-    };
-
-    const marketplaceView = () => {
-        closeAllModals({fromPopState:true});
-        document.querySelectorAll("#home,#studentDashboard").forEach(el=>el.classList.add("hidden"));
-        $("studentToolPage")?.classList.add("hidden");
-        $("marketplace")?.classList.remove("hidden");
-        $("searchResultsPage")?.classList.add("hidden");
-        $("categoryPage")?.classList.add("hidden");
-        document.body.classList.remove("search-results-mobile-view","category-page-active","studentkart-modal-navigation-hidden");
-        document.querySelector("main")?.classList.remove("category-page-active");
-        const navbar = document.querySelector(".navbar");
-        const floatingBar = document.querySelector(".mobile-bottom-nav");
-        navbar?.classList.add("hidden");
-        floatingBar?.classList.add("hidden");
-        if (navbar) navbar.style.display = "none";
-        if (floatingBar) floatingBar.style.display = "none";
-        document.body.classList.add("marketplace-page-active");
-        window.scrollTo({top:0,behavior:"smooth"});
-    };
-
-    const toolData = {
-        study:{title:"Study Hub",kicker:"LEARN BETTER",icon:"fa-book-open",intro:"Keep your study material, revision and learning resources organized in one focused space.",cards:[["Notes","Organize subject notes and revision material.","fa-note-sticky"],["Resources","Keep useful PDFs, links and learning material together.","fa-folder-open"],["Study Planner","Plan focused study sessions around your classes.","fa-calendar-check"]]},
-        tasks:{title:"Tasks & Deadlines",kicker:"STAY ON TRACK",icon:"fa-list-check",intro:"Turn assignments, exams and personal goals into a clear student checklist.",cards:[["Assignments","Track work that needs to be submitted.","fa-file-pen"],["Deadlines","Keep upcoming due dates visible.","fa-clock"],["Goals","Break bigger goals into smaller actions.","fa-bullseye"]]},
-        career:{title:"Career Hub",kicker:"BUILD YOUR FUTURE",icon:"fa-briefcase",intro:"Create a practical path from college learning to projects, internships and career opportunities.",cards:[["Skills","Choose and track skills you want to build.","fa-code"],["Projects","Keep your portfolio projects organized.","fa-diagram-project"],["Opportunities","Explore internships, roles and career resources.","fa-rocket"]]},
-        cyber:{title:"Cybersecurity Hub",kicker:"SECURITY LEARNING",icon:"fa-shield-halved",intro:"Build your cybersecurity foundation with a structured place for topics, practice and progress.",cards:[["Fundamentals","Networking, Linux, web and security basics.","fa-network-wired"],["Practice","Keep labs, challenges and practice goals together.","fa-flask"],["Roadmap","Track your journey from beginner to job-ready.","fa-route"]]},
-        community:{title:"Campus Community",kicker:"CONNECT",icon:"fa-users",intro:"A student space for campus discussions, questions, announcements and peer connections.",cards:[["Discussions","Start or follow student conversations.","fa-comments"],["Campus Updates","Keep useful campus information together.","fa-bullhorn"],["Peer Help","Connect around study and student-life questions.","fa-handshake"]]},
-        resources:{title:"Resources",kicker:"STUDENT LIBRARY",icon:"fa-folder-open",intro:"A dedicated place for useful academic and student resources.",cards:[["Study Material","Find subject-wise learning resources.","fa-book"],["Tools","Keep useful student tools easy to reach.","fa-toolbox"],["Saved Resources","Your future saved-resource space.","fa-bookmark"]]},
-        progress:{title:"Progress",kicker:"YOUR GROWTH",icon:"fa-chart-line",intro:"See your learning, skills and goals as a simple student progress journey.",cards:[["Study Progress","Track the topics and subjects you are working through.","fa-chart-column"],["Skills Progress","Track skills from learning to practice.","fa-chart-line"],["Career Progress","Track projects and opportunities you are pursuing.","fa-arrow-trend-up"]]},
-    };
-
-    function openTool(key){
-        if(key==="exchange"){ marketplaceView(); return; }
-        const d=toolData[key]; if(!d) return;
-        $("home")?.classList.add("hidden"); $("studentDashboard")?.classList.add("hidden"); $("marketplace")?.classList.add("hidden");
-        document.querySelector(".navbar")?.classList.add("hidden"); document.querySelector(".mobile-bottom-nav")?.classList.add("hidden");
-        const page=$("studentToolPage"); if(!page) return;
-        $("studentToolKicker").textContent=d.kicker; $("studentToolTitle").textContent=d.title;
-        $("studentToolContent").innerHTML='<div class="student-tool-hero"><h1><i class="fas '+d.icon+'"></i> '+d.title+'</h1><p>'+d.intro+'</p></div><div class="student-tool-grid">'+d.cards.map((c,i)=>'<article class="student-tool-card"><i class="fas '+c[2]+'"></i><h3>'+c[0]+'</h3><p>'+c[1]+'</p><button type="button" class="student-tool-action" data-tool-action="'+key+'-'+i+'">Open</button></article>').join("")+'</div>';
-        page.classList.remove("hidden"); window.scrollTo({top:0,behavior:"smooth"});
+    function onScroll() {
+        if (!scrollTicking) {
+            window.requestAnimationFrame(updateNavbarScrollState);
+            scrollTicking = true;
+        }
     }
 
-    document.addEventListener("click",e=>{
-        const card=e.target.closest("[data-dashboard-card]");
-        if(card){e.preventDefault();openTool(card.dataset.dashboardCard);return;}
-        if(e.target.closest("#bottomMarketplaceButton")||e.target.closest("#dashboardMarketplaceButton")){e.preventDefault();marketplaceView();return;}
-        if(e.target.closest("#marketplaceBackButton")){e.preventDefault();homeViews();return;}
-        if(e.target.closest("#studentToolBack")){e.preventDefault();homeViews();return;}
-        const action=e.target.closest("[data-tool-action]");
-        if(action){showToast("This student tool is ready for the next module.","success");return;}
-    });
-
-
-    // Keep browser/mobile back navigation intuitive for these views.
-    window.addEventListener("popstate",()=>{
-        if(!$("marketplace")?.classList.contains("hidden") || !$("studentToolPage")?.classList.contains("hidden")) homeViews();
-    });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", () => {
+        lastScrollY = window.scrollY || 0;
+        if (lastScrollY <= TOP_OFFSET) {
+            document.querySelector(".navbar")?.classList.remove("navbar-scroll-hidden");
+        }
+    }, { passive: true });
 })();
