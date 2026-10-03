@@ -18210,3 +18210,93 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
         border-radius: 11px;
     }
 }
+
+
+/* Marketplace filter panel is independent from the navbar search panel.
+   This prevents the navbar search field from appearing when marketplace
+   filters are opened. */
+.marketplace-filter-panel {
+    width: min(920px, 100%);
+    margin: 10px auto 18px;
+    padding: 18px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 20;
+}
+
+.marketplace-filter-panel.hidden {
+    display: none !important;
+}
+
+.marketplace-filter-panel .filter-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.marketplace-filter-panel .filter-panel-header strong {
+    display: block;
+    font-size: 15px;
+    color: var(--text);
+}
+
+.marketplace-filter-panel .filter-panel-header small {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.marketplace-filter-panel .filter-panel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.marketplace-filter-panel .filter-panel-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.marketplace-filter-panel .filter-panel-grid label > span {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-soft);
+}
+
+.marketplace-filter-panel .filter-panel-grid input,
+.marketplace-filter-panel .filter-panel-grid select {
+    width: 100%;
+    min-height: 42px;
+    box-sizing: border-box;
+}
+
+.marketplace-filter-panel .filter-panel-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+@media (max-width: 700px) {
+    .marketplace-filter-panel {
+        width: 100%;
+        padding: 14px;
+        margin: 8px auto 14px;
+        border-radius: 14px;
+    }
+
+    .marketplace-filter-panel .filter-panel-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .marketplace-filter-panel .filter-panel-actions {
+        flex-direction: row;
+    }
+}
