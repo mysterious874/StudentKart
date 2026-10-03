@@ -12554,6 +12554,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const suggestionCategories = ["Books", "Electronics", "Vehicles", "Furniture", "Services", "Fashion"];
 
+    const popularSearchSuggestions = [
+        ["Laptop", "Electronics", "fa-laptop"],
+        ["Laptop Stand", "Electronics", "fa-laptop"],
+        ["Mobile Phone", "Electronics", "fa-mobile-screen"],
+        ["Headphones", "Electronics", "fa-headphones"],
+        ["Programming Books", "Books", "fa-book"],
+        ["Textbooks", "Books", "fa-book-open"],
+        ["Bicycle", "Vehicles", "fa-bicycle"],
+        ["Calculator", "Electronics", "fa-calculator"],
+        ["Study Table", "Furniture", "fa-table"],
+        ["Chair", "Furniture", "fa-chair"],
+        ["Room for Rent", "Services", "fa-house"],
+        ["Notes", "Books", "fa-note-sticky"]
+    ];
+
     const hideSearchSuggestions = () => {
         if (!suggestionsPanel) return;
         suggestionsPanel.classList.add("hidden");
@@ -12574,6 +12589,11 @@ document.addEventListener("DOMContentLoaded", () => {
             seen.add(key);
             results.push({ title, meta, icon, value });
         };
+
+        popularSearchSuggestions
+            .filter(item => item[0].toLowerCase().includes(q))
+            .sort((a, b) => Number(!a[0].toLowerCase().startsWith(q)) - Number(!b[0].toLowerCase().startsWith(q)))
+            .forEach(item => add(item[0], item[1], item[2], item[0]));
 
         suggestionCategories
             .filter(category => category.toLowerCase().includes(q))
@@ -12729,8 +12749,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     searchInput.addEventListener("keydown", event => {
-        if (event.key === "Enter") {
+        if (event.key === "ArrowDown") {
             event.preventDefault();
+            moveSearchSuggestion(1);
+        } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            moveSearchSuggestion(-1);
+        } else if (event.key === "Enter") {
+            event.preventDefault();
+            const activeItem = suggestionsPanel?.querySelector(".navbar-search-suggestion.is-active");
+            if (activeItem) searchInput.value = activeItem.dataset.suggestionValue || searchInput.value;
             runSearch();
         } else if (event.key === "Escape") {
             if (studentKartNavbarSearchOpen) {
