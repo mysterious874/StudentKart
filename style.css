@@ -18302,13 +18302,6 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
 }
 
 
-/* Mobile navbar search: never paint a native caret after the overlay closes. */
-#navbarSearchInput.studentkart-search-closed {
-    caret-color: transparent !important;
-    -webkit-caret-color: transparent !important;
-    outline: none !important;
-    box-shadow: none !important;
-}
 #navbarSearchInput.studentkart-search-closed:focus,
 #navbarSearchInput.studentkart-search-closed:focus-visible {
     caret-color: transparent !important;
