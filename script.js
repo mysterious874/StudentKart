@@ -12321,9 +12321,10 @@ function setupHeroSearchStrip() {
     const input = document.getElementById("heroSearchInput");
     const submit = document.getElementById("heroSearchSubmit");
     const filter = document.getElementById("heroSearchFilterButton");
-    const searchPanel = document.getElementById("navbarSearchPanel");
+    const filterPanel = document.getElementById("navbarFilterPanel");
+    const marketplaceFilterPanel = document.getElementById("marketplaceFilterPanel");
+    const marketplaceFilterPanel = document.getElementById("marketplaceFilterPanel");
     const navInput = document.getElementById("navbarSearchInput");
-    const marketplaceSearch = document.getElementById("marketplaceSearch");
     const marketplace = document.getElementById("marketplace");
     if (!input) return;
 
@@ -12335,22 +12336,18 @@ function setupHeroSearchStrip() {
         window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
     };
 
+    const closeMarketplaceFilters = () => {
+        marketplaceFilterPanel?.classList.add("hidden");
+    };
+
     const runSearch = () => {
         const query = input.value.trim();
-
         if (navInput) navInput.value = query;
-        if (marketplaceSearch) marketplaceSearch.value = query;
 
-        // Keep the search interaction local to the marketplace search bar.
-        searchPanel?.classList.add("hidden");
-        searchPanel?.classList.remove("marketplace-local-filter");
-        if (searchPanel) searchPanel.style.top = "";
-        document.getElementById("navbarFilterPanel")?.classList.add("hidden");
-
+        closeMarketplaceFilters();
         if (typeof applyFilters === "function") applyFilters();
 
         scrollToMarketplaceSearch();
-
         input.focus({ preventScroll: true });
 
         if (window.location.hash !== "#marketplace-search") {
@@ -12360,9 +12357,7 @@ function setupHeroSearchStrip() {
 
     submit?.addEventListener("click", runSearch);
 
-    input.addEventListener("focus", () => {
-        scrollToMarketplaceSearch();
-    });
+    input.addEventListener("focus", scrollToMarketplaceSearch);
 
     input.addEventListener("keydown", event => {
         if (event.key === "Enter") {
@@ -12373,22 +12368,12 @@ function setupHeroSearchStrip() {
         }
     });
 
-    filter?.addEventListener("click", () => {
-        // Open the filter controls for this marketplace search interaction,
-        // without opening a second search bar.
-        searchPanel?.classList.add("hidden");
-        const filterPanel = document.getElementById("navbarFilterPanel");
-        if (searchPanel && filterPanel) {
-            searchPanel.classList.remove("hidden");
-            searchPanel.classList.add("marketplace-local-filter");
-            filterPanel.classList.remove("hidden");
+    filter?.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
 
-            const target = document.getElementById("heroSearchStrip");
-            if (target) {
-                const rect = target.getBoundingClientRect();
-                searchPanel.style.top = Math.min(window.innerHeight - 20, rect.bottom + 10) + "px";
-            }
-        }
+        filterPanel?.classList.add("hidden");
+        marketplaceFilterPanel?.classList.toggle("hidden");
 
         scrollToMarketplaceSearch();
 
@@ -12397,22 +12382,24 @@ function setupHeroSearchStrip() {
         }
     });
 
+    document.getElementById("navbarFilterClose")?.addEventListener("click", () => {
+        closeMarketplaceFilters();
+    });
+
     window.addEventListener("popstate", event => {
-        const isLocalSearchState =
+        const localState =
             event.state?.studentKartMarketplaceSearch ||
             event.state?.studentKartMarketplaceFilters ||
             window.location.hash === "#marketplace-search" ||
             window.location.hash === "#marketplace-filters";
 
-        if (!isLocalSearchState) return;
+        if (!localState) return;
 
-        searchPanel?.classList.add("hidden");
-        document.getElementById("navbarFilterPanel")?.classList.add("hidden");
-
+        closeMarketplaceFilters();
+        filterPanel?.classList.add("hidden");
         input.value = "";
-        if (navInput) navInput.value = "";
-        if (marketplaceSearch) marketplaceSearch.value = "";
 
+        if (navInput) navInput.value = "";
         if (typeof applyFilters === "function") applyFilters();
         marketplace?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
@@ -12484,11 +12471,14 @@ document.addEventListener("DOMContentLoaded", () => {
     searchSubmit?.addEventListener("click", runSearch);
 
     filterButton?.addEventListener("click", () => {
-        filterPanel?.classList.toggle("hidden");
+        filterPanel?.classList.add("hidden");
+        marketplaceFilterPanel?.classList.toggle("hidden");
+        document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
     });
 
     filterClose?.addEventListener("click", () => {
         filterPanel?.classList.add("hidden");
+        marketplaceFilterPanel?.classList.add("hidden");
     });
 
     ["categoryFilter","minPrice","maxPrice","locationFilter","conditionFilter","sortFilter"].forEach(id => {
