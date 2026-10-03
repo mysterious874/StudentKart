@@ -6300,13 +6300,14 @@ function setupSearchResultsFilter() {
                 if (sort) sort.value = "newest";
                 $("resultFilterLocationSuggestions")?.classList.add("hidden");
                 applySearchResultFilter();
+                closePanel(panel);
             });
 
+            // Keep the filter panel open while the user is entering values.
+            // Results are applied when "Apply Filters" is pressed, matching the
+            // marketplace filter behaviour.
             ["resultFilterCategory","resultFilterCondition","resultFilterSort"].forEach(id => {
-                $(id)?.addEventListener("change", applySearchResultFilter);
-            });
-            ["resultFilterMin","resultFilterMax","resultFilterLocation"].forEach(id => {
-                $(id)?.addEventListener("input", applySearchResultFilter);
+                $(id)?.addEventListener("change", () => {});
             });
 
             const locationInput = $("resultFilterLocation");
