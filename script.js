@@ -12483,63 +12483,156 @@ document.addEventListener("DOMContentLoaded", () => {
     const input=document.getElementById("heroSearchInput");
     const panel=document.getElementById("heroSearchSuggestions");
     if(!input||!panel)return;
+
     const iconFor=category=>{
         const map={Books:"fa-book",Electronics:"fa-laptop",Vehicles:"fa-motorcycle",Furniture:"fa-couch",Services:"fa-handshake",Fashion:"fa-shirt"};
-        return map[category]||"fa-tag";
+        return map[category]||"fa-globe";
     };
-    const getSuggestions=query=>{
+
+    let suggestionTimer=null;
+    let suggestionController=null;
+
+    const addUnique=(out,seen,value,title,meta,icon)=>{
+        const clean=String(value||"").trim();
+        if(!clean)return;
+        const key=clean.toLowerCase();
+        if(seen.has(key))return;
+        seen.add(key);
+        out.push({value:clean,title:title||clean,meta:meta||"Search StudentKart",icon:icon||"fa-globe"});
+    };
+
+    const fetchWorldSuggestions=async query=>{
+        const q=String(query||"").trim();
+        if(q.length<2)return [];
+        if(suggestionController)suggestionController.abort();
+        suggestionController=new AbortController();
+        try{
+            const url="https://en.wikipedia.org/w/api.php?action=opensearch&search="+encodeURIComponent(q)+"&limit=20&namespace=0&format=json&origin=*";
+            const response=await fetch(url,{signal:suggestionController.signal,headers:{"Accept":"application/json"}});
+            if(!response.ok)return [];
+            const data=await response.json();
+            const titles=Array.isArray(data?.[1])?data[1]:[];
+            return titles.map(title=>String(title||"").trim()).filter(Boolean);
+        }catch(error){
+            if(error?.name!=="AbortError")console.debug("World search suggestions unavailable:",error);
+            return [];
+        }
+    };
+
+    const getLocalSuggestions=query=>{
         const q=String(query||"").trim().toLowerCase();
         if(!q)return [];
-        const seen=new Set(), out=[];
-        const add=(value,title,meta,icon)=>{
-            const key=value.toLowerCase(); if(seen.has(key))return;
-            seen.add(key); out.push({value,title,meta,icon});
-        };
+        const seen=new Set(),out=[];
+
         [...currentProducts].forEach(p=>{
-            const name=String(p.name||"").trim(), cat=String(p.category||"").trim(), loc=String(p.location||"").trim();
+            const name=String(p.name||"").trim(),cat=String(p.category||"").trim(),loc=String(p.location||"").trim();
             const hay=[name,cat,loc,String(p.description||"")].join(" ").toLowerCase();
-            if(hay.includes(q)){
-                add(name,name,cat+(loc?" • "+loc:""),iconFor(cat));
-            }
+            if(hay.includes(q))addUnique(out,seen,name,name,cat+(loc?" • "+loc:""),iconFor(cat));
         });
+
         ["Books","Electronics","Vehicles","Furniture","Services","Fashion"].forEach(cat=>{
-            if(cat.toLowerCase().includes(q)) add(cat,cat,"Browse category","fa-layer-group");
+            if(cat.toLowerCase().includes(q))addUnique(out,seen,cat,cat,"Browse category","fa-layer-group");
         });
-        return out.slice(0,7);
+
+        return out;
     };
-    const hide=()=>{panel.classList.add("hidden");panel.innerHTML="";input.removeAttribute("aria-activedescendant");};
-    const render=()=>{
-        const list=getSuggestions(input.value);
-        if(!list.length){hide();return;}
-        panel.innerHTML=list.map((x,i)=>'<button type="button" class="hero-search-suggestion" id="heroSearchSuggestion-'+i+'" role="option" aria-selected="false" data-suggestion-value="'+escapeHTML(x.value)+'"><span class="hero-search-suggestion-icon"><i class="fas '+x.icon+'"></i></span><span class="hero-search-suggestion-copy"><span class="hero-search-suggestion-title">'+escapeHTML(x.title)+'</span><span class="hero-search-suggestion-meta">'+escapeHTML(x.meta)+'</span></span><i class="fas fa-chevron-right hero-search-suggestion-arrow"></i></button>').join("");
+
+    const hide=()=>{
+        panel.classList.add("hidden");
+        panel.innerHTML="";
+        input.removeAttribute("aria-activedescendant");
+    };
+
+    const render=async()=>{
+        const query=input.value.trim();
+        if(!query){hide();return;}
+
+        const local=getLocalSuggestions(query);
+        const world=await fetchWorldSuggestions(query);
+        if(input.value.trim()!==query)return;
+
+        const seen=new Set();
+        const list=[];
+        local.forEach(x=>addUnique(list,seen,x.value,x.title,x.meta,x.icon));
+        world.forEach(title=>addUnique(list,seen,title,title,"Worldwide search suggestion","fa-globe"));
+
+        const limited=list.slice(0,10);
+        if(!limited.length){hide();return;}
+
+        panel.innerHTML=limited.map((x,i)=>'<button type="button" class="hero-search-suggestion" id="heroSearchSuggestion-'+i+'" role="option" aria-selected="false" data-suggestion-value="'+escapeHTML(x.value)+'"><span class="hero-search-suggestion-icon"><i class="fas '+x.icon+'"></i></span><span class="hero-search-suggestion-copy"><span class="hero-search-suggestion-title">'+escapeHTML(x.title)+'</span><span class="hero-search-suggestion-meta">'+escapeHTML(x.meta)+'</span></span><i class="fas fa-chevron-right hero-search-suggestion-arrow"></i></button>').join("");
         panel.classList.remove("hidden");
+
         panel.querySelectorAll(".hero-search-suggestion").forEach(b=>{
             b.addEventListener("mousedown",e=>e.preventDefault());
             b.addEventListener("click",()=>{
                 const value=b.dataset.suggestionValue||"";
-                input.value=value; hide();
-                if(typeof showSearchResultsPage==="function") showSearchResultsPage(value);
-                else if(typeof applyFilters==="function") applyFilters();
+                input.value=value;
+                hide();
+                if(typeof showSearchResultsPage==="function")showSearchResultsPage(value);
+                else if(typeof applyFilters==="function")applyFilters();
             });
         });
     };
+
     let active=-1;
     const move=d=>{
-        const items=[...panel.querySelectorAll(".hero-search-suggestion")]; if(!items.length)return;
+        const items=[...panel.querySelectorAll(".hero-search-suggestion")];
+        if(!items.length)return;
         active=(active+d+items.length)%items.length;
-        items.forEach((x,i)=>{const on=i===active;x.classList.toggle("is-active",on);x.setAttribute("aria-selected",on?"true":"false");});
+        items.forEach((x,i)=>{
+            const on=i===active;
+            x.classList.toggle("is-active",on);
+            x.setAttribute("aria-selected",on?"true":"false");
+        });
         input.setAttribute("aria-activedescendant",items[active].id);
     };
-    input.addEventListener("input",()=>{active=-1;render();});
-    input.addEventListener("focus",()=>{if(input.value.trim())render();});
+
+    input.addEventListener("input",()=>{
+        active=-1;
+        clearTimeout(suggestionTimer);
+        suggestionTimer=setTimeout(render,160);
+    });
+    input.addEventListener("focus",()=>{
+        if(input.value.trim())render();
+    });
     input.addEventListener("keydown",e=>{
         if(e.key==="ArrowDown"){e.preventDefault();move(1)}
         else if(e.key==="ArrowUp"){e.preventDefault();move(-1)}
-        else if(e.key==="Enter"){e.preventDefault();const a=panel.querySelector(".hero-search-suggestion.is-active");const value=a?.dataset.suggestionValue||input.value.trim();if(!value)return;input.value=value;hide();if(typeof showSearchResultsPage==="function")showSearchResultsPage(value);else if(typeof applyFilters==="function")applyFilters();}
-        else if(e.key==="Escape"){hide();input.blur();}
+        else if(e.key==="Enter"){
+            e.preventDefault();
+            const a=panel.querySelector(".hero-search-suggestion.is-active");
+            const value=a?.dataset.suggestionValue||input.value.trim();
+            if(!value)return;
+            input.value=value;
+            hide();
+            if(typeof showSearchResultsPage==="function")showSearchResultsPage(value);
+            else if(typeof applyFilters==="function")applyFilters();
+        }else if(e.key==="Escape"){hide();input.blur();}
     });
     input.addEventListener("blur",()=>setTimeout(hide,150));
 });
+
+/* Scrollable category bar navigation */
+document.addEventListener("DOMContentLoaded",()=>{
+    document.querySelectorAll(".category-scroll-box").forEach(button=>{
+        if(button.dataset.skCategoryBound==="1")return;
+        button.dataset.skCategoryBound="1";
+        button.addEventListener("click",event=>{
+            event.preventDefault();
+            event.stopPropagation();
+            const category=button.dataset.category||"All";
+            selectCategory(category.toLowerCase()==="all"?"all":category);
+        });
+    });
+
+    $("categoryPageBack")?.addEventListener("click",()=>{
+        if(window.history.state?.studentKart && window.history.state?.page==="category"){
+            window.history.back();
+        }else{
+            showHomePageFromCategory();
+        }
+    });
+});;
 
 /* Homepage search strip + restored filter controls */
 document.addEventListener("DOMContentLoaded", () => {
