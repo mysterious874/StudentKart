@@ -78,7 +78,5 @@
   window.registerStudentKartPush = registerStudentKartPush;
   window.requestStudentKartPushPermission = requestStudentKartPushPermission;
 
-  window.addEventListener("load", () => {
-    registerStudentKartPush().catch(() => {});
-  });
+  // Push setup starts only after the user explicitly enables notifications.\n  // Avoid doing service-worker/push work during normal page startup.
 })();
