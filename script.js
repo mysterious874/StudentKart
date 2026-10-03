@@ -1349,18 +1349,60 @@ async function getCurrentUser() {
             throw error;
         }
 
-        currentUser =
+        const sessionUser =
             data?.session?.user ||
             null;
+
+        if (!sessionUser) {
+            currentUser = null;
+            return null;
+        }
+
+        // getSession() reads the locally cached session. A deleted or
+        // revoked Supabase user can still appear logged in until the
+        // server validates that cached session.
+        const {
+            data: verifiedData,
+            error: verifiedError
+        } =
+            await supabaseClient.auth.getUser();
+
+        if (verifiedError || !verifiedData?.user) {
+            console.warn(
+                "Stored auth session is no longer valid. Clearing it.",
+                verifiedError || "User not found"
+            );
+
+            await supabaseClient.auth.signOut({
+                scope: "local"
+            });
+
+            currentUser = null;
+            localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
+            return null;
+        }
+
+        currentUser = verifiedData.user;
 
         return currentUser;
 
     } catch (error) {
 
         console.error(
-            "Session error:",
+            "Session validation error:",
             error
         );
+
+        try {
+            await supabaseClient.auth.signOut({
+                scope: "local"
+            });
+        } catch (signOutError) {
+            console.warn(
+                "Could not clear local auth session:",
+                signOutError
+            );
+        }
 
         currentUser = null;
 
