@@ -12589,7 +12589,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     $("searchResultsSearchInput")?.addEventListener("keydown", event => {
-    $("searchResultsSearchInput")?.addEventListener("keydown", event => {
         if(event.key !== "Enter") return;
         event.preventDefault();
         const value = event.currentTarget.value.trim();
