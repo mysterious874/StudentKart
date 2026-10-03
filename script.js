@@ -3109,6 +3109,23 @@ async function submitInquiry(event) {
             throw messageError;
         }
 
+        // Trigger mobile push independently so chat sending stays instant.
+        if (typeof supabaseClient.functions?.invoke === "function") {
+            void supabaseClient.functions
+                .invoke("send-chat-push", {
+                    body: {
+                        record: {
+                            id: crypto.randomUUID(),
+                            inquiry_id: inquiry.id,
+                            sender_id: currentUser.id,
+                            receiver_id: selectedInquiryProduct.userId,
+                            message
+                        }
+                    }
+                })
+                .catch(error => console.warn("Chat push trigger failed:", error));
+        }
+
         inquiry.product_name =
             selectedInquiryProduct.name || "Product Chat";
 
