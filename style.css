@@ -18810,3 +18810,58 @@ body #signupModal .auth-pin-input:focus {
     .new-product-price{font-size:15px}
     .new-product-buy{font-size:10px;padding:8px 6px}
 }
+
+
+/* =========================================================
+   MARKETPLACE — CLEAN TOP SEARCH / MOBILE BACK / FAST UI
+   ========================================================= */
+body.marketplace-page-active .marketplace-page{
+    padding-top:10px;
+}
+body.marketplace-page-active .marketplace-page-header{
+    display:none!important;
+}
+body.marketplace-page-active .marketplace-page-search{
+    margin:0 0 14px;
+    position:relative;
+    z-index:1200;
+}
+body.marketplace-page-active .new-products-section{
+    margin-top:0;
+}
+body.marketplace-page-active .new-products-toolbar{
+    position:relative;
+    z-index:20;
+}
+body.marketplace-page-active .new-products-tabs{
+    flex:1 1 auto;
+}
+body.marketplace-page-active .new-products-tab{
+    -webkit-tap-highlight-color:transparent;
+}
+body.marketplace-page-active .new-product-card img{
+    content-visibility:auto;
+}
+@media(max-width:600px){
+    body.marketplace-page-active .marketplace-page{
+        padding:8px 10px 24px;
+    }
+    body.marketplace-page-active .marketplace-page-search{
+        margin-bottom:10px;
+        border-radius:15px;
+        padding-left:13px;
+    }
+    body.marketplace-page-active .marketplace-page-search input{
+        font-size:14px;
+    }
+    body.marketplace-page-active .new-products-section{
+        padding:13px;
+        border-radius:16px;
+    }
+    body.marketplace-page-active .new-products-heading{
+        margin-bottom:12px;
+    }
+    body.marketplace-page-active .new-products-toolbar{
+        margin-bottom:9px;
+    }
+}
