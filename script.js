@@ -14384,3 +14384,65 @@ function setupPasswordVisibilityToggles() {
 }
 
 setupPasswordVisibilityToggles();
+
+
+/* =========================================================
+   HOME DASHBOARD + SEPARATE MARKETPLACE / STUDENT TOOL VIEWS
+   ========================================================= */
+(function initStudentKartHomeViews(){
+    const homeViews = () => {
+        document.querySelectorAll("#home,#studentDashboard").forEach(el=>el.classList.remove("hidden"));
+        $("marketplace")?.classList.add("hidden");
+        $("studentToolPage")?.classList.add("hidden");
+        document.querySelector(".navbar")?.classList.remove("hidden");
+        document.querySelector(".mobile-bottom-nav")?.classList.remove("hidden");
+        window.scrollTo({top:0,behavior:"smooth"});
+    };
+
+    const marketplaceView = () => {
+        closeAllModals({fromPopState:true});
+        document.querySelectorAll("#home,#studentDashboard").forEach(el=>el.classList.add("hidden"));
+        $("studentToolPage")?.classList.add("hidden");
+        $("marketplace")?.classList.remove("hidden");
+        document.querySelector(".navbar")?.classList.add("hidden");
+        document.querySelector(".mobile-bottom-nav")?.classList.add("hidden");
+        window.scrollTo({top:0,behavior:"smooth"});
+    };
+
+    const toolData = {
+        study:{title:"Study Hub",kicker:"LEARN BETTER",icon:"fa-book-open",intro:"Keep your study material, revision and learning resources organized in one focused space.",cards:[["Notes","Organize subject notes and revision material.","fa-note-sticky"],["Resources","Keep useful PDFs, links and learning material together.","fa-folder-open"],["Study Planner","Plan focused study sessions around your classes.","fa-calendar-check"]]},
+        tasks:{title:"Tasks & Deadlines",kicker:"STAY ON TRACK",icon:"fa-list-check",intro:"Turn assignments, exams and personal goals into a clear student checklist.",cards:[["Assignments","Track work that needs to be submitted.","fa-file-pen"],["Deadlines","Keep upcoming due dates visible.","fa-clock"],["Goals","Break bigger goals into smaller actions.","fa-bullseye"]]},
+        career:{title:"Career Hub",kicker:"BUILD YOUR FUTURE",icon:"fa-briefcase",intro:"Create a practical path from college learning to projects, internships and career opportunities.",cards:[["Skills","Choose and track skills you want to build.","fa-code"],["Projects","Keep your portfolio projects organized.","fa-diagram-project"],["Opportunities","Explore internships, roles and career resources.","fa-rocket"]]},
+        cyber:{title:"Cybersecurity Hub",kicker:"SECURITY LEARNING",icon:"fa-shield-halved",intro:"Build your cybersecurity foundation with a structured place for topics, practice and progress.",cards:[["Fundamentals","Networking, Linux, web and security basics.","fa-network-wired"],["Practice","Keep labs, challenges and practice goals together.","fa-flask"],["Roadmap","Track your journey from beginner to job-ready.","fa-route"]]},
+        community:{title:"Campus Community",kicker:"CONNECT",icon:"fa-users",intro:"A student space for campus discussions, questions, announcements and peer connections.",cards:[["Discussions","Start or follow student conversations.","fa-comments"],["Campus Updates","Keep useful campus information together.","fa-bullhorn"],["Peer Help","Connect around study and student-life questions.","fa-handshake"]]},
+        resources:{title:"Resources",kicker:"STUDENT LIBRARY",icon:"fa-folder-open",intro:"A dedicated place for useful academic and student resources.",cards:[["Study Material","Find subject-wise learning resources.","fa-book"],["Tools","Keep useful student tools easy to reach.","fa-toolbox"],["Saved Resources","Your future saved-resource space.","fa-bookmark"]]},
+        progress:{title:"Progress",kicker:"YOUR GROWTH",icon:"fa-chart-line",intro:"See your learning, skills and goals as a simple student progress journey.",cards:[["Study Progress","Track the topics and subjects you are working through.","fa-chart-column"],["Skills Progress","Track skills from learning to practice.","fa-chart-line"],["Career Progress","Track projects and opportunities you are pursuing.","fa-arrow-trend-up"]]},
+    };
+
+    function openTool(key){
+        const d=toolData[key]; if(!d) return;
+        $("home")?.classList.add("hidden"); $("studentDashboard")?.classList.add("hidden"); $("marketplace")?.classList.add("hidden");
+        document.querySelector(".navbar")?.classList.add("hidden"); document.querySelector(".mobile-bottom-nav")?.classList.add("hidden");
+        const page=$("studentToolPage"); if(!page) return;
+        $("studentToolKicker").textContent=d.kicker; $("studentToolTitle").textContent=d.title;
+        $("studentToolContent").innerHTML='<div class="student-tool-hero"><h1><i class="fas '+d.icon+'"></i> '+d.title+'</h1><p>'+d.intro+'</p></div><div class="student-tool-grid">'+d.cards.map((c,i)=>'<article class="student-tool-card"><i class="fas '+c[2]+'"></i><h3>'+c[0]+'</h3><p>'+c[1]+'</p><button type="button" class="student-tool-action" data-tool-action="'+key+'-'+i+'">Open</button></article>').join("")+'</div>';
+        page.classList.remove("hidden"); window.scrollTo({top:0,behavior:"smooth"});
+    }
+
+    document.addEventListener("click",e=>{
+        const card=e.target.closest("[data-dashboard-card]");
+        if(card){e.preventDefault();openTool(card.dataset.dashboardCard);return;}
+        if(e.target.closest("#bottomMarketplaceButton")||e.target.closest("#dashboardMarketplaceButton")){e.preventDefault();marketplaceView();return;}
+        if(e.target.closest("#marketplaceBackButton")){e.preventDefault();homeViews();return;}
+        if(e.target.closest("#studentToolBack")){e.preventDefault();homeViews();return;}
+        const action=e.target.closest("[data-tool-action]");
+        if(action){showToast("This student tool is ready for the next module.","success");return;}
+    });
+
+    $("bottomMarketplaceButton")?.addEventListener("click",()=>marketplaceView());
+
+    // Keep browser/mobile back navigation intuitive for these views.
+    window.addEventListener("popstate",()=>{
+        if(!$("marketplace")?.classList.contains("hidden") || !$("studentToolPage")?.classList.contains("hidden")) homeViews();
+    });
+})();
