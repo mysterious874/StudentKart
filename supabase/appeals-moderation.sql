@@ -129,5 +129,51 @@ begin
 end;
 $$;
 
+create or replace function public.notify_admins_about_listing_appeal(
+    target_appeal_id uuid
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $
+declare
+    appeal_row public.moderation_appeals%rowtype;
+    listing_name text;
+begin
+    select *
+      into appeal_row
+      from public.moderation_appeals
+     where id = target_appeal_id
+       and seller_id = auth.uid();
+
+    if not found then
+        raise exception 'appeal not found';
+    end if;
+
+    select name into listing_name
+      from public.products
+     where id = appeal_row.product_id;
+
+    insert into public.notifications (
+        user_id, product_id, type, title, message, is_read, created_at
+    )
+    select
+        a.id,
+        appeal_row.product_id,
+        'listing_appeal_submitted',
+        'New listing appeal',
+        coalesce(listing_name, 'A listing') || ' has received a new seller appeal.',
+        false,
+        now()
+    from public.admin_users a;
+
+    return true;
+end;
+$;
+
+revoke all on function public.notify_admins_about_listing_appeal(uuid) from public;
+grant execute on function public.notify_admins_about_listing_appeal(uuid) to authenticated;
+
 revoke all on function public.admin_decide_moderation_appeal(uuid, text, text) from public;
 grant execute on function public.admin_decide_moderation_appeal(uuid, text, text) to authenticated;
