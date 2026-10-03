@@ -5460,9 +5460,9 @@ function renderInternetSearchResults(query, results){
     const quick=quickLinks.map(item=>{
         const icon=item[2]==="fa-youtube" ? "fab fa-youtube" : "fas "+item[2];
         if(item[3]==="external"){
-            return `<a class="internet-quick-link" href="${escapeHTML(item[0] === "YouTube" ? item[1] : item[1])}" target="_blank" rel="noopener noreferrer"><i class="${icon}"></i><span>${escapeHTML(item[0])}</span></a>`;
+            return `<a class="internet-quick-link" href="${escapeHTML(item[1])}" target="_blank" rel="noopener noreferrer"><i class="${icon}"></i><span>${escapeHTML(item[0])}</span></a>`;
         }
-        return `<button type="button" class="internet-quick-link" data-internet-panel="${escapeHTML(item[1])}"><i class="${icon}"></i><span>${escapeHTML(item[0])}</span></button>`;
+        return `<button type="button" class="internet-quick-link" data-internet-scroll="${escapeHTML(item[1])}"><i class="${icon}"></i><span>${escapeHTML(item[0])}</span></button>`;
     }).join("");
 
     const wikiCards=wiki.map((item,index)=>{
@@ -5514,7 +5514,11 @@ function renderInternetSearchResults(query, results){
             </div>
             <div class="internet-quick-links">${quick}</div>
         </div>
-        <div id="internetPanelContainer"></div>
+        <div id="internetPanelContainer">
+            <div class="internet-panel-card">
+                <div class="internet-loading"><i class="fas fa-spinner fa-spin"></i> Collecting available internet information…</div>
+            </div>
+        </div>
         ${wiki.length ? `<div class="internet-subsection-heading"><span>TOPIC DETAILS</span><small>${wiki.length} related topics with photos and facts</small></div><div class="internet-topic-grid">${wikiCards}</div>` : ""}
         ${web.length ? `<div class="internet-subsection-heading"><span>WEB PAGES</span><small>Related information copied into StudentKart</small></div><div class="internet-results-grid">${webCards}</div>` : ""}
         <div id="internetInternalDetail" class="internet-internal-detail hidden"></div>`;
@@ -5546,8 +5550,11 @@ function renderInternetSearchResults(query, results){
         }
     };
 
-    container.querySelectorAll("[data-internet-panel]").forEach(button=>{
-        button.addEventListener("click",()=>showPanel(button.dataset.internetPanel));
+    container.querySelectorAll("[data-internet-scroll]").forEach(button=>{
+        button.addEventListener("click",()=>{
+            const target=container.querySelector("#internetSection-"+button.dataset.internetScroll);
+            target?.scrollIntoView({behavior:"smooth",block:"start"});
+        });
     });
     container.querySelectorAll("[data-internet-detail]").forEach(button=>{
         button.addEventListener("click",()=>{
@@ -5565,7 +5572,54 @@ function renderInternetSearchResults(query, results){
             detail.scrollIntoView({behavior:"smooth",block:"center"});
         });
     });
-}
+
+    const aggregatePanel=container.querySelector("#internetPanelContainer");
+    if(aggregatePanel){
+        Promise.all([
+            fetchInternetPanelData("photos",q),
+            fetchInternetPanelData("news",q)
+        ]).then(([photos,news])=>{
+            const dated=wiki.filter(item=>item.date||item.location);
+            aggregatePanel.innerHTML=`
+                <div class="internet-aggregate-head">
+                    <span class="section-label">INTERNET KNOWLEDGE</span>
+                    <strong>Information collected for “${escapeHTML(q)}”</strong>
+                    <small>StudentKart has collected the available web, topic, photo, news, date and location information from its connected public sources.</small>
+                </div>
+
+                <section class="internet-aggregate-section" id="internetSection-all">
+                    <div class="internet-subsection-heading"><span>ALL WEB</span><small>${web.length} web results • ${wiki.length} topic results</small></div>
+                    <div class="internet-results-grid">
+                        ${web.slice(0,12).map((item,index)=>`
+                            <button type="button" class="internet-result-card" data-internet-web-detail="${index}">
+                                <span class="internet-result-icon"><i class="fas fa-globe"></i></span>
+                                <span class="internet-result-copy"><strong>${escapeHTML(item.title)}</strong><small>${escapeHTML(item.source)}</small><span>${escapeHTML(item.snippet||"Related internet information.")}</span></span>
+                                <i class="fas fa-chevron-right internet-result-arrow"></i>
+                            </button>`).join("") || '<div class="internet-panel-card"><strong>No direct web results found.</strong></div>'}
+                    </div>
+                </section>
+
+                <section class="internet-aggregate-section" id="internetSection-photos">
+                    <div class="internet-subsection-heading"><span>PHOTOS</span><small>${photos.length} images collected from Wikimedia Commons</small></div>
+                    ${photos.length ? `<div class="internet-photo-grid">${photos.map(item=>`<article class="internet-photo-card"><img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}" loading="lazy"><strong>${escapeHTML(item.title)}</strong>${item.date?`<small>${escapeHTML(item.date)}</small>`:""}${item.description?`<p>${escapeHTML(item.description.slice(0,180))}</p>`:""}</article>`).join("")}</div>` : '<div class="internet-panel-card"><strong>No public photos were returned for this term.</strong></div>'}
+                </section>
+
+                <section class="internet-aggregate-section" id="internetSection-news">
+                    <div class="internet-subsection-heading"><span>NEWS</span><small>${news.length} recent indexed news results</small></div>
+                    ${news.length ? `<div class="internet-news-grid">${news.map(item=>`<article class="internet-news-card">${item.image?`<img src="${escapeHTML(item.image)}" alt="" loading="lazy">`:""}<div><small>${escapeHTML(item.source)} ${item.date?"• "+escapeHTML(item.date):""}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.description||"News result from the web.")}</p></div></article>`).join("")}</div>` : '<div class="internet-panel-card"><strong>No news data was returned by the connected news source.</strong><p>This does not mean there is no news on the internet; this source simply returned no accessible results for this query.</p></div>'}
+                </section>
+
+                <section class="internet-aggregate-section" id="internetSection-dates">
+                    <div class="internet-subsection-heading"><span>DATES & LOCATIONS</span><small>${dated.length} topics with available facts</small></div>
+                    ${dated.length ? `<div class="internet-date-grid">${dated.map(item=>`<div class="internet-date-card"><strong>${escapeHTML(item.title)}</strong>${item.date?`<span><i class="fas fa-calendar-days"></i>${escapeHTML(item.date)}</span>`:""}${item.location?`<span><i class="fas fa-location-dot"></i>${escapeHTML(item.location)}</span>`:""}</div>`).join("")}</div>` : '<div class="internet-panel-card"><strong>No structured date/location facts found.</strong></div>'}
+                </section>
+            `;
+        }).catch(error=>{
+            console.debug("Internet aggregate failed:",error);
+            aggregatePanel.innerHTML=`<div class="internet-panel-card"><strong>Some internet sources could not be loaded.</strong><p>The StudentKart results already available above are still usable.</p></div>`;
+        });
+    }
+
 
 
 async function showSearchResultsPage(query, options = {}) {
