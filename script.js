@@ -10214,6 +10214,14 @@ async function sendChatMessage(event) {
         clearChatReplyPreview();
         removeChatUploadStatus();
 
+        appendChatMessageToUI({
+            id: crypto.randomUUID(),
+            inquiry_id: currentChatInquiry.id,
+            sender_id: currentUser.id,
+            receiver_id: receiverId,
+            message: messageToSend,
+            created_at: new Date().toISOString()
+        });
         await loadChatMessages();
 
         // The chat list is message-driven: this is the moment the
@@ -10528,6 +10536,7 @@ function startChatRealtime() {
                     const message = payload?.new;
                     if (!message) return;
 
+                    appendChatMessageToUI(message);
                     handleChatRealtimeMessage(message);
 
                     if (
