@@ -9336,32 +9336,34 @@ async function loadChatMessages() {
                 replyHtml = '<div class="chat-quoted-message" data-reply-to-id="' + escapeHtml(String(quoted.id || "")) + '" role="button" tabindex="0"><span class="chat-quoted-line"></span><div class="chat-quoted-content"><strong>Replying to</strong><span>' + escapeHtml(quotedText).slice(0, 180) + '</span></div></div>';
             }
 
-            if (image) {
-                const safeUrl = escapeHtml(image.url);
-                const caption = image.caption
-                    ? `<div class="chat-image-caption">${escapeHtml(image.caption)}</div>`
-                    : "";
+            if (!isDeletedForEveryone) {
+                if (image) {
+                    const safeUrl = escapeHtml(image.url);
+                    const caption = image.caption
+                        ? `<div class="chat-image-caption">${escapeHtml(image.caption)}</div>`
+                        : "";
 
-                if (image.mediaType === "video") {
-                    content = `
-                        <video class="chat-message-video" controls playsinline preload="metadata">
-                            <source src="${safeUrl}">
-                            Your browser does not support video playback.
-                        </video>
-                        ${caption}
-                    `;
+                    if (image.mediaType === "video") {
+                        content = `
+                            <video class="chat-message-video" controls playsinline preload="metadata">
+                                <source src="${safeUrl}">
+                                Your browser does not support video playback.
+                            </video>
+                            ${caption}
+                        `;
+                    } else {
+                        content = `
+                            <img class="chat-message-image"
+                                 src="${safeUrl}"
+                                 alt="Shared photo"
+                                 loading="lazy"
+                                 data-chat-image="${safeUrl}">
+                            ${caption}
+                        `;
+                    }
                 } else {
-                    content = `
-                        <img class="chat-message-image"
-                             src="${safeUrl}"
-                             alt="Shared photo"
-                             loading="lazy"
-                             data-chat-image="${safeUrl}">
-                        ${caption}
-                    `;
+                    content = `<div class="chat-message-bubble">${escapeHtml(actualMessage)}</div>`;
                 }
-            } else {
-                content = `<div class="chat-message-bubble">${escapeHtml(actualMessage)}</div>`;
             }
 
             return `
