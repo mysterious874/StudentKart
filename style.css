@@ -11603,3 +11603,214 @@ body{color:var(--sk-ink)!important}
   #wishlistModal .wishlist-container{padding:12px!important}
   #chatModal .chat-modal-content{width:100%!important;height:100dvh!important;border-radius:0!important}
 }
+
+
+/* =========================================================
+   STUDENTKART — RECENT FEATURES UI PASS
+   All controls introduced in the recent Student Super App /
+   Campus Exchange work use one consistent interaction language.
+   ========================================================= */
+
+/* Search strip controls */
+.hero-search-strip{
+  background:rgba(255,255,255,.96)!important;
+  border:1px solid var(--sk-line)!important;
+  border-radius:18px!important;
+  padding:8px!important;
+}
+.hero-search-inner{gap:8px!important}
+.hero-search-field{
+  min-height:48px!important;
+  border:1px solid var(--sk-line)!important;
+  border-radius:13px!important;
+  box-shadow:none!important;
+}
+.hero-search-field:focus-within{
+  border-color:#9bcbbc!important;
+  box-shadow:0 0 0 4px rgba(22,125,104,.08)!important;
+}
+.hero-search-field i{color:var(--sk-primary)!important}
+.hero-search-field input{color:var(--sk-ink)!important}
+.hero-search-filter,.hero-search-submit{
+  min-height:48px!important;
+  border:1px solid var(--sk-line)!important;
+  border-radius:13px!important;
+  font-weight:750!important;
+  cursor:pointer!important;
+  transition:.18s ease!important;
+}
+.hero-search-filter{
+  background:var(--sk-primary-soft)!important;
+  color:var(--sk-primary-dark)!important;
+}
+.hero-search-filter:hover{background:#d8eee6!important;transform:translateY(-1px)!important}
+.hero-search-submit{
+  width:48px!important;
+  background:var(--sk-primary)!important;
+  color:#fff!important;
+  border-color:var(--sk-primary)!important;
+}
+.hero-search-submit:hover{background:var(--sk-primary-dark)!important;transform:translateY(-1px)!important}
+
+/* Live OLX-style suggestions */
+.hero-search-suggestions,.navbar-search-suggestions{
+  margin-top:8px!important;
+  background:#fff!important;
+  border:1px solid var(--sk-line)!important;
+  border-radius:15px!important;
+  box-shadow:0 18px 45px rgba(15,35,29,.14)!important;
+  overflow:hidden!important;
+}
+.hero-search-suggestion,.navbar-search-suggestion{
+  min-height:52px!important;
+  padding:10px 14px!important;
+  border-bottom:1px solid #edf2f0!important;
+  color:var(--sk-ink)!important;
+  background:#fff!important;
+}
+.hero-search-suggestion:hover,.hero-search-suggestion.is-active,
+.navbar-search-suggestion:hover,.navbar-search-suggestion.is-active{
+  background:var(--sk-primary-soft)!important;
+  color:var(--sk-primary-dark)!important;
+}
+
+/* Marketplace filter panel */
+#marketplaceFilterPanel{
+  width:min(1180px,calc(100% - 32px))!important;
+  margin:12px auto 0!important;
+  padding:18px!important;
+  background:#fff!important;
+  border:1px solid var(--sk-line)!important;
+  border-radius:18px!important;
+  box-shadow:0 18px 45px rgba(15,35,29,.10)!important;
+}
+#marketplaceFilterPanel .filter-panel-header{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  padding-bottom:14px!important;margin-bottom:14px!important;border-bottom:1px solid var(--sk-line)!important;
+}
+#marketplaceFilterPanel .filter-panel-header strong{color:var(--sk-ink)!important}
+#marketplaceFilterPanel .filter-panel-header small{display:block!important;color:var(--sk-muted)!important;margin-top:3px!important}
+#marketplaceFilterPanel .filter-panel-close{
+  width:36px!important;height:36px!important;border-radius:10px!important;
+  border:1px solid var(--sk-line)!important;background:var(--sk-surface-2)!important;color:var(--sk-ink)!important;cursor:pointer!important;
+}
+#marketplaceFilterPanel .filter-panel-grid{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:13px!important;
+}
+#marketplaceFilterPanel label{display:flex!important;flex-direction:column!important;gap:7px!important}
+#marketplaceFilterPanel label>span{font-size:11px!important;font-weight:800!important;color:var(--sk-muted)!important}
+#marketplaceFilterPanel input,#marketplaceFilterPanel select{
+  width:100%!important;min-height:44px!important;padding:0 12px!important;
+  border:1px solid var(--sk-line)!important;border-radius:11px!important;background:#fbfcfc!important;color:var(--sk-ink)!important;
+  outline:0!important;
+}
+#marketplaceFilterPanel input:focus,#marketplaceFilterPanel select:focus{
+  border-color:#9bcbbc!important;box-shadow:0 0 0 4px rgba(22,125,104,.08)!important;
+}
+#marketplaceFilterPanel .filter-panel-actions{
+  display:flex!important;justify-content:flex-end!important;gap:9px!important;
+  margin-top:16px!important;padding-top:14px!important;border-top:1px solid var(--sk-line)!important;
+}
+#cancelMarketplaceFilters,#applyMarketplaceFilters{
+  min-height:42px!important;border-radius:11px!important;font-weight:750!important;
+}
+
+/* Student tool pages generated by JS */
+.student-tool-page{background:var(--sk-bg)!important}
+.student-tool-navbar{
+  background:rgba(255,255,255,.95)!important;
+  border-bottom:1px solid var(--sk-line)!important;
+  box-shadow:0 5px 22px rgba(19,48,39,.06)!important;
+}
+.student-tool-back{
+  border:1px solid var(--sk-line)!important;background:#fff!important;color:var(--sk-ink)!important;
+  border-radius:12px!important;cursor:pointer!important;transition:.18s ease!important;
+}
+.student-tool-back:hover{background:var(--sk-primary-soft)!important;color:var(--sk-primary)!important}
+.student-tool-hero{
+  background:linear-gradient(135deg,#e8f5f0,#fff)!important;
+  border:1px solid var(--sk-line)!important;box-shadow:0 10px 28px rgba(19,48,39,.045)!important;
+}
+.student-tool-card{
+  border:1px solid var(--sk-line)!important;background:#fff!important;
+  border-radius:18px!important;box-shadow:0 8px 24px rgba(19,48,39,.05)!important;
+  transition:.18s ease!important;
+}
+.student-tool-card:hover{transform:translateY(-3px)!important;border-color:#b7d8cd!important}
+.student-tool-card i{color:var(--sk-primary)!important}
+.student-tool-action{
+  border:1px solid #cfe5dc!important;background:var(--sk-primary-soft)!important;
+  color:var(--sk-primary-dark)!important;border-radius:10px!important;font-weight:800!important;
+  cursor:pointer!important;
+}
+.student-tool-action:hover{background:#d5ece4!important}
+
+/* Dashboard quick-access buttons */
+.quick-tools button{
+  transition:.18s ease!important;
+}
+.quick-tools button:hover{
+  background:rgba(255,255,255,.11)!important;
+  transform:translateY(-1px)!important;
+}
+.dashboard-marketplace-button{
+  transition:.18s ease!important;
+}
+.dashboard-marketplace-button:hover{filter:brightness(.96)!important}
+
+/* Profile / Sell / global primary controls */
+#profileButton,#sellButton{
+  transition:.18s ease!important;
+}
+#profileButton:hover{transform:translateY(-1px)!important}
+#sellButton:hover{transform:translateY(-1px)!important}
+
+/* Search result/category action buttons */
+#searchResultsBrowseAll,#categoryPageBrowseAll,#emptySellButton{
+  border-radius:12px!important;
+  min-height:44px!important;
+  font-weight:750!important;
+}
+.search-results-count,.category-page-count{
+  background:var(--sk-primary-soft)!important;
+  color:var(--sk-primary-dark)!important;
+  border:1px solid #cfe5dc!important;
+  border-radius:999px!important;
+  padding:7px 11px!important;
+  font-size:11px!important;font-weight:800!important;
+}
+
+/* Listing-card actions added around wishlist / my listings */
+.product-image-wrap .wishlist-btn,.wishlist-button{
+  width:36px!important;height:36px!important;
+  border:1px solid var(--sk-line)!important;
+  background:rgba(255,255,255,.94)!important;
+  color:#65756f!important;border-radius:11px!important;
+  box-shadow:0 5px 15px rgba(15,35,29,.10)!important;
+}
+.product-image-wrap .wishlist-btn:hover,.wishlist-button:hover{
+  color:var(--sk-danger)!important;border-color:#edc8c8!important;background:#fff!important;
+  transform:scale(1.04)!important;
+}
+[data-my-edit],[data-my-delete]{
+  min-height:38px!important;border-radius:10px!important;font-weight:750!important;
+}
+[data-my-delete]{color:var(--sk-danger)!important;border-color:#edc8c8!important;background:#fff!important}
+[data-my-delete]:hover{background:#fff2f2!important}
+[data-my-edit]:hover{background:var(--sk-primary-soft)!important}
+
+/* Mobile */
+@media(max-width:600px){
+  .hero-search-strip{padding:6px!important;border-radius:15px!important}
+  .hero-search-inner{gap:6px!important}
+  .hero-search-filter{padding:0 11px!important;font-size:12px!important}
+  .hero-search-filter span{display:none!important}
+  .hero-search-submit{width:44px!important;min-width:44px!important}
+  #marketplaceFilterPanel{width:calc(100% - 24px)!important;padding:14px!important}
+  #marketplaceFilterPanel .filter-panel-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}
+  #marketplaceFilterPanel .filter-panel-actions{flex-direction:row!important}
+  #cancelMarketplaceFilters,#applyMarketplaceFilters{flex:1!important}
+}
+@media(max-width:430px){
+  #marketplaceFilterPanel .filter-panel-grid{grid-template-columns:1fr!important}
+}
