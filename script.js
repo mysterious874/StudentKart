@@ -3616,41 +3616,47 @@ async function searchStudentKartUsers(query) {
     const raw = String(query || "").trim();
     const digits = raw.replace(/\D/g, "");
 
-    // Chat profile search is intentionally mobile-only and exact.
-    // Never return a partial mobile, username, email or name match.
-    if (digits.length !== 10) {
+    // Search only by the digits currently typed. Show every registered
+    // profile whose mobile number starts with that prefix.
+    if (!digits.length) {
         box.innerHTML = "";
         box.classList.add("hidden");
         return;
     }
 
-    const phone = "+91" + digits;
-
     box.classList.remove("hidden");
     box.innerHTML =
-        '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding mobile number...</span></div>';
+        '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding matching numbers...</span></div>';
 
     try {
         const { data, error } = await supabaseClient
             .from("profiles")
             .select("id,name,username,phone,email,college,avatar_url,city,area")
-            .eq("phone", phone)
             .neq("id", currentUser.id)
-            .limit(1);
+            .not("phone", "is", null)
+            .ilike("phone", "+91" + digits + "%")
+            .order("name", { ascending: true })
+            .limit(20);
 
         if (error) throw error;
 
         if (!data?.length) {
             box.innerHTML =
-                '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No profile found</strong><span>Enter the exact 10-digit mobile number of a registered user.</span></div>';
+                '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No matching profile</strong><span>No registered mobile number starts with ' +
+                escapeHTML(digits) +
+                '.</span></div>';
             return;
         }
 
         box.innerHTML =
-            '<div class="chat-user-search-title"><span>MOBILE MATCH</span><small>1 result</small></div>' +
+            '<div class="chat-user-search-title"><span>MOBILE MATCHES</span><small>' +
+            data.length +
+            (data.length === 20 ? "+ results" : data.length === 1 ? " result" : " results") +
+            '</small></div>' +
             data.map(x => {
                 const n = x.username || x.name || "Student";
                 const s = x.name || x.college || "GlobeDisc user";
+                const phoneDigits = String(x.phone || "").replace(/^\+91/, "");
                 const a = x.avatar_url
                     ? '<img src="' + escapeHTML(x.avatar_url) + '" alt="">'
                     : '<span>' + escapeHTML(getInitials(n)) + '</span>';
@@ -3662,7 +3668,7 @@ async function searchStudentKartUsers(query) {
                     '</span><span class="chat-user-search-main"><strong>' +
                     escapeHTML(n) +
                     '</strong><small>' +
-                    escapeHTML(s) +
+                    escapeHTML(phoneDigits || s) +
                     '</small></span><i class="fas fa-chevron-right"></i></button>';
             }).join("");
 
