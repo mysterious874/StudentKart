@@ -3614,10 +3614,7 @@ async function searchStudentKartUsers(query) {
     if (!box) return;
 
     const raw = String(query || "").trim();
-    let digits = raw.replace(/\D/g, "");
-    if (digits.startsWith("91") && digits.length > 10) digits = digits.slice(-10);
-
-    if (!digits.length) {
+    if (!raw) {
         box.innerHTML = "";
         box.classList.add("hidden");
         return;
@@ -3634,92 +3631,64 @@ async function searchStudentKartUsers(query) {
 
     box.classList.remove("hidden");
     box.innerHTML =
-        '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Searching registered mobile numbers...</span></div>';
+        '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Searching users...</span></div>';
 
     try {
-        // Phone numbers are stored in profiles.phone. Search the normalized
-        // digits as a substring so +91, 91, spaces, or plain 10-digit input work.
-        const candidates = new Map();
+        const q = raw.toLowerCase();
+        const digits = raw.replace(/\D/g, "");
+        const normalizedQuery = digits.startsWith("91") && digits.length > 10
+            ? digits.slice(-10)
+            : digits;
 
-        const { data: directMatches, error: directError } = await supabaseClient
+        // Fetch profiles once and match username, name, and normalized mobile
+        // locally. This restores the older "username in Chat search" behavior
+        // and also handles +91 / 91 / 10-digit phone formats reliably.
+        const { data: profiles, error } = await supabaseClient
             .from("profiles")
             .select("id,name,username,phone,email,college,avatar_url,city,area")
-            .not("phone", "is", null)
-            .ilike("phone", "%" + digits + "%")
             .order("name", { ascending: true })
-            .limit(50);
+            .limit(5000);
 
-        if (directError) throw directError;
+        if (error) throw error;
 
-        (directMatches || []).forEach(profile => {
-            const stored = String(profile.phone || "").replace(/\D/g, "");
-            const normalized = stored.startsWith("91") && stored.length > 10
-                ? stored.slice(-10)
-                : stored;
-            if (normalized.startsWith(digits)) candidates.set(String(profile.id), profile);
+        const matches = (profiles || []).filter(profile => {
+            const username = String(profile.username || "").toLowerCase().trim();
+            const name = String(profile.name || "").toLowerCase().trim();
+            const phoneDigits = String(profile.phone || "").replace(/\D/g, "");
+            const normalizedPhone = phoneDigits.startsWith("91") && phoneDigits.length > 10
+                ? phoneDigits.slice(-10)
+                : phoneDigits;
+
+            return username.includes(q) ||
+                   name.includes(q) ||
+                   (normalizedQuery.length >= 3 && normalizedPhone.includes(normalizedQuery));
         });
-
-        // Keep a small broad fallback for unusual formatting.
-        if (!candidates.size) {
-            const { data: broadMatches, error: broadError } = await supabaseClient
-                .from("profiles")
-                .select("id,name,username,phone,email,college,avatar_url,city,area")
-                .not("phone", "is", null)
-                .limit(1000);
-
-            if (broadError) throw broadError;
-
-            (broadMatches || []).forEach(profile => {
-                const stored = String(profile.phone || "").replace(/\D/g, "");
-                const normalized = stored.startsWith("91") && stored.length > 10
-                    ? stored.slice(-10)
-                    : stored;
-                if (normalized.startsWith(digits)) candidates.set(String(profile.id), profile);
-            });
-        }
-
-        // Always check the current user's profile directly as a final fallback.
-        if (currentUser?.id && !candidates.has(String(currentUser.id))) {
-            const { data: ownProfile } = await supabaseClient
-                .from("profiles")
-                .select("id,name,username,phone,email,college,avatar_url,city,area")
-                .eq("id", currentUser.id)
-                .maybeSingle();
-
-            if (ownProfile?.phone) {
-                const stored = String(ownProfile.phone).replace(/\D/g, "");
-                const normalized = stored.startsWith("91") && stored.length > 10
-                    ? stored.slice(-10)
-                    : stored;
-                if (normalized.startsWith(digits)) candidates.set(String(ownProfile.id), ownProfile);
-            }
-        }
-
-        const matches = [...candidates.values()];
 
         if (!matches.length) {
             box.innerHTML =
-                '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No registered number found</strong><span>Try entering the full or first few digits of the mobile number.</span></div>';
+                '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No user found</strong><span>Search by username, name, or mobile number.</span></div>';
             return;
         }
 
         box.innerHTML =
-            '<div class="chat-user-search-title"><span>MOBILE MATCHES</span><small>' +
+            '<div class="chat-user-search-title"><span>USERS</span><small>' +
             matches.length + (matches.length === 1 ? " result" : " results") +
             '</small></div>' +
             matches.map(x => {
-                const n = x.username || x.name || "Student";
-                const phoneDigits = String(x.phone || "").replace(/\D/g, "").slice(-10);
+                const displayName = x.username ? "@" + x.username : (x.name || "Student");
+                const sub = x.username && x.name
+                    ? x.name + " • " + String(x.phone || "").replace(/\D/g, "").slice(-10)
+                    : (String(x.phone || "").replace(/\D/g, "").slice(-10) || x.name || "Student");
                 const a = x.avatar_url
                     ? '<img src="' + escapeHTML(x.avatar_url) + '" alt="">'
-                    : '<span>' + escapeHTML(getInitials(n)) + '</span>';
+                    : '<span>' + escapeHTML(getInitials(x.username || x.name || "Student")) + '</span>';
                 const selfLabel = String(x.id) === String(currentUser?.id) ? "You • " : "";
 
                 return '<button type="button" class="chat-user-search-card" data-user-search-id="' +
                     escapeHTML(x.id) + '"><span class="chat-user-search-avatar">' +
                     a + '</span><span class="chat-user-search-main"><strong>' +
-                    escapeHTML(selfLabel + n) + '</strong><small>' +
-                    escapeHTML(phoneDigits) + '</small></span><i class="fas fa-chevron-right"></i></button>';
+                    escapeHTML(selfLabel + displayName) + '</strong><small>' +
+                    escapeHTML(sub) + '</small></span><i class="fas fa-chevron-right"></i></button>';
             }).join("");
 
         box.querySelectorAll("[data-user-search-id]").forEach(card => {
@@ -3738,7 +3707,7 @@ async function searchStudentKartUsers(query) {
             });
         });
     } catch (error) {
-        console.error("Student mobile search error:", error);
+        console.error("Student user search error:", error);
         box.innerHTML =
             '<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>' +
             escapeHTML(error?.message || "Please try again.") +
