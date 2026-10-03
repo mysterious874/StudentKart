@@ -84,33 +84,132 @@
         async function openAppeals(){
             const list=modal.querySelector("#adminReportsList");
             list.innerHTML='<div class="sk-admin-empty"><i class="fas fa-spinner fa-spin"></i> Loading appeals...</div>';
-            const {data,error}=await supabaseClient.from("moderation_appeals").select("id,product_id,seller_id,message,status,admin_note,created_at,reviewed_at").order("created_at",{ascending:false}).limit(100);
-            if(error){list.innerHTML='<div class="sk-admin-empty">Appeals database is not ready yet.<br><small>'+esc(error.message)+'</small></div>';return;}
-            const rows=data||[]; const ids=[...new Set(rows.map(a=>a.product_id).filter(Boolean))]; const products={};
-            if(ids.length){const pr=await supabaseClient.from("products").select("id,name,price,moderation_status,moderation_reason,seller,seller_email").in("id",ids);if(!pr.error)(pr.data||[]).forEach(p=>products[p.id]=p);}
-            if(!rows.length){list.innerHTML='<div class="sk-admin-empty"><i class="fas fa-scale-balanced"></i><br>No appeals yet.</div>';return;}
-            list.innerHTML=rows.map(a=>{const p=products[a.product_id];return '<article class="sk-admin-card"><div class="sk-admin-card-head"><div><strong>'+esc(p?.name||"Deleted/unknown")+'</strong><div class="sk-admin-meta">Status: '+esc(a.status)+' · '+esc(new Date(a.created_at).toLocaleString("en-IN"))+'<br>Seller: '+esc(p?.seller||p?.seller_email||a.seller_id)+'<br>Product ID: '+esc(a.product_id||"Unknown")+'</div></div></div><div class="sk-admin-meta" style="margin-top:10px"><strong>Seller appeal:</strong><br>'+esc(a.message)+'</div>'+(p?.moderation_reason?'<div class="sk-admin-meta" style="margin-top:8px"><strong>Original moderation reason:</strong> '+esc(p.moderation_reason)+'</div>':"")+(a.admin_note?'<div class="sk-admin-meta" style="margin-top:8px"><strong>Admin note:</strong> '+esc(a.admin_note)+'</div>':"")+(a.status==="pending"?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-primary" type="button" data-approve-appeal="'+esc(a.id)+'" data-appeal-product="'+esc(a.product_id)+'"><i class="fas fa-check"></i> Approve & Restore</button><button class="btn btn-outline" type="button" data-reject-appeal="'+esc(a.id)+'"><i class="fas fa-xmark"></i> Reject</button></div>':"")+'</article>'}).join("");
-            list.querySelectorAll("[data-approve-appeal]").forEach(b=>b.addEventListener("click",()=>decideAppeal(b.dataset.approveAppeal,b.dataset.appealProduct,"approved",b.dataset.appealSeller)));
-            list.querySelectorAll("[data-reject-appeal]").forEach(b=>b.addEventListener("click",()=>decideAppeal(b.dataset.rejectAppeal,null,"rejected",b.dataset.appealSeller)));
+
+            const {data,error}=await supabaseClient
+                .from("moderation_appeals")
+                .select("id,product_id,seller_id,message,status,admin_note,created_at,reviewed_at,reviewed_by")
+                .order("created_at",{ascending:false})
+                .limit(100);
+
+            if(error){
+                list.innerHTML='<div class="sk-admin-empty">Appeals database is not ready yet.<br><small>'+esc(error.message)+'</small></div>';
+                return;
+            }
+
+            const rows=data||[];
+            const ids=[...new Set(rows.map(a=>a.product_id).filter(Boolean))];
+            const products={};
+
+            if(ids.length){
+                const pr=await supabaseClient
+                    .from("products")
+                    .select("id,name,price,category,location,condition,description,image,moderation_status,moderation_reason,seller,seller_email")
+                    .in("id",ids);
+                if(!pr.error)(pr.data||[]).forEach(p=>products[p.id]=p);
+            }
+
+            modal._appeals=rows;
+            modal._appealProducts=products;
+
+            const toolbar=modal.querySelector(".sk-admin-listings-toolbar");
+            let filter=modal.querySelector("#adminAppealsStatus");
+            if(!filter){
+                filter=document.createElement("select");
+                filter.id="adminAppealsStatus";
+                filter.innerHTML='<option value="">All appeals</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option>';
+                toolbar.insertBefore(filter,toolbar.firstChild);
+                filter.addEventListener("change",renderAppeals);
+            }
+            renderAppeals();
         }
-        async function decideAppeal(appealId,productId,status,sellerId){
-            const note=prompt(status==="approved"?"Optional note to the seller (leave blank if none):":"Reason for rejecting this appeal (optional):","");
+
+        function renderAppeals(){
+            const list=modal.querySelector("#adminReportsList");
+            const filter=modal.querySelector("#adminAppealsStatus")?.value||"";
+            const rows=(modal._appeals||[]).filter(a=>!filter||a.status===filter);
+            modal.querySelector("#adminReportsCount").textContent=
+                `${rows.length} appeal${rows.length===1?"":"s"} shown`;
+
+            if(!rows.length){
+                list.innerHTML='<div class="sk-admin-empty"><i class="fas fa-scale-balanced"></i><br>No matching appeals.</div>';
+                return;
+            }
+
+            const products=modal._appealProducts||{};
+            list.innerHTML=rows.map(a=>{
+                const p=products[a.product_id];
+                const price=p?.price!=null?' · ₹'+esc(Number(p.price).toLocaleString("en-IN")):"";
+                const image=p?.image
+                    ? '<img class="sk-admin-id-preview" src="'+esc(p.image)+'" alt="'+esc(p.name||"Listing")+'" loading="lazy" style="max-height:190px;margin-top:10px">'
+                    :"";
+
+                return '<article class="sk-admin-card">'+
+                    '<div class="sk-admin-card-head"><div><strong>'+esc(p?.name||"Deleted/unknown")+'</strong>'+
+                    '<div class="sk-admin-meta">Status: '+esc(a.status)+' · '+esc(new Date(a.created_at).toLocaleString("en-IN"))+
+                    '<br>Seller: '+esc(p?.seller||p?.seller_email||a.seller_id)+
+                    '<br>Category: '+esc(p?.category||"Unknown")+price+
+                    '<br>Location: '+esc(p?.location||"Not added")+
+                    '<br>Product ID: '+esc(a.product_id||"Unknown")+'</div></div></div>'+
+                    image+
+                    (p?.description?'<div class="sk-admin-meta" style="margin-top:10px"><strong>Listing description:</strong><br>'+esc(p.description)+'</div>':"")+
+                    '<div class="sk-admin-meta" style="margin-top:10px"><strong>Seller appeal:</strong><br>'+esc(a.message)+'</div>'+
+                    (p?.moderation_reason?'<div class="sk-suspend-box" style="margin-top:10px"><div class="sk-suspend-title"><i class="fas fa-circle-exclamation"></i> Exact moderation reason</div><div class="sk-suspend-reason">'+esc(p.moderation_reason)+'</div></div>':"")+
+                    (a.admin_note?'<div class="sk-admin-meta" style="margin-top:8px"><strong>Admin note:</strong> '+esc(a.admin_note)+'</div>':"")+
+                    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">'+
+                    (a.product_id&&p?'<button class="btn btn-outline" type="button" data-appeal-view="'+esc(a.product_id)+'"><i class="fas fa-eye"></i> View Listing</button>':"")+
+                    (a.status==="pending"?'<button class="btn btn-primary" type="button" data-approve-appeal="'+esc(a.id)+'" data-appeal-product="'+esc(a.product_id||"")+'"><i class="fas fa-check"></i> Approve & Restore</button><button class="btn btn-outline" type="button" data-reject-appeal="'+esc(a.id)+'"><i class="fas fa-xmark"></i> Reject</button>':"")+
+                    '</div></article>';
+            }).join("");
+
+            list.querySelectorAll("[data-approve-appeal]").forEach(b=>
+                b.addEventListener("click",()=>decideAppeal(b.dataset.approveAppeal,b.dataset.appealProduct,"approved"))
+            );
+            list.querySelectorAll("[data-reject-appeal]").forEach(b=>
+                b.addEventListener("click",()=>decideAppeal(b.dataset.rejectAppeal,null,"rejected"))
+            );
+            list.querySelectorAll("[data-appeal-view]").forEach(b=>
+                b.addEventListener("click",async()=>{
+                    if(typeof window.StudentKartOpenProductDetails!=="function"){
+                        window.showToast?.("Product details are unavailable","error");
+                        return;
+                    }
+                    modal.classList.add("hidden");
+                    await window.StudentKartOpenProductDetails(b.dataset.appealView);
+                })
+            );
+        }
+
+        async function decideAppeal(appealId,productId,status){
+            const note=prompt(
+                status==="approved"
+                    ?"Optional note to the seller (leave blank if none):"
+                    :"Reason for rejecting this appeal (recommended):",
+                ""
+            );
             if(note===null)return;
-            if(status==="approved"){
-                if(!productId || !confirm("Approve this appeal and restore the listing?"))return;
-                const {data,error}=await supabaseClient.rpc("admin_set_listing_moderation",{target_product_id:productId,new_status:"active",reason_text:null});
-                if(error || data===false){window.showToast?.(error?.message||"Could not restore listing","error");return;}
+
+            if(status==="approved" && (!productId || !confirm("Approve this appeal and restore the listing?"))) return;
+
+            const {data,error}=await supabaseClient.rpc("admin_decide_moderation_appeal",{
+                target_appeal_id:appealId,
+                decision:status,
+                admin_note:note.trim()||null
+            });
+
+            if(error || data===false){
+                window.showToast?.(error?.message||"Could not process appeal","error");
+                return;
             }
-            const {data:userData}=await supabaseClient.auth.getUser();
-            const {error}=await supabaseClient.from("moderation_appeals").update({status,admin_note:note||null,reviewed_at:new Date().toISOString(),reviewed_by:userData?.user?.id||null}).eq("id",appealId);
-            if(error){window.showToast?.(error.message,"error");return;}
-            if(status==="rejected" && sellerId){
-                const notification=await supabaseClient.from("notifications").insert({user_id:sellerId,type:"listing_appeal_rejected",title:"Appeal rejected",message:"Your appeal for the listing was rejected."+ (note ? " Admin note: "+note : ""),is_read:false,created_at:new Date().toISOString()});
-                if(notification.error) console.warn("Could not create appeal notification:",notification.error);
-            }
-            window.showToast?.(status==="approved"?"Appeal approved and listing restored":"Appeal rejected","success");
+
+            window.showToast?.(
+                status==="approved"
+                    ?"Appeal approved and listing restored"
+                    :"Appeal rejected and seller notified",
+                "success"
+            );
             await openAppeals();
         }
+
         async function moderateListing(productId,status){
             if(status==="suspended" && !confirm("Suspend this listing from the marketplace?")) return;
             const reason=status==="suspended" ? "Suspended during admin report moderation" : null;
