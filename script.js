@@ -4562,7 +4562,7 @@ function isSixDigitPassword(value) { return /^\d{6}$/.test(String(value || ""));
 
 (function setupAuthPinInputs() {
     const apply = () => {
-        ["loginIdentifier","loginPassword","signupIdentifier","signupPassword","signupPasswordConfirm"].forEach(id => {
+        ["loginIdentifier","loginPassword","signupIdentifier","signupPassword","signupPasswordConfirm","editProfileNewPassword","editProfileConfirmPassword"].forEach(id => {
             const el = document.getElementById(id);
             if (!el || el.dataset.pinGuardReady === "1") return;
             el.dataset.pinGuardReady = "1";
@@ -4763,12 +4763,6 @@ async function updateProfileUI() {
             "Not added";
     }
 
-    if ($("profileEmailInfo")) {
-        $("profileEmailInfo").textContent = getStudentKartSettings().privacy.hideEmail
-            ? "Hidden"
-            : (currentUser.email || profile.email || "Not available");
-    }
-
     if ($("profilePhoneInfo")) {
         $("profilePhoneInfo").textContent = getStudentKartSettings().privacy.hidePhone
             ? "Hidden"
@@ -4835,13 +4829,6 @@ function openEditProfile() {
         $("editProfileArea") && ($("editProfileArea").value = profile?.area || currentUser.user_metadata?.area || "");
     }
 
-    if ($("editProfileEmail")) {
-
-        $("editProfileEmail").value =
-            currentUser.email ||
-            "";
-    }
-
     if ($("editAvatarPreview")) {
 
         $("editAvatarPreview").innerHTML =
@@ -4896,7 +4883,9 @@ async function saveEditedProfile(
 
     const name = $("editProfileName")?.value?.trim();
     const username = $("editProfileUsername")?.value?.trim()?.toLowerCase() || "";
-    const phone = $("editProfilePhone")?.value?.trim() || "";
+    const phone = currentUser.phone || "";
+    const newPassword = $("editProfileNewPassword")?.value || "";
+    const confirmPassword = $("editProfileConfirmPassword")?.value || "";
     const college = $("editProfileCollege")?.value?.trim();
     const state = $("editProfileState")?.value?.trim() || "";
     const city = $("editProfileCity")?.value?.trim() || "";
@@ -4905,6 +4894,17 @@ async function saveEditedProfile(
     if (!name) {
         showToast("Name is required", "warning");
         return;
+    }
+
+    if (newPassword || confirmPassword) {
+        if (!isSixDigitPassword(newPassword) || !isSixDigitPassword(confirmPassword)) {
+            showToast("New password must be exactly 6 digits", "warning");
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            showToast("New passwords do not match", "warning");
+            return;
+        }
     }
 
     const file = $("editProfileImage")?.files?.[0];
@@ -4929,6 +4929,7 @@ async function saveEditedProfile(
         city,
         area,
         email: currentUser.email || "",
+        phone: currentUser.phone || "",
         avatar_url: previewAvatarUrl,
         updated_at: new Date().toISOString()
     };
@@ -4940,7 +4941,6 @@ async function saveEditedProfile(
     if ($("profileCollege")) $("profileCollege").textContent = college || "College not added";
     if ($("profileUsernameInfo")) $("profileUsernameInfo").textContent = username || "Not added";
     if ($("profileCollegeInfo")) $("profileCollegeInfo").textContent = college || "Not added";
-    if ($("profileEmailInfo")) $("profileEmailInfo").textContent = getStudentKartSettings().privacy.hideEmail ? "Hidden" : (currentUser.email || "Not available");
     if ($("profilePhoneInfo")) $("profilePhoneInfo").textContent = phone || currentUser.phone || "Not added";
 
     if ($("profileAvatar")) {
@@ -4956,6 +4956,31 @@ async function saveEditedProfile(
         file ? "Profile photo updating..." : "Profile updated",
         "success"
     );
+
+    // Change the authentication password only when the user entered a new one.
+    // The password is never stored in the profile table or localStorage.
+    if (newPassword) {
+        try {
+            const { error: passwordError } =
+                await supabaseClient.auth.updateUser({
+                    password: newPassword
+                });
+
+            if (passwordError) {
+                throw passwordError;
+            }
+
+            $("editProfileNewPassword").value = "";
+            $("editProfileConfirmPassword").value = "";
+            showToast("Profile updated and password changed", "success");
+        } catch (passwordError) {
+            console.error("Password update error:", passwordError);
+            showToast(
+                passwordError?.message || "Profile saved, but password could not be changed",
+                "error"
+            );
+        }
+    }
 
     // Everything below runs in the background.
     try {
