@@ -14026,9 +14026,10 @@ async function handleSettingAction(action) {
 
     if (action === "report-problem") return settingsReportProblem();
 
-    if (action === "safety-tips" || action === "safety-about" || action === "about" ||
+    if (action === "how" || action === "safety-tips" || action === "safety-about" || action === "about" ||
         action === "terms" || action === "privacy-policy" || action === "contact") {
         const map = {
+            how: "how",
             "safety-tips": "safety",
             "safety-about": "safety",
             about: "about",
@@ -14036,8 +14037,19 @@ async function handleSettingAction(action) {
             "privacy-policy": "privacy",
             contact: "contact"
         };
-        closeModal("settingsModal");
-        document.querySelector(`[data-footer-info="${map[action]}"]`)?.click();
+        const info = footerInfoContent[map[action]];
+        if (info) {
+            closeModal("settingsModal");
+            const title = $("settingsDetailTitle");
+            const subtitle = $("settingsDetailSubtitle");
+            const icon = $("settingsDetailIcon");
+            const content = $("settingsDetailContent");
+            if (title) title.textContent = info.title;
+            if (subtitle) subtitle.textContent = "StudentKart information and guidance.";
+            if (icon) icon.className = "fas fa-circle-info";
+            if (content) content.innerHTML = info.body;
+            openModal("settingsDetailModal");
+        }
         return;
     }
 
@@ -14104,7 +14116,8 @@ const SETTINGS_SECTION_TEMPLATES = {
         <button class="settings-row" type="button" data-setting-action="logout-all"><span><i class="fas fa-right-from-bracket"></i><b>Logout from All Devices</b><small>Sign out of other sessions</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="account-security"><span><i class="fas fa-shield"></i><b>Account Security</b><small>Review account security</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row danger-row" type="button" data-setting-action="delete-account"><span><i class="fas fa-trash-can"></i><b>Delete Account</b><small>Permanently remove your account</small></span><i class="fas fa-chevron-right"></i></button>`},
-    about:{title:"About",icon:"fa-circle-info",subtitle:"StudentKart information and support.",html:`
+    about:{title:"About & Help",icon:"fa-circle-info",subtitle:"StudentKart information, guidance and support.",html:`
+        <button class="settings-row" type="button" data-setting-action="how"><span><i class="fas fa-route"></i><b>How It Works</b><small>Learn how buying and selling works</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="about"><span><i class="fas fa-circle-info"></i><b>About StudentKart</b><small>Learn more about StudentKart</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="terms"><span><i class="fas fa-file-contract"></i><b>Terms & Conditions</b><small>Platform terms</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="privacy-policy"><span><i class="fas fa-user-shield"></i><b>Privacy Policy</b><small>How information is handled</small></span><i class="fas fa-chevron-right"></i></button>
