@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="StudentKart - Buy, sell and discover products made for students.">
+    <meta name="description" content="StudentKart - Discover what is happening around the world, explore stories, search the web and stay informed.">
     <meta name="theme-color" content="#27aaa6">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/icons/studentkart-icon.svg">
     <link rel="apple-touch-icon" href="/icons/studentkart-icon.svg">
-    <title>StudentKart — Student Marketplace</title>
+    <title>StudentKart — Discover What's Happening</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=20261003-campus-1">
 </head>
@@ -20,7 +20,7 @@
         <div class="navbar-search-inner">
             <div class="navbar-search-field">
                 <i class="fas fa-search"></i>
-                <input type="text" id="navbarSearchInput" placeholder="Search books, electronics, furniture..." autocomplete="off">
+                <input type="text" id="navbarSearchInput" placeholder="Search all you need..." autocomplete="off">
             </div>
             <button type="button" class="navbar-filter-button" id="navbarFilterButton">
                 <i class="fas fa-sliders"></i><span>Filters</span>
@@ -152,6 +152,11 @@
     <main>
         <section id="home" class="hero studentkart-top">
             <div class="studentkart-top-content">
+                <div class="home-discovery-heading">
+                    <span class="section-label"><i class="fas fa-globe"></i> GLOBAL DISCOVERY</span>
+                    <h1>Discover what’s happening around the world.</h1>
+                    <p>Latest stories, ideas, technology, science, business, sports and more — all in one place.</p>
+                </div>
                 <div class="top-search-strip">
                     <i class="fas fa-search"></i>
                     <div class="hero-search-input-wrap">
@@ -258,7 +263,18 @@
             </div>
         </section>
 
-        <section id="marketplace" class="section marketplace-section">
+        <section id="worldNewsSection" class="section world-news-section" aria-label="Latest world news">
+            <div class="section-heading world-news-heading">
+                <span class="section-label">WHAT’S HAPPENING NOW</span>
+                <h2>Recently around the world</h2>
+                <p>Fresh stories gathered from public news sources, with the latest details available inside StudentKart.</p>
+            </div>
+            <div id="worldNewsGrid" class="world-news-grid">
+                <div class="world-news-loading"><i class="fas fa-spinner fa-spin"></i><span>Loading the latest world updates...</span></div>
+            </div>
+        </section>
+
+        <section id="marketplace" class="section marketplace-section hidden">
             <div id="filterStatus" class="filter-status">Showing latest listings</div>
             <div id="productContainer" class="products-grid"></div>
             <div id="emptyState" class="empty-state hidden">
@@ -269,38 +285,7 @@
             </div>
         </section>
 
-        <section id="how-it-works" class="section how-section">
-            <div class="section-heading"><span class="section-label">SIMPLE PROCESS</span>
-                <h2>How StudentKart Works</h2>
-                <p>Buying and selling should be simple.</p>
-            </div>
-            <div class="steps-grid">
-                <div class="step-card">
-                    <div class="step-number">01</div>
-                    <div class="step-icon"><i class="fas fa-user-plus"></i></div>
-                    <h3>Create an Account</h3>
-                    <p>Sign up and create your student profile.</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-number">02</div>
-                    <div class="step-icon"><i class="fas fa-camera"></i></div>
-                    <h3>List Your Product</h3>
-                    <p>Add photos, price, condition and details.</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-number">03</div>
-                    <div class="step-icon"><i class="fas fa-magnifying-glass"></i></div>
-                    <h3>Find What You Need</h3>
-                    <p>Browse products and contact sellers directly.</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-number">04</div>
-                    <div class="step-icon"><i class="fas fa-handshake"></i></div>
-                    <h3>Connect &amp; Deal</h3>
-                    <p>Discuss the product and complete your deal.</p>
-                </div>
-            </div>
-        </section>
+
 
         
     </main>
@@ -312,7 +297,7 @@
                     <div class="logo-mark"><span class="logo-s">S</span><span class="logo-cap"><i class="fas fa-graduation-cap"></i></span></div>
                     <span class="logo-text">StudentKart</span>
                 </a>
-                <p>India's student-focused marketplace to buy, sell, rent and discover useful products around campus.</p>
+                <p>A student-first discovery platform for exploring the world, finding useful information and staying connected.</p>
                 <div class="footer-brand-badge"><i class="fas fa-shield-halved"></i><span>Built for students</span></div>
             </div>
 
