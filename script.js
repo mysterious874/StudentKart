@@ -8370,6 +8370,14 @@ function setupAuthListener() {
 
                 if (currentUser) {
                     await ensureProfileAfterPasswordSignup(currentUser);
+
+                    // If browser notification permission is already granted,
+                    // silently keep this device's Web Push subscription synced.
+                    if (typeof window.ensureStudentKartPushSubscription === "function") {
+                        void window.ensureStudentKartPushSubscription().catch(error => {
+                            console.warn("StudentKart push subscription sync failed:", error);
+                        });
+                    }
                 }
 
                 updateNavbar();
