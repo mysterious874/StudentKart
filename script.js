@@ -5261,7 +5261,7 @@ function getSearchResultMatches(query) {
     });
 }
 
-async function fetchInternetSearchResults(query){
+async async function fetchInternetSearchResults(query){
     const q=String(query||"").trim();
     if(!q) return {web:[], wiki:[]};
 
@@ -5392,34 +5392,82 @@ async function enrichWikiFacts(items){
     }
 }
 
+async function fetchInternetPanelData(mode, query){
+    const q=String(query||"").trim();
+    if(!q) return [];
+    try{
+        if(mode==="photos"){
+            const url="https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch="+encodeURIComponent(q)+"&gsrnamespace=6&gsrlimit=12&prop=imageinfo|info&iiprop=url|extmetadata&iiurlwidth=900&format=json&origin=*";
+            const response=await fetch(url,{headers:{"Accept":"application/json"}});
+            if(!response.ok) return [];
+            const data=await response.json();
+            return Object.values(data?.query?.pages||{}).map(page=>{
+                const info=page?.imageinfo?.[0]||{};
+                const meta=info?.extmetadata||{};
+                return {
+                    title:String(page?.title||"").replace(/^File:/,""),
+                    image:info?.thumburl||info?.url||"",
+                    description:String(meta?.ImageDescription?.value||"").replace(/<[^>]+>/g,"").trim(),
+                    date:String(meta?.DateTimeOriginal?.value||meta?.DateTime?.value||"").trim(),
+                    source:"Wikimedia Commons"
+                };
+            }).filter(item=>item.image);
+        }
+
+        if(mode==="news"){
+            const url="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=12&format=json&sort=datedesc";
+            const response=await fetch(url,{headers:{"Accept":"application/json"}});
+            if(!response.ok) return [];
+            const data=await response.json();
+            return (Array.isArray(data?.articles)?data.articles:[]).map(article=>({
+                title:String(article?.title||"").trim(),
+                url:String(article?.url||"").trim(),
+                source:String(article?.domain||article?.sourcecountry||"News").trim(),
+                date:String(article?.seendate||"").trim(),
+                image:String(article?.socialimage||"").trim(),
+                description:String(article?.snippet||"").trim()
+            })).filter(item=>item.title&&item.url);
+        }
+    }catch(error){
+        console.debug("Internet panel unavailable:",mode,error);
+    }
+    return [];
+}
+
 function renderInternetSearchResults(query, results){
     const container=$("searchResultsWebContainer");
     if(!container) return;
     const q=String(query||"").trim();
     const wiki=Array.isArray(results?.wiki)?results.wiki:[];
     const web=Array.isArray(results?.web)?results.web:[];
+
     const quickLinks=[
-        ["All Web","https://www.google.com/search?q="+encodeURIComponent(q),"fa-globe"],
-        ["Photos","https://www.google.com/search?tbm=isch&q="+encodeURIComponent(q),"fa-image"],
-        ["Maps","https://www.google.com/maps/search/"+encodeURIComponent(q),"fa-location-dot"],
-        ["News","https://www.google.com/search?tbm=nws&q="+encodeURIComponent(q),"fa-newspaper"],
-        ["Dates","https://www.google.com/search?q="+encodeURIComponent(q+" dates timeline"),"fa-calendar-days"],
-        ["YouTube","https://www.youtube.com/results?search_query="+encodeURIComponent(q),"fa-youtube"]
+        ["All Web","all","fa-globe"],
+        ["Photos","photos","fa-image"],
+        ["Maps","https://www.google.com/maps/search/"+encodeURIComponent(q),"fa-location-dot","external"],
+        ["News","news","fa-newspaper"],
+        ["Dates","dates","fa-calendar-days"],
+        ["YouTube","https://www.youtube.com/results?search_query="+encodeURIComponent(q),"fa-youtube","external"]
     ];
 
     const quick=quickLinks.map(item=>{
         const icon=item[2]==="fa-youtube" ? "fab fa-youtube" : "fas "+item[2];
-        return `<a class="internet-quick-link" href="${escapeHTML(item[1])}" target="_blank" rel="noopener noreferrer"><i class="${icon}"></i><span>${escapeHTML(item[0])}</span></a>`;
+        if(item[3]==="external"){
+            return `<a class="internet-quick-link" href="${escapeHTML(item[0] === "YouTube" ? item[1] : item[1])}" target="_blank" rel="noopener noreferrer"><i class="${icon}"></i><span>${escapeHTML(item[0])}</span></a>`;
+        }
+        return `<button type="button" class="internet-quick-link" data-internet-panel="${escapeHTML(item[1])}"><i class="${icon}"></i><span>${escapeHTML(item[0])}</span></button>`;
     }).join("");
 
-    const wikiCards=wiki.map(item=>{
+    const wikiCards=wiki.map((item,index)=>{
         const hasLocation=item.latitude!==null&&item.longitude!==null;
-        const mapUrl=hasLocation ? "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(item.latitude+","+item.longitude) : "https://www.google.com/maps/search/"+encodeURIComponent(item.title);
+        const mapUrl=hasLocation
+            ? "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(item.latitude+","+item.longitude)
+            : "https://www.google.com/maps/search/"+encodeURIComponent(item.title);
         return `
         <article class="internet-topic-card">
-            ${item.image ? `<a href="${escapeHTML(item.url)}" target="_blank" rel="noopener noreferrer" class="internet-topic-photo"><img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}" loading="lazy"></a>` : `<div class="internet-topic-photo internet-topic-photo-empty"><i class="fas fa-image"></i></div>`}
+            ${item.image ? `<div class="internet-topic-photo"><img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}" loading="lazy"></div>` : `<div class="internet-topic-photo internet-topic-photo-empty"><i class="fas fa-image"></i></div>`}
             <div class="internet-topic-body">
-                <div class="internet-topic-kicker"><span>RELATED TOPIC</span><small>Wikipedia</small></div>
+                <div class="internet-topic-kicker"><span>RELATED TOPIC</span><small>Wikipedia data</small></div>
                 <h3>${escapeHTML(item.title)}</h3>
                 <p>${escapeHTML(item.snippet||"Detailed information related to this topic.")}</p>
                 <div class="internet-fact-row">
@@ -5427,37 +5475,91 @@ function renderInternetSearchResults(query, results){
                     ${item.location ? `<span><i class="fas fa-location-dot"></i>${escapeHTML(item.location)}</span>` : ""}
                 </div>
                 <div class="internet-topic-actions">
-                    <a href="${escapeHTML(item.url)}" target="_blank" rel="noopener noreferrer">Full details <i class="fas fa-arrow-up-right-from-square"></i></a>
+                    <button type="button" data-internet-detail="${index}">More details <i class="fas fa-circle-info"></i></button>
                     <a href="${escapeHTML(mapUrl)}" target="_blank" rel="noopener noreferrer">Map <i class="fas fa-location-dot"></i></a>
+                </div>
+                <div class="internet-topic-detail hidden" data-internet-detail-panel="${index}">
+                    <strong>Detailed information</strong>
+                    <p>${escapeHTML(item.snippet||"No additional details are available.")}</p>
+                    ${item.url ? `<small>Source: Wikipedia data copied into StudentKart</small>` : ""}
                 </div>
             </div>
         </article>`;
     }).join("");
 
-    const webCards=web.map(item=>`
-        <a class="internet-result-card" href="${escapeHTML(item.url)}" target="_blank" rel="noopener noreferrer">
+    const webCards=web.map((item,index)=>`
+        <button type="button" class="internet-result-card" data-internet-web-detail="${index}">
             <span class="internet-result-icon"><i class="fas fa-globe"></i></span>
             <span class="internet-result-copy">
                 <strong>${escapeHTML(item.title)}</strong>
                 <small>${escapeHTML(item.source)}</small>
-                <span>${escapeHTML(item.snippet||"Open related information on the internet.")}</span>
+                <span>${escapeHTML(item.snippet||"Related information from the internet.")}</span>
             </span>
-            <i class="fas fa-arrow-up-right-from-square internet-result-arrow"></i>
-        </a>`).join("");
+            <i class="fas fa-chevron-right internet-result-arrow"></i>
+        </button>`).join("");
 
     container.innerHTML=`
         <div class="search-results-web-heading">
             <div>
                 <span class="section-label">INTERNET RESULTS</span>
                 <h2>Everything related to “${escapeHTML(q)}”</h2>
-                <p>Photos, detailed information, dates, locations and related web pages.</p>
+                <p>Internet data is shown inside StudentKart. Only Maps and YouTube open outside.</p>
             </div>
             <div class="internet-quick-links">${quick}</div>
         </div>
+        <div id="internetPanelContainer"></div>
         ${wiki.length ? `<div class="internet-subsection-heading"><span>TOPIC DETAILS</span><small>${wiki.length} related topics with photos and facts</small></div><div class="internet-topic-grid">${wikiCards}</div>` : ""}
-        ${web.length ? `<div class="internet-subsection-heading"><span>WEB PAGES</span><small>More related pages from the internet</small></div><div class="internet-results-grid">${webCards}</div>` : `
-            <div class="internet-results-empty"><i class="fas fa-globe"></i><strong>No direct web pages loaded</strong><span>Use Photos, Maps, News or All Web above to continue the search.</span></div>`}`;
+        ${web.length ? `<div class="internet-subsection-heading"><span>WEB PAGES</span><small>Related information copied into StudentKart</small></div><div class="internet-results-grid">${webCards}</div>` : ""}
+        <div id="internetInternalDetail" class="internet-internal-detail hidden"></div>`;
+
+    const panel=container.querySelector("#internetPanelContainer");
+    const showPanel=async mode=>{
+        if(!panel) return;
+        if(mode==="all"){
+            panel.innerHTML=`<div class="internet-panel-card"><div class="internet-subsection-heading"><span>ALL WEB DATA</span><small>${web.length} web results + ${wiki.length} topic results</small></div><p>Relevant internet information is already displayed below in the StudentKart theme.</p></div>`;
+            return;
+        }
+        if(mode==="dates"){
+            const dated=wiki.filter(item=>item.date||item.location);
+            panel.innerHTML=dated.length
+                ? `<div class="internet-panel-card"><div class="internet-subsection-heading"><span>DATES & TIMELINE</span><small>Facts available from indexed topic data</small></div><div class="internet-date-grid">${dated.map(item=>`<div class="internet-date-card"><strong>${escapeHTML(item.title)}</strong>${item.date?`<span><i class="fas fa-calendar-days"></i>${escapeHTML(item.date)}</span>`:""}${item.location?`<span><i class="fas fa-location-dot"></i>${escapeHTML(item.location)}</span>`:""}</div>`).join("")}</div></div>`
+                : `<div class="internet-panel-card"><strong>No date facts found for this search.</strong><p>Try a more specific search such as a person, place, event or historical topic.</p></div>`;
+            return;
+        }
+        panel.innerHTML=`<div class="internet-panel-card"><div class="internet-loading"><i class="fas fa-spinner fa-spin"></i> Loading ${escapeHTML(mode)} inside StudentKart…</div></div>`;
+        const data=await fetchInternetPanelData(mode,q);
+        if(mode==="photos"){
+            panel.innerHTML=data.length
+                ? `<div class="internet-panel-card"><div class="internet-subsection-heading"><span>PHOTOS</span><small>Images copied from Wikimedia Commons</small></div><div class="internet-photo-grid">${data.map(item=>`<article class="internet-photo-card"><img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}" loading="lazy"><strong>${escapeHTML(item.title)}</strong>${item.date?`<small>${escapeHTML(item.date)}</small>`:""}${item.description?`<p>${escapeHTML(item.description.slice(0,180))}</p>`:""}</article>`).join("")}</div></div>`
+                : `<div class="internet-panel-card"><strong>No photos found.</strong><p>Try another search term.</p></div>`;
+        }else{
+            panel.innerHTML=data.length
+                ? `<div class="internet-panel-card"><div class="internet-subsection-heading"><span>NEWS</span><small>News data copied into StudentKart</small></div><div class="internet-news-grid">${data.map(item=>`<article class="internet-news-card">${item.image?`<img src="${escapeHTML(item.image)}" alt="" loading="lazy">`:""}<div><small>${escapeHTML(item.source)} ${item.date?"• "+escapeHTML(item.date):""}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.description||"News result from the web.")}</p></div></article>`).join("")}</div></div>`
+                : `<div class="internet-panel-card"><strong>No news data found.</strong><p>The news provider did not return results for this search.</p></div>`;
+        }
+    };
+
+    container.querySelectorAll("[data-internet-panel]").forEach(button=>{
+        button.addEventListener("click",()=>showPanel(button.dataset.internetPanel));
+    });
+    container.querySelectorAll("[data-internet-detail]").forEach(button=>{
+        button.addEventListener("click",()=>{
+            const target=container.querySelector(`[data-internet-detail-panel="${button.dataset.internetDetail}"]`);
+            target?.classList.toggle("hidden");
+        });
+    });
+    container.querySelectorAll("[data-internet-web-detail]").forEach(button=>{
+        button.addEventListener("click",()=>{
+            const item=web[Number(button.dataset.internetWebDetail)];
+            const detail=container.querySelector("#internetInternalDetail");
+            if(!item||!detail) return;
+            detail.classList.remove("hidden");
+            detail.innerHTML=`<div class="internet-panel-card"><div class="internet-subsection-heading"><span>WEB DETAIL</span><small>${escapeHTML(item.source)}</small></div><h3>${escapeHTML(item.title)}</h3><p>${escapeHTML(item.snippet||"No description available.")}</p><small>Data copied into StudentKart from the internet source.</small></div>`;
+            detail.scrollIntoView({behavior:"smooth",block:"center"});
+        });
+    });
 }
+
 
 async function showSearchResultsPage(query, options = {}) {
     const selected=String(query||"").trim();
