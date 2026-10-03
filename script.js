@@ -3208,14 +3208,32 @@ async function loadReceivedInquiries() {
         // empty or unavailable. Messages are the source of truth for an
         // already-started conversation.
         if (!inquiries.length) {
-            const { data: messageRows, error: messageRowsError } = await supabaseClient
-                .from("messages")
-                .select("id,inquiry_id,sender_id,receiver_id,message,created_at,is_read")
-                .or("sender_id.eq." + currentUser.id + ",receiver_id.eq." + currentUser.id)
-                .order("created_at", { ascending: false })
-                .limit(500);
+            const [sentResult, receivedResult] = await Promise.all([
+                supabaseClient
+                    .from("messages")
+                    .select("id,inquiry_id,sender_id,receiver_id,message,created_at")
+                    .eq("sender_id", currentUser.id)
+                    .order("created_at", { ascending: false })
+                    .limit(500),
+                supabaseClient
+                    .from("messages")
+                    .select("id,inquiry_id,sender_id,receiver_id,message,created_at")
+                    .eq("receiver_id", currentUser.id)
+                    .order("created_at", { ascending: false })
+                    .limit(500)
+            ]);
 
-            if (!messageRowsError && messageRows?.length) {
+            const messageRowsError = sentResult.error || receivedResult.error;
+            const messageRows = [
+                ...(sentResult.data || []),
+                ...(receivedResult.data || [])
+            ].sort(
+                (a, b) =>
+                    new Date(b.created_at || 0).getTime() -
+                    new Date(a.created_at || 0).getTime()
+            );
+
+            if (!messageRowsError && messageRows.length) {
                 const grouped = new Map();
 
                 messageRows.forEach(row => {
