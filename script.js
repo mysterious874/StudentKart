@@ -3771,19 +3771,42 @@ async function openStudentKartUserChat(userId) {
         let inquiry = existingInquiries?.[0] || null;
 
         if (!inquiry) {
-            // Direct chats use a null product_id. The inquiry row is only the
-            // conversation container; actual messages live in messages.
-            const { data: createdInquiry, error: createError } = await supabaseClient
-                .from("inquiries")
-                .insert({
-                    product_id: null,
-                    buyer_id: currentUser.id,
-                    seller_id: userId,
-                    message: "Direct chat",
-                    status: "new"
-                })
-                .select("*")
-                .single();
+            // The current inquiries table requires product_id. For a new
+            // person-to-person chat, anchor the conversation to that
+            // student's latest active listing instead of inserting NULL.
+            const { data: targetProduct, error: productLookupError } =
+                await supabaseClient
+                    .from("products")
+                    .select("id,name")
+                    .eq("user_id", userId)
+                    .order("created_at", { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+            if (productLookupError) {
+                throw productLookupError;
+            }
+
+            if (!targetProduct?.id) {
+                showToast(
+                    "This student does not have a listing yet, so a new chat cannot be started.",
+                    "warning"
+                );
+                return;
+            }
+
+            const { data: createdInquiry, error: createError } =
+                await supabaseClient
+                    .from("inquiries")
+                    .insert({
+                        product_id: targetProduct.id,
+                        buyer_id: currentUser.id,
+                        seller_id: userId,
+                        message: "Direct chat",
+                        status: "new"
+                    })
+                    .select("*")
+                    .single();
 
             if (createError) throw createError;
             inquiry = createdInquiry;
