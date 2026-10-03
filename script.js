@@ -13196,3 +13196,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+
+/* =========================================================
+   GLOBAL DISCOVERY HOMEPAGE
+   ========================================================= */
+async function loadGlobalDiscoveryHomepage(){
+    const grid=$("worldNewsGrid");
+    if(!grid) return;
+    const feeds=[
+        {title:"World",query:"world international",icon:"fa-earth-americas"},
+        {title:"Technology & Science",query:"technology science AI space",icon:"fa-microchip"},
+        {title:"Business & Economy",query:"business economy markets",icon:"fa-chart-line"},
+        {title:"Sports & Culture",query:"sports entertainment culture",icon:"fa-globe"}
+    ];
+    const results=await Promise.all(feeds.map(async feed=>{
+        const items=await fetchInternetPanelData("news",feed.query);
+        return {...feed,items:items.slice(0,4)};
+    }));
+    const all=results.flatMap(feed=>feed.items.map(item=>({...item,topic:feed.title,topicIcon:feed.icon})));
+    if(!all.length){
+        grid.innerHTML='<div class="world-news-empty"><i class="fas fa-newspaper"></i><h3>Latest updates are temporarily unavailable</h3><p>Refresh the page to try the live news feeds again.</p></div>';
+        return;
+    }
+    const featured=all[0];
+    const cards=all.slice(1,9);
+    const featuredImage=featured.image ? '<img src="'+escapeHTML(featured.image)+'" alt="" loading="lazy">' : '<div class="world-news-image-placeholder"><i class="fas '+escapeHTML(featured.topicIcon)+'"></i></div>';
+    const featuredHtml='<article class="world-news-featured">'+featuredImage+
+        '<div class="world-news-featured-body"><div class="world-news-meta"><span><i class="fas '+escapeHTML(featured.topicIcon)+'"></i>'+escapeHTML(featured.topic)+'</span><span>'+escapeHTML(featured.source)+'</span></div>'+
+        '<h3>'+escapeHTML(featured.title)+'</h3><p>'+escapeHTML(featured.description||"Latest details from the reported story.")+'</p>'+
+        '<a href="'+escapeHTML(featured.url)+'" target="_blank" rel="noopener noreferrer">Read full story <i class="fas fa-arrow-up-right-from-square"></i></a></div></article>';
+    const cardsHtml='<div class="world-news-card-grid">'+cards.map(item=>{
+        const image=item.image ? '<img src="'+escapeHTML(item.image)+'" alt="" loading="lazy">' : '<div class="world-news-card-placeholder"><i class="fas '+escapeHTML(item.topicIcon)+'"></i></div>';
+        return '<article class="world-news-card">'+image+'<div class="world-news-card-body"><div class="world-news-meta"><span>'+escapeHTML(item.topic)+'</span><small>'+escapeHTML(item.source)+'</small></div><h3>'+escapeHTML(item.title)+'</h3>'+
+            (item.description?'<p>'+escapeHTML(item.description)+'</p>':'')+
+            '<a href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer">Details <i class="fas fa-arrow-right"></i></a></div></article>';
+    }).join("")+'</div>';
+    grid.innerHTML=featuredHtml+cardsHtml+'<div class="world-news-refresh"><button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Refresh latest updates</button></div>';
+    $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
+}
+document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();});
