@@ -7913,11 +7913,14 @@ function setupAuthListener() {
                         window.chatUnreadChannel = null;
                     }
 
-                    const chatBadge = $("chatUnreadCount");
-                    if (chatBadge) {
+                    const chatBadges = [
+                        $("chatUnreadCount"),
+                        $("chatBottomUnreadCount")
+                    ].filter(Boolean);
+                    chatBadges.forEach(chatBadge => {
                         chatBadge.textContent = "0";
                         chatBadge.classList.add("hidden");
-                    }
+                    });
 
                     currentNotifications = [];
 
@@ -10164,7 +10167,11 @@ async function updateChatUnreadCount() {
     if (!currentUser) return;
 
     const badge = $("chatUnreadCount");
-    if (!badge) return;
+    const bottomBadge = $("chatBottomUnreadCount");
+
+    // The desktop badge may not exist; the mobile bottom-nav badge is the
+    // primary chat indicator on the current StudentKart layout.
+    if (!badge && !bottomBadge) return;
 
     try {
         const { count, error } = await supabaseClient
@@ -10178,10 +10185,11 @@ async function updateChatUnreadCount() {
         const unread = count || 0;
         const label = unread > 99 ? "99+" : String(unread);
 
-        badge.textContent = label;
-        badge.classList.toggle("hidden", unread === 0);
+        if (badge) {
+            badge.textContent = label;
+            badge.classList.toggle("hidden", unread === 0);
+        }
 
-        const bottomBadge = $("chatBottomUnreadCount");
         if (bottomBadge) {
             bottomBadge.textContent = label;
             bottomBadge.classList.toggle("hidden", unread === 0);
