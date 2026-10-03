@@ -75,265 +75,107 @@
             <p>Amazon and Flipkart API feeds will appear here after their official affiliate/API credentials are connected.</p>
         </div>
     </section>
-
-ion>
 </div>
 </main>
-
-/div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js?v=20261004-marketplace-engine-1"></script>
 <script>
-<script>
 /* =========================================================
    NEW PRODUCTS FEED — Amazon + Flipkart
-   Frontend is API-ready; credentials stay server-side.
-   Expected endpoint: Supabase Edge Function "new-products"
+   Search + category filtering target only new products.
    ========================================================= */
-(function(){
+document.addEventListener("DOMContentLoaded",()=>{
+    const input=document.getElementById("marketplaceSearch");
+    const panel=document.getElementById("marketplacePageSuggestions");
     const grid=document.getElementById("newProductsGrid");
     const status=document.getElementById("newProductsStatus");
     const empty=document.getElementById("newProductsEmpty");
     const refresh=document.getElementById("newProductsRefresh");
     const tabs=[...document.querySelectorAll(".new-products-tab")];
-    if(!grid||!status)return;
+    if(!input||!grid||!status)return;
 
     let activeCategory="all";
     let allNewProducts=[];
 
-    const money=value=>{
-        const n=Number(value);
-        return Number.isFinite(n)&&n>0
-            ? new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(n)
-            : "Price unavailable";
+    const catalog={
+        electronics:["Laptop","Mobile Phone","Tablet","Monitor","Keyboard","Mouse","Headphones","Earphones","Smartwatch","SSD","Power Bank","Charger","Speaker","Webcam"],
+        books:["BCA Books","Programming Books","Cybersecurity Books","DSA Books","DBMS Books","Networking Books","Web Development Books","Semester Books","Study Notes"],
+        fashion:["T-Shirts","Shirts","Jeans","Hoodies","Jackets","Shoes","Sneakers","Backpacks","Watches"],
+        home:["Study Table","Chair","Desk Lamp","Bookshelf","Mattress","Storage Box","Room Essentials"],
+        gaming:["Gaming Laptop","Gaming PC","PlayStation","Xbox","Gaming Monitor","Gaming Keyboard","Gaming Mouse","Gaming Headset","Game Controller"],
+        all:["Laptop","Mobile Phone","BCA Books","Headphones","Backpack","Gaming Laptop","Study Table","Smartwatch"]
     };
-
-    const escape=value=>String(value??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-
-    const sourceLabel=source=>{
-        const s=String(source||"").toLowerCase();
-        return s.includes("flip")?"Flipkart":"Amazon";
-    };
+    const iconFor=c=>({electronics:"fa-laptop",books:"fa-book",fashion:"fa-shirt",home:"fa-house",gaming:"fa-gamepad"}[c]||"fa-tag");
+    const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+    const money=v=>{const n=Number(v);return Number.isFinite(n)&&n>0?new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(n):"Price unavailable"};
 
     function render(list){
-        grid.innerHTML="";
-        const filtered=activeCategory==="all"
-            ? list
-            : list.filter(p=>String(p.category||"").toLowerCase()===activeCategory);
-
-        if(!filtered.length){
-            empty.classList.remove("hidden");
-            return;
-        }
+        const filtered=activeCategory==="all"?list:list.filter(p=>String(p.category||"").toLowerCase()===activeCategory);
+        if(!filtered.length){grid.innerHTML="";empty.classList.remove("hidden");return;}
         empty.classList.add("hidden");
-
         grid.innerHTML=filtered.map(p=>{
-            const source=sourceLabel(p.source);
+            const source=String(p.source||"Amazon").toLowerCase().includes("flip")?"Flipkart":"Amazon";
             const url=p.url||p.link||"#";
-            const image=p.image||p.imageUrl||"";
-            return `<article class="new-product-card">
-                <div class="new-product-image-wrap">
-                    ${image
-                        ? `<img src="${escape(image)}" alt="${escape(p.name||"New product")}" loading="lazy">`
-                        : `<div class="new-product-image-placeholder"><i class="fas fa-box"></i></div>`}
-                    <span class="new-product-badge">NEW</span>
-                    <span class="new-product-source ${source.toLowerCase()}">${source}</span>
-                </div>
-                <div class="new-product-body">
-                    <span class="new-product-category">${escape(p.category||"New product")}</span>
-                    <h3>${escape(p.name||"New product")}</h3>
-                    <div class="new-product-price">${money(p.price)}</div>
-                    ${p.mrp ? `<div class="new-product-mrp">MRP ${money(p.mrp)}</div>` : ""}
-                    <a class="new-product-buy" href="${escape(url)}" target="_blank" rel="noopener noreferrer sponsored">
-                        Buy on ${source} <i class="fas fa-arrow-up-right-from-square"></i>
-                    </a>
-                </div>
-            </article>`;
+            return '<article class="new-product-card"><div class="new-product-image-wrap">'+
+                (p.image?'<img src="'+esc(p.image)+'" alt="'+esc(p.name||"New product")+'" loading="lazy">':'<div class="new-product-image-placeholder"><i class="fas fa-box"></i></div>')+
+                '<span class="new-product-badge">NEW</span><span class="new-product-source '+source.toLowerCase()+'">'+source+'</span></div>'+ 
+                '<div class="new-product-body"><span class="new-product-category">'+esc(p.category||"New product")+'</span><h3>'+esc(p.name||"New product")+'</h3><div class="new-product-price">'+money(p.price)+'</div>'+ 
+                (p.mrp?'<div class="new-product-mrp">MRP '+money(p.mrp)+'</div>':'')+
+                '<a class="new-product-buy" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer sponsored">Buy on '+source+' <i class="fas fa-arrow-up-right-from-square"></i></a></div></article>';
         }).join("");
     }
 
-    async function load(){
-        status.classList.remove("hidden");
+    async function load(query="student essentials"){
         status.innerHTML='<i class="fas fa-spinner fa-spin"></i> Loading new products…';
-        grid.innerHTML="";
-        empty.classList.add("hidden");
-
+        grid.innerHTML=""; empty.classList.add("hidden");
         try{
-            if(typeof SUPABASE_URL==="undefined"||typeof SUPABASE_KEY==="undefined"){
-                throw new Error("Supabase configuration unavailable");
-            }
-            const response=await fetch(SUPABASE_URL+"/functions/v1/new-products",{
-                headers:{
-                    "apikey":SUPABASE_KEY,
-                    "Authorization":"Bearer "+SUPABASE_KEY,
-                    "Accept":"application/json"
-                }
+            if(typeof SUPABASE_URL==="undefined"||typeof SUPABASE_KEY==="undefined")throw new Error("Supabase configuration unavailable");
+            const response=await fetch(SUPABASE_URL+"/functions/v1/new-products?q="+encodeURIComponent(query),{
+                headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Accept":"application/json"}
             });
-            if(!response.ok) throw new Error("New products feed HTTP "+response.status);
+            if(!response.ok)throw new Error("HTTP "+response.status);
             const data=await response.json();
             allNewProducts=Array.isArray(data?.products)?data.products:[];
             render(allNewProducts);
-            status.innerHTML=allNewProducts.length
-                ? '<i class="fas fa-circle-check"></i> Live new-product feed'
-                : '<i class="fas fa-circle-info"></i> No products returned yet';
+            status.innerHTML=allNewProducts.length?'<i class="fas fa-circle-check"></i> Live new-product feed':'<i class="fas fa-circle-info"></i> No products returned for this search';
         }catch(error){
             console.warn("New products feed:",error);
             allNewProducts=[];
-            status.innerHTML='<i class="fas fa-link"></i> Official product-feed connection pending';
+            status.innerHTML='<i class="fas fa-link"></i> Official Amazon/Flipkart feed connection pending';
             empty.classList.remove("hidden");
         }
     }
 
-    tabs.forEach(tab=>tab.addEventListener("click",()=>{
-        tabs.forEach(x=>x.classList.remove("active"));
-        tab.classList.add("active");
-        activeCategory=tab.dataset.newCategory||"all";
-        render(allNewProducts);
-    }));
-    refresh?.addEventListener("click",load);
-    load();
-})();
-</script>
-document.addEventListener("DOMContentLoaded",()=>{
-    const input=document.getElementById("marketplaceSearch");
-    const panel=document.getElementById("marketplacePageSuggestions");
-    const count=document.getElementById("marketplacePageCount");
-    const clear=document.getElementById("marketplacePageClearSearch");
-    const searchBtn=document.getElementById("marketplacePageSearchButton");
-    const categories=[...document.querySelectorAll(".marketplace-category-button")];
-
-    const iconFor=c=>({Books:"fa-book",Electronics:"fa-laptop",Vehicles:"fa-motorcycle",Furniture:"fa-couch",Services:"fa-handshake",Fashion:"fa-shirt",Gaming:"fa-gamepad",Other:"fa-layer-group"}[c]||"fa-tag");
-
-    /* =========================================================
-       MARKETPLACE SEARCH SUGGESTIONS
-       Category + category-specific products/services + live listings
-       ========================================================= */
-    const suggestionCatalog={
-        Books:[
-            "BCA Books","Programming Books","Computer Science Books","Cybersecurity Books",
-            "Data Science Books","AI & Machine Learning Books","Web Development Books",
-            "DBMS Books","Operating Systems Books","Networking Books","DSA Books",
-            "Semester Notes","Study Notes","Question Papers","Novels","Competitive Exam Books"
-        ],
-        Electronics:[
-            "Laptop","Desktop PC","Monitor","Mobile Phone","Tablet","iPad","Smartwatch",
-            "Keyboard","Mouse","Headphones","Earphones","Speakers","Power Bank","Charger",
-            "Hard Drive","SSD","Pen Drive","Webcam","Printer","Calculator","USB Hub",
-            "Wi-Fi Router","Gaming Console","Projector"
-        ],
-        Vehicles:[
-            "Bicycle","Mountain Bicycle","Electric Bicycle","Scooter","Bike","Electric Scooter",
-            "Helmet","Cycle Accessories","Bike Accessories","Vehicle Parts"
-        ],
-        Furniture:[
-            "Study Table","Chair","Office Chair","Gaming Chair","Bookshelf","Cupboard",
-            "Bed","Mattress","Study Lamp","Table Lamp","Desk","Sofa","Storage Box",
-            "Clothes Stand","Hostel Furniture"
-        ],
-        Services:[
-            "Tutoring","Academic Help","Assignment Help","Web Development","App Development",
-            "Graphic Design","Video Editing","Photography","Event Photography","Resume Making",
-            "Digital Marketing","Social Media Management","Laptop Repair","Mobile Repair",
-            "Bike Repair","Printing","Notes Printing","Delivery Service","Moving Help"
-        ],
-        Fashion:[
-            "T-Shirts","Shirts","Jeans","Trousers","Hoodies","Jackets","Shoes","Sneakers",
-            "Sandals","Bags","Backpacks","Watches","Accessories","College Uniform","Sportswear"
-        ],
-        Gaming:[
-            "Gaming Laptop","Gaming PC","PlayStation","Xbox","Nintendo","Gaming Monitor",
-            "Gaming Keyboard","Gaming Mouse","Gaming Headset","Game Controller","Gaming Chair",
-            "PC Games","Console Games","Game Accessories"
-        ],
-        Other:[
-            "Sports Equipment","Cricket Bat","Football","Badminton Racket","Guitar",
-            "Musical Instruments","Gym Equipment","Cycle Accessories","Stationery","Water Bottle",
-            "Lunch Box","Hostel Essentials","Room Essentials","Kitchen Items","Decor Items",
-            "Event Supplies","Tickets","Miscellaneous"
-        ]
-    };
-
     function suggestions(q){
-        const query=String(q||"").trim().toLowerCase();
-        const out=[],seen=new Set();
-        const add=(value,meta,icon,category="")=>{
-            const key=String(value).toLowerCase();
-            if(!key||seen.has(key))return;
-            seen.add(key);
-            out.push({value,meta,icon,category});
-        };
-
-        const categoriesList=Object.keys(suggestionCatalog);
-
-        // Show category matches first.
-        categoriesList.forEach(category=>{
-            if(!query || category.toLowerCase().includes(query)){
-                add(category,"Marketplace category",iconFor(category),category);
+        const query=String(q||"").trim().toLowerCase(),out=[],seen=new Set();
+        Object.entries(catalog).forEach(([category,items])=>items.forEach(item=>{
+            if(!query||item.toLowerCase().includes(query)){
+                const key=item.toLowerCase(); if(seen.has(key))return; seen.add(key);
+                out.push({value:item,meta:category==="all"?"New product":"New product • "+category,icon:iconFor(category)});
             }
-        });
-
-        // Then show category-specific search terms.
-        categoriesList.forEach(category=>{
-            suggestionCatalog[category].forEach(item=>{
-                const hay=(item+" "+category).toLowerCase();
-                if(!query || hay.includes(query)){
-                    add(item,category,iconFor(category),category);
-                }
-            });
-        });
-
-        // Finally include actual listings from the database, so real inventory
-        // still gets priority over generic suggestions when the user types.
-        [...currentProducts].forEach(p=>{
-            const hay=[p.name,p.category,p.location,p.description].join(" ").toLowerCase();
-            if(!query || hay.includes(query)){
-                add(
-                    p.name,
-                    (p.category||"Marketplace")+(p.location?" • "+p.location:""),
-                    iconFor(p.category),
-                    p.category||""
-                );
-            }
-        });
-
+        }));
         return out.slice(0,10);
     }
     function renderSuggestions(){
         const list=suggestions(input.value);
         if(!list.length){panel.classList.add("hidden");panel.innerHTML="";return;}
-        panel.innerHTML=list.map((x,i)=>`<button type="button" class="marketplace-page-suggestion" data-value="${escapeHTML(x.value)}"><span class="marketplace-page-suggestion-icon"><i class="fas ${x.icon}"></i></span><span class="marketplace-page-suggestion-copy"><strong>${escapeHTML(x.value)}</strong><small>${escapeHTML(x.meta)}</small></span><i class="fas fa-chevron-right"></i></button>`).join("");
+        panel.innerHTML=list.map(x=>'<button type="button" class="marketplace-page-suggestion" data-value="'+esc(x.value)+'"><span class="marketplace-page-suggestion-icon"><i class="fas '+x.icon+'"></i></span><span class="marketplace-page-suggestion-copy"><strong>'+esc(x.value)+'</strong><small>'+esc(x.meta)+'</small></span><i class="fas fa-chevron-right"></i></button>').join("");
         panel.classList.remove("hidden");
-        panel.querySelectorAll("button").forEach(b=>b.addEventListener("mousedown",e=>e.preventDefault()));
-        panel.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
-            input.value=b.dataset.value||"";
-            panel.classList.add("hidden");
-            run();
-        }));
+        panel.querySelectorAll("button").forEach(b=>{b.addEventListener("mousedown",e=>e.preventDefault());b.addEventListener("click",()=>{input.value=b.dataset.value||"";panel.classList.add("hidden");activeCategory="all";tabs.forEach(t=>t.classList.toggle("active",t.dataset.newCategory==="all"));load(input.value);});});
     }
-    function run(){
-        const value=input.value.trim().toLowerCase();
-        currentProducts.forEach(()=>{});
-        const cat=document.querySelector(".marketplace-category-button.active")?.dataset.category||"all";
-        let matches=[...currentProducts];
-        if(value) matches=matches.filter(p=>[p.name,p.category,p.location,p.condition,p.description,p.seller].join(" ").toLowerCase().includes(value));
-        if(cat!=="all") matches=matches.filter(p=>String(p.category).toLowerCase()===cat.toLowerCase());
-        renderProducts(matches,"productContainer","emptyState");
-        count.textContent=matches.length+(matches.length===1?" listing":" listings");
-    }
-    input.addEventListener("focus",()=>{window.scrollTo({top:0,behavior:"smooth"});renderSuggestions();});
-    input.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
-    input.addEventListener("input",renderSuggestions);
-    input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();panel.classList.add("hidden");run();}if(e.key==="Escape")panel.classList.add("hidden");});
-    input.addEventListener("blur",()=>setTimeout(()=>panel.classList.add("hidden"),160));
-    searchBtn.addEventListener("click",()=>{panel.classList.add("hidden");run();});
-    clear.addEventListener("click",()=>{input.value="";categories.forEach(b=>b.classList.toggle("active",b.dataset.category==="all"));run();renderSuggestions();});
-    categories.forEach(btn=>btn.addEventListener("click",()=>{
-        categories.forEach(b=>b.classList.remove("active"));btn.classList.add("active");
-        run();
+
+    tabs.forEach(tab=>tab.addEventListener("click",()=>{
+        tabs.forEach(t=>t.classList.remove("active"));tab.classList.add("active");
+        activeCategory=tab.dataset.newCategory||"all";render(allNewProducts);
     }));
-    const syncCount=()=>{const n=document.querySelectorAll("#productContainer .product-card").length; if(n||currentProducts.length===0) count.textContent=n+(n===1?" listing":" listings");};
-    const observer=new MutationObserver(syncCount); observer.observe(document.getElementById("productContainer"),{childList:true});
+    input.addEventListener("focus",renderSuggestions);
+    input.addEventListener("input",renderSuggestions);
+    input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();panel.classList.add("hidden");load(input.value.trim()||"student essentials");}if(e.key==="Escape")panel.classList.add("hidden");});
+    input.addEventListener("blur",()=>setTimeout(()=>panel.classList.add("hidden"),160));
+    document.getElementById("marketplacePageSearchButton")?.addEventListener("click",()=>{panel.classList.add("hidden");load(input.value.trim()||"student essentials");});
+    refresh?.addEventListener("click",()=>load(input.value.trim()||"student essentials"));
+    load();
 });
 </script>
 </body>
