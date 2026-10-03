@@ -41,6 +41,151 @@ let notificationRealtimeChannel = null;
 let productsRealtimeChannel = null;
 let toastTimer = null;
 
+// =========================================================
+// SINGLE ACTIVE SESSION PER MOBILE NUMBER
+// =========================================================
+// Supabase allows multiple active sessions for the same account.
+// GlobeDisc uses a realtime channel so a newer login can immediately
+// ask any older active app session to sign out.
+let singleSessionChannel = null;
+let singleSessionUserId = null;
+
+async function stopSingleSessionListener() {
+    if (!singleSessionChannel) {
+        singleSessionUserId = null;
+        return;
+    }
+
+    try {
+        await supabaseClient.removeChannel(singleSessionChannel);
+    } catch (error) {
+        console.warn("Could not remove single-session channel:", error);
+    }
+
+    singleSessionChannel = null;
+    singleSessionUserId = null;
+}
+
+async function startSingleSessionListener(user, notifyOlderSessions = false) {
+    if (!user?.id) return;
+
+    if (
+        singleSessionChannel &&
+        singleSessionUserId === user.id
+    ) {
+        if (notifyOlderSessions) {
+            try {
+                await singleSessionChannel.send({
+                    type: "broadcast",
+                    event: "force_logout",
+                    payload: {
+                        reason: "new_login",
+                        timestamp: Date.now()
+                    }
+                });
+            } catch (error) {
+                console.warn("Could not notify older session:", error);
+            }
+        }
+        return;
+    }
+
+    await stopSingleSessionListener();
+
+    const channelName = "globedisc-single-session-" + user.id;
+
+    singleSessionChannel =
+        supabaseClient.channel(channelName, {
+            config: {
+                broadcast: {
+                    self: false
+                }
+            }
+        });
+
+    singleSessionUserId = user.id;
+
+    singleSessionChannel.on(
+        "broadcast",
+        { event: "force_logout" },
+        async () => {
+            // This session is older than the newly authenticated session.
+            // Clear the local session and return the user to the entry gate.
+            try {
+                await supabaseClient.auth.signOut({
+                    scope: "local"
+                });
+            } catch (error) {
+                console.warn(
+                    "Forced logout could not clear Supabase session:",
+                    error
+                );
+            }
+
+            currentUser = null;
+            localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
+
+            stopNotificationRefresh();
+
+            currentNotifications = [];
+            currentWishlist = [];
+
+            closeAllModals();
+            updateNavbar();
+            updateNotificationNavbar();
+            updateWishlistNavbar();
+            updateWishlistButtons();
+
+            showNewUserGate();
+
+            showToast(
+                "You're logged out because this mobile number was used to log in on another device.",
+                "warning"
+            );
+        }
+    );
+
+    try {
+        await new Promise((resolve, reject) => {
+            let settled = false;
+
+            const finish = (error) => {
+                if (settled) return;
+                settled = true;
+                error ? reject(error) : resolve();
+            };
+
+            singleSessionChannel.subscribe((status) => {
+                if (status === "SUBSCRIBED") {
+                    finish();
+                } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+                    finish(new Error("Realtime channel status: " + status));
+                }
+            });
+        });
+
+        // Do not notify before the new session has successfully subscribed.
+        // self:false prevents this newly logged-in session from receiving
+        // its own force_logout message.
+        if (notifyOlderSessions) {
+            await singleSessionChannel.send({
+                type: "broadcast",
+                event: "force_logout",
+                payload: {
+                    reason: "new_login",
+                    timestamp: Date.now()
+                }
+            });
+        }
+    } catch (error) {
+        console.warn(
+            "Single-session realtime setup failed:",
+            error
+        );
+    }
+}
+
+
 
 /* =========================================================
    BASIC HELPERS
@@ -8110,8 +8255,12 @@ function setupAuthListener() {
                 currentUser =
                     session?.user ||
                     null;
-                
+
                 if (currentUser) {
+                    await startSingleSessionListener(
+                        currentUser,
+                        event === "SIGNED_IN"
+                    );
                     applyStudentKartSettings();
                 } else {
                     document.body.classList.remove("studentkart-dark");
@@ -8135,6 +8284,7 @@ function setupAuthListener() {
 
                 } else {
 
+                    await stopSingleSessionListener();
                     stopNotificationRefresh();
 
                     if (window.chatUnreadChannel) {
