@@ -90,10 +90,10 @@
             if(ids.length){const pr=await supabaseClient.from("products").select("id,name,price,moderation_status,moderation_reason,seller,seller_email").in("id",ids);if(!pr.error)(pr.data||[]).forEach(p=>products[p.id]=p);}
             if(!rows.length){list.innerHTML='<div class="sk-admin-empty"><i class="fas fa-scale-balanced"></i><br>No appeals yet.</div>';return;}
             list.innerHTML=rows.map(a=>{const p=products[a.product_id];return '<article class="sk-admin-card"><div class="sk-admin-card-head"><div><strong>'+esc(p?.name||"Deleted/unknown")+'</strong><div class="sk-admin-meta">Status: '+esc(a.status)+' · '+esc(new Date(a.created_at).toLocaleString("en-IN"))+'<br>Seller: '+esc(p?.seller||p?.seller_email||a.seller_id)+'<br>Product ID: '+esc(a.product_id||"Unknown")+'</div></div></div><div class="sk-admin-meta" style="margin-top:10px"><strong>Seller appeal:</strong><br>'+esc(a.message)+'</div>'+(p?.moderation_reason?'<div class="sk-admin-meta" style="margin-top:8px"><strong>Original moderation reason:</strong> '+esc(p.moderation_reason)+'</div>':"")+(a.admin_note?'<div class="sk-admin-meta" style="margin-top:8px"><strong>Admin note:</strong> '+esc(a.admin_note)+'</div>':"")+(a.status==="pending"?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-primary" type="button" data-approve-appeal="'+esc(a.id)+'" data-appeal-product="'+esc(a.product_id)+'"><i class="fas fa-check"></i> Approve & Restore</button><button class="btn btn-outline" type="button" data-reject-appeal="'+esc(a.id)+'"><i class="fas fa-xmark"></i> Reject</button></div>':"")+'</article>'}).join("");
-            list.querySelectorAll("[data-approve-appeal]").forEach(b=>b.addEventListener("click",()=>decideAppeal(b.dataset.approveAppeal,b.dataset.appealProduct,"approved")));
-            list.querySelectorAll("[data-reject-appeal]").forEach(b=>b.addEventListener("click",()=>decideAppeal(b.dataset.rejectAppeal,null,"rejected")));
+            list.querySelectorAll("[data-approve-appeal]").forEach(b=>b.addEventListener("click",()=>decideAppeal(b.dataset.approveAppeal,b.dataset.appealProduct,"approved",b.dataset.appealSeller)));
+            list.querySelectorAll("[data-reject-appeal]").forEach(b=>b.addEventListener("click",()=>decideAppeal(b.dataset.rejectAppeal,null,"rejected",b.dataset.appealSeller)));
         }
-        async function decideAppeal(appealId,productId,status){
+        async function decideAppeal(appealId,productId,status,sellerId){
             const note=prompt(status==="approved"?"Optional note to the seller (leave blank if none):":"Reason for rejecting this appeal (optional):","");
             if(note===null)return;
             if(status==="approved"){
@@ -104,6 +104,10 @@
             const {data:userData}=await supabaseClient.auth.getUser();
             const {error}=await supabaseClient.from("moderation_appeals").update({status,admin_note:note||null,reviewed_at:new Date().toISOString(),reviewed_by:userData?.user?.id||null}).eq("id",appealId);
             if(error){window.showToast?.(error.message,"error");return;}
+            if(status==="rejected" && sellerId){
+                const notification=await supabaseClient.from("notifications").insert({user_id:sellerId,type:"listing_appeal_rejected",title:"Appeal rejected",message:"Your appeal for the listing was rejected."+ (note ? " Admin note: "+note : ""),is_read:false,created_at:new Date().toISOString()});
+                if(notification.error) console.warn("Could not create appeal notification:",notification.error);
+            }
             window.showToast?.(status==="approved"?"Appeal approved and listing restored":"Appeal rejected","success");
             await openAppeals();
         }
