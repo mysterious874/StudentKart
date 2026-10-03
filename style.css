@@ -18556,6 +18556,18 @@ border-radius:14px;
 /* =========================================================
    HOME HERO -> SEARCH STRIP TRANSITION
    ========================================================= */
-#heroSearchStrip.hero-search-docked{position:sticky!important;top:72px!important;z-index:1000000!important}
-body.studentkart-search-strip-hidden #heroSearchStrip{display:none!important}
-@media(max-width:768px){#heroSearchStrip.hero-search-docked{top:58px!important}}
+#heroSearchStrip{
+    position:relative;
+    z-index:1000;
+}
+#heroSearchStrip.hero-search-docked{
+    position:sticky!important;
+    top:72px!important;
+    z-index:1000000!important;
+}
+body.studentkart-search-strip-hidden #heroSearchStrip{
+    display:none!important;
+}
+@media(max-width:768px){
+    #heroSearchStrip.hero-search-docked{top:58px!important}
+}
