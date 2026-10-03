@@ -2200,6 +2200,7 @@ async function openProductDetails(productId) {
     document.body.classList.add("studentkart-product-details-open");
 }
 
+window.StudentKartOpenProductDetails = openProductDetails;
 
 /* =========================================================
    SELLER PROFILE
