@@ -144,8 +144,12 @@
             document.body.appendChild(modal);
 
             const close = () => modal.classList.add("hidden");
+            const backToSettings = () => {
+                modal.classList.add("hidden");
+                document.getElementById("settingsModal")?.classList.remove("hidden");
+            };
             modal.querySelectorAll("[data-close-admin-tool]").forEach(el => el.addEventListener("click", close));
-            modal.querySelector("#adminCloseDashboard")?.addEventListener("click", close);
+            modal.querySelector("#adminCloseDashboard")?.addEventListener("click", backToSettings);
             modal.querySelector("#adminVerificationTool")?.addEventListener("click", async () => {
                 close();
                 const campusModal = document.getElementById("campusModal");
