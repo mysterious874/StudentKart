@@ -4612,7 +4612,13 @@ async function deleteProduct(
    ========================================================= */
 
 function normalizeAuthPhone(raw) {
-    const digits = String(raw || "").replace(/\D/g, "");
+    let digits = String(raw || "").replace(/\D/g, "");
+
+    // Accept both a plain Indian 10-digit number and an already-normalized +91 number.
+    if (digits.startsWith("91") && digits.length === 12) {
+        digits = digits.slice(2);
+    }
+
     if (digits.length !== 10) return null;
     return "+91" + digits;
 }
