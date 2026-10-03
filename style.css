@@ -17331,3 +17331,29 @@ body.studentkart-search-results-active .search-results-filter-actions{
         top:56px!important;padding:12px 10px!important;
     }
 }
+
+
+/* HOME SCROLL + CLEAN FOOTER LAYOUT */
+body:not(.studentkart-search-results-active) .studentkart-top{
+    position:sticky!important;
+    top:0!important;
+    z-index:100000!important;
+    background:#f7faf9!important;
+}
+body:not(.studentkart-search-results-active) .studentkart-top-content{
+    width:min(1180px,calc(100% - 28px));
+    margin:0 auto;
+}
+body:not(.studentkart-search-results-active) .category-scroll-strip{
+    position:relative!important;
+    z-index:100001!important;
+}
+body:not(.studentkart-search-results-active) .footer{
+    display:none!important;
+}
+body:not(.studentkart-search-results-active) .how-section{
+    display:none!important;
+}
+@media(max-width:700px){
+    body:not(.studentkart-search-results-active) .studentkart-top-content{width:calc(100% - 20px)}
+}
