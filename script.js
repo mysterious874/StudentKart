@@ -4734,6 +4734,7 @@ async function signupUser(event) {
 
     if (!isValidStudentKartUsername(username)) {
         showToast("Username must be 3–30 characters using letters, numbers, dots or underscores.", "warning");
+        $("signupUsername")?.focus();
         return;
     }
 
@@ -4766,20 +4767,35 @@ async function signupUser(event) {
 
         if (error) throw error;
 
+        // With Supabase Email Confirmations disabled, signUp returns an active
+        // session. Keep the new user logged in instead of opening Login again.
         if (data?.user && data?.session) {
+            currentUser = data.user;
             await ensureProfileAfterPasswordSignup(data.user);
+
+            localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
+
+            closeModal("signupModal");
+            closeModal("loginModal", { instant: true });
+            updateNavbar();
+
+            try {
+                await loadUserData();
+                await loadMarketplace();
+                await loadNotifications();
+                await updateChatUnreadCount();
+            } catch (loadError) {
+                console.error("Post-signup data load failed:", loadError);
+            }
+
+            showToast("Account created. You're now logged in.", "success");
+            return;
         }
 
+        // If email confirmation is still enabled in Supabase, do not pretend
+        // the user is logged in. Tell them what is required.
         closeModal("signupModal");
-        localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
-        updateNavbar();
-
-        showToast(
-            data?.session
-                ? "Account created successfully"
-                : "Account created. Check your email to confirm, then login.",
-            "success"
-        );
+        showToast("Account created. Please complete the required email confirmation.", "warning");
     } catch (error) {
         console.error("Signup error:", error);
         showToast(error?.message || "Could not create account", "error");
@@ -4787,7 +4803,6 @@ async function signupUser(event) {
         if (button) button.disabled = false;
     }
 }
-
 async function ensureProfileAfterPasswordSignup(user) {
     if (!user) return;
 
