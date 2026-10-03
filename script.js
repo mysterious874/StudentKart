@@ -4616,6 +4616,28 @@ function normalizeAuthPhone(raw) {
     if (digits.length !== 10) return null;
     return "+91" + digits;
 }
+
+function getAuthPhoneFromUser(user = currentUser) {
+    return normalizeAuthPhone(
+        user?.phone ||
+        user?.user_metadata?.phone ||
+        getSavedProfile()?.phone ||
+        ""
+    );
+}
+
+// Supabase's hosted Phone provider can require an SMS provider in the dashboard.
+// GlobeDisc does not use OTP: the user enters only a mobile number + 6-digit PIN.
+// We therefore use a private deterministic email-shaped Auth identifier behind
+// the scenes while keeping the real mobile number in profile metadata/database.
+// The user never sees or enters this internal identifier.
+function getInternalAuthEmail(phone) {
+    const normalized = normalizeAuthPhone(phone);
+    if (!normalized) return null;
+    const digits = normalized.replace(/\D/g, "");
+    return `${digits}@auth.globedisc.local`;
+}
+
 function isSixDigitPassword(value) { return /^\d{6}$/.test(String(value || "")); }
 
 (function setupAuthPinInputs() {
@@ -4635,43 +4657,119 @@ function isSixDigitPassword(value) { return /^\d{6}$/.test(String(value || ""));
 
 async function loginUser(event) {
     event.preventDefault();
+
     const phone = normalizeAuthPhone($("loginIdentifier")?.value);
     const password = $("loginPassword")?.value || "";
-    if (!phone) { showToast("Enter a valid 10-digit mobile number", "warning"); return; }
-    if (!isSixDigitPassword(password)) { showToast("Password must be exactly 6 digits", "warning"); return; }
+    const internalEmail = getInternalAuthEmail(phone);
+
+    if (!phone) {
+        showToast("Enter a valid 10-digit mobile number", "warning");
+        return;
+    }
+
+    if (!internalEmail) {
+        showToast("Could not prepare login", "error");
+        return;
+    }
+
+    if (!isSixDigitPassword(password)) {
+        showToast("Password must be exactly 6 digits", "warning");
+        return;
+    }
+
     const button = $("loginForm")?.querySelector('button[type="submit"]');
     if (button) button.disabled = true;
+
     try {
-        const { error } = await supabaseClient.auth.signInWithPassword({ phone, password });
+        const { error } = await supabaseClient.auth.signInWithPassword({
+            email: internalEmail,
+            password
+        });
+
         if (error) throw error;
-        closeModal("loginModal"); localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY); updateNavbar();
+
+        closeModal("loginModal");
+        localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
+        updateNavbar();
         showToast("Logged in successfully", "success");
     } catch (error) {
         console.error("Login error:", error);
-        showToast(error?.message || "Could not login. Check your mobile number and password.", "error");
-    } finally { if (button) button.disabled = false; }
+        showToast(
+            error?.message || "Could not login. Check your mobile number and password.",
+            "error"
+        );
+    } finally {
+        if (button) button.disabled = false;
+    }
 }
 
 async function signupUser(event) {
     event.preventDefault();
+
     const phone = normalizeAuthPhone($("signupIdentifier")?.value);
     const password = $("signupPassword")?.value || "";
     const confirmPassword = $("signupPasswordConfirm")?.value || "";
-    if (!phone) { showToast("Enter a valid 10-digit mobile number", "warning"); return; }
-    if (!isSixDigitPassword(password) || !isSixDigitPassword(confirmPassword)) { showToast("Password must be exactly 6 digits", "warning"); return; }
-    if (password !== confirmPassword) { showToast("Passwords do not match", "warning"); return; }
+    const internalEmail = getInternalAuthEmail(phone);
+
+    if (!phone) {
+        showToast("Enter a valid 10-digit mobile number", "warning");
+        return;
+    }
+
+    if (!internalEmail) {
+        showToast("Could not prepare account", "error");
+        return;
+    }
+
+    if (!isSixDigitPassword(password) || !isSixDigitPassword(confirmPassword)) {
+        showToast("Password must be exactly 6 digits", "warning");
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showToast("Passwords do not match", "warning");
+        return;
+    }
+
     const button = $("signupForm")?.querySelector('button[type="submit"]');
     if (button) button.disabled = true;
+
     try {
-        const { data, error } = await supabaseClient.auth.signUp({ phone, password, options: { data: { phone } } });
+        const { data, error } = await supabaseClient.auth.signUp({
+            email: internalEmail,
+            password,
+            options: {
+                data: {
+                    phone,
+                    auth_phone: phone
+                }
+            }
+        });
+
         if (error) throw error;
-        if (data?.user && data?.session) await ensureProfileAfterPasswordSignup(data.user);
-        closeModal("signupModal"); localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY); updateNavbar();
-        showToast(data?.session ? "Account created successfully" : "Account created. Complete phone verification, then login.", "success");
+
+        // Email confirmation must be disabled in Supabase Auth settings for
+        // this no-OTP/no-email flow. If a session is returned, finish setup.
+        if (data?.user && data?.session) {
+            await ensureProfileAfterPasswordSignup(data.user);
+        }
+
+        closeModal("signupModal");
+        localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
+        updateNavbar();
+
+        showToast(
+            data?.session
+                ? "Account created successfully"
+                : "Account created. Disable email confirmation in Supabase, then login.",
+            data?.session ? "success" : "warning"
+        );
     } catch (error) {
         console.error("Signup error:", error);
         showToast(error?.message || "Could not create account", "error");
-    } finally { if (button) button.disabled = false; }
+    } finally {
+        if (button) button.disabled = false;
+    }
 }
 
 async function ensureProfileAfterPasswordSignup(user) {
@@ -4941,7 +5039,7 @@ async function saveEditedProfile(
 
     const name = $("editProfileName")?.value?.trim();
     const username = $("editProfileUsername")?.value?.trim()?.toLowerCase() || "";
-    const phone = currentUser.phone || "";
+    const phone = getAuthPhoneFromUser(currentUser) || "";
     const newPassword = $("editProfileNewPassword")?.value || "";
     const confirmPassword = $("editProfileConfirmPassword")?.value || "";
     const college = $("editProfileCollege")?.value?.trim();
@@ -4981,7 +5079,7 @@ async function saveEditedProfile(
         id: currentUser.id,
         name,
         username,
-        phone: currentUser.phone || "",
+        phone: getAuthPhoneFromUser(currentUser) || "",
         college,
         state,
         city,
@@ -4998,7 +5096,7 @@ async function saveEditedProfile(
     if ($("profileCollege")) $("profileCollege").textContent = college || "College not added";
     if ($("profileUsernameInfo")) $("profileUsernameInfo").textContent = username || "Not added";
     if ($("profileCollegeInfo")) $("profileCollegeInfo").textContent = college || "Not added";
-    if ($("profilePhoneInfo")) $("profilePhoneInfo").textContent = phone || currentUser.phone || "Not added";
+    if ($("profilePhoneInfo")) $("profilePhoneInfo").textContent = phone || "Not added";
 
     if ($("profileAvatar")) {
         if (previewAvatarUrl) {
