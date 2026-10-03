@@ -18627,3 +18627,27 @@ body:has(#editProfileModal:not(.hidden)) .mobile-bottom-nav{
    FLOATING NAV — REMOVED
    ============================================================ */
 .mobile-bottom-nav{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+
+/* HARD REMOVE FLOATING NAV — FINAL */
+.mobile-bottom-nav,
+nav.mobile-bottom-nav,
+body .mobile-bottom-nav{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  width:0!important;
+  height:0!important;
+  max-width:0!important;
+  max-height:0!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  box-shadow:none!important;
+  pointer-events:none!important;
+  position:absolute!important;
+  left:-99999px!important;
+  bottom:auto!important;
+  transform:none!important;
+}
