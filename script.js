@@ -12415,55 +12415,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* =========================================================
    FINAL NAVBAR SCROLL BEHAVIOR
-   Hide navbar while scrolling down, reveal it while scrolling up.
-   Bottom floating navigation is intentionally untouched.
+   The main navbar stays visible while scrolling.
    ========================================================= */
 (function initNavbarScrollBehavior() {
-    let lastScrollY = window.scrollY || 0;
-    let scrollTicking = false;
-    const DOWN_THRESHOLD = 8;
-    const TOP_OFFSET = 12;
-
-    function updateNavbarScrollState() {
+    function keepNavbarVisible() {
         const navbar = document.querySelector(".navbar");
-        if (!navbar) {
-            scrollTicking = false;
-            return;
-        }
-
-        const currentY = Math.max(0, window.scrollY || 0);
-        const hasBlockingView =
-            document.body.classList.contains("studentkart-modal-navigation-hidden") ||
-            document.body.classList.contains("studentkart-product-details-open") ||
-            document.body.classList.contains("studentkart-chat-open") ||
-            document.body.classList.contains("category-page-active") ||
-            !!document.querySelector(".modal:not(.hidden)") ||
-            !!document.querySelector("#categoryPage:not(.hidden)");
-
-        if (currentY <= TOP_OFFSET) {
-            navbar.classList.remove("navbar-scroll-hidden");
-        } else if (!hasBlockingView && currentY > lastScrollY + DOWN_THRESHOLD) {
-            navbar.classList.add("navbar-scroll-hidden");
-        } else if (currentY < lastScrollY - DOWN_THRESHOLD) {
-            navbar.classList.remove("navbar-scroll-hidden");
-        }
-
-        lastScrollY = currentY;
-        scrollTicking = false;
+        if (!navbar) return;
+        navbar.classList.remove("navbar-scroll-hidden");
     }
 
-    function onScroll() {
-        if (!scrollTicking) {
-            window.requestAnimationFrame(updateNavbarScrollState);
-            scrollTicking = true;
-        }
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", () => {
-        lastScrollY = window.scrollY || 0;
-        if (lastScrollY <= TOP_OFFSET) {
-            document.querySelector(".navbar")?.classList.remove("navbar-scroll-hidden");
-        }
-    }, { passive: true });
+    window.addEventListener("scroll", keepNavbarVisible, { passive: true });
+    window.addEventListener("resize", keepNavbarVisible, { passive: true });
+    window.addEventListener("load", keepNavbarVisible);
+    keepNavbarVisible();
 })();
