@@ -1002,44 +1002,85 @@ async function addToWishlist(productId) {
    ----------------------------------------- */
 
 async function toggleWishlist(productId) {
-
-    if (!productId) {
-        return;
-    }
+    if (!productId) return;
 
     if (!currentUser) {
-
         openModal("loginModal");
-
-        showToast(
-            "Please login to use wishlist",
-            "warning"
-        );
-
+        showToast("Please login to use wishlist", "warning");
         return;
     }
 
-    const active =
-        isWishlisted(productId);
+    const productKey = String(productId);
+    const active = isWishlisted(productKey);
 
+    // Optimistic UI: respond to the tap immediately.
     if (active) {
-
-        await removeFromWishlist(
-            productId
+        currentWishlist = currentWishlist.filter(
+            item => String(item.product_id) !== productKey
         );
-
     } else {
-
-        await addToWishlist(
-            productId
-        );
+        currentWishlist.unshift({
+            user_id: currentUser.id,
+            product_id: productKey,
+            optimistic: true
+        });
     }
 
-    await getWishlist();
-
     updateWishlistButtons();
+    updateWishlistNavbar();
 
-    renderWishlist();
+    const sync = active
+        ? supabaseClient
+            .from("wishlists")
+            .delete()
+            .eq("user_id", currentUser.id)
+            .eq("product_id", productKey)
+        : supabaseClient
+            .from("wishlists")
+            .insert({
+                user_id: currentUser.id,
+                product_id: productKey
+            });
+
+    const { data, error } = await sync;
+
+    if (error) {
+        // Roll back only when the server rejects the action.
+        if (active) {
+            currentWishlist.unshift({
+                user_id: currentUser.id,
+                product_id: productKey
+            });
+        } else {
+            currentWishlist = currentWishlist.filter(
+                item => String(item.product_id) !== productKey
+            );
+        }
+
+        updateWishlistButtons();
+        updateWishlistNavbar();
+
+        if (error.code !== "23505") {
+            console.error("Wishlist sync error:", error);
+            showToast("Wishlist could not be updated", "error");
+        }
+        return;
+    }
+
+    if (!active && data?.[0]) {
+        const optimistic = currentWishlist.find(
+            item => String(item.product_id) === productKey && item.optimistic
+        );
+        if (optimistic) {
+            Object.assign(optimistic, data[0]);
+            delete optimistic.optimistic;
+        }
+    }
+
+    showToast(
+        active ? "Removed from wishlist" : "Added to wishlist ❤️",
+        "success"
+    );
 }
 
 async function renderWishlist() {
@@ -12385,6 +12426,10 @@ async function settingsToggle(path) {
     for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
     const key = parts[parts.length - 1];
     obj[key] = !Boolean(obj[key]);
+
+    // Settings switches are intentionally optimistic: the visual change
+    // happens immediately, while the account sync continues in the background.
+    applyStudentKartSettings();
     return saveStudentKartSettings(settings);
 }
 
