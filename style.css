@@ -18312,3 +18312,16 @@ body:has(#editProfileModal:not(.hidden)) .mobile-bottom-nav{
   #home.hero ~ .section{padding-top:28px!important;padding-bottom:28px!important;}
   .section-heading{margin-bottom:16px!important;}
 }
+
+/* HOME COMPACT CLEANUP */
+#home.hero{min-height:390px!important;height:auto!important}
+#home.hero .hero-container{min-height:390px!important}
+#home.hero .hero-content{padding-top:38px!important;padding-bottom:24px!important}
+#home.hero .hero-badge{margin-bottom:10px!important}
+#home.hero h1{margin-bottom:10px!important}
+#home.hero p{margin-bottom:12px!important}
+#home.hero .hero-trust{display:none!important}
+#marketplace.marketplace-section{padding-top:24px!important;padding-bottom:28px!important}
+#how-it-works{display:none!important}
+.footer-container{padding-top:28px!important;padding-bottom:22px!important}
+@media(max-width:700px){#home.hero,#home.hero .hero-container{min-height:340px!important}#home.hero .hero-content{padding-top:28px!important;padding-bottom:18px!important}#home.hero h1{font-size:clamp(34px,10vw,46px)!important}#marketplace.marketplace-section{padding-top:18px!important;padding-bottom:22px!important}}
