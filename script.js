@@ -4739,15 +4739,19 @@ async function logoutUser() {
 async function openProfile() {
 
     if (!currentUser) {
-
         openModal("loginModal");
-
         return;
     }
 
-    await updateProfileUI();
-
+    // Open the profile immediately so navigation never feels unresponsive.
     openModal("profileModal");
+
+    try {
+        await updateProfileUI();
+    } catch (error) {
+        console.error("StudentKart profile load failed:", error);
+        showToast("Profile opened, but some details could not be loaded.", "error");
+    }
 }
 
 async function updateProfileUI() {
