@@ -4,6 +4,13 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
   "background_color": "#102a43",
   "theme_color": "#0f8b8d",
   "id": "/?app=globedisc-v2",
