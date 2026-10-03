@@ -12233,6 +12233,69 @@ document.addEventListener("DOMContentLoaded", () => {
 })();
 
 
+/* Homepage search suggestions */
+document.addEventListener("DOMContentLoaded", () => {
+    const input=document.getElementById("heroSearchInput");
+    const panel=document.getElementById("heroSearchSuggestions");
+    if(!input||!panel)return;
+    const iconFor=category=>{
+        const map={Books:"fa-book",Electronics:"fa-laptop",Vehicles:"fa-motorcycle",Furniture:"fa-couch",Services:"fa-handshake",Fashion:"fa-shirt"};
+        return map[category]||"fa-tag";
+    };
+    const getSuggestions=query=>{
+        const q=String(query||"").trim().toLowerCase();
+        if(!q)return [];
+        const seen=new Set(), out=[];
+        const add=(value,title,meta,icon)=>{
+            const key=value.toLowerCase(); if(seen.has(key))return;
+            seen.add(key); out.push({value,title,meta,icon});
+        };
+        [...currentProducts].forEach(p=>{
+            const name=String(p.name||"").trim(), cat=String(p.category||"").trim(), loc=String(p.location||"").trim();
+            const hay=[name,cat,loc,String(p.description||"")].join(" ").toLowerCase();
+            if(hay.includes(q)){
+                add(name,name,cat+(loc?" • "+loc:""),iconFor(cat));
+            }
+        });
+        ["Books","Electronics","Vehicles","Furniture","Services","Fashion"].forEach(cat=>{
+            if(cat.toLowerCase().includes(q)) add(cat,cat,"Browse category","fa-layer-group");
+        });
+        return out.slice(0,7);
+    };
+    const hide=()=>{panel.classList.add("hidden");panel.innerHTML="";input.removeAttribute("aria-activedescendant");};
+    const render=()=>{
+        const list=getSuggestions(input.value);
+        if(!list.length){hide();return;}
+        panel.innerHTML=list.map((x,i)=>'<button type="button" class="hero-search-suggestion" id="heroSearchSuggestion-'+i+'" role="option" aria-selected="false" data-suggestion-value="'+escapeHTML(x.value)+'"><span class="hero-search-suggestion-icon"><i class="fas '+x.icon+'"></i></span><span class="hero-search-suggestion-copy"><span class="hero-search-suggestion-title">'+escapeHTML(x.title)+'</span><span class="hero-search-suggestion-meta">'+escapeHTML(x.meta)+'</span></span><i class="fas fa-chevron-right hero-search-suggestion-arrow"></i></button>').join("");
+        panel.classList.remove("hidden");
+        panel.querySelectorAll(".hero-search-suggestion").forEach(b=>{
+            b.addEventListener("mousedown",e=>e.preventDefault());
+            b.addEventListener("click",()=>{
+                const value=b.dataset.suggestionValue||"";
+                input.value=value; hide();
+                if(typeof showSearchResultsPage==="function") showSearchResultsPage(value);
+                else if(typeof applyFilters==="function") applyFilters();
+            });
+        });
+    };
+    let active=-1;
+    const move=d=>{
+        const items=[...panel.querySelectorAll(".hero-search-suggestion")]; if(!items.length)return;
+        active=(active+d+items.length)%items.length;
+        items.forEach((x,i)=>{const on=i===active;x.classList.toggle("is-active",on);x.setAttribute("aria-selected",on?"true":"false");});
+        input.setAttribute("aria-activedescendant",items[active].id);
+    };
+    input.addEventListener("input",()=>{active=-1;render();});
+    input.addEventListener("focus",()=>{if(input.value.trim())render();});
+    input.addEventListener("keydown",e=>{
+        if(e.key==="ArrowDown"){e.preventDefault();move(1)}
+        else if(e.key==="ArrowUp"){e.preventDefault();move(-1)}
+        else if(e.key==="Enter"){e.preventDefault();const a=panel.querySelector(".hero-search-suggestion.is-active");const value=a?.dataset.suggestionValue||input.value.trim();if(!value)return;input.value=value;hide();if(typeof showSearchResultsPage==="function")showSearchResultsPage(value);else if(typeof applyFilters==="function")applyFilters();}
+        else if(e.key==="Escape"){hide();input.blur();}
+    });
+    input.addEventListener("blur",()=>setTimeout(hide,150));
+});
+
 /* Homepage search strip + restored filter controls */
 document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("heroSearchInput");
