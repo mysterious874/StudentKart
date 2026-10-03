@@ -10073,6 +10073,26 @@ async function sendChatMessage(event) {
 
         if (error) throw error;
 
+        // Fire mobile push in the background. The message itself is already
+        // saved, so notification delivery can never slow down chat sending.
+        if (typeof supabaseClient.functions?.invoke === "function") {
+            void supabaseClient.functions
+                .invoke("send-chat-push", {
+                    body: {
+                        record: {
+                            id: crypto.randomUUID(),
+                            inquiry_id: currentChatInquiry.id,
+                            sender_id: currentUser.id,
+                            receiver_id: receiverId,
+                            message: messageToSend
+                        }
+                    }
+                })
+                .catch(pushError => {
+                    console.warn("Chat push trigger failed:", pushError);
+                });
+        }
+
         if (input) input.value = "";
         clearChatImageSelection();
         clearChatReplyPreview();
