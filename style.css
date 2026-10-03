@@ -17334,19 +17334,24 @@ body.studentkart-search-results-active .search-results-filter-actions{
 
 
 /* HOME SCROLL + CLEAN FOOTER LAYOUT */
-body:not(.studentkart-search-results-active) .studentkart-top{
+/* Only the actual home page gets the sticky search/category header. */
+body:not(.studentkart-search-results-active) #home.studentkart-top{
     position:sticky!important;
     top:0!important;
     z-index:100000!important;
     background:#f7faf9!important;
 }
-body:not(.studentkart-search-results-active) .studentkart-top-content{
+body:not(.studentkart-search-results-active) #home.studentkart-top .studentkart-top-content{
     width:min(1180px,calc(100% - 28px));
     margin:0 auto;
 }
-body:not(.studentkart-search-results-active) .category-scroll-strip{
+body:not(.studentkart-search-results-active) #home.studentkart-top .category-scroll-strip{
     position:relative!important;
     z-index:100001!important;
+}
+/* If navigation hides home, never show its search/category strip on another page. */
+body:has(#home.hidden) #home.studentkart-top{
+    display:none!important;
 }
 body:not(.studentkart-search-results-active) .footer{
     display:none!important;
@@ -17355,5 +17360,5 @@ body:not(.studentkart-search-results-active) .how-section{
     display:none!important;
 }
 @media(max-width:700px){
-    body:not(.studentkart-search-results-active) .studentkart-top-content{width:calc(100% - 20px)}
+    body:not(.studentkart-search-results-active) #home.studentkart-top .studentkart-top-content{width:calc(100% - 20px)}
 }
