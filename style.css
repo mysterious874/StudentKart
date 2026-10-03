@@ -18447,3 +18447,31 @@ body:has(#editProfileModal:not(.hidden)) .mobile-bottom-nav{
     min-height:42px!important;
   }
 }
+
+
+/* FINAL — FLOATING NAV BLACK BUTTON CONTENT */
+.mobile-bottom-nav .bottom-nav-item,
+.mobile-bottom-nav .bottom-nav-item span:not(.bottom-nav-icon-wrap),
+.mobile-bottom-nav .bottom-nav-item i{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.mobile-bottom-nav .bottom-nav-item{
+  background:#fff!important;
+}
+.mobile-bottom-nav .bottom-nav-item:hover,
+.mobile-bottom-nav .bottom-nav-item:focus-visible{
+  background:#eef6fb!important;
+  color:#000!important;
+}
+.mobile-bottom-nav .bottom-sell-item,
+.mobile-bottom-nav .bottom-sell-item span,
+.mobile-bottom-nav .bottom-sell-item i{
+  background:linear-gradient(135deg,#0284c7,#2563eb)!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.mobile-bottom-nav .bottom-nav-item.active{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
