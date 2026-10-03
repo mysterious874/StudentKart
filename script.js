@@ -4596,13 +4596,8 @@ async function loginUser(event) {
     }
 }
 
-let signupUsernameCheckTimer = null;
-
 function normalizeStudentKartUsername(value) {
-    return String(value || "")
-        .trim()
-        .toLowerCase()
-        .replace(/\\s+/g, "");
+    return String(value || "").trim().toLowerCase().replace(/\\s+/g, "");
 }
 
 function isValidStudentKartUsername(username) {
@@ -4611,9 +4606,7 @@ function isValidStudentKartUsername(username) {
 
 async function checkStudentKartUsername(username) {
     const normalized = normalizeStudentKartUsername(username);
-    if (!isValidStudentKartUsername(normalized)) {
-        return { available: false, valid: false };
-    }
+    if (!isValidStudentKartUsername(normalized)) return { available: false, valid: false };
 
     const { data, error } = await supabaseClient
         .from("profiles")
@@ -4621,15 +4614,7 @@ async function checkStudentKartUsername(username) {
         .ilike("username", normalized)
         .limit(1);
 
-    if (error) {
-        console.error("Username availability check error:", error);
-        return { available: false, valid: true, error };
-    }
-
-    return {
-        available: !(data || []).length,
-        valid: true
-    };
+    return { available: !error && !(data || []).length, error };
 }
 
 function setupSignupUsernameSuggestions() {
@@ -4638,87 +4623,45 @@ function setupSignupUsernameSuggestions() {
     const help = $("signupUsernameHelp");
     if (!input || !box) return;
 
-    const renderSuggestions = (base) => {
-        const clean = normalizeStudentKartUsername(base).replace(/[^a-z0-9._]/g, "");
-        if (clean.length < 2) {
+    input.addEventListener("input", () => {
+        const username = normalizeStudentKartUsername(input.value)
+            .replace(/[^a-z0-9._]/g, "")
+            .slice(0, 30);
+
+        input.value = username;
+
+        if (username.length < 2) {
             box.innerHTML = "";
             box.classList.add("hidden");
+            if (help) help.textContent = "Use 3–30 letters, numbers, dots or underscores.";
             return;
         }
 
-        const candidates = [
-            clean,
-            clean + "01",
-            clean + "123",
-            clean + "07",
-            clean + "24"
-        ].filter((value, index, list) =>
-            value.length >= 3 &&
-            value.length <= 30 &&
-            list.indexOf(value) === index
-        );
+        const suggestions = [...new Set([
+            username,
+            username + "01",
+            username + "123",
+            username + "07",
+            username + "24"
+        ])].filter(item => item.length >= 3 && item.length <= 30);
 
-        box.innerHTML = candidates.map(username => `
-            <button type="button" class="username-suggestion" data-username-suggestion="${escapeHTML(username)}">
-                @${escapeHTML(username)}
-            </button>
+        box.innerHTML = suggestions.map(item => `
+            <button type="button" class="username-suggestion" data-username-suggestion="${escapeHTML(item)}">@${escapeHTML(item)}</button>
         `).join("");
+
         box.classList.remove("hidden");
 
         box.querySelectorAll("[data-username-suggestion]").forEach(button => {
             button.addEventListener("click", () => {
                 input.value = button.dataset.usernameSuggestion || "";
-                input.dispatchEvent(new Event("input", { bubbles: true }));
+                box.classList.add("hidden");
                 input.focus();
             });
         });
-    };
-
-    input.addEventListener("input", () => {
-        const normalized = normalizeStudentKartUsername(input.value)
-            .replace(/[^a-z0-9._]/g, "")
-            .slice(0, 30);
-
-        if (input.value !== normalized) input.value = normalized;
-
-        clearTimeout(signupUsernameCheckTimer);
-        renderSuggestions(normalized);
-
-        if (!normalized) {
-            if (help) help.textContent = "Use 3–30 letters, numbers, dots or underscores.";
-            return;
-        }
-
-        if (!isValidStudentKartUsername(normalized)) {
-            if (help) help.textContent = "Username must be 3–30 characters and use only letters, numbers, dots or underscores.";
-            return;
-        }
-
-        if (help) help.textContent = "Checking username availability…";
-
-        signupUsernameCheckTimer = setTimeout(async () => {
-            const result = await checkStudentKartUsername(normalized);
-            if (input.value !== normalized) return;
-
-            if (result.available) {
-                if (help) help.textContent = "✓ Username is available.";
-                input.setCustomValidity("");
-            } else if (!result.error) {
-                if (help) help.textContent = "Username already taken. Choose another.";
-                input.setCustomValidity("This username is already taken.");
-            } else {
-                if (help) help.textContent = "Could not check username right now.";
-                input.setCustomValidity("");
-            }
-        }, 300);
     });
 
     input.addEventListener("blur", () => {
-        window.setTimeout(() => box.classList.add("hidden"), 150);
-    });
-
-    input.addEventListener("focus", () => {
-        if (input.value.trim().length >= 2) renderSuggestions(input.value);
+        setTimeout(() => box.classList.add("hidden"), 150);
     });
 }
 
@@ -4736,19 +4679,7 @@ async function signupUser(event) {
     }
 
     if (!isValidStudentKartUsername(username)) {
-        showToast("Choose a valid username: 3–30 letters, numbers, dots or underscores.", "warning");
-        return;
-    }
-
-    const usernameCheck = await checkStudentKartUsername(username);
-    if (usernameCheck.error) {
-        showToast("Could not verify username availability. Please try again.", "error");
-        return;
-    }
-
-    if (!usernameCheck.available) {
-        showToast("That username is already taken. Please choose another.", "warning");
-        $("signupUsername")?.focus();
+        showToast("Username must be 3–30 characters using letters, numbers, dots or underscores.", "warning");
         return;
     }
 
@@ -4761,12 +4692,22 @@ async function signupUser(event) {
     if (button) button.disabled = true;
 
     try {
+        const usernameCheck = await checkStudentKartUsername(username);
+
+        if (usernameCheck.error) {
+            throw new Error("Could not check username availability. Please try again.");
+        }
+
+        if (!usernameCheck.available) {
+            showToast("That username is already taken. Please choose another.", "warning");
+            $("signupUsername")?.focus();
+            return;
+        }
+
         const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
-            options: {
-                data: { name, username }
-            }
+            options: { data: { name, username } }
         });
 
         if (error) throw error;
@@ -4787,13 +4728,7 @@ async function signupUser(event) {
         );
     } catch (error) {
         console.error("Signup error:", error);
-        const message = String(error?.message || "");
-        showToast(
-            message.toLowerCase().includes("username")
-                ? "That username is already taken. Please choose another."
-                : (message || "Could not create account"),
-            "error"
-        );
+        showToast(error?.message || "Could not create account", "error");
     } finally {
         if (button) button.disabled = false;
     }
@@ -4804,11 +4739,7 @@ async function ensureProfileAfterPasswordSignup(user) {
 
     try {
         const { data: existingProfile, error: fetchError } =
-            await supabaseClient
-                .from("profiles")
-                .select("id")
-                .eq("id", user.id)
-                .maybeSingle();
+            await supabaseClient.from("profiles").select("id").eq("id", user.id).maybeSingle();
 
         if (fetchError) {
             console.error("Profile lookup error:", fetchError);
@@ -4818,7 +4749,6 @@ async function ensureProfileAfterPasswordSignup(user) {
         if (existingProfile) return;
 
         const metadata = user.user_metadata || {};
-
         const profile = {
             id: user.id,
             name: metadata.name || user.email?.split("@")[0] || "Student",
@@ -4827,17 +4757,9 @@ async function ensureProfileAfterPasswordSignup(user) {
             avatar_url: ""
         };
 
-        const { error: profileError } =
-            await supabaseClient.from("profiles").insert(profile);
-
+        const { error: profileError } = await supabaseClient.from("profiles").insert(profile);
         if (profileError) {
             console.error("Profile creation error:", profileError);
-            showToast(
-                String(profileError.message || "").toLowerCase().includes("username")
-                    ? "Username is already taken. Please choose another."
-                    : "Account created, but profile setup needs attention.",
-                "error"
-            );
             return;
         }
 
