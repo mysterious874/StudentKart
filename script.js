@@ -12654,6 +12654,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $("applyMarketplaceFilters")?.addEventListener("click", () => {
         applyFilters();
         filterPanel?.classList.add("hidden");
+        marketplaceFilterPanel?.classList.add("hidden");
         showToast("Filters applied", "success");
     });
 
@@ -12667,6 +12668,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedMarketplaceCategory="all";
         applyFilters();
         filterPanel?.classList.add("hidden");
+        marketplaceFilterPanel?.classList.add("hidden");
     });
 });
 
