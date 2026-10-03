@@ -18404,57 +18404,11 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
 }
 
 
-/* Search results header actions */
-.search-results-navbar-actions{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    flex:0 0 auto;
-}
-.search-results-icon-button{
-    width:42px;
-    height:42px;
-    border:1px solid rgba(20,50,45,.1);
-    border-radius:12px;
-    background:var(--card,#fff);
-    color:#0f8b8d;
-    cursor:pointer;
-    display:grid;
-    place-items:center;
-    flex:0 0 auto;
-    transition:background .18s ease,transform .18s ease,border-color .18s ease;
-}
-.search-results-icon-button:hover{
-    background:#edf7f7;
-    border-color:rgba(15,139,141,.22);
-}
-.search-results-icon-button:active{transform:scale(.96)}
-.search-results-filter-overlay{
-    position:fixed!important;
-    inset:74px 12px auto 12px!important;
-    z-index:100002!important;
-    max-height:calc(100vh - 88px)!important;
-    overflow:auto!important;
-    margin:0!important;
-    box-shadow:0 18px 50px rgba(20,50,45,.18)!important;
-    border:1px solid rgba(20,50,45,.1)!important;
-    border-radius:16px!important;
-}
+/* Search results header icons */
+.search-results-navbar-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.search-results-icon-button{width:42px;height:42px;border:1px solid rgba(20,50,45,.1);border-radius:12px;background:var(--card,#fff);color:#0f8b8d;cursor:pointer;display:grid;place-items:center;flex:0 0 auto}
+.search-results-icon-button:hover{background:#edf7f7;border-color:rgba(15,139,141,.22)}
 @media(max-width:768px){
-    body.search-results-mobile-view #searchResultsPage .search-results-navbar-inner{
-        gap:8px!important;
-    }
-    body.search-results-mobile-view #searchResultsPage .search-results-search-field{
-        flex:1!important;
-    }
-    body.search-results-mobile-view #searchResultsPage .search-results-navbar-actions{
-        gap:6px!important;
-    }
-    body.search-results-mobile-view #searchResultsPage .search-results-icon-button{
-        width:42px!important;
-        height:42px!important;
-        border-radius:12px!important;
-        background:#edf7f7!important;
-        border-color:rgba(15,139,141,.18)!important;
-    }
+body.search-results-mobile-view #searchResultsPage .search-results-navbar-actions{display:flex!important;gap:6px!important}
+body.search-results-mobile-view #searchResultsPage .search-results-icon-button{width:42px!important;height:42px!important;border-radius:12px!important;background:#edf7f7!important;border-color:rgba(15,139,141,.18)!important}
 }
