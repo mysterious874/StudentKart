@@ -589,6 +589,27 @@ window.addEventListener("popstate", event => {
      */
     const state = event.state;
 
+    // Search-results is a full page state on mobile. Handle Back before any
+    // other StudentKart history/overlay logic so no navbar/search visual state
+    // can intercept the gesture.
+    if (document.body.classList.contains("search-results-mobile-view")) {
+        studentKartHandlingPopState = true;
+        document.querySelectorAll(".modal").forEach(modal => {
+            modal.classList.remove("modal-closing");
+            modal.classList.add("hidden");
+        });
+        modalHistory = [];
+        forceCloseSearchResultsPage();
+        $("categoryPage")?.classList.add("hidden");
+        $("home")?.classList.remove("hidden");
+        $("marketplace")?.classList.remove("hidden");
+        $("how-it-works")?.classList.remove("hidden");
+        document.querySelector("main")?.classList.remove("category-page-active");
+        window.scrollTo({top: 0, behavior: "auto"});
+        studentKartHandlingPopState = false;
+        return;
+    }
+
     // Navbar search is a transient overlay. Android/browser Back must
     // close it before the app's normal history/modal navigation runs.
     if (studentKartNavbarSearchOpen) {
@@ -6427,6 +6448,21 @@ function showSearchResultsPage(query, options = {}) {
     window.scrollTo({top:0,behavior:"auto"});
 }
 
+function forceCloseSearchResultsPage() {
+    const page = $("searchResultsPage");
+    if (!page) return;
+    page.classList.add("hidden");
+    document.body.classList.remove("search-results-mobile-view");
+    page.style.removeProperty("display");
+    page.style.removeProperty("position");
+    page.style.removeProperty("inset");
+    page.style.removeProperty("height");
+    page.style.removeProperty("overflow");
+    page.style.removeProperty("transform");
+    document.documentElement.style.removeProperty("overflow");
+    document.body.style.removeProperty("overflow");
+}
+
 function showHomePageFromSearch(options={}) {
     $("searchResultsPage")?.classList.add("hidden");
     document.body.classList.remove("search-results-mobile-view");
@@ -6440,7 +6476,7 @@ function showHomePageFromSearch(options={}) {
     $("heroSearchInput")&&( $("heroSearchInput").value="" );
     $("navbarSearchSuggestions")?.classList.add("hidden");
     $("heroSearchSuggestions")?.classList.add("hidden");
-    window.scrollTo({top:0,behavior:options.fromPopState?"smooth":"auto"});
+    window.scrollTo({top:0,behavior:"auto"});
 }
 
 function selectCategory(category) {
