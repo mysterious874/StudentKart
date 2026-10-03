@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f8b8d">
-<title>GlobeDisc Marketplace</title>
+<title>StudentKart — New Products Marketplace</title>
 <link rel="icon" type="image/svg+xml" href="/icons/globedisc-icon.svg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="stylesheet" href="style.css?v=20261004-globedisc-1">
@@ -22,7 +22,7 @@
         <div class="marketplace-page-title">
             <span class="section-label">STUDENTKART MARKETPLACE</span>
             <h1>Buy, sell & discover around campus</h1>
-            <p>Only marketplace listings are searched on this page.</p>
+            <p>Browse new products only. StudentKart student listings are not shown here.</p>
         </div>
     </header>
 
@@ -49,6 +49,49 @@
         <span id="marketplacePageCount" class="marketplace-page-count">Loading listings...</span>
         <button type="button" class="btn btn-outline" id="marketplacePageClearSearch"><i class="fas fa-xmark"></i> Clear</button>
     </div>
+
+    <!-- =====================================================
+         NEW PRODUCTS — AMAZON + FLIPKART
+         Only new products appear in this section.
+         Live feed endpoint will be connected server-side.
+         ===================================================== -->
+    <section id="newProductsSection" class="new-products-section" aria-labelledby="newProductsTitle">
+        <div class="new-products-heading">
+            <div>
+                <span class="section-label"><i class="fas fa-sparkles"></i> NEW PRODUCTS</span>
+                <h2 id="newProductsTitle">Shop New Products</h2>
+                <p>New products from Amazon and Flipkart — no used listings.</p>
+            </div>
+            <div class="new-products-sources" aria-label="Product sources">
+                <span class="new-source-badge amazon"><i class="fab fa-amazon"></i> Amazon</span>
+                <span class="new-source-badge flipkart"><i class="fas fa-shopping-bag"></i> Flipkart</span>
+            </div>
+        </div>
+
+        <div class="new-products-toolbar">
+            <div class="new-products-tabs" role="tablist" aria-label="New product categories">
+                <button type="button" class="new-products-tab active" data-new-category="all">All</button>
+                <button type="button" class="new-products-tab" data-new-category="electronics">Electronics</button>
+                <button type="button" class="new-products-tab" data-new-category="books">Books</button>
+                <button type="button" class="new-products-tab" data-new-category="fashion">Fashion</button>
+                <button type="button" class="new-products-tab" data-new-category="home">Home</button>
+                <button type="button" class="new-products-tab" data-new-category="gaming">Gaming</button>
+            </div>
+            <button type="button" class="new-products-refresh" id="newProductsRefresh">
+                <i class="fas fa-rotate"></i> Refresh
+            </button>
+        </div>
+
+        <div id="newProductsStatus" class="new-products-status">
+            <i class="fas fa-spinner fa-spin"></i> Connecting to new-product feeds…
+        </div>
+        <div id="newProductsGrid" class="new-products-grid"></div>
+        <div id="newProductsEmpty" class="new-products-empty hidden">
+            <i class="fas fa-store"></i>
+            <h3>New-product feed is ready</h3>
+            <p>Amazon and Flipkart API feeds will appear here after their official affiliate/API credentials are connected.</p>
+        </div>
+    </section>
 
     <section id="marketplace" class="marketplace-section">
         <div id="filterStatus" class="filter-status hidden">Showing latest listings</div>
@@ -88,6 +131,116 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js?v=20261004-marketplace-engine-1"></script>
 <script>
+<script>
+/* =========================================================
+   NEW PRODUCTS FEED — Amazon + Flipkart
+   Frontend is API-ready; credentials stay server-side.
+   Expected endpoint: Supabase Edge Function "new-products"
+   ========================================================= */
+(function(){
+    const grid=document.getElementById("newProductsGrid");
+    const status=document.getElementById("newProductsStatus");
+    const empty=document.getElementById("newProductsEmpty");
+    const refresh=document.getElementById("newProductsRefresh");
+    const tabs=[...document.querySelectorAll(".new-products-tab")];
+    if(!grid||!status)return;
+
+    let activeCategory="all";
+    let allNewProducts=[];
+
+    const money=value=>{
+        const n=Number(value);
+        return Number.isFinite(n)&&n>0
+            ? new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(n)
+            : "Price unavailable";
+    };
+
+    const escape=value=>String(value??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+    const sourceLabel=source=>{
+        const s=String(source||"").toLowerCase();
+        return s.includes("flip")?"Flipkart":"Amazon";
+    };
+
+    function render(list){
+        grid.innerHTML="";
+        const filtered=activeCategory==="all"
+            ? list
+            : list.filter(p=>String(p.category||"").toLowerCase()===activeCategory);
+
+        if(!filtered.length){
+            empty.classList.remove("hidden");
+            return;
+        }
+        empty.classList.add("hidden");
+
+        grid.innerHTML=filtered.map(p=>{
+            const source=sourceLabel(p.source);
+            const url=p.url||p.link||"#";
+            const image=p.image||p.imageUrl||"";
+            return `<article class="new-product-card">
+                <div class="new-product-image-wrap">
+                    ${image
+                        ? `<img src="${escape(image)}" alt="${escape(p.name||"New product")}" loading="lazy">`
+                        : `<div class="new-product-image-placeholder"><i class="fas fa-box"></i></div>`}
+                    <span class="new-product-badge">NEW</span>
+                    <span class="new-product-source ${source.toLowerCase()}">${source}</span>
+                </div>
+                <div class="new-product-body">
+                    <span class="new-product-category">${escape(p.category||"New product")}</span>
+                    <h3>${escape(p.name||"New product")}</h3>
+                    <div class="new-product-price">${money(p.price)}</div>
+                    ${p.mrp ? `<div class="new-product-mrp">MRP ${money(p.mrp)}</div>` : ""}
+                    <a class="new-product-buy" href="${escape(url)}" target="_blank" rel="noopener noreferrer sponsored">
+                        Buy on ${source} <i class="fas fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+            </article>`;
+        }).join("");
+    }
+
+    async function load(){
+        status.classList.remove("hidden");
+        status.innerHTML='<i class="fas fa-spinner fa-spin"></i> Loading new products…';
+        grid.innerHTML="";
+        empty.classList.add("hidden");
+
+        try{
+            if(typeof SUPABASE_URL==="undefined"||typeof SUPABASE_KEY==="undefined"){
+                throw new Error("Supabase configuration unavailable");
+            }
+            const response=await fetch(SUPABASE_URL+"/functions/v1/new-products",{
+                headers:{
+                    "apikey":SUPABASE_KEY,
+                    "Authorization":"Bearer "+SUPABASE_KEY,
+                    "Accept":"application/json"
+                }
+            });
+            if(!response.ok) throw new Error("New products feed HTTP "+response.status);
+            const data=await response.json();
+            allNewProducts=Array.isArray(data?.products)?data.products:[];
+            render(allNewProducts);
+            status.innerHTML=allNewProducts.length
+                ? '<i class="fas fa-circle-check"></i> Live new-product feed'
+                : '<i class="fas fa-circle-info"></i> No products returned yet';
+        }catch(error){
+            console.warn("New products feed:",error);
+            allNewProducts=[];
+            status.innerHTML='<i class="fas fa-link"></i> Official product-feed connection pending';
+            empty.classList.remove("hidden");
+        }
+    }
+
+    tabs.forEach(tab=>tab.addEventListener("click",()=>{
+        tabs.forEach(x=>x.classList.remove("active"));
+        tab.classList.add("active");
+        activeCategory=tab.dataset.newCategory||"all";
+        render(allNewProducts);
+    }));
+    refresh?.addEventListener("click",load);
+    load();
+})();
+</script>
 document.addEventListener("DOMContentLoaded",()=>{
     const input=document.getElementById("marketplaceSearch");
     const panel=document.getElementById("marketplacePageSuggestions");
