@@ -5269,6 +5269,8 @@ function showSearchResultsPage(query, options = {}) {
     document.body.classList.remove("modal-open","studentkart-modal-navigation-hidden","category-page-active");
     document.querySelector("main")?.classList.remove("category-page-active");
     ["home","marketplace","how-it-works","categoryPage"].forEach(id=>$(id)?.classList.add("hidden"));
+    document.body.classList.add("studentkart-search-results-active");
+    document.querySelector(".mobile-bottom-nav")?.classList.add("hidden");
     $("searchResultsPage")?.classList.remove("hidden");
     const title=$("searchResultsQuery"), subtitle=$("searchResultsNavbarSubtitle");
     if(title) title.textContent=selected;
@@ -5282,6 +5284,8 @@ function showSearchResultsPage(query, options = {}) {
 
 function showHomePageFromSearch(options={}) {
     $("searchResultsPage")?.classList.add("hidden");
+    document.body.classList.remove("studentkart-search-results-active");
+    document.querySelector(".mobile-bottom-nav")?.classList.remove("hidden");
     $("categoryPage")?.classList.add("hidden");
     $("home")?.classList.remove("hidden");
     $("marketplace")?.classList.remove("hidden");
@@ -12428,7 +12432,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* Search results navigation */
 document.addEventListener("DOMContentLoaded", () => {
-    $("searchResultsBack")?.addEventListener("click", () => {
+    const goBackFromSearch = () => {
+        if (window.history.state?.page === "search") window.history.back();
+        else showHomePageFromSearch();
+    };
+    $("searchResultsBackTop")?.addEventListener("click", goBackFromSearch);
+    $("searchResultsBack")?.addEventListener("click", goBackFromSearch);
+    const resultInput=$("searchResultsInput");
+    const runResultSearch=()=>{ const q=resultInput?.value?.trim(); if(q) showSearchResultsPage(q); };
+    $("searchResultsSearchButton")?.addEventListener("click",runResultSearch);
+    resultInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();runResultSearch();}});
+        $("searchResultsBack")?.addEventListener("click", () => {
         if (window.history.state?.page === "search") window.history.back();
         else showHomePageFromSearch();
     });
