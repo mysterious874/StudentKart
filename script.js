@@ -1108,10 +1108,14 @@ async function renderWishlist() {
 
     updateWishlistButtons();
 }
-async function openWishlist() {
+async function openWishlist(event) {
+
+    if (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }
 
     if (!currentUser) {
-
         openModal("loginModal");
 
         showToast(
@@ -1122,9 +1126,9 @@ async function openWishlist() {
         return;
     }
 
-    await renderWishlist();
-
+    // Open immediately; load Supabase wishlist data in the background.
     openModal("wishlistModal");
+    void renderWishlist();
 }
 
 async function removeFromWishlist(productId) {
@@ -11312,7 +11316,10 @@ document.addEventListener("pointerdown", event => {
 /* Footer information links */
 const bottomSettingsButton = $("bottomSettingsButton");
 if (bottomSettingsButton) {
-    bottomSettingsButton.addEventListener("click", () => {
+    bottomSettingsButton.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
         if (currentUser) {
             openModal("settingsModal");
         } else {
@@ -11323,8 +11330,8 @@ if (bottomSettingsButton) {
 
 const bottomWishlistButton = $("bottomWishlistButton");
 if (bottomWishlistButton) {
-    bottomWishlistButton.addEventListener("click", () => {
-        openWishlist();
+    bottomWishlistButton.addEventListener("click", event => {
+        openWishlist(event);
     });
 }
 
