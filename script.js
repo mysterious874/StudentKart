@@ -10588,6 +10588,86 @@ function stopChatRealtime() {
 }
 
 
+function appendChatMessageToUI(message) {
+    if (!message || !currentUser || !currentChatInquiry) return;
+
+    const container = $("chatMessages");
+    if (!container) return;
+
+    const messageId = String(message.id || "");
+    if (!messageId) return;
+
+    // Never duplicate a message already rendered by the database query/realtime.
+    if (container.querySelector('[data-message-id="' + CSS.escape(messageId) + '"]')) {
+        return;
+    }
+
+    const isMine = String(message.sender_id) === String(currentUser.id);
+    const isDeletedForEveryone = String(message.message || "") === CHAT_DELETED_MESSAGE;
+    const reply = isDeletedForEveryone ? null : parseChatReplyMessage(message.message);
+    const actualMessage = reply ? reply.content : message.message;
+    const image = isDeletedForEveryone ? null : parseChatMediaMessage(actualMessage);
+
+    let content = "";
+    let replyHtml = "";
+
+    if (isDeletedForEveryone) {
+        content = '<div class="chat-message-bubble chat-message-deleted"><i class="fas fa-ban"></i><span>' +
+            (isMine ? "You deleted this message" : "This message was deleted") +
+            '</span></div>';
+    }
+
+    if (reply) {
+        const quoted = reply.replyTo || {};
+        const quotedText = quoted.text ||
+            (quoted.mediaType === "video" ? "Video" :
+                quoted.mediaType === "image" ? "Photo" : "Message");
+
+        replyHtml =
+            '<div class="chat-quoted-message" data-reply-to-id="' +
+            escapeHtml(String(quoted.id || "")) +
+            '" role="button" tabindex="0">' +
+            '<span class="chat-quoted-line"></span>' +
+            '<div class="chat-quoted-content"><strong>Replying to</strong><span>' +
+            escapeHtml(quotedText).slice(0, 180) +
+            '</span></div></div>';
+    }
+
+    if (!isDeletedForEveryone) {
+        if (image) {
+            const safeUrl = escapeHtml(image.url);
+            const caption = image.caption
+                ? '<div class="chat-image-caption">' + escapeHtml(image.caption) + '</div>'
+                : "";
+
+            content = image.mediaType === "video"
+                ? '<video class="chat-message-video" controls playsinline preload="metadata"><source src="' +
+                    safeUrl + '">Your browser does not support video playback.</video>' + caption
+                : '<img class="chat-message-image" src="' + safeUrl +
+                    '" alt="Shared photo" loading="lazy" data-chat-image="' + safeUrl + '">' + caption;
+        } else {
+            content = '<div class="chat-message-bubble">' + escapeHtml(actualMessage) + '</div>';
+        }
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML =
+        '<div class="chat-message ' + (isMine ? "chat-message-own sent" : "chat-message-other received") +
+        '" data-message-id="' + escapeHtml(messageId) +
+        '" data-sender-id="' + escapeHtml(String(message.sender_id || "")) +
+        '" data-message-type="' + (image ? image.mediaType : "text") + '">' +
+        '<span class="chat-message-selection-check" aria-hidden="true"><i class="fas fa-check"></i></span>' +
+        replyHtml + content +
+        '<small class="chat-message-time">' + formatChatTime(message.created_at) + '</small></div>';
+
+    const element = wrapper.firstElementChild;
+    if (!element) return;
+
+    container.appendChild(element);
+    updateChatMessageSelectionUI();
+    scrollChatToBottom();
+}
+
 function scrollChatToBottom() {
 
     const container = $("chatMessages");
