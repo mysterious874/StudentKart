@@ -12853,7 +12853,7 @@ function settingsDeleteAccount() {
         }
     });
 }
-async async function handleSettingAction(action) {
+async function handleSettingAction(action) {
     if (!currentUser) {
         closeModal("settingsModal");
         openModal("loginModal");
