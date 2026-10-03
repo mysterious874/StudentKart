@@ -35,7 +35,7 @@ body.search-results-mobile-view #searchResultsPage .search-results-navbar::after
 /* Hero -> sticky search: it starts in normal page flow, then docks directly below navbar. */
 #heroSearchStrip {
     position: sticky !important;
-    top: var(--studentkart-navbar-height, 76px) !important;
+    top: calc(var(--studentkart-navbar-height, 76px) + 10px) !important;
     z-index: 900 !important;
     width: 100% !important;
     margin: 0 auto !important;
@@ -77,7 +77,7 @@ body.studentkart-product-page-open #heroSearchStrip {
 .navbar-search-panel { z-index: 9999 !important; }
 @media (max-width: 768px) {
     #heroSearchStrip {
-        top: var(--studentkart-navbar-height, 68px) !important;
+        top: calc(var(--studentkart-navbar-height, 68px) + 8px) !important;
     }
     #heroSearchStrip .hero-search-inner {
         width: calc(100% - 24px) !important;
