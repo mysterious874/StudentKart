@@ -11979,11 +11979,6 @@ async function handleSettingAction(action) {
                     </div>
                 </div>
 
-                <div class="developer-quote-card">
-                    <i class="fas fa-quote-left"></i>
-                    <p>“Building with curiosity, learning with every line of code, and creating technology that makes student life easier.”</p>
-                </div>
-
                 <div class="developer-section">
                     <div class="developer-section-heading">
                         <span class="section-label">ABOUT THE DEVELOPER</span>
@@ -12022,14 +12017,6 @@ async function handleSettingAction(action) {
                     </div>
                 </div>
 
-                <div class="developer-section developer-ai-section">
-                    <div class="developer-section-heading">
-                        <span class="section-label">DEVELOPMENT APPROACH</span>
-                        <h3>AI-assisted, human-directed</h3>
-                    </div>
-                    <p>AI has been used as a development assistant for coding, debugging, UI ideas, feature implementation and problem-solving. The product idea, direction, feature decisions and final review remain guided by Harish.</p>
-                    <div class="developer-ai-note"><i class="fas fa-wand-magic-sparkles"></i><span>AI helps accelerate the build; the developer decides what belongs in StudentKart.</span></div>
-                </div>
 
                 <div class="developer-vision">
                     <i class="fas fa-lightbulb"></i>
