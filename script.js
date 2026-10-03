@@ -3609,13 +3609,11 @@ function bindChatLongPress() {
     });
 }
 
-async function searchStudentKartUsers(query) {
     const box = $("chatUserSearchResults");
-    if (!box || !currentUser) return;
+    if (!box) return;
 
     const raw = String(query || "").trim();
     let digits = raw.replace(/\D/g, "");
-
     if (digits.startsWith("91") && digits.length > 10) digits = digits.slice(-10);
 
     if (!digits.length) {
@@ -3624,18 +3622,27 @@ async function searchStudentKartUsers(query) {
         return;
     }
 
+    // Refresh the auth session if the chat modal opened before auth state finished loading.
+    if (!currentUser) {
+        try {
+            const { data: sessionData } = await supabaseClient.auth.getSession();
+            if (sessionData?.session?.user) currentUser = sessionData.session.user;
+        } catch (e) {
+            console.debug("Chat search session lookup failed:", e);
+        }
+    }
+
     box.classList.remove("hidden");
     box.innerHTML =
         '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Searching registered mobile numbers...</span></div>';
 
     try {
-        // Read profiles and normalize phone numbers in the browser so
-        // +91XXXXXXXXXX, 91XXXXXXXXXX and XXXXXXXXXX all match reliably.
+        // Search the profiles table and normalize every stored phone format.
         const { data, error } = await supabaseClient
             .from("profiles")
             .select("id,name,username,phone,email,college,avatar_url,city,area")
             .not("phone", "is", null)
-            .limit(200);
+            .limit(500);
 
         if (error) throw error;
 
@@ -3645,21 +3652,25 @@ async function searchStudentKartUsers(query) {
             return normalized.startsWith(digits);
         });
 
-        // Always include the logged-in account when its own registered number matches.
-        if (currentUser?.id && currentUser?.phone) {
-            const currentDigits = String(currentUser.phone).replace(/\D/g, "").slice(-10);
-            if (currentDigits.startsWith(digits) && !matches.some(x => String(x.id) === String(currentUser.id))) {
-                matches.unshift({
-                    id: currentUser.id,
-                    name: currentUser.user_metadata?.name || "Student",
-                    username: currentUser.user_metadata?.username || "",
-                    phone: currentUser.phone,
-                    email: currentUser.email || "",
-                    college: currentUser.user_metadata?.college || "",
-                    avatar_url: currentUser.user_metadata?.avatar_url || "",
-                    city: currentUser.user_metadata?.city || "",
-                    area: currentUser.user_metadata?.area || ""
-                });
+        // If this is the logged-in account, fetch its profile directly as a guaranteed fallback.
+        if (currentUser?.id && !matches.some(x => String(x.id) === String(currentUser.id))) {
+            try {
+                const { data: ownProfile } = await supabaseClient
+                    .from("profiles")
+                    .select("id,name,username,phone,email,college,avatar_url,city,area")
+                    .eq("id", currentUser.id)
+                    .maybeSingle();
+
+                if (ownProfile?.phone) {
+                    const ownDigits = String(ownProfile.phone).replace(/\D/g, "");
+                    const normalizedOwn = ownDigits.startsWith("91") && ownDigits.length > 10
+                        ? ownDigits.slice(-10)
+                        : ownDigits;
+
+                    if (normalizedOwn.startsWith(digits)) matches.unshift(ownProfile);
+                }
+            } catch (e) {
+                console.debug("Own profile fallback failed:", e);
             }
         }
 
@@ -3709,7 +3720,6 @@ async function searchStudentKartUsers(query) {
             '<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>Please try again.</span></div>';
     }
 }
-
 async function openStudentKartUserChat(userId) {
     if (!currentUser || !userId || String(userId) === String(currentUser.id)) return;
 
