@@ -3626,7 +3626,7 @@ async function searchStudentKartUsers(query) {
 
     try {
         const q = raw.toLowerCase();
-        const digits = raw.replace(/\\D/g, "");
+        const digits = raw.replace(/[^0-9]/g, "");
         const normalizedQuery = digits.startsWith("91") && digits.length > 10
             ? digits.slice(-10)
             : digits;
@@ -3653,7 +3653,7 @@ async function searchStudentKartUsers(query) {
         const matches = profiles.filter(profile => {
             const username = String(profile.username || "").toLowerCase().trim();
             const name = String(profile.name || "").toLowerCase().trim();
-            const phoneDigits = String(profile.phone || "").replace(/\\D/g, "");
+            const phoneDigits = String(profile.phone || "").replace(/[^0-9]/g, "");
             const normalizedPhone = phoneDigits.startsWith("91") && phoneDigits.length > 10
                 ? phoneDigits.slice(-10)
                 : phoneDigits;
@@ -3678,7 +3678,7 @@ async function searchStudentKartUsers(query) {
                     ? "@" + x.username
                     : (x.name || "Student");
 
-                const phoneDigits = String(x.phone || "").replace(/\\D/g, "");
+                const phoneDigits = String(x.phone || "").replace(/[^0-9]/g, "");
                 const phone = phoneDigits
                     ? (phoneDigits.length === 10 ? "+91 " + phoneDigits : "+" + phoneDigits)
                     : "Mobile not added";
