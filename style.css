@@ -17963,3 +17963,33 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
     opacity: 1 !important;
     font-size: 12px !important;
 }
+
+
+/* Signup username suggestions */
+.username-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 8px;
+}
+.username-suggestions.hidden {
+    display: none !important;
+}
+.username-suggestion {
+    border: 1px solid #d8e1ea;
+    background: #f7fafc;
+    color: #102a43;
+    border-radius: 999px;
+    padding: 7px 11px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .18s ease;
+}
+.username-suggestion:hover,
+.username-suggestion:focus {
+    background: #e7f8f7;
+    border-color: #27aaa6;
+    color: #0f8b8d;
+}
