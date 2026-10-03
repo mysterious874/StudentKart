@@ -246,6 +246,20 @@
             modal.querySelector("#adminAddProductTool")?.addEventListener("click", () => {
                 openAddProduct();
             });
+            modal.querySelector("#adminReportsTool")?.addEventListener("click", async () => {
+                const open = async () => {
+                    if (window.StudentKartAdminReports?.openReports) await window.StudentKartAdminReports.openReports();
+                };
+                if (window.StudentKartAdminReports?.openReports) return open();
+                const existing = document.querySelector('script[data-globedisc-admin-reports="1"]');
+                if (existing) { existing.addEventListener("load", open, { once: true }); return; }
+                const script = document.createElement("script");
+                script.src = "/admin-reports.js?v=20261004-reports-4";
+                script.dataset.globediscAdminReports = "1";
+                script.onload = open;
+                script.onerror = () => window.showToast?.("Reports tool could not be loaded", "error");
+                document.head.appendChild(script);
+            });
             modal.querySelector("#adminVerificationTool")?.addEventListener("click", async () => {
                 close();
                 const campusModal = document.getElementById("campusModal");
