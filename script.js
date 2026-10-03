@@ -4574,7 +4574,11 @@ async function loginUser(event) {
     }
 
     const button = $("loginForm")?.querySelector('button[type="submit"]');
-    if (button) button.disabled = true;
+    if (button) {
+        button.disabled = true;
+        button.dataset.originalText = button.textContent;
+        button.textContent = "Signing in…";
+    }
 
     try {
         const { error } = await supabaseClient.auth.signInWithPassword({
@@ -4584,7 +4588,10 @@ async function loginUser(event) {
 
         if (error) throw error;
 
-        closeModal("loginModal");
+        // Authentication itself is complete here. Close the login UI
+        // immediately; profile, wishlist, notifications and marketplace
+        // refresh through the auth listener in the background.
+        closeModal("loginModal", { instant: true });
         localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
         updateNavbar();
         showToast("Logged in successfully", "success");
@@ -4592,7 +4599,11 @@ async function loginUser(event) {
         console.error("Login error:", error);
         showToast(error?.message || "Could not login. Check your email and password.", "error");
     } finally {
-        if (button) button.disabled = false;
+        if (button) {
+            button.disabled = false;
+            button.textContent = button.dataset.originalText || "Login";
+            delete button.dataset.originalText;
+        }
     }
 }
 
