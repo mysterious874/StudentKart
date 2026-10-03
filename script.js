@@ -9152,22 +9152,18 @@ async function deleteSelectedChatMessagesForEveryone() {
          * Delete only messages owned by the current user. The extra sender_id
          * condition keeps the action safe even if the selected DOM is stale.
          */
-        const { data: deletedRows, error } = await supabaseClient
+        const { error } = await supabaseClient
             .from("messages")
             .delete()
             .eq("sender_id", currentUser.id)
-            .in("id", ownIds)
-            .select("id");
+            .in("id", ownIds);
 
         if (error) throw error;
 
-        const deletedIds = (deletedRows || []).map(row => String(row.id));
-
-        if (!deletedIds.length) {
-            throw new Error("No messages were deleted. Check the messages DELETE policy.");
-        }
-
-        deletedIds.forEach(id => {
+        // Remove the selected bubbles immediately. Do not depend on
+        // DELETE + SELECT returning rows, because RLS can hide deleted rows
+        // even when the DELETE itself succeeded.
+        ownIds.forEach(id => {
             document
                 .querySelectorAll('#chatMessages .chat-message[data-message-id="' + CSS.escape(id) + '"]')
                 .forEach(el => el.remove());
@@ -9177,12 +9173,15 @@ async function deleteSelectedChatMessagesForEveryone() {
         closeSelectedChatDeletePopup();
 
         const container = $("chatMessages");
-        if (container) delete container.dataset.messageSignature;
+        if (container) {
+            delete container.dataset.messageSignature;
+        }
 
+        // Re-sync once with the database so the screen stays correct.
         await loadChatMessages();
         await updateChatUnreadCount();
 
-        const extra = deletedIds.length < selectedElements.length
+        const extra = ownIds.length < selectedElements.length
             ? " Received messages were kept in the chat."
             : "";
 
