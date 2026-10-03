@@ -3613,30 +3613,143 @@ function bindChatLongPress() {
     });
 }
 
-async function searchStudentKartUsers(query) {
-    const box = $("chatUserSearchResults"); if (!box || !currentUser) return;
-    const q = String(query || "").trim();
-    if (q.length < 2) { box.innerHTML = ""; box.classList.add("hidden"); return; }
-    box.classList.remove("hidden"); box.innerHTML = '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding students...</span></div>';
-    try {
-        const p = "%" + q.replace(/%/g, "\\%").replace(/_/g, "\\_") + "%";
-        const r = await supabaseClient.from("profiles").select("id,name,username,phone,email,college,avatar_url,city,area").or("username.ilike."+p+",phone.ilike."+p+",email.ilike."+p+",name.ilike."+p).neq("id", currentUser.id).limit(20);
-        if (r.error) throw r.error;
-        if (!r.data?.length) { box.innerHTML = '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No student found</strong><span>Try username, mobile or email.</span></div>'; return; }
-        box.innerHTML = '<div class="chat-user-search-title"><span>STUDENTKART USERS</span><small>'+r.data.length+' result'+(r.data.length===1?"":"s")+'</small></div>'+r.data.map(x=>{const n=x.username||x.name||"Student";const s=x.username&&x.name?x.name:(x.email||x.phone||x.college||"");const a=x.avatar_url?'<img src="'+escapeHTML(x.avatar_url)+'" alt="">':'<span>'+escapeHTML(getInitials(n))+'</span>';return '<button type="button" class="chat-user-search-card" data-user-search-id="'+escapeHTML(x.id)+'"><span class="chat-user-search-avatar">'+a+'</span><span class="chat-user-search-main"><strong>'+escapeHTML(n)+'</strong><small>'+escapeHTML(s)+'</small></span><i class="fas fa-chevron-right"></i></button>';}).join("");
-        box.querySelectorAll("[data-user-search-id]").forEach(c => {
-            c.addEventListener("click", async () => {
-                const targetId = c.dataset.userSearchId;
-                box.classList.add("hidden");
-                box.innerHTML = "";
-                const searchInput = $("chatListSearchInput");
-                if (searchInput) searchInput.value = "";
-                await openStudentKartUserChat(targetId);
-            });
-        });
-    } catch(e) { console.error("Student search error:",e); box.innerHTML='<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>Please try again.</span></div>'; }
-}
+let studentKartUserSearchTimer = null;
+let studentKartUserSearchRequest = 0;
 
+async function searchStudentKartUsers(query) {
+    const box = $("chatUserSearchResults");
+
+    if (!box || !currentUser) {
+        return;
+    }
+
+    const q = String(query || "").trim();
+
+    window.clearTimeout(studentKartUserSearchTimer);
+
+    if (q.length < 2) {
+        box.innerHTML = "";
+        box.classList.add("hidden");
+        return;
+    }
+
+    const requestId = ++studentKartUserSearchRequest;
+
+    studentKartUserSearchTimer = window.setTimeout(async () => {
+        box.classList.remove("hidden");
+        box.innerHTML = '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding students...</span></div>';
+
+        try {
+            // Escape PostgREST wildcard characters so a user's search text
+            // cannot accidentally turn into a broad wildcard query.
+            const escapedQuery = q
+                .replace(/\\/g, "\\\\")
+                .replace(/%/g, "\\%")
+                .replace(/_/g, "\\_");
+
+            const pattern = "%" + escapedQuery + "%";
+
+            const { data, error } = await supabaseClient
+                .from("profiles")
+                .select("id,name,username,phone,email,college,avatar_url,city,area")
+                .neq("id", currentUser.id)
+                .or(
+                    "username.ilike." + pattern +
+                    ",phone.ilike." + pattern +
+                    ",email.ilike." + pattern +
+                    ",name.ilike." + pattern
+                )
+                .limit(20);
+
+            // Ignore an older request if the user has already typed something newer.
+            if (requestId !== studentKartUserSearchRequest) {
+                return;
+            }
+
+            if (error) {
+                throw error;
+            }
+
+            if (!data?.length) {
+                box.innerHTML = '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No student found</strong><span>Try username, mobile or email.</span></div>';
+                return;
+            }
+
+            box.innerHTML =
+                '<div class="chat-user-search-title"><span>STUDENTKART USERS</span><small>' +
+                data.length +
+                ' result' +
+                (data.length === 1 ? "" : "s") +
+                '</small></div>' +
+                data.map(user => {
+                    const displayName =
+                        user.username ||
+                        user.name ||
+                        "Student";
+
+                    const secondary =
+                        user.username && user.name
+                            ? user.name
+                            : (user.email ||
+                               user.phone ||
+                               user.college ||
+                               "");
+
+                    const avatar = user.avatar_url
+                        ? '<img src="' + escapeHTML(user.avatar_url) + '" alt="">'
+                        : '<span>' + escapeHTML(getInitials(displayName)) + '</span>';
+
+                    return (
+                        '<button type="button" class="chat-user-search-card" ' +
+                        'data-user-search-id="' + escapeHTML(user.id) + '">' +
+                            '<span class="chat-user-search-avatar">' + avatar + '</span>' +
+                            '<span class="chat-user-search-main">' +
+                                '<strong>' + escapeHTML(displayName) + '</strong>' +
+                                '<small>' + escapeHTML(secondary) + '</small>' +
+                            '</span>' +
+                            '<i class="fas fa-chevron-right"></i>' +
+                        '</button>'
+                    );
+                }).join("");
+
+            box.querySelectorAll("[data-user-search-id]").forEach(card => {
+                card.addEventListener("click", async () => {
+                    const targetId = card.dataset.userSearchId;
+
+                    box.classList.add("hidden");
+                    box.innerHTML = "";
+
+                    const searchInput = $("chatListSearchInput");
+                    const clearButton = $("chatListSearchClear");
+
+                    if (searchInput) {
+                        searchInput.value = "";
+                    }
+
+                    if (clearButton) {
+                        clearButton.classList.add("hidden");
+                    }
+
+                    applyChatListFilter();
+                    await openStudentKartUserChat(targetId);
+                });
+            });
+        } catch (error) {
+            if (requestId !== studentKartUserSearchRequest) {
+                return;
+            }
+
+            console.error("Student search error:", error);
+
+            box.innerHTML =
+                '<div class="chat-user-search-empty error">' +
+                    '<i class="fas fa-triangle-exclamation"></i>' +
+                    '<strong>Search unavailable</strong>' +
+                    '<span>Could not search students right now. Please try again.</span>' +
+                '</div>';
+        }
+    }, 280);
+}
 async function openStudentKartUserChat(userId) {
     if (!currentUser || !userId || String(userId) === String(currentUser.id)) return;
 
