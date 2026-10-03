@@ -246,20 +246,3 @@ function setupSearchResultsFilter() {
         $("searchResultsFilterPanel")?.classList.add("hidden");
     }
 }
-
-function showSearchResultsPage(query, options = {}
-
-function forceCloseSearchResultsPage() {
-    const page = $("searchResultsPage");
-    if (!page) return;
-    page.classList.add("hidden");
-    document.body.classList.remove("search-results-mobile-view");
-    page.style.removeProperty("display");
-    page.style.removeProperty("position");
-    page.style.removeProperty("inset");
-    page.style.removeProperty("height");
-    page.style.removeProperty("overflow");
-    page.style.removeProperty("transform");
-    document.documentElement.style.removeProperty("overflow");
-    document.body.style.removeProperty("overflow");
-}
