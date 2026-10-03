@@ -44,6 +44,12 @@ body.search-results-mobile-view #searchResultsPage .search-results-navbar::after
     width: min(1180px, calc(100% - 32px)) !important;
     margin: 0 auto !important;
 }
+
+/* Give the listings area a little more breathing room below the search strip. */
+#heroSearchStrip + .section-heading,
+#heroSearchStrip ~ .section-heading {
+    margin-top: 22px !important;
+}
 #heroSearchStrip .hero-search-suggestions {
     z-index: 950 !important;
 }
@@ -1033,6 +1039,15 @@ body.studentkart-product-page-open #heroSearchStrip {
     function boot() {
         updateNavbarHeight();
         syncHeroSearchPageState();
+
+        // On a fresh app/page open, start at the hero top.
+        // Do not interrupt normal scrolling after the page has loaded.
+        requestAnimationFrame(function () {
+            if (!sessionStorage.getItem('studentkartHeroInitialPosition')) {
+                sessionStorage.setItem('studentkartHeroInitialPosition', '1');
+                window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            }
+        });
         const observer = new MutationObserver(function () {
             updateNavbarHeight();
             syncHeroSearchPageState();
