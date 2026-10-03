@@ -16923,3 +16923,8 @@ main,
         margin-left: 0 !important;
     }
 }
+
+
+/* REMOVE TOP NAVBAR — KEEP REST OF RESTORED DESIGN */
+header.navbar,
+.navbar:not(.mobile-bottom-nav){display:none!important;visibility:hidden!important;pointer-events:none!important;}
