@@ -4565,11 +4565,43 @@ function normalizeAuthEmail(raw) {
 async function loginUser(event) {
     event.preventDefault();
 
-    const email = normalizeAuthEmail($("loginIdentifier")?.value);
-    const password = $("loginPassword")?.value || "";
+    const emailInput = $("loginIdentifier");
+    const passwordInput = $("loginPassword");
+    const emailHelp = $("loginEmailHelp");
+    const passwordHelp = $("loginPasswordHelp");
+
+    const clearLoginValidation = () => {
+        [emailInput, passwordInput].forEach(input => input?.classList.remove("input-validation-error"));
+        [emailHelp, passwordHelp].forEach(help => {
+            if (!help) return;
+            help.textContent = "";
+            help.classList.add("hidden");
+        });
+    };
+
+    const showLoginError = (input, help, message) => {
+        input?.classList.add("input-validation-error");
+        if (help) {
+            help.textContent = message;
+            help.classList.remove("hidden");
+        }
+    };
+
+    clearLoginValidation();
+
+    const rawEmail = String(emailInput?.value || "").trim().toLowerCase();
+    const password = passwordInput?.value || "";
+    const email = normalizeAuthEmail(rawEmail);
+
+    if (!email) {
+        showLoginError(emailInput, emailHelp, "Invalid email");
+    }
+
+    if (!password) {
+        showLoginError(passwordInput, passwordHelp, "Invalid password");
+    }
 
     if (!email || !password) {
-        showToast("Enter your email and password", "warning");
         return;
     }
 
@@ -4586,18 +4618,28 @@ async function loginUser(event) {
             password
         });
 
-        if (error) throw error;
+        if (error) {
+            const emailCheck = await checkStudentKartEmail(email);
 
-        // Authentication itself is complete here. Close the login UI
-        // immediately; profile, wishlist, notifications and marketplace
-        // refresh through the auth listener in the background.
+            if (!emailCheck.error && emailCheck.available === false) {
+                showLoginError(passwordInput, passwordHelp, "Invalid password");
+            } else if (!emailCheck.error && emailCheck.available === true) {
+                showLoginError(emailInput, emailHelp, "Invalid email");
+            } else {
+                showLoginError(passwordInput, passwordHelp, "Invalid password");
+                showLoginError(emailInput, emailHelp, "Invalid email");
+            }
+
+            return;
+        }
+
         closeModal("loginModal", { instant: true });
         localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
         updateNavbar();
         showToast("Logged in successfully", "success");
     } catch (error) {
         console.error("Login error:", error);
-        showToast(error?.message || "Could not login. Check your email and password.", "error");
+        showLoginError(passwordInput, passwordHelp, "Invalid password");
     } finally {
         if (button) {
             button.disabled = false;
