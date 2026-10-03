@@ -5261,7 +5261,201 @@ function getSearchResultMatches(query) {
     });
 }
 
-function showSearchResultsPage(query, options = {}) {
+async function fetchInternetSearchResults(query){
+    const q=String(query||"").trim();
+    if(!q) return {web:[], wiki:[]};
+
+    const web=[];
+    const seen=new Set();
+    const addWeb=(item)=>{
+        const title=String(item?.title||"").trim();
+        const url=String(item?.url||"").trim();
+        if(!title||!url||seen.has(url)) return;
+        seen.add(url);
+        web.push({
+            title,
+            url,
+            snippet:String(item?.snippet||"").trim(),
+            source:String(item?.source||"Web").trim()
+        });
+    };
+
+    try{
+        const url="https://api.duckduckgo.com/?q="+encodeURIComponent(q)+"&format=json&no_html=1&skip_disambig=0";
+        const response=await fetch(url,{headers:{"Accept":"application/json"}});
+        if(response.ok){
+            const data=await response.json();
+            if(data?.AbstractURL){
+                addWeb({
+                    title:data.Heading||q,
+                    url:data.AbstractURL,
+                    snippet:data.AbstractText||"Related information from the web.",
+                    source:data.AbstractSource||"DuckDuckGo"
+                });
+            }
+            const flat=[];
+            const flatten=(items)=>{
+                (Array.isArray(items)?items:[]).forEach(item=>{
+                    if(item?.Topics && Array.isArray(item.Topics)) flatten(item.Topics);
+                    else flat.push(item);
+                });
+            };
+            flatten(data?.RelatedTopics);
+            flat.slice(0,14).forEach(item=>{
+                addWeb({
+                    title:item.Text?.split(" - ")[0]||item.Name||"",
+                    url:item.FirstURL||"",
+                    snippet:item.Text||"",
+                    source:"Web"
+                });
+            });
+        }
+    }catch(error){
+        console.debug("Internet search unavailable:",error);
+    }
+
+    const wiki=[];
+    try{
+        const url="https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch="+encodeURIComponent(q)+"&gsrlimit=8&prop=extracts|pageimages|coordinates|pageprops&exintro=1&explaintext=1&exsentences=5&piprop=thumbnail|name&pithumbsize=720&format=json&origin=*";
+        const response=await fetch(url,{headers:{"Accept":"application/json"}});
+        if(response.ok){
+            const data=await response.json();
+            Object.values(data?.query?.pages||{}).forEach(page=>{
+                const title=String(page?.title||"").trim();
+                if(!title) return;
+                const thumb=page?.thumbnail?.source||"";
+                const coords=Array.isArray(page?.coordinates)&&page.coordinates[0] ? page.coordinates[0] : null;
+                wiki.push({
+                    title,
+                    url:"https://en.wikipedia.org/wiki/"+encodeURIComponent(title.replace(/ /g,"_")),
+                    snippet:String(page?.extract||"").trim(),
+                    image:thumb,
+                    latitude:coords?.lat ?? null,
+                    longitude:coords?.lon ?? null,
+                    wikibaseId:page?.pageprops?.wikibase_item||""
+                });
+            });
+        }
+    }catch(error){
+        console.debug("Wikipedia rich search unavailable:",error);
+    }
+
+    return {web:web.slice(0,18),wiki:wiki.slice(0,8)};
+}
+
+async function enrichWikiFacts(items){
+    const ids=[...new Set(items.map(item=>item.wikibaseId).filter(Boolean))].slice(0,6);
+    if(!ids.length) return items;
+    try{
+        const url="https://www.wikidata.org/w/api.php?action=wbgetentities&ids="+encodeURIComponent(ids.join("|"))+"&props=claims|labels&languages=en&format=json&origin=*";
+        const response=await fetch(url,{headers:{"Accept":"application/json"}});
+        if(!response.ok) return items;
+        const data=await response.json();
+        const entityLabels={};
+        Object.values(data?.entities||{}).forEach(entity=>{
+            const label=entity?.labels?.en?.value;
+            if(entity?.id&&label) entityLabels[entity.id]=label;
+        });
+        const claimValue=(entity,p)=>{
+            const claim=entity?.claims?.[p]?.[0];
+            const value=claim?.mainsnak?.datavalue?.value;
+            return value;
+        };
+        const formatDate=value=>{
+            if(!value?.time) return "";
+            const raw=String(value.time).replace(/^\+/,"");
+            const match=raw.match(/^(\d{4})(?:-(\d{2})-(\d{2}))?/);
+            if(!match) return "";
+            return match[3]&&match[2] ? match[3]+"/"+match[2]+"/"+match[1] : match[1];
+        };
+        return items.map(item=>{
+            const entity=data?.entities?.[item.wikibaseId];
+            const dateValue=claimValue(entity,"P571")||claimValue(entity,"P580")||claimValue(entity,"P585")||claimValue(entity,"P1619");
+            const locationValue=claimValue(entity,"P276")||claimValue(entity,"P131")||claimValue(entity,"P19")||claimValue(entity,"P17");
+            const coordinates=claimValue(entity,"P625");
+            const locationId=typeof locationValue==="string" ? locationValue : locationValue?.id;
+            return {
+                ...item,
+                date:formatDate(dateValue),
+                location:entityLabels[locationId]||"",
+                latitude:item.latitude ?? coordinates?.latitude ?? null,
+                longitude:item.longitude ?? coordinates?.longitude ?? null
+            };
+        });
+    }catch(error){
+        console.debug("Wikidata facts unavailable:",error);
+        return items;
+    }
+}
+
+function renderInternetSearchResults(query, results){
+    const container=$("searchResultsWebContainer");
+    if(!container) return;
+    const q=String(query||"").trim();
+    const wiki=Array.isArray(results?.wiki)?results.wiki:[];
+    const web=Array.isArray(results?.web)?results.web:[];
+    const quickLinks=[
+        ["All Web","https://www.google.com/search?q="+encodeURIComponent(q),"fa-globe"],
+        ["Photos","https://www.google.com/search?tbm=isch&q="+encodeURIComponent(q),"fa-image"],
+        ["Maps","https://www.google.com/maps/search/"+encodeURIComponent(q),"fa-location-dot"],
+        ["News","https://www.google.com/search?tbm=nws&q="+encodeURIComponent(q),"fa-newspaper"],
+        ["Dates","https://www.google.com/search?q="+encodeURIComponent(q+" dates timeline"),"fa-calendar-days"],
+        ["YouTube","https://www.youtube.com/results?search_query="+encodeURIComponent(q),"fa-youtube"]
+    ];
+
+    const quick=quickLinks.map(item=>{
+        const icon=item[2]==="fa-youtube" ? "fab fa-youtube" : "fas "+item[2];
+        return `<a class="internet-quick-link" href="${escapeHTML(item[1])}" target="_blank" rel="noopener noreferrer"><i class="${icon}"></i><span>${escapeHTML(item[0])}</span></a>`;
+    }).join("");
+
+    const wikiCards=wiki.map(item=>{
+        const hasLocation=item.latitude!==null&&item.longitude!==null;
+        const mapUrl=hasLocation ? "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(item.latitude+","+item.longitude) : "https://www.google.com/maps/search/"+encodeURIComponent(item.title);
+        return `
+        <article class="internet-topic-card">
+            ${item.image ? `<a href="${escapeHTML(item.url)}" target="_blank" rel="noopener noreferrer" class="internet-topic-photo"><img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.title)}" loading="lazy"></a>` : `<div class="internet-topic-photo internet-topic-photo-empty"><i class="fas fa-image"></i></div>`}
+            <div class="internet-topic-body">
+                <div class="internet-topic-kicker"><span>RELATED TOPIC</span><small>Wikipedia</small></div>
+                <h3>${escapeHTML(item.title)}</h3>
+                <p>${escapeHTML(item.snippet||"Detailed information related to this topic.")}</p>
+                <div class="internet-fact-row">
+                    ${item.date ? `<span><i class="fas fa-calendar-days"></i>${escapeHTML(item.date)}</span>` : ""}
+                    ${item.location ? `<span><i class="fas fa-location-dot"></i>${escapeHTML(item.location)}</span>` : ""}
+                </div>
+                <div class="internet-topic-actions">
+                    <a href="${escapeHTML(item.url)}" target="_blank" rel="noopener noreferrer">Full details <i class="fas fa-arrow-up-right-from-square"></i></a>
+                    <a href="${escapeHTML(mapUrl)}" target="_blank" rel="noopener noreferrer">Map <i class="fas fa-location-dot"></i></a>
+                </div>
+            </div>
+        </article>`;
+    }).join("");
+
+    const webCards=web.map(item=>`
+        <a class="internet-result-card" href="${escapeHTML(item.url)}" target="_blank" rel="noopener noreferrer">
+            <span class="internet-result-icon"><i class="fas fa-globe"></i></span>
+            <span class="internet-result-copy">
+                <strong>${escapeHTML(item.title)}</strong>
+                <small>${escapeHTML(item.source)}</small>
+                <span>${escapeHTML(item.snippet||"Open related information on the internet.")}</span>
+            </span>
+            <i class="fas fa-arrow-up-right-from-square internet-result-arrow"></i>
+        </a>`).join("");
+
+    container.innerHTML=`
+        <div class="search-results-web-heading">
+            <div>
+                <span class="section-label">INTERNET RESULTS</span>
+                <h2>Everything related to “${escapeHTML(q)}”</h2>
+                <p>Photos, detailed information, dates, locations and related web pages.</p>
+            </div>
+            <div class="internet-quick-links">${quick}</div>
+        </div>
+        ${wiki.length ? `<div class="internet-subsection-heading"><span>TOPIC DETAILS</span><small>${wiki.length} related topics with photos and facts</small></div><div class="internet-topic-grid">${wikiCards}</div>` : ""}
+        ${web.length ? `<div class="internet-subsection-heading"><span>WEB PAGES</span><small>More related pages from the internet</small></div><div class="internet-results-grid">${webCards}</div>` : `
+            <div class="internet-results-empty"><i class="fas fa-globe"></i><strong>No direct web pages loaded</strong><span>Use Photos, Maps, News or All Web above to continue the search.</span></div>`}`;
+}
+
+async function showSearchResultsPage(query, options = {}) {
     const selected=String(query||"").trim();
     if(!selected) return;
     if(!options.fromPopState && !studentKartHandlingPopState){
@@ -5282,11 +5476,19 @@ function showSearchResultsPage(query, options = {}) {
     if(resultInput) resultInput.value=selected;
     const title=$("searchResultsQuery"), subtitle=$("searchResultsNavbarSubtitle");
     if(title) title.textContent=selected;
-    if(subtitle) subtitle.textContent="Products related to “"+selected+"”";
+    if(subtitle) subtitle.textContent="Internet + StudentKart results for “"+selected+"”";
+
     const matches=getSearchResultMatches(selected);
     const count=$("searchResultsCount");
     if(count) count.textContent=matches.length+(matches.length===1?" listing":" listings");
     renderProducts(matches,"searchResultsProductContainer","searchResultsEmptyState");
+    const marketplaceLabel=$("searchResultsMarketplaceLabel");
+    if(marketplaceLabel) marketplaceLabel.classList.toggle("hidden",matches.length===0);
+
+    const webResults=await fetchInternetSearchResults(selected);
+    const enriched=await enrichWikiFacts(webResults.wiki);
+    if(document.getElementById("searchResultsPage")?.classList.contains("hidden")) return;
+    renderInternetSearchResults(selected,{...webResults,wiki:enriched});
     window.scrollTo({top:0,behavior:"auto"});
 }
 
