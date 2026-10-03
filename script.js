@@ -97,6 +97,7 @@ async function startSingleSessionListener(user, notifyOlderSessions = false) {
     singleSessionChannel =
         supabaseClient.channel(channelName, {
             config: {
+                private: true,
                 broadcast: {
                     self: false
                 }
