@@ -18475,3 +18475,47 @@ body:has(#editProfileModal:not(.hidden)) .mobile-bottom-nav{
   color:#000!important;
   -webkit-text-fill-color:#000!important;
 }
+
+
+/* FORCE ALL FLOATING NAV ITEMS — BLACK */
+#navSearchButton,
+#bottomCategoriesButton,
+#bottomWishlistButton,
+#profileButton,
+#bottomSettingsButton,
+.bottom-chat-nav-item,
+.mobile-bottom-nav > .bottom-nav-item:not(.bottom-sell-item){
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+  background:#fff!important;
+}
+#navSearchButton *,
+#bottomCategoriesButton *,
+#bottomWishlistButton *,
+#profileButton *,
+#bottomSettingsButton *,
+.bottom-chat-nav-item *{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+#navSearchButton i,
+#bottomCategoriesButton i,
+#bottomWishlistButton i,
+#profileButton i,
+#bottomSettingsButton i,
+.bottom-chat-nav-item i{
+  color:#000!important;
+  -webkit-text-fill-color:#000!important;
+}
+.mobile-bottom-nav .bottom-sell-item{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.mobile-bottom-nav .bottom-sell-item *{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.mobile-bottom-nav .chat-unread-count{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
