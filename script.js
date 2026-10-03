@@ -6418,6 +6418,15 @@ async function openNotification(
     );
 
     if (
+        notification.type === "listing_appeal_submitted" &&
+        window.StudentKartAdminReports &&
+        typeof window.StudentKartAdminReports.openAppeals === "function"
+    ) {
+        await window.StudentKartAdminReports.openAppeals();
+        return;
+    }
+
+    if (
         notification.product_id
     ) {
 
