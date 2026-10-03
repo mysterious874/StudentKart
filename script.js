@@ -12343,6 +12343,8 @@ function setupHeroSearchStrip() {
 
         // Keep the search interaction local to the marketplace search bar.
         searchPanel?.classList.add("hidden");
+        searchPanel?.classList.remove("marketplace-local-filter");
+        if (searchPanel) searchPanel.style.top = "";
         document.getElementById("navbarFilterPanel")?.classList.add("hidden");
 
         if (typeof applyFilters === "function") applyFilters();
@@ -12376,7 +12378,17 @@ function setupHeroSearchStrip() {
         // without opening a second search bar.
         searchPanel?.classList.add("hidden");
         const filterPanel = document.getElementById("navbarFilterPanel");
-        filterPanel?.classList.remove("hidden");
+        if (searchPanel && filterPanel) {
+            searchPanel.classList.remove("hidden");
+            searchPanel.classList.add("marketplace-local-filter");
+            filterPanel.classList.remove("hidden");
+
+            const target = document.getElementById("heroSearchStrip");
+            if (target) {
+                const rect = target.getBoundingClientRect();
+                searchPanel.style.top = Math.min(window.innerHeight - 20, rect.bottom + 10) + "px";
+            }
+        }
 
         scrollToMarketplaceSearch();
 
