@@ -4623,6 +4623,53 @@ function setupSignupUsernameSuggestions() {
     const help = $("signupUsernameHelp");
     if (!input || !box) return;
 
+    let availabilityTimer = null;
+    let availabilityRequest = 0;
+
+    const setUsernameStatus = (message, type = "") => {
+        if (!help) return;
+        help.textContent = message;
+        help.classList.remove("username-status-available", "username-status-taken", "username-status-checking");
+        if (type) help.classList.add("username-status-" + type);
+    };
+
+    const checkAvailabilityLive = async username => {
+        const requestId = ++availabilityRequest;
+
+        if (username.length < 3) {
+            setUsernameStatus("Use 3–30 letters, numbers, dots or underscores.");
+            return;
+        }
+
+        if (!isValidStudentKartUsername(username)) {
+            setUsernameStatus("Only letters, numbers, dots and underscores are allowed.", "taken");
+            return;
+        }
+
+        setUsernameStatus("Checking username…", "checking");
+
+        try {
+            const result = await checkStudentKartUsername(username);
+
+            if (requestId !== availabilityRequest) return;
+
+            if (result.error) {
+                setUsernameStatus("Could not check username right now.");
+                return;
+            }
+
+            if (result.available) {
+                setUsernameStatus("✓ Username is available", "available");
+            } else {
+                setUsernameStatus("✕ Username already taken", "taken");
+            }
+        } catch (error) {
+            if (requestId !== availabilityRequest) return;
+            console.error("Live username availability check failed:", error);
+            setUsernameStatus("Could not check username right now.");
+        }
+    };
+
     input.addEventListener("input", () => {
         const username = normalizeStudentKartUsername(input.value)
             .replace(/[^a-z0-9._]/g, "")
@@ -4630,10 +4677,13 @@ function setupSignupUsernameSuggestions() {
 
         input.value = username;
 
+        clearTimeout(availabilityTimer);
+        availabilityRequest++;
+
         if (username.length < 2) {
             box.innerHTML = "";
             box.classList.add("hidden");
-            if (help) help.textContent = "Use 3–30 letters, numbers, dots or underscores.";
+            setUsernameStatus("Use 3–30 letters, numbers, dots or underscores.");
             return;
         }
 
@@ -4656,15 +4706,19 @@ function setupSignupUsernameSuggestions() {
                 input.value = button.dataset.usernameSuggestion || "";
                 box.classList.add("hidden");
                 input.focus();
+                input.dispatchEvent(new Event("input", { bubbles: true }));
             });
         });
+
+        availabilityTimer = setTimeout(() => {
+            checkAvailabilityLive(username);
+        }, 450);
     });
 
     input.addEventListener("blur", () => {
         setTimeout(() => box.classList.add("hidden"), 150);
     });
 }
-
 async function signupUser(event) {
     event.preventDefault();
 
