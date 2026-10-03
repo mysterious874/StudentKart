@@ -5403,6 +5403,27 @@ async function fetchInternetPanelData(mode, query){
     const q=String(query||"").trim();
     if(!q) return [];
     try{
+        if(mode==="youtube"){
+            return {
+                query:q,
+                embedUrl:"https://www.youtube.com/embed?listType=search&list="+encodeURIComponent(q),
+                searchUrl:"https://www.youtube.com/results?search_query="+encodeURIComponent(q)
+            };
+        }
+
+        if(mode==="maps"){
+            const url="https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&addressdetails=1&q="+encodeURIComponent(q);
+            const response=await fetchWithTimeout(url,{"headers":{"Accept":"application/json"}},9000);
+            if(!response.ok) return [];
+            const data=await response.json();
+            return (Array.isArray(data)?data:[]).map(item=>({
+                title:String(item?.display_name||q),
+                latitude:Number(item?.lat),
+                longitude:Number(item?.lon),
+                type:String(item?.type||"place")
+            })).filter(item=>Number.isFinite(item.latitude)&&Number.isFinite(item.longitude));
+        }
+
         if(mode==="photos"){
             const url="https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch="+encodeURIComponent(q)+"&gsrnamespace=6&gsrlimit=12&prop=imageinfo|info&iiprop=url|extmetadata&iiurlwidth=900&format=json&origin=*";
             const response=await fetchWithTimeout(url,{headers:{"Accept":"application/json"}},9000);
@@ -5451,10 +5472,10 @@ function renderInternetSearchResults(query, results){
     const quickLinks=[
         ["All Web","all","fa-globe"],
         ["Photos","photos","fa-image"],
-        ["Maps","https://www.google.com/maps/search/"+encodeURIComponent(q),"fa-location-dot","external"],
+        ["Maps","maps","fa-location-dot"],
         ["News","news","fa-newspaper"],
         ["Dates","dates","fa-calendar-days"],
-        ["YouTube","https://www.youtube.com/results?search_query="+encodeURIComponent(q),"fa-youtube","external"]
+        ["YouTube","youtube","fa-youtube"]
     ];
 
     const quick=quickLinks.map(item=>{
@@ -5577,8 +5598,10 @@ function renderInternetSearchResults(query, results){
     if(aggregatePanel){
         Promise.all([
             fetchInternetPanelData("photos",q),
-            fetchInternetPanelData("news",q)
-        ]).then(([photos,news])=>{
+            fetchInternetPanelData("news",q),
+            fetchInternetPanelData("maps",q),
+            fetchInternetPanelData("youtube",q)
+        ]).then(([photos,news,maps,youtube])=>{
             const dated=wiki.filter(item=>item.date||item.location);
             aggregatePanel.innerHTML=`
                 <div class="internet-aggregate-head">
@@ -5607,6 +5630,23 @@ function renderInternetSearchResults(query, results){
                 <section class="internet-aggregate-section" id="internetSection-news">
                     <div class="internet-subsection-heading"><span>NEWS</span><small>${news.length} recent indexed news results</small></div>
                     ${news.length ? `<div class="internet-news-grid">${news.map(item=>`<article class="internet-news-card">${item.image?`<img src="${escapeHTML(item.image)}" alt="" loading="lazy">`:""}<div><small>${escapeHTML(item.source)} ${item.date?"• "+escapeHTML(item.date):""}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.description||"News result from the web.")}</p></div></article>`).join("")}</div>` : '<div class="internet-panel-card"><strong>No news data was returned by the connected news source.</strong><p>This does not mean there is no news on the internet; this source simply returned no accessible results for this query.</p></div>'}
+                </section>
+
+                <section class="internet-aggregate-section" id="internetSection-youtube">
+                    <div class="internet-subsection-heading"><span>YOUTUBE</span><small>Videos inside StudentKart</small></div>
+                    <div class="internet-youtube-player"><iframe src="\${youtube.embedUrl}" title="YouTube results for \${escapeHTML(q)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+                    <p class="internet-embed-note">YouTube may restrict embedded search for some queries.</p>
+                    <a class="internet-fallback-link" href="\${youtube.searchUrl}" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i> Open YouTube search</a>
+                </section>
+
+                <section class="internet-aggregate-section" id="internetSection-maps">
+                    <div class="internet-subsection-heading"><span>MAPS</span><small>OpenStreetMap inside StudentKart</small></div>
+                    \${maps.length ? maps.map(item=>{
+                        const d=0.02;
+                        const bbox=(item.longitude-d)+","+(item.latitude-d)+","+(item.longitude+d)+","+(item.latitude+d);
+                        const embed="https://www.openstreetmap.org/export/embed.html?bbox="+encodeURIComponent(bbox)+"&layer=mapnik&marker="+encodeURIComponent(item.latitude+","+item.longitude);
+                        return \`<article class="internet-map-card"><div class="internet-map-info"><strong>\${escapeHTML(item.title)}</strong><small>\${escapeHTML(item.type)}</small></div><iframe src="\${escapeHTML(embed)}" title="Map for \${escapeHTML(item.title)}" loading="lazy"></iframe><a href="https://www.google.com/maps/search/?api=1&query=\${encodeURIComponent(item.latitude+","+item.longitude)}" target="_blank" rel="noopener noreferrer">Open Google Maps <i class="fas fa-arrow-up-right-from-square"></i></a></article>\`;
+                    }).join("") : '<div class="internet-panel-card"><strong>No map location was found.</strong><p>Try a specific place, college, city or landmark.</p></div>'}
                 </section>
 
                 <section class="internet-aggregate-section" id="internetSection-dates">
