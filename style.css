@@ -19611,3 +19611,204 @@ button,input,select,textarea{font-family:inherit}
   .product-image-wrap{height:145px!important}
   .hero h1{font-size:42px!important}
 }
+
+
+/* =========================================================
+   STUDENTKART — STUDENT SUPER APP EXPERIENCE v2026.10
+   Marketplace becomes Campus Exchange; dashboard is the home.
+   ========================================================= */
+:root{
+  --sk-bg:#f5f7f3;
+  --sk-surface:#ffffff;
+  --sk-ink:#17211b;
+  --sk-muted:#718078;
+  --sk-line:#dfe6df;
+  --sk-green:#1f8a70;
+  --sk-green-dark:#146b57;
+  --sk-green-soft:#e4f2ed;
+  --sk-yellow:#f1c75b;
+  --sk-shadow:0 18px 50px rgba(24,52,40,.09);
+}
+body{
+  background:
+    radial-gradient(circle at 12% 0%,rgba(31,138,112,.09),transparent 28rem),
+    radial-gradient(circle at 90% 8%,rgba(241,199,91,.10),transparent 25rem),
+    var(--sk-bg);
+  color:var(--sk-ink);
+}
+.navbar{
+  background:rgba(250,252,249,.88)!important;
+  border-bottom:1px solid rgba(31,67,53,.10)!important;
+  box-shadow:0 5px 24px rgba(24,52,40,.055)!important;
+  backdrop-filter:blur(18px)!important;
+}
+.logo-text{letter-spacing:-.035em!important;font-weight:800!important}
+.btn-primary{
+  background:var(--sk-green)!important;
+  border-color:var(--sk-green)!important;
+  box-shadow:0 8px 18px rgba(31,138,112,.18)!important;
+}
+.hero{
+  min-height:500px!important;
+  background:
+    radial-gradient(circle at 78% 38%,rgba(31,138,112,.17),transparent 20rem),
+    linear-gradient(135deg,#f8fbf7 0%,#edf5ef 55%,#f7f4e9 100%)!important;
+  border-bottom:1px solid var(--sk-line)!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+.hero:after{
+  content:"STUDENTKART";
+  position:absolute;
+  right:-45px;bottom:-42px;
+  font-size:clamp(5rem,13vw,12rem);
+  font-weight:900;
+  letter-spacing:-.08em;
+  color:rgba(31,138,112,.045);
+  pointer-events:none;
+}
+.hero-container{max-width:1180px!important;padding-top:92px!important;padding-bottom:78px!important}
+.hero-content{max-width:780px!important}
+.hero-badge{
+  background:var(--sk-green-soft)!important;
+  color:var(--sk-green-dark)!important;
+  border:1px solid rgba(31,138,112,.13)!important;
+}
+.hero h1{
+  font-size:clamp(3rem,6vw,5.6rem)!important;
+  line-height:.98!important;
+  letter-spacing:-.065em!important;
+  color:var(--sk-ink)!important;
+}
+.hero h1 span{color:var(--sk-green)!important}
+.hero p{max-width:690px!important;font-size:1.08rem!important;color:#617067!important}
+.hero-trust{gap:10px!important}
+.hero-trust span{
+  background:rgba(255,255,255,.72)!important;
+  border:1px solid rgba(31,67,53,.09)!important;
+  border-radius:999px!important;
+  padding:8px 12px!important;
+}
+
+/* Student dashboard */
+.student-dashboard-section{
+  padding:72px 0 35px!important;
+  background:transparent!important;
+}
+.dashboard-shell{width:min(1180px,calc(100% - 48px));margin:auto}
+.dashboard-heading{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:28px;margin-bottom:26px;
+}
+.dashboard-heading h2{
+  font-size:clamp(2rem,4vw,3.5rem)!important;
+  letter-spacing:-.055em!important;
+  line-height:1.02!important;
+  margin:5px 0 10px!important;
+}
+.dashboard-heading h2 span{color:var(--sk-green)}
+.dashboard-heading p{color:var(--sk-muted);max-width:680px}
+.dashboard-date{
+  display:flex;align-items:center;gap:9px;
+  padding:11px 15px;border:1px solid var(--sk-line);background:rgba(255,255,255,.72);
+  border-radius:999px;color:var(--sk-green-dark);font-size:13px;font-weight:700;white-space:nowrap;
+}
+.dashboard-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:13px;
+}
+.dashboard-card{
+  appearance:none;border:1px solid var(--sk-line);background:rgba(255,255,255,.88);
+  border-radius:20px;padding:20px;text-align:left;min-height:165px;
+  display:flex;flex-direction:column;justify-content:space-between;gap:16px;
+  color:var(--sk-ink);cursor:pointer;box-shadow:0 8px 22px rgba(24,52,40,.045);
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.dashboard-card:hover{transform:translateY(-4px);box-shadow:var(--sk-shadow);border-color:rgba(31,138,112,.25)}
+.dashboard-card-primary{background:linear-gradient(145deg,#1f8a70,#176c58);color:#fff;border-color:transparent}
+.dashboard-card-icon{
+  width:45px;height:45px;border-radius:14px;display:grid;place-items:center;
+  background:var(--sk-green-soft);color:var(--sk-green);font-size:18px;
+}
+.dashboard-card-primary .dashboard-card-icon{background:rgba(255,255,255,.16);color:#fff}
+.dashboard-card-copy{display:flex;flex-direction:column;gap:4px}
+.dashboard-card-copy b{font-size:17px;letter-spacing:-.02em}
+.dashboard-card-copy small{font-size:12px;color:var(--sk-muted);line-height:1.45}
+.dashboard-card-primary .dashboard-card-copy small{color:rgba(255,255,255,.72)}
+.dashboard-card-arrow{margin-left:auto;opacity:.55;font-size:12px}
+.dashboard-lower-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:13px;margin-top:13px}
+.dashboard-panel{
+  border:1px solid var(--sk-line);background:rgba(255,255,255,.84);border-radius:20px;padding:22px;
+}
+.dashboard-panel-accent{background:#18231d;color:#fff;border-color:#18231d}
+.dashboard-panel-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}
+.dashboard-panel-head h3{font-size:20px;letter-spacing:-.025em;margin-top:3px}
+.dashboard-panel-head>i{font-size:18px;color:var(--sk-green)}
+.panel-kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--sk-green)}
+.dashboard-panel-accent .panel-kicker{color:#8ed8c2}
+.dashboard-checklist{display:grid;gap:5px}
+.dashboard-checklist>div{
+  display:flex;align-items:center;gap:13px;padding:12px 0;border-top:1px solid var(--sk-line);
+}
+.dashboard-checklist>div:first-child{border-top:0}
+.check-circle{
+  width:31px;height:31px;border-radius:50%;background:var(--sk-green-soft);color:var(--sk-green);
+  display:grid;place-items:center;font-size:11px;flex:0 0 auto;
+}
+.dashboard-checklist b,.dashboard-checklist small{display:block}
+.dashboard-checklist b{font-size:13px}
+.dashboard-checklist small{font-size:11px;color:var(--sk-muted);margin-top:2px}
+.quick-tools{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.quick-tools button{
+  border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.06);color:#fff;
+  border-radius:14px;padding:14px;text-align:left;display:flex;align-items:center;gap:9px;cursor:pointer;
+}
+.quick-tools button i{color:#8ed8c2}.quick-tools button span{font-size:12px;font-weight:700}
+
+/* Campus Exchange becomes a secondary product module */
+#marketplace{
+  margin-top:35px!important;
+  padding-top:52px!important;
+  border-top:1px solid var(--sk-line)!important;
+}
+#marketplace:before{
+  content:"CAMPUS EXCHANGE";
+  display:block;width:min(1180px,calc(100% - 48px));margin:0 auto 5px;
+  font-size:11px;font-weight:900;letter-spacing:.18em;color:var(--sk-green);
+}
+#marketplace #filterStatus{font-weight:800!important;color:var(--sk-green-dark)!important}
+.marketplace-section .products-grid{margin-top:20px!important}
+.hero-search-strip{
+  box-shadow:0 12px 30px rgba(24,52,40,.08)!important;
+  border:1px solid var(--sk-line)!important;
+}
+.hero-search-field{background:#fff!important}
+.hero-search-field input::placeholder{color:#89968f!important}
+
+/* Category/search pages inherit the new product identity */
+.category-page,.search-results-page{background:var(--sk-bg)!important}
+.category-page-navbar,.search-results-navbar{
+  background:rgba(250,252,249,.94)!important;
+  border-bottom:1px solid var(--sk-line)!important;
+}
+.section-label{color:var(--sk-green)!important}
+
+@media(max-width:900px){
+  .dashboard-grid{grid-template-columns:1fr 1fr}
+  .dashboard-lower-grid{grid-template-columns:1fr}
+  .dashboard-heading{align-items:flex-start;flex-direction:column;gap:12px}
+}
+@media(max-width:600px){
+  .hero{min-height:470px!important}
+  .hero-container{padding-top:72px!important;padding-bottom:62px!important}
+  .hero h1{font-size:3.15rem!important}
+  .hero p{font-size:.98rem!important}
+  .student-dashboard-section{padding:45px 0 22px!important}
+  .dashboard-shell{width:calc(100% - 24px)}
+  .dashboard-grid{grid-template-columns:1fr 1fr;gap:9px}
+  .dashboard-card{min-height:145px;padding:15px;border-radius:17px}
+  .dashboard-card-copy b{font-size:14px}
+  .dashboard-card-copy small{font-size:10.5px}
+  .dashboard-heading h2{font-size:2.2rem!important}
+  .dashboard-date{font-size:11px;padding:8px 11px}
+  .dashboard-panel{padding:17px;border-radius:17px}
+  #marketplace:before{width:calc(100% - 24px)}
+}
