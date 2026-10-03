@@ -19931,3 +19931,30 @@ body.marketplace-page-active #marketplace .marketplace-content{
     display:none;
   }
 }
+
+
+/* =========================================================
+   MARKETPLACE — NAVIGATION ISOLATION (CSS FALLBACK)
+   ========================================================= */
+body:has(#marketplace:not(.hidden)) .navbar,
+body:has(#marketplace:not(.hidden)) .mobile-bottom-nav,
+body:has(#marketplace:not(.hidden)) > .navbar,
+body:has(#marketplace:not(.hidden)) > .mobile-bottom-nav{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+body:has(#marketplace:not(.hidden)) #marketplace{
+  display:block!important;
+  min-height:100vh;
+  width:100%;
+  margin:0!important;
+}
+body:has(#marketplace:not(.hidden)) main{
+  padding-top:0!important;
+}
+body:has(#marketplace:not(.hidden)) #marketplace .marketplace-page-header{
+  position:sticky;
+  top:0;
+  z-index:100!important;
+}
