@@ -235,6 +235,7 @@ function showToast(message, type = "success") {
 
 let modalHistory = [];
 let studentKartHistoryReady = false;
+let studentKartBaseHistorySeeded = false;
 let studentKartHandlingPopState = false;
 let studentKartSkipNextPopState = false;
 let studentKartNavbarSearchOpen = false;
@@ -246,13 +247,52 @@ function ensureStudentKartHistory() {
     }
 
     const currentState = window.history.state;
+    const baseUrl =
+        window.location.pathname +
+        window.location.search;
+
+    const baseState = {
+        ...(currentState || {}),
+        studentKart: true,
+        modalId: null,
+        modalStack: [],
+        studentKartBase: true
+    };
 
     if (!currentState || currentState.studentKart !== true) {
+        // Establish the app's first stable history point.
+        // Do not keep a hash here: search/filter overlays own their hashes.
         window.history.replaceState(
-            { ...(currentState || {}), studentKart: true, modalId: null },
+            baseState,
             "",
-            window.location.href
+            baseUrl
         );
+    } else if (currentState.modalId || currentState.studentKartNavbarSearch) {
+        // If the app was restored directly on an overlay state, normalize
+        // the underlying entry before creating the stable base anchor.
+        window.history.replaceState(
+            baseState,
+            "",
+            baseUrl
+        );
+    } else if (currentState.studentKartBase !== true) {
+        window.history.replaceState(
+            { ...currentState, ...baseState },
+            "",
+            baseUrl
+        );
+    }
+
+    // Keep one duplicate base entry inside the same document. This gives
+    // Android/browser Back one safe app-level step after a transient search
+    // overlay closes, instead of immediately leaving the StudentKart page.
+    if (!studentKartBaseHistorySeeded) {
+        window.history.pushState(
+            { ...baseState, studentKartBaseAnchor: true },
+            "",
+            baseUrl
+        );
+        studentKartBaseHistorySeeded = true;
     }
 
     studentKartHistoryReady = true;
