@@ -88,7 +88,7 @@
                             </button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminUsersTool"><i class="fas fa-users"></i><strong>Users</strong><span>View registered StudentKart profiles.</span></button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminListingsTool"><i class="fas fa-box-open"></i><strong>Listings</strong><span>Review marketplace listings.</span></button>
-                            <div class="sk-admin-dashboard-card"><i class="fas fa-flag"></i><strong>Reports</strong><span>Reports and moderation will be connected next.</span></div>
+                            <button type="button" class="sk-admin-dashboard-card" id="adminReportsTool"><i class="fas fa-flag"></i><strong>Reports</strong><span>Review and moderate reports.</span></button>
                         </div>
                         <button type="button" class="btn btn-outline btn-full" id="adminCloseDashboard"><i class="fas fa-arrow-left"></i> Back</button>
                     </div>
