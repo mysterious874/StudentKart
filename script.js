@@ -12507,7 +12507,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if(suggestionController)suggestionController.abort();
         suggestionController=new AbortController();
         try{
-            const url="https://en.wikipedia.org/w/api.php?action=opensearch&search="+encodeURIComponent(q)+"&limit=20&namespace=0&format=json&origin=*";
+            const url="https://en.wikipedia.org/w/api.php?action=opensearch&search="+encodeURIComponent(q)+"&limit=30&namespace=0&format=json&origin=*";
             const response=await fetch(url,{signal:suggestionController.signal,headers:{"Accept":"application/json"}});
             if(!response.ok)return [];
             const data=await response.json();
@@ -12556,7 +12556,7 @@ document.addEventListener("DOMContentLoaded", () => {
         local.forEach(x=>addUnique(list,seen,x.value,x.title,x.meta,x.icon));
         world.forEach(title=>addUnique(list,seen,title,title,"Worldwide search suggestion","fa-globe"));
 
-        const limited=list.slice(0,10);
+        const limited=list.slice(0,15);
         if(!limited.length){hide();return;}
 
         panel.innerHTML=limited.map((x,i)=>'<button type="button" class="hero-search-suggestion" id="heroSearchSuggestion-'+i+'" role="option" aria-selected="false" data-suggestion-value="'+escapeHTML(x.value)+'"><span class="hero-search-suggestion-icon"><i class="fas '+x.icon+'"></i></span><span class="hero-search-suggestion-copy"><span class="hero-search-suggestion-title">'+escapeHTML(x.title)+'</span><span class="hero-search-suggestion-meta">'+escapeHTML(x.meta)+'</span></span><i class="fas fa-chevron-right hero-search-suggestion-arrow"></i></button>').join("");
