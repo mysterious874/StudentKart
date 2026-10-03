@@ -17825,3 +17825,75 @@ body:not(.studentkart-search-results-active) .how-section{
 }
 
 
+
+
+/* =========================================================
+   CATEGORY PAGE — MATCH MAIN STUDENTKART WEBSITE
+   ========================================================= */
+body.category-page-active {
+    background: linear-gradient(180deg, #f6fafb 0%, #f1f6f7 100%) !important;
+}
+body.category-page-active .category-page-navbar {
+    background: linear-gradient(135deg, #102a43 0%, #0f3445 55%, #0f5f62 100%) !important;
+    border-bottom: 1px solid rgba(255,255,255,.10) !important;
+    box-shadow: 0 5px 22px rgba(16,42,67,.16) !important;
+}
+body.category-page-active .category-page-back {
+    background: rgba(255,255,255,.10) !important;
+    border: 1px solid rgba(255,255,255,.16) !important;
+    color: #fff !important;
+    transition: background .18s ease, transform .18s ease !important;
+}
+body.category-page-active .category-page-back:hover {
+    background: rgba(255,255,255,.17) !important;
+    transform: translateX(-2px) !important;
+}
+body.category-page-active .category-page-navbar-title span {
+    color: #fff !important;
+}
+body.category-page-active .category-page-navbar-title small {
+    color: rgba(255,255,255,.74) !important;
+}
+body.category-page-active .category-page-container {
+    width: min(1180px, calc(100% - 40px)) !important;
+    margin: 0 auto !important;
+    padding-top: 94px !important;
+    padding-bottom: 50px !important;
+}
+body.category-page-active .category-page-header {
+    margin-bottom: 18px !important;
+}
+body.category-page-active .category-page-count {
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 32px !important;
+    padding: 0 12px !important;
+    border-radius: 999px !important;
+    background: rgba(15,139,141,.10) !important;
+    color: #0f6f72 !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    border: 1px solid rgba(15,139,141,.12) !important;
+}
+body.category-page-active .category-page-container .product-card {
+    background: #fff !important;
+    border: 1px solid #dbe7e8 !important;
+    border-radius: 15px !important;
+    box-shadow: 0 6px 20px rgba(16,42,67,.07) !important;
+}
+body.category-page-active .category-page-container .product-card:hover {
+    border-color: rgba(15,139,141,.28) !important;
+    box-shadow: 0 12px 28px rgba(16,42,67,.11) !important;
+}
+@media(max-width:700px){
+    body.category-page-active .category-page-container {
+        width: calc(100% - 24px) !important;
+        padding-top: 76px !important;
+    }
+}
+
+/* Global search suggestions: room for local + worldwide suggestions */
+#heroSearchSuggestions {
+    max-height: min(520px, 60vh) !important;
+    overflow-y: auto !important;
+}
