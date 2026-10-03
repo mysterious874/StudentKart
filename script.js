@@ -674,6 +674,21 @@ window.addEventListener("popstate", event => {
                 modal.classList.add("hidden");
             });
             modalHistory = [];
+
+            // Back from the search-results page returns directly to the
+            // normal StudentKart page. Replace the temporary search-history
+            // entry so a second Back is not consumed by an invisible anchor.
+            window.history.replaceState(
+                {
+                    studentKart: true,
+                    modalId: null,
+                    modalStack: [],
+                    studentKartBase: true
+                },
+                "",
+                window.location.pathname + window.location.search
+            );
+
             showHomePageFromSearch({ fromPopState: true });
             studentKartHandlingPopState = false;
             return;
