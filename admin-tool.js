@@ -86,7 +86,7 @@
                                 <i class="fas fa-user-check"></i><strong>Campus Verification</strong>
                                 <span>Review student ID verification requests.</span>
                             </button>
-                            <div class="sk-admin-dashboard-card"><i class="fas fa-users"></i><strong>Users</strong><span>User management will be connected next.</span></div>
+                            <button type="button" class="sk-admin-dashboard-card" id="adminUsersTool"><i class="fas fa-users"></i><strong>Users</strong><span>View registered StudentKart profiles.</span></button>
                             <div class="sk-admin-dashboard-card"><i class="fas fa-box-open"></i><strong>Listings</strong><span>Listing moderation will be connected next.</span></div>
                             <div class="sk-admin-dashboard-card"><i class="fas fa-flag"></i><strong>Reports</strong><span>Reports and moderation will be connected next.</span></div>
                         </div>
