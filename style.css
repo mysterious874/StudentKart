@@ -19830,3 +19830,31 @@ body{
  .marketplace-section-intro h2{font-size:2.25rem}
  .marketplace-section-intro p{font-size:12px}
 }
+
+
+/* =========================================================
+   STUDENTKART — SEPARATE HOME + MARKETPLACE EXPERIENCE
+   ========================================================= */
+.student-dashboard-section{position:relative;z-index:1}
+.dashboard-marketplace-cta{margin-top:22px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 26px;border:1px solid rgba(15,143,135,.16);border-radius:24px;background:linear-gradient(135deg,#effaf7,#f9fbf6);box-shadow:0 12px 30px rgba(20,70,60,.06)}
+.dashboard-marketplace-cta h3{margin:5px 0 6px;font-size:22px;color:#163b36}.dashboard-marketplace-cta p{margin:0;color:#66807b}
+.dashboard-marketplace-button{border:0;border-radius:14px;padding:13px 18px;background:#0f8f87;color:#fff;font-weight:800;cursor:pointer;white-space:nowrap;box-shadow:0 8px 18px rgba(15,143,135,.2)}
+.dashboard-marketplace-button:hover{transform:translateY(-1px)}
+.marketplace-section.hidden{display:none!important}
+.marketplace-section{min-height:100vh;padding-top:24px;background:#f7f8f5}
+.marketplace-page-header{max-width:1180px;margin:0 auto 10px;padding:18px 24px;display:flex;align-items:center;gap:16px}
+.marketplace-back-button{width:44px;height:44px;border:1px solid #dce5e0;border-radius:13px;background:#fff;color:#173d38;cursor:pointer;font-size:17px;box-shadow:0 5px 15px rgba(20,50,40,.06)}
+.marketplace-section-intro{flex:1;margin:0!important;padding:0!important}
+.marketplace-section-intro h2{margin:2px 0 4px;font-size:32px;color:#163b36}.marketplace-section-intro p{margin:0;color:#6b7d78}
+.marketplace-section .hero-search-strip{margin-top:8px}
+.marketplace-section .products-grid{margin-top:20px}
+.student-tool-page{min-height:100vh;background:#f5faf8;padding-bottom:80px}
+.student-tool-page.hidden{display:none!important}
+.student-tool-navbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:16px max(20px,calc((100% - 1120px)/2));background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-bottom:1px solid #dfe9e5}
+.student-tool-back{width:44px;height:44px;border:1px solid #d9e6e1;border-radius:13px;background:#fff;color:#173d38;cursor:pointer}
+.student-tool-navbar span{font-size:11px;font-weight:900;letter-spacing:.12em;color:#0f8f87}.student-tool-navbar h2{margin:2px 0 0;font-size:24px;color:#173d38}
+.student-tool-content{max-width:1120px;margin:0 auto;padding:34px 24px}
+.student-tool-hero{padding:28px;border-radius:26px;background:linear-gradient(135deg,#e8f8f3,#f9fcfa);border:1px solid #d9ebe5;margin-bottom:22px}
+.student-tool-hero h1{margin:0 0 8px;font-size:34px;color:#173d38}.student-tool-hero p{margin:0;color:#667b75;max-width:700px;line-height:1.6}
+.student-tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.student-tool-card{border:1px solid #dfe9e5;border-radius:20px;background:#fff;padding:22px;text-align:left;box-shadow:0 10px 25px rgba(20,60,50,.05)}.student-tool-card h3{margin:12px 0 6px;color:#173d38}.student-tool-card p{margin:0;color:#71837e;line-height:1.5}.student-tool-card i{font-size:22px;color:#0f8f87}.student-tool-action{margin-top:16px;border:0;border-radius:11px;padding:10px 13px;background:#edf8f5;color:#08766f;font-weight:800;cursor:pointer}
+@media(max-width:768px){.dashboard-marketplace-cta{align-items:flex-start;flex-direction:column;padding:20px}.dashboard-marketplace-button{width:100%}.marketplace-page-header{padding:12px 14px}.marketplace-section-intro h2{font-size:25px}.student-tool-content{padding:22px 14px}.student-tool-grid{grid-template-columns:1fr}.student-tool-navbar{padding:12px 14px}.student-tool-navbar h2{font-size:20px}}
