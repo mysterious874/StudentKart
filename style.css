@@ -17289,3 +17289,45 @@ body.studentkart-search-results-active .search-results-heading{
         padding:14px 10px 50px!important;
     }
 }
+
+
+/* SEARCH RESULTS — FILTER + RIGHT SEARCH ICON */
+body.studentkart-search-results-active .search-results-search-strip{
+    display:flex!important;
+    align-items:center!important;
+    gap:8px!important;
+}
+body.studentkart-search-results-active .search-results-search-icon{display:none!important}
+body.studentkart-search-results-active .search-results-filter-button,
+body.studentkart-search-results-active .search-results-search-button{
+    width:40px!important;height:40px!important;flex:0 0 40px!important;
+    border:0!important;border-radius:11px!important;
+    display:grid!important;place-items:center!important;cursor:pointer!important;
+}
+body.studentkart-search-results-active .search-results-filter-button{
+    background:#e8f6f6!important;color:#0f8b8d!important;
+}
+body.studentkart-search-results-active .search-results-search-button{
+    background:#0f8b8d!important;color:#fff!important;
+}
+body.studentkart-search-results-active .search-results-filter-panel{
+    position:sticky!important;
+    top:62px!important;
+    z-index:100040!important;
+    max-width:1180px!important;
+    margin:0 auto!important;
+    padding:14px 20px!important;
+    background:#fff!important;
+    border:1px solid #d8eeee!important;
+    border-top:0!important;
+    border-radius:0 0 16px 16px!important;
+    box-shadow:0 10px 25px rgba(16,42,67,.10)!important;
+}
+body.studentkart-search-results-active .search-results-filter-actions{
+    display:flex!important;justify-content:flex-end!important;gap:10px!important;margin-top:14px!important;
+}
+@media(max-width:700px){
+    body.studentkart-search-results-active .search-results-filter-panel{
+        top:56px!important;padding:12px 10px!important;
+    }
+}
