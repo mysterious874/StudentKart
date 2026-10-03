@@ -19858,3 +19858,10 @@ body{
 .student-tool-hero h1{margin:0 0 8px;font-size:34px;color:#173d38}.student-tool-hero p{margin:0;color:#667b75;max-width:700px;line-height:1.6}
 .student-tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.student-tool-card{border:1px solid #dfe9e5;border-radius:20px;background:#fff;padding:22px;text-align:left;box-shadow:0 10px 25px rgba(20,60,50,.05)}.student-tool-card h3{margin:12px 0 6px;color:#173d38}.student-tool-card p{margin:0;color:#71837e;line-height:1.5}.student-tool-card i{font-size:22px;color:#0f8f87}.student-tool-action{margin-top:16px;border:0;border-radius:11px;padding:10px 13px;background:#edf8f5;color:#08766f;font-weight:800;cursor:pointer}
 @media(max-width:768px){.dashboard-marketplace-cta{align-items:flex-start;flex-direction:column;padding:20px}.dashboard-marketplace-button{width:100%}.marketplace-page-header{padding:12px 14px}.marketplace-section-intro h2{font-size:25px}.student-tool-content{padding:22px 14px}.student-tool-grid{grid-template-columns:1fr}.student-tool-navbar{padding:12px 14px}.student-tool-navbar h2{font-size:20px}}
+
+
+/* Marketplace is a clean standalone page: never show home navigation here. */
+body.marketplace-page-active .navbar,
+body.marketplace-page-active .mobile-bottom-nav{
+    display:none!important;
+}
