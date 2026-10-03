@@ -12295,16 +12295,56 @@ function settingsAccountSecurity() {
 function settingsDeleteAccount() {
     openSettingsActionModal({
         title:"Delete Account",
-        description:"Account deletion is permanent. Send a deletion request so it can be processed safely on the server.",
-        fields:[{id:"confirm",label:"Type DELETE to continue",placeholder:"DELETE"}],
-        confirmText:"Request Deletion",
+        description:"This permanently deletes your StudentKart account. Your authenticated account will be removed from Supabase. This action cannot be undone.",
+        fields:[{id:"confirm",label:"Type DELETE to permanently delete",placeholder:"DELETE"}],
+        confirmText:"Delete Permanently",
         danger:true,
         onConfirm:async values=>{
-            if(values.confirm!=="DELETE"){showToast("Type DELETE exactly to continue","warning");return false;}
-            const subject=encodeURIComponent("StudentKart account deletion request");
-            const body=encodeURIComponent("Please delete my StudentKart account. Account ID: "+(currentUser?.id||"unknown"));
-            window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
-            showToast("Deletion request prepared","warning");
+            if(values.confirm!=="DELETE"){
+                showToast("Type DELETE exactly to continue","warning");
+                return false;
+            }
+
+            if(!currentUser){
+                showToast("Please login again before deleting your account","warning");
+                return false;
+            }
+
+            const confirmed = window.confirm(
+                "Permanently delete your StudentKart account? This cannot be undone."
+            );
+            if(!confirmed) return false;
+
+            try {
+                const userId = String(currentUser.id);
+
+                const { error } = await supabaseClient.rpc("delete_my_account");
+                if(error) throw error;
+
+                try {
+                    localStorage.removeItem("studentkart_settings_" + userId);
+                    localStorage.removeItem("studentkart_profile_" + userId);
+                } catch (_) {}
+
+                currentUser = null;
+                closeAllModals({ fromPopState: true });
+
+                try {
+                    await supabaseClient.auth.signOut();
+                } catch (_) {}
+
+                showToast("Your StudentKart account has been permanently deleted.", "success");
+                return true;
+            } catch (error) {
+                console.error("Account deletion error:", error);
+                showToast(
+                    error?.message?.includes("delete_my_account")
+                        ? "Account deletion is not enabled yet. Run supabase/delete_my_account.sql in Supabase SQL Editor first."
+                        : (error?.message || "Could not delete your account"),
+                    "error"
+                );
+                return false;
+            }
         }
     });
 }
