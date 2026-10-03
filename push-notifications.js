@@ -78,5 +78,27 @@
   window.registerStudentKartPush = registerStudentKartPush;
   window.requestStudentKartPushPermission = requestStudentKartPushPermission;
 
-  // Push setup starts only after the user explicitly enables notifications.\n  // Avoid doing service-worker/push work during normal page startup.
+  // Keep the device subscription registered whenever browser permission is
+  // already granted. This is silent and never prompts the user.
+  window.ensureStudentKartPushSubscription = async function () {
+    if (!("Notification" in window) || Notification.permission !== "granted") {
+      return null;
+    }
+
+    if (typeof currentUser === "undefined" || !currentUser) {
+      return null;
+    }
+
+    return registerStudentKartPush();
+  };
+
+  // If permission was already granted, make sure the subscription exists
+  // without waiting for the user to revisit Settings.
+  window.addEventListener("load", () => {
+    window.setTimeout(() => {
+      void window.ensureStudentKartPushSubscription?.().catch(error => {
+        console.warn("StudentKart background push registration failed:", error);
+      });
+    }, 250);
+  });
 })();
