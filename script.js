@@ -5619,8 +5619,7 @@ function renderInternetSearchResults(query, results){
             aggregatePanel.innerHTML=`<div class="internet-panel-card"><strong>Some internet sources could not be loaded.</strong><p>The StudentKart results already available above are still usable.</p></div>`;
         });
     }
-
-
+}
 
 async function showSearchResultsPage(query, options = {}) {
     const selected=String(query||"").trim();
