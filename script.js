@@ -12588,23 +12588,6 @@ document.addEventListener("DOMContentLoaded", () => {
         input?.focus({ preventScroll: true });
     });
 
-    $("searchResultsFilterButton")?.addEventListener("click", () => {
-        const panel = $("marketplaceFilterPanel");
-        const resultsPage = $("searchResultsPage");
-        if (!panel || !resultsPage) return;
-
-        // The marketplace section is hidden while search results are open,
-        // so temporarily move the existing filter panel into the results page.
-        if (!panel.dataset.searchResultsOriginalParent) {
-            panel.dataset.searchResultsOriginalParent = "marketplace";
-            panel.dataset.searchResultsOriginalNextSibling = panel.nextElementSibling?.id || "";
-            panel.classList.add("search-results-filter-overlay");
-            resultsPage.appendChild(panel);
-        }
-
-        panel.classList.remove("hidden");
-    });
-
     $("searchResultsSearchInput")?.addEventListener("keydown", event => {
     $("searchResultsSearchInput")?.addEventListener("keydown", event => {
         if(event.key !== "Enter") return;
@@ -12612,22 +12595,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const value = event.currentTarget.value.trim();
         if(value) showSearchResultsPage(value);
     });
-    const restoreSearchResultsFilterPanel = () => {
-        const panel = $("marketplaceFilterPanel");
-        const marketplace = $("marketplace");
-        if (!panel || !marketplace || !panel.dataset.searchResultsOriginalParent) return;
-
-        panel.classList.add("hidden");
-        panel.classList.remove("search-results-filter-overlay");
-        marketplace.insertBefore(panel, marketplace.querySelector("#filterStatus"));
-        delete panel.dataset.searchResultsOriginalParent;
-        delete panel.dataset.searchResultsOriginalNextSibling;
-    };
-
-    $("navbarFilterClose")?.addEventListener("click", restoreSearchResultsFilterPanel, true);
-    $("applyMarketplaceFilters")?.addEventListener("click", restoreSearchResultsFilterPanel, true);
-    $("cancelMarketplaceFilters")?.addEventListener("click", restoreSearchResultsFilterPanel, true);
-
     $("searchResultsBrowseAll")?.addEventListener("click", () => {
         showHomePageFromSearch();
         document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
