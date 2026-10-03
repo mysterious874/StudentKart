@@ -6029,6 +6029,7 @@ function openCategoryPage(category, options = {}) {
     $("how-it-works")?.classList.add("hidden");
     $("categoryPage")?.classList.remove("hidden");
     document.body.classList.add("category-page-active");
+    setHomeSearchStripVisibility(false);
     document.querySelector("main")?.classList.add("category-page-active");
 
     const title = $("categoryPageTitle");
@@ -6054,10 +6055,7 @@ function openCategoryPage(category, options = {}) {
 
 
 
-
-
-
-) {
+function showSearchResultsPage(query, options = {}) {
     const selected=String(query||"").trim();
     if(!selected) return;
     if(!options.fromPopState && !studentKartHandlingPopState){
@@ -6083,6 +6081,7 @@ function openCategoryPage(category, options = {}) {
     document.body.classList.remove("modal-open","studentkart-modal-navigation-hidden","category-page-active");
     document.querySelector("main")?.classList.remove("category-page-active");
     ["home","marketplace","how-it-works","categoryPage"].forEach(id=>$(id)?.classList.add("hidden"));
+    setHomeSearchStripVisibility(false);
     $("searchResultsPage")?.classList.remove("hidden");
     document.body.classList.add("search-results-mobile-view");
     const title=$("searchResultsQuery"), subtitle=$("searchResultsNavbarSubtitle");
@@ -6099,10 +6098,10 @@ function openCategoryPage(category, options = {}) {
 }
 
 
-
-) {
+function showHomePageFromSearch(options = {}) {
     $("searchResultsPage")?.classList.add("hidden");
     document.body.classList.remove("search-results-mobile-view");
+    setHomeSearchStripVisibility(true);
     $("categoryPage")?.classList.add("hidden");
     $("home")?.classList.remove("hidden");
     $("marketplace")?.classList.remove("hidden");
@@ -12405,6 +12404,27 @@ function populateStudentKartIndiaData() {
 }
 
 
+function setupHomeHeroSearchTransition() {
+    const strip = document.getElementById("heroSearchStrip");
+    const hero = document.getElementById("home");
+    if (!strip || !hero || strip.dataset.heroTransitionReady === "true") return;
+    strip.dataset.heroTransitionReady = "true";
+    window.setTimeout(() => {
+        if (document.body.classList.contains("search-results-mobile-view") ||
+            document.body.classList.contains("category-page-active")) return;
+        strip.classList.add("hero-search-docked");
+        const navbar = document.querySelector(".navbar");
+        const headerOffset = Math.max(56, Math.round(navbar?.getBoundingClientRect().height || 72));
+        const targetTop = strip.getBoundingClientRect().top + window.scrollY - headerOffset;
+        window.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+    }, 1800);
+}
+function setHomeSearchStripVisibility(visible) {
+    const strip = document.getElementById("heroSearchStrip");
+    if (!strip) return;
+    document.body.classList.toggle("studentkart-search-strip-hidden", !visible);
+    if (visible) strip.classList.remove("hero-search-docked");
+}
 function setupHeroSearchStrip() {
     const input = document.getElementById("heroSearchInput");
     const submit = document.getElementById("heroSearchSubmit");
@@ -12522,6 +12542,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     setupHeroSearchStrip();
+    setupHomeHeroSearchTransition();
+    setHomeSearchStripVisibility(
+        !document.body.classList.contains("search-results-mobile-view") &&
+        !document.body.classList.contains("category-page-active")
+    );
     populateStudentKartIndiaData();
     setupEditProfileCityLocationPicker();
     setupSellProductLocationPicker();
