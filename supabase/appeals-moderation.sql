@@ -56,10 +56,10 @@ begin
          where id = target_appeal_id;
 
         insert into public.notifications (
-            user_id, type, title, message, is_read, created_at
+            user_id, product_id, type, title, message, is_read, created_at
         )
         values (
-            appeal_row.seller_id,
+            appeal_row.seller_id, appeal_row.product_id,
             'listing_appeal_rejected',
             'Appeal rejected',
             'Your appeal was rejected because the listing is no longer available.',
@@ -97,10 +97,10 @@ begin
      where id = target_appeal_id;
 
     insert into public.notifications (
-        user_id, type, title, message, is_read, created_at
+        user_id, product_id, type, title, message, is_read, created_at
     )
     values (
-        listing_owner,
+        listing_owner, appeal_row.product_id,
         case when decision = 'approved'
              then 'listing_appeal_approved'
              else 'listing_appeal_rejected'
