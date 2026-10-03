@@ -1205,9 +1205,11 @@ async function openWishlist() {
         return;
     }
 
-    await renderWishlist();
-
+    // Open immediately; refresh the contents in the background.
     openModal("wishlistModal");
+    void renderWishlist().catch(error => {
+        console.error("Wishlist background refresh error:", error);
+    });
 }
 
 async function removeFromWishlist(productId) {
@@ -7490,13 +7492,13 @@ document.addEventListener("click", event => {
                     return;
                 }
 
-                await loadNotifications();
-
-                renderNotifications();
-
-                openModal(
-                    "notificationsModal"
-                );
+                // Open immediately; notification data refreshes in the background.
+                openModal("notificationsModal");
+                void loadNotifications()
+                    .then(() => renderNotifications())
+                    .catch(error => {
+                        console.error("Notifications background refresh error:", error);
+                    });
             }
         );
 
@@ -7874,26 +7876,26 @@ document.addEventListener("click", event => {
     $("myListingsButton")
         ?.addEventListener(
             "click",
-            async () => {
+            () => {
 
-                await loadMyListings();
-
-                openModal(
-                    "myListingsModal"
-                );
+                // Open immediately; listing data refreshes without blocking navigation.
+                openModal("myListingsModal");
+                void loadMyListings().catch(error => {
+                    console.error("My listings background refresh error:", error);
+                });
             }
         );
 
     $("myInquiriesButton")
         ?.addEventListener(
             "click",
-            async () => {
+            () => {
 
-                await loadReceivedInquiries();
-
-                openModal(
-                    "inquiriesModal"
-                );
+                // Open immediately; conversations refresh in the background.
+                openModal("inquiriesModal");
+                void loadReceivedInquiries().catch(error => {
+                    console.error("My inquiries background refresh error:", error);
+                });
             }
         );
 
