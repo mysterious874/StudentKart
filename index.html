@@ -607,6 +607,12 @@
                         autocomplete="name" required>
                 </div>
                 <div class="form-group">
+                    <label for="signupUsername">Username</label>
+                    <input type="text" id="signupUsername" placeholder="Choose a unique username" autocomplete="username" maxlength="30" required>
+                    <small class="form-help" id="signupUsernameHelp">Use 3–30 letters, numbers, dots or underscores.</small>
+                    <div id="signupUsernameSuggestions" class="username-suggestions hidden" aria-live="polite"></div>
+                </div>
+                <div class="form-group">
                     <label for="signupIdentifier">Email Address</label>
                     <input type="email" id="signupIdentifier" placeholder="you@example.com"
                         autocomplete="email" required>
