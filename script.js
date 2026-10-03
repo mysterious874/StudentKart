@@ -12734,10 +12734,25 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => searchInput.focus(), 80);
     });
 
+    // Show matching products immediately while the user is typing.
+    // Do not wait for the Search button or Enter key.
     searchInput.addEventListener("input", () => {
-        if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
+        const query = searchInput.value || "";
+
+        if (marketplaceSearch) {
+            marketplaceSearch.value = query;
+        }
+
         activeSuggestionIndex = -1;
-        renderSearchSuggestions(searchInput.value);
+        renderSearchSuggestions(query);
+
+        // Keep the suggestions visible even when the input event is followed
+        // by another mobile/browser focus update.
+        window.requestAnimationFrame(() => {
+            if (searchInput.value.trim()) {
+                renderSearchSuggestions(searchInput.value);
+            }
+        });
     });
 
     searchInput.addEventListener("focus", () => {
