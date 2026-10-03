@@ -3703,6 +3703,8 @@ async function searchStudentKartUsers(query) {
                     : "+" + digits;
             };
 
+            box.classList.toggle("has-more-results", ordered.length > 10);
+
             box.innerHTML =
                 '<div class="chat-user-search-title"><span>CHAT SUGGESTIONS</span><small>' +
                 ordered.length + (ordered.length === 1 ? " number" : " numbers") +
