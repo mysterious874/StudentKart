@@ -12386,10 +12386,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const runHeroSearch = () => {
         const value = searchInput?.value?.trim() || "";
-        const target = document.getElementById("marketplaceSearch") || document.getElementById("navbarSearchInput");
-        if (target) target.value = value;
-        if (typeof applyFilters === "function") applyFilters();
-        document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth", block:"start"});
+        if (!value) return;
+        if (typeof showSearchResultsPage === "function") showSearchResultsPage(value);
     };
 
     filterButton?.addEventListener("click", event => {
