@@ -17935,3 +17935,31 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
 .chat-message-other .chat-message-deleted {
     color: #7b8794 !important;
 }
+
+
+/* FINAL MOBILE SELL BUTTON OVERRIDE */
+.navbar .nav-actions #sellButton {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    min-width: 78px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+}
+.navbar .nav-actions #sellButton span {
+    display: inline !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    color: inherit !important;
+}
+.navbar .nav-actions #sellButton i {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-size: 12px !important;
+}
