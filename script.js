@@ -12457,10 +12457,19 @@ function setupHeroSearchStrip() {
     input.addEventListener("focus", scrollToMarketplaceSearch);
 
     input.addEventListener("keydown", event => {
-        if (event.key === "Enter") {
+        if (event.key === "ArrowDown") {
             event.preventDefault();
+            moveSearchSuggestion(1);
+        } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            moveSearchSuggestion(-1);
+        } else if (event.key === "Enter") {
+            event.preventDefault();
+            const activeItem = suggestionsPanel?.querySelector(".navbar-search-suggestion.is-active");
+            if (activeItem) searchInput.value = activeItem.dataset.suggestionValue || searchInput.value;
             runSearch();
         } else if (event.key === "Escape") {
+            hideSearchSuggestions();
             input.blur();
         }
     });
@@ -12540,7 +12549,98 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!navSearchButton || !searchPanel || !searchInput) return;
 
+    const suggestionsPanel = document.getElementById("navbarSearchSuggestions");
+    let activeSuggestionIndex = -1;
+
+    const suggestionCategories = ["Books", "Electronics", "Vehicles", "Furniture", "Services", "Fashion"];
+
+    const hideSearchSuggestions = () => {
+        if (!suggestionsPanel) return;
+        suggestionsPanel.classList.add("hidden");
+        suggestionsPanel.innerHTML = "";
+        activeSuggestionIndex = -1;
+        searchInput?.removeAttribute("aria-activedescendant");
+    };
+
+    const getSearchSuggestions = query => {
+        const q = String(query || "").trim().toLowerCase();
+        if (!q) return [];
+
+        const results = [];
+        const seen = new Set();
+        const add = (title, meta, icon, value) => {
+            const key = String(title || "").trim().toLowerCase();
+            if (!key || seen.has(key)) return;
+            seen.add(key);
+            results.push({ title, meta, icon, value });
+        };
+
+        suggestionCategories
+            .filter(category => category.toLowerCase().includes(q))
+            .sort((a, b) => Number(!a.toLowerCase().startsWith(q)) - Number(!b.toLowerCase().startsWith(q)))
+            .forEach(category => add(category, "Category", "fa-layer-group", category));
+
+        [...currentProducts]
+            .filter(product => [
+                product.name, product.category, product.location, product.description, product.condition
+            ].join(" ").toLowerCase().includes(q))
+            .sort((a, b) => {
+                const an = String(a.name || "").toLowerCase();
+                const bn = String(b.name || "").toLowerCase();
+                return Number(!an.startsWith(q)) - Number(!bn.startsWith(q)) || an.localeCompare(bn);
+            })
+            .forEach(product => add(product.name, product.category || "Listing", "fa-tag", product.name));
+
+        return results.slice(0, 7);
+    };
+
+    const renderSearchSuggestions = query => {
+        if (!suggestionsPanel) return;
+        const suggestions = getSearchSuggestions(query);
+        if (!suggestions.length) {
+            hideSearchSuggestions();
+            return;
+        }
+
+        suggestionsPanel.innerHTML = suggestions.map((item, index) =>
+            '<button type="button" class="navbar-search-suggestion" id="navbarSearchSuggestion-' + index +
+            '" role="option" aria-selected="false" data-suggestion-index="' + index +
+            '" data-suggestion-value="' + escapeHTML(item.value) + '">' +
+            '<span class="navbar-search-suggestion-icon"><i class="fas ' + item.icon + '"></i></span>' +
+            '<span class="navbar-search-suggestion-copy"><span class="navbar-search-suggestion-title">' +
+            escapeHTML(item.title) + '</span><span class="navbar-search-suggestion-meta">' +
+            escapeHTML(item.meta) + '</span></span><i class="fas fa-chevron-right navbar-search-suggestion-arrow"></i></button>'
+        ).join("");
+
+        suggestionsPanel.classList.remove("hidden");
+        suggestionsPanel.querySelectorAll(".navbar-search-suggestion").forEach(button => {
+            button.addEventListener("mousedown", event => event.preventDefault());
+            button.addEventListener("click", () => {
+                searchInput.value = button.dataset.suggestionValue || "";
+                if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
+                hideSearchSuggestions();
+                runSearch();
+            });
+        });
+    };
+
+    const moveSearchSuggestion = direction => {
+        if (!suggestionsPanel || suggestionsPanel.classList.contains("hidden")) return;
+        const items = [...suggestionsPanel.querySelectorAll(".navbar-search-suggestion")];
+        if (!items.length) return;
+        activeSuggestionIndex = (activeSuggestionIndex + direction + items.length) % items.length;
+        items.forEach((item, index) => {
+            const active = index === activeSuggestionIndex;
+            item.classList.toggle("is-active", active);
+            item.setAttribute("aria-selected", active ? "true" : "false");
+        });
+        const activeItem = items[activeSuggestionIndex];
+        searchInput.setAttribute("aria-activedescendant", activeItem.id);
+        activeItem.scrollIntoView({ block: "nearest" });
+    };
+
     const runSearch = () => {
+        hideSearchSuggestions();
         if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
         applyFilters();
         document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
@@ -12577,6 +12677,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const opening = searchPanel.classList.contains("hidden");
 
         if (!opening) {
+            hideSearchSuggestions();
             closeNavbarSearch();
             return;
         }
@@ -12615,6 +12716,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     searchInput.addEventListener("input", () => {
         if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
+        activeSuggestionIndex = -1;
+        renderSearchSuggestions(searchInput.value);
+    });
+
+    searchInput.addEventListener("focus", () => {
+        if (searchInput.value.trim()) renderSearchSuggestions(searchInput.value);
+    });
+
+    searchInput.addEventListener("blur", () => {
+        window.setTimeout(hideSearchSuggestions, 120);
     });
 
     searchInput.addEventListener("keydown", event => {
@@ -12633,12 +12744,14 @@ document.addEventListener("DOMContentLoaded", () => {
     searchSubmit?.addEventListener("click", runSearch);
 
     filterButton?.addEventListener("click", () => {
+        hideSearchSuggestions();
         filterPanel?.classList.add("hidden");
         marketplaceFilterPanel?.classList.toggle("hidden");
         document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
     });
 
     filterClose?.addEventListener("click", () => {
+        hideSearchSuggestions();
         filterPanel?.classList.add("hidden");
         marketplaceFilterPanel?.classList.add("hidden");
     });
@@ -12652,6 +12765,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     $("applyMarketplaceFilters")?.addEventListener("click", () => {
+        hideSearchSuggestions();
         applyFilters();
         filterPanel?.classList.add("hidden");
         marketplaceFilterPanel?.classList.add("hidden");
@@ -12659,6 +12773,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     $("cancelMarketplaceFilters")?.addEventListener("click", () => {
+        hideSearchSuggestions();
         const search = $("navbarSearchInput");
         if (search) search.value = "";
         ["minPrice","maxPrice","locationFilter"].forEach(id => { const el=$(id); if(el) el.value=""; });
