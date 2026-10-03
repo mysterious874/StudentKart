@@ -11497,6 +11497,13 @@ if (bottomSettingsButton) {
     });
 }
 
+const bottomProfileButton = $("bottomProfileButton");
+if (bottomProfileButton) {
+    bottomProfileButton.addEventListener("click", () => {
+        openProfile();
+    });
+}
+
 const bottomWishlistButton = $("bottomWishlistButton");
 if (bottomWishlistButton) {
     bottomWishlistButton.addEventListener("click", () => {
