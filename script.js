@@ -1465,7 +1465,7 @@ async function loadProducts() {
             await supabaseClient
                 .from("products")
                 .select("*")
-                .eq("moderation_status", "active")
+                .eq("status", "active")
                 .order(
                     "created_at",
                     {
