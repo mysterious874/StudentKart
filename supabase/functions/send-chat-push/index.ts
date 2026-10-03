@@ -19,7 +19,7 @@ Deno.serve(async req => {
     if (!record?.receiver_id || !record?.message) {
       return new Response(JSON.stringify({ ok: false, error: "Invalid message payload" }), {
         status: 400,
-        headers: { "content-type": "application/json" }
+        headers: { "content-type": "application/json", ...corsHeaders }
       });
     }
 
@@ -70,7 +70,7 @@ Deno.serve(async req => {
       sent: results.filter(r => r.status === "fulfilled" && r.value?.ok).length,
       total: subscriptions?.length || 0
     }), {
-      headers: { "content-type": "application/json" }
+      headers: { "content-type": "application/json", ...corsHeaders }
     });
   } catch (error) {
     console.error("send-chat-push error:", error);
