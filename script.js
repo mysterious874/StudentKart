@@ -3610,27 +3610,79 @@ function bindChatLongPress() {
 }
 
 async function searchStudentKartUsers(query) {
-    const box = $("chatUserSearchResults"); if (!box || !currentUser) return;
-    const q = String(query || "").trim();
-    if (q.length < 2) { box.innerHTML = ""; box.classList.add("hidden"); return; }
-    box.classList.remove("hidden"); box.innerHTML = '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding students...</span></div>';
+    const box = $("chatUserSearchResults");
+    if (!box || !currentUser) return;
+
+    const raw = String(query || "").trim();
+    const digits = raw.replace(/\D/g, "");
+
+    // Chat profile search is intentionally mobile-only and exact.
+    // Never return a partial mobile, username, email or name match.
+    if (digits.length !== 10) {
+        box.innerHTML = "";
+        box.classList.add("hidden");
+        return;
+    }
+
+    const phone = "+91" + digits;
+
+    box.classList.remove("hidden");
+    box.innerHTML =
+        '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding mobile number...</span></div>';
+
     try {
-        const p = "%" + q.replace(/%/g, "\\%").replace(/_/g, "\\_") + "%";
-        const r = await supabaseClient.from("profiles").select("id,name,username,phone,email,college,avatar_url,city,area").or("username.ilike."+p+",phone.ilike."+p+",email.ilike."+p+",name.ilike."+p).neq("id", currentUser.id).limit(20);
-        if (r.error) throw r.error;
-        if (!r.data?.length) { box.innerHTML = '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No student found</strong><span>Try username, mobile or email.</span></div>'; return; }
-        box.innerHTML = '<div class="chat-user-search-title"><span>STUDENTKART USERS</span><small>'+r.data.length+' result'+(r.data.length===1?"":"s")+'</small></div>'+r.data.map(x=>{const n=x.username||x.name||"Student";const s=x.username&&x.name?x.name:(x.email||x.phone||x.college||"");const a=x.avatar_url?'<img src="'+escapeHTML(x.avatar_url)+'" alt="">':'<span>'+escapeHTML(getInitials(n))+'</span>';return '<button type="button" class="chat-user-search-card" data-user-search-id="'+escapeHTML(x.id)+'"><span class="chat-user-search-avatar">'+a+'</span><span class="chat-user-search-main"><strong>'+escapeHTML(n)+'</strong><small>'+escapeHTML(s)+'</small></span><i class="fas fa-chevron-right"></i></button>';}).join("");
-        box.querySelectorAll("[data-user-search-id]").forEach(c => {
-            c.addEventListener("click", async () => {
-                const targetId = c.dataset.userSearchId;
+        const { data, error } = await supabaseClient
+            .from("profiles")
+            .select("id,name,username,phone,email,college,avatar_url,city,area")
+            .eq("phone", phone)
+            .neq("id", currentUser.id)
+            .limit(1);
+
+        if (error) throw error;
+
+        if (!data?.length) {
+            box.innerHTML =
+                '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No profile found</strong><span>Enter the exact 10-digit mobile number of a registered user.</span></div>';
+            return;
+        }
+
+        box.innerHTML =
+            '<div class="chat-user-search-title"><span>MOBILE MATCH</span><small>1 result</small></div>' +
+            data.map(x => {
+                const n = x.username || x.name || "Student";
+                const s = x.name || x.college || "GlobeDisc user";
+                const a = x.avatar_url
+                    ? '<img src="' + escapeHTML(x.avatar_url) + '" alt="">'
+                    : '<span>' + escapeHTML(getInitials(n)) + '</span>';
+
+                return '<button type="button" class="chat-user-search-card" data-user-search-id="' +
+                    escapeHTML(x.id) +
+                    '"><span class="chat-user-search-avatar">' +
+                    a +
+                    '</span><span class="chat-user-search-main"><strong>' +
+                    escapeHTML(n) +
+                    '</strong><small>' +
+                    escapeHTML(s) +
+                    '</small></span><i class="fas fa-chevron-right"></i></button>';
+            }).join("");
+
+        box.querySelectorAll("[data-user-search-id]").forEach(card => {
+            card.addEventListener("click", async () => {
+                const targetId = card.dataset.userSearchId;
                 box.classList.add("hidden");
                 box.innerHTML = "";
+
                 const searchInput = $("chatListSearchInput");
                 if (searchInput) searchInput.value = "";
+
                 await openStudentKartUserChat(targetId);
             });
         });
-    } catch(e) { console.error("Student search error:",e); box.innerHTML='<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>Please try again.</span></div>'; }
+    } catch (error) {
+        console.error("Student mobile search error:", error);
+        box.innerHTML =
+            '<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>Please try again.</span></div>';
+    }
 }
 
 async function openStudentKartUserChat(userId) {
