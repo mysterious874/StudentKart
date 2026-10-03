@@ -8171,6 +8171,15 @@ async function refreshStudentKartData() {
             await updateChatUnreadCount();
             await checkForNewChatAlerts();
             await loadReceivedInquiries();
+
+            // Keep the currently open conversation in sync even when
+            // Supabase Realtime is delayed or unavailable.
+            if (
+                currentChatInquiry &&
+                !$("chatModal")?.classList.contains("hidden")
+            ) {
+                await loadChatMessages();
+            }
         }
     } catch (error) {
         console.error("Auto refresh error:", error);
@@ -9118,13 +9127,29 @@ async function deleteSelectedChatMessagesForMe() {
 
     const ids = Array.from(selectedChatMessageIds).map(String);
     const hidden = getHiddenChatMessageIds();
+
     ids.forEach(id => hidden.add(id));
     saveHiddenChatMessageIds(hidden);
 
-    closeSelectedChatDeletePopup();
+    // Hide immediately on this device. The local hidden-message list is
+    // intentionally user-specific, so the other participant is unaffected.
+    ids.forEach(id => {
+        document.querySelector(`#chatMessages .chat-message[data-message-id="${CSS.escape(id)}"]`)?.remove();
+    });
+
     selectedChatMessageIds.clear();
+    closeSelectedChatDeletePopup();
+
+    const container = $("chatMessages");
+    if (container) delete container.dataset.messageSignature;
+
     await loadChatMessages();
-    showToast(ids.length + " message" + (ids.length === 1 ? "" : "s") + " deleted for you", "success");
+
+    showToast(
+        ids.length + " message" + (ids.length === 1 ? "" : "s") +
+        " deleted for you",
+        "success"
+    );
 }
 
 async function deleteSelectedChatMessagesForEveryone() {
@@ -9149,13 +9174,19 @@ async function deleteSelectedChatMessagesForEveryone() {
     if (!confirmed) return;
 
     try {
-        const { error } = await supabaseClient
+        const { data: updatedRows, error } = await supabaseClient
             .from("messages")
             .update({ message: CHAT_DELETED_MESSAGE })
             .eq("sender_id", currentUser.id)
-            .in("id", ownIds);
+            .in("id", ownIds)
+            .select("id");
 
         if (error) throw error;
+
+        const updatedIds = (updatedRows || []).map(row => String(row.id));
+        if (!updatedIds.length) {
+            throw new Error("No selected messages were updated. Check the messages_update_own RLS policy.");
+        }
 
         // WhatsApp-style: keep the message slot and show a deleted bubble.
         selectedChatMessageIds.clear();
