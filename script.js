@@ -4938,8 +4938,31 @@ async function signupUser(event) {
             return;
         }
 
-        closeModal("signupModal", { instant: true });
-        showToast("Account created. Please complete the required email confirmation.", "warning");
+        // Some Supabase projects require email confirmation, so signUp()
+        // may return a user without a session. Try the credentials immediately
+        // instead of sending the new user to the Login page.
+        const { data: loginData, error: loginError } =
+            await supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+        if (!loginError && loginData?.session?.user) {
+            currentUser = loginData.session.user;
+            localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
+            closeModal("signupModal", { instant: true });
+            closeModal("loginModal", { instant: true });
+            updateNavbar();
+            showToast("Account created. You're now logged in.", "success");
+            return;
+        }
+
+        // Email confirmation is genuinely required by Supabase in this case.
+        // Keep the user on the signup flow instead of opening Login.
+        showToast(
+            "Account created. Please confirm your email, then you can log in.",
+            "warning"
+        );
     } catch (error) {
         console.error("Signup error:", error);
         showToast(error?.message || "Could not create account", "error");
