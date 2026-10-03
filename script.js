@@ -13121,17 +13121,54 @@ async function handleSettingAction(action) {
 
     if (action === "push-notifications") {
         const settings = getStudentKartSettings();
-        if (!settings.notifications.push && "Notification" in window) {
-            const permission = await Notification.requestPermission();
-            if (permission !== "granted") {
-                showToast("Browser notification permission was not granted", "warning");
+
+        // Turning push ON is a real browser permission + Web Push setup,
+        // not just a visual preference. Complete the subscription first.
+        if (!settings.notifications.push) {
+            if (!("Notification" in window)) {
+                showToast("Push notifications are not supported on this browser", "warning");
                 return;
             }
-            if (typeof window.registerStudentKartPush === "function") {
-                await window.registerStudentKartPush();
+
+            let permission = Notification.permission;
+
+            if (permission === "default") {
+                permission = await Notification.requestPermission();
+            }
+
+            if (permission !== "granted") {
+                if (permission === "denied") {
+                    showToast("Notifications are blocked for StudentKart. Allow notifications in your browser/site settings, then try again.", "warning");
+                } else {
+                    showToast("Browser notification permission was not granted", "warning");
+                }
+                return;
+            }
+
+            if (typeof window.registerStudentKartPush !== "function") {
+                showToast("Push service is still loading. Please try again.", "warning");
+                return;
+            }
+
+            try {
+                const subscription = await window.registerStudentKartPush();
+                if (!subscription) {
+                    showToast("Could not enable push notifications on this device", "error");
+                    return;
+                }
+            } catch (error) {
+                console.error("Push notification setup error:", error);
+                showToast(
+                    error?.message || "Could not save this device for push notifications",
+                    "error"
+                );
+                return;
             }
         }
-        return settingsToggle("notifications.push");
+
+        await settingsToggle("notifications.push");
+        applyStudentKartSettings();
+        return; 
     }
 
     if (action === "profile-visibility") return settingsProfileVisibility();
