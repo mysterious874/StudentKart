@@ -3620,41 +3620,40 @@ async function searchStudentKartUsers(query) {
         return;
     }
 
-    if (!currentUser) {
-        try {
-            const { data: sessionData } = await supabaseClient.auth.getSession();
-            if (sessionData?.session?.user) currentUser = sessionData.session.user;
-        } catch (e) {
-            console.debug("Chat search session lookup failed:", e);
-        }
-    }
-
     box.classList.remove("hidden");
     box.innerHTML =
         '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Searching users...</span></div>';
 
     try {
         const q = raw.toLowerCase();
-        const digits = raw.replace(/\D/g, "");
+        const digits = raw.replace(/\\D/g, "");
         const normalizedQuery = digits.startsWith("91") && digits.length > 10
             ? digits.slice(-10)
             : digits;
 
-        // Fetch profiles once and match username, name, and normalized mobile
-        // locally. This restores the older "username in Chat search" behavior
-        // and also handles +91 / 91 / 10-digit phone formats reliably.
-        const { data: profiles, error } = await supabaseClient
-            .from("profiles")
-            .select("id,name,username,phone,email,college,avatar_url,city,area")
-            .order("name", { ascending: true })
-            .limit(5000);
+        // Read the complete public profile directory in pages so the search
+        // never depends on an arbitrary 20/100/1000-user cap.
+        const profiles = [];
+        const pageSize = 1000;
 
-        if (error) throw error;
+        for (let from = 0; ; from += pageSize) {
+            const { data, error } = await supabaseClient
+                .from("profiles")
+                .select("id,name,username,phone,email,college,avatar_url,city,area")
+                .order("name", { ascending: true })
+                .range(from, from + pageSize - 1);
 
-        const matches = (profiles || []).filter(profile => {
+            if (error) throw error;
+            if (!Array.isArray(data) || !data.length) break;
+
+            profiles.push(...data);
+            if (data.length < pageSize) break;
+        }
+
+        const matches = profiles.filter(profile => {
             const username = String(profile.username || "").toLowerCase().trim();
             const name = String(profile.name || "").toLowerCase().trim();
-            const phoneDigits = String(profile.phone || "").replace(/\D/g, "");
+            const phoneDigits = String(profile.phone || "").replace(/\\D/g, "");
             const normalizedPhone = phoneDigits.startsWith("91") && phoneDigits.length > 10
                 ? phoneDigits.slice(-10)
                 : phoneDigits;
@@ -3675,20 +3674,33 @@ async function searchStudentKartUsers(query) {
             matches.length + (matches.length === 1 ? " result" : " results") +
             '</small></div>' +
             matches.map(x => {
-                const displayName = x.username ? "@" + x.username : (x.name || "Student");
-                const sub = x.username && x.name
-                    ? x.name + " • " + String(x.phone || "").replace(/\D/g, "").slice(-10)
-                    : (String(x.phone || "").replace(/\D/g, "").slice(-10) || x.name || "Student");
+                const displayName = x.username
+                    ? "@" + x.username
+                    : (x.name || "Student");
+
+                const phoneDigits = String(x.phone || "").replace(/\\D/g, "");
+                const phone = phoneDigits
+                    ? (phoneDigits.length === 10 ? "+91 " + phoneDigits : "+" + phoneDigits)
+                    : "Mobile not added";
+
+                const sub = [
+                    x.name && x.username ? x.name : "",
+                    "Mobile: " + phone
+                ].filter(Boolean).join(" • ");
+
                 const a = x.avatar_url
                     ? '<img src="' + escapeHTML(x.avatar_url) + '" alt="">'
                     : '<span>' + escapeHTML(getInitials(x.username || x.name || "Student")) + '</span>';
+
                 const selfLabel = String(x.id) === String(currentUser?.id) ? "You • " : "";
 
                 return '<button type="button" class="chat-user-search-card" data-user-search-id="' +
-                    escapeHTML(x.id) + '"><span class="chat-user-search-avatar">' +
-                    a + '</span><span class="chat-user-search-main"><strong>' +
+                    escapeHTML(x.id) + '">' +
+                    '<span class="chat-user-search-avatar">' + a + '</span>' +
+                    '<span class="chat-user-search-main"><strong>' +
                     escapeHTML(selfLabel + displayName) + '</strong><small>' +
-                    escapeHTML(sub) + '</small></span><i class="fas fa-chevron-right"></i></button>';
+                    escapeHTML(sub) + '</small></span>' +
+                    '<i class="fas fa-chevron-right"></i></button>';
             }).join("");
 
         box.querySelectorAll("[data-user-search-id]").forEach(card => {
@@ -3696,6 +3708,7 @@ async function searchStudentKartUsers(query) {
                 const targetId = card.dataset.userSearchId;
                 box.classList.add("hidden");
                 box.innerHTML = "";
+
                 const searchInput = $("chatListSearchInput");
                 if (searchInput) searchInput.value = "";
 
@@ -3822,7 +3835,24 @@ function applyChatListFilter() {
     if (empty) empty.classList.toggle("hidden", visible > 0 || !cards.length);
 }
 
+let chatUserSearchDelegatedBound = false;
+function bindDelegatedChatUserSearch() {
+    if (chatUserSearchDelegatedBound) return;
+    chatUserSearchDelegatedBound = true;
+
+    document.addEventListener("input", event => {
+        const input = event.target;
+        if (!(input instanceof HTMLInputElement) || input.id !== "chatListSearchInput") return;
+
+        const clear = $("chatListSearchClear");
+        clear?.classList.toggle("hidden", !input.value);
+        applyChatListFilter();
+        searchStudentKartUsers(input.value);
+    });
+}
+
 function setupChatListControls() {
+    bindDelegatedChatUserSearch();
     const input = $("chatListSearchInput");
     const clear = $("chatListSearchClear");
     if (input && !input.dataset.bound) {
