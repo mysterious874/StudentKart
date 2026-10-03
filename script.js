@@ -12450,8 +12450,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navSearchButton.addEventListener("click", () => {
         const opening = searchPanel.classList.contains("hidden");
-        searchPanel.classList.toggle("hidden");
-        if (opening) setTimeout(() => searchInput.focus(), 80);
+
+        if (!opening) {
+            searchPanel.classList.add("hidden");
+            return;
+        }
+
+        searchPanel.classList.remove("hidden");
+
+        // Give the open search panel its own browser-history entry so
+        // Android/browser Back closes the search first instead of navigating
+        // away from the current page.
+        if (
+            !studentKartHandlingPopState &&
+            window.history.state?.studentKartNavbarSearch !== true
+        ) {
+            window.history.pushState(
+                {
+                    ...(window.history.state || {}),
+                    studentKart: true,
+                    studentKartNavbarSearch: true
+                },
+                "",
+                window.location.pathname + window.location.search + "#search"
+            );
+        }
+
+        setTimeout(() => searchInput.focus(), 80);
     });
 
     searchInput.addEventListener("input", () => {
@@ -12463,8 +12488,18 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             runSearch();
         } else if (event.key === "Escape") {
-            searchPanel.classList.add("hidden");
+            if (window.history.state?.studentKartNavbarSearch === true) {
+                window.history.back();
+            } else {
+                searchPanel.classList.add("hidden");
+            }
         }
+    });
+
+    // Close navbar search when Android/browser Back returns to the previous page state.
+    window.addEventListener("popstate", event => {
+        if (event.state?.studentKartNavbarSearch === true) return;
+        searchPanel.classList.add("hidden");
     });
 
     searchSubmit?.addEventListener("click", runSearch);
