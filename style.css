@@ -18562,3 +18562,62 @@ body:has(#editProfileModal:not(.hidden)) .mobile-bottom-nav{
   -webkit-text-fill-color:#fff!important;
   border-color:#000!important;
 }
+
+
+/* ============================================================
+   FLOATING NAV — CLEAN LIGHT BUTTONS (OVERRIDE)
+   ============================================================ */
+.mobile-bottom-nav{
+  background:rgba(255,255,255,.96)!important;
+  border:1px solid #d7e5ef!important;
+  box-shadow:0 12px 32px rgba(15,23,42,.12)!important;
+  padding:7px!important;
+}
+.mobile-bottom-nav > .bottom-nav-item,
+.mobile-bottom-nav > a.bottom-nav-item,
+.mobile-bottom-nav > button.bottom-nav-item{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  border:1px solid transparent!important;
+  box-shadow:none!important;
+  color:#263b50!important;
+  -webkit-text-fill-color:#263b50!important;
+}
+.mobile-bottom-nav > .bottom-nav-item i,
+.mobile-bottom-nav > .bottom-nav-item span,
+.mobile-bottom-nav > .bottom-nav-item *{
+  color:#263b50!important;
+  -webkit-text-fill-color:#263b50!important;
+}
+.mobile-bottom-nav > .bottom-nav-item:hover,
+.mobile-bottom-nav > .bottom-nav-item:focus-visible{
+  background:#eef8fe!important;
+  border-color:#d6edf9!important;
+  color:#0284c7!important;
+}
+.mobile-bottom-nav > .bottom-nav-item:hover i,
+.mobile-bottom-nav > .bottom-nav-item:hover span,
+.mobile-bottom-nav > .bottom-nav-item:focus-visible i,
+.mobile-bottom-nav > .bottom-nav-item:focus-visible span{
+  color:#0284c7!important;
+  -webkit-text-fill-color:#0284c7!important;
+}
+.mobile-bottom-nav > .bottom-sell-item,
+.mobile-bottom-nav > .bottom-sell-item *{
+  background:linear-gradient(135deg,#0284c7,#2563eb)!important;
+  background-color:#0284c7!important;
+  border-color:transparent!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  box-shadow:0 6px 16px rgba(2,132,199,.22)!important;
+}
+.mobile-bottom-nav > .bottom-sell-item:hover,
+.mobile-bottom-nav > .bottom-sell-item:focus-visible{
+  background:linear-gradient(135deg,#0369a1,#1d4ed8)!important;
+}
+.mobile-bottom-nav .chat-unread-count{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
