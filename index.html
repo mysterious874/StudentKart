@@ -162,6 +162,22 @@ body.search-results-mobile-view #searchResultsPage .search-results-navbar::after
             </div>
         </section>
 
+        <div class="hero-search-strip" id="heroSearchStrip" aria-label="Search StudentKart">
+            <div class="hero-search-inner">
+                <div class="hero-search-field">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="heroSearchInput" placeholder="Search books, electronics, furniture..." autocomplete="off" aria-autocomplete="list" aria-controls="heroSearchSuggestions">
+                    <div id="heroSearchSuggestions" class="hero-search-suggestions hidden" role="listbox" aria-label="Search suggestions"></div>
+                </div>
+                <button type="button" class="hero-search-filter" id="heroSearchFilterButton">
+                    <i class="fas fa-sliders"></i> Filters
+                </button>
+                <button type="button" class="hero-search-submit" id="heroSearchSubmit" aria-label="Search listings" title="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+
         <section id="categoryPage" class="category-page hidden" aria-label="Category listings">
             <div class="category-page-navbar">
                 <div class="category-page-navbar-inner">
@@ -204,22 +220,6 @@ body.search-results-mobile-view #searchResultsPage .search-results-navbar::after
         </section>
 
         <section id="marketplace" class="section marketplace-section">
-        <div class="hero-search-strip" id="heroSearchStrip" aria-label="Search StudentKart">
-            <div class="hero-search-inner">
-                <div class="hero-search-field">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="heroSearchInput" placeholder="Search books, electronics, furniture..." autocomplete="off" aria-autocomplete="list" aria-controls="heroSearchSuggestions">
-                    <div id="heroSearchSuggestions" class="hero-search-suggestions hidden" role="listbox" aria-label="Search suggestions"></div>
-                </div>
-                <button type="button" class="hero-search-filter" id="heroSearchFilterButton">
-                    <i class="fas fa-sliders"></i> Filters
-                </button>
-                <button type="button" class="hero-search-submit" id="heroSearchSubmit" aria-label="Search listings" title="Search">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </div>
-
             <div class="marketplace-filter-panel hidden" id="marketplaceFilterPanel">
                 <div class="filter-panel-header">
                     <div><strong>Filter Listings</strong><small>Refine marketplace results</small></div>
