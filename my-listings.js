@@ -29,8 +29,16 @@ async function openAppeal(productId,product,parent){
 const existing=document.getElementById("listingAppealModal");if(existing)existing.remove();
 const m=document.createElement("div");m.id="listingAppealModal";m.className="modal";m.innerHTML='<div class="modal-overlay" data-close-appeal></div><div class="modal-content" style="max-width:560px"><div class="modal-header page-popup-header"><h2><i class="fas fa-scale-balanced"></i> Appeal Listing Suspension</h2><p>'+esc(product?.name||"Listing")+'</p></div><div class="sk-appeal-form"><div class="sk-suspend-box"><div class="sk-suspend-title">Moderation reason</div><div class="sk-suspend-reason">'+esc(product?.moderation_reason||"No reason provided.")+'</div></div><label style="display:block;margin-top:14px;font-weight:700;font-size:12px">Why should this decision be reviewed?</label><textarea id="listingAppealMessage" maxlength="1500" placeholder="Explain the issue, provide context, or tell the admin what you have changed."></textarea><div class="sk-appeal-note">Be specific. The admin will review your appeal before deciding whether to restore the listing.</div><div class="sk-my-listing-actions"><button type="button" class="btn btn-outline" data-close-appeal>Cancel</button><button type="button" class="btn btn-primary" id="submitListingAppeal"><i class="fas fa-paper-plane"></i> Submit Appeal</button></div></div></div>';document.body.appendChild(m);m.querySelectorAll("[data-close-appeal]").forEach(x=>x.addEventListener("click",()=>m.remove()));m.querySelector("#submitListingAppeal").addEventListener("click",async()=>{
 const user=await getUser(),msg=m.querySelector("#listingAppealMessage").value.trim(),btn=m.querySelector("#submitListingAppeal");if(!msg){window.showToast?.("Please explain your appeal","warning");return}btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';
-const {error}=await supabaseClient.from("moderation_appeals").insert({product_id:productId,seller_id:user.id,message:msg});
+const {data:appealRow,error}=await supabaseClient.from("moderation_appeals").insert({product_id:productId,seller_id:user.id,message:msg}).select("id").single();
 if(error){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Appeal';window.showToast?.(error.code==="23505"?"You already have a pending appeal for this listing.":error.message,"error");return}
+try{
+const {data:admins}=await supabaseClient.from("admin_users").select("id");
+const adminRows=admins||[];
+if(adminRows.length){
+const notifications=adminRows.map(a=>({user_id:a.id,product_id:productId,type:"listing_appeal_submitted",title:"New listing appeal",message:(product?.name||"A listing")+" has received a new seller appeal.",is_read:false}));
+await supabaseClient.from("notifications").insert(notifications);
+}
+}catch(notificationError){console.warn("Admin appeal notification error:",notificationError)}
 m.remove();window.showToast?.("Appeal submitted to admin","success");await open();
 });
 }
