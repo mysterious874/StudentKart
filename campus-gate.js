@@ -109,9 +109,11 @@
                        <button type="button" class="btn ${status==="rejected"?"btn-primary":"btn-outline"} btn-full" id="campusVerificationRetry">
                        <i class="fas fa-${status==="rejected"?"rotate-right":"id-card"}"></i> ${status==="rejected"?"Submit Again":"View Submission"}</button>`}`;
             if (status !== "approved") document.getElementById("campusVerificationRetry")?.addEventListener("click", () => renderVerificationForm(campus, verification));
+            if (window.StudentKartAdminVerification?.boot) window.StudentKartAdminVerification.boot();
             return;
         }
         renderVerificationForm(campus, null);
+        if (window.StudentKartAdminVerification?.boot) window.StudentKartAdminVerification.boot();
     }
 
     function renderVerificationForm(campus, existing) {
