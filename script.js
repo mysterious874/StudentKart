@@ -3631,22 +3631,10 @@ async function searchStudentKartUsers(query) {
         try {
             // Load the public profile directory in pages so suggestions are not
             // limited to an arbitrary 10/20/1000-user cap.
-            const profiles = [];
-            const pageSize = 1000;
+            const { data: profiles, error } = await supabaseClient
+                .rpc("search_chat_users", { search_query: q });
 
-            for (let from = 0; ; from += pageSize) {
-                const { data, error } = await supabaseClient
-                    .from("profiles")
-                    .select("id,name,username,phone,email,college,avatar_url,city,area")
-                    .order("created_at", { ascending: false })
-                    .range(from, from + pageSize - 1);
-
-                if (error) throw error;
-                if (!Array.isArray(data) || !data.length) break;
-
-                profiles.push(...data);
-                if (data.length < pageSize) break;
-            }
+            if (error) throw error;
 
             if (requestId !== studentKartUserSearchRequest) return;
 
