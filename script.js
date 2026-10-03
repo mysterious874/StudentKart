@@ -12559,6 +12559,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        // Seed a stable StudentKart history anchor before creating the
+        // temporary search entry. This is important when the page was opened
+        // directly on Android and has no earlier in-app history entry.
+        ensureStudentKartHistory();
+
         searchPanel.classList.remove("hidden");
         studentKartNavbarSearchOpen = true;
         searchInput.removeAttribute("readonly");
