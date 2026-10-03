@@ -5229,7 +5229,7 @@ function openCategoryPage(category, options = {}) {
 
     const title = $("categoryPageTitle");
     const subtitle = $("categoryPageSubtitle");
-    if (title) title.textContent = "";
+    if (title) title.textContent = selected + " Marketplace";
     if (subtitle) subtitle.textContent = "Products listed in " + selected + " category";
     const navbarSubtitle = $("categoryPageNavbarSubtitle");
     if (navbarSubtitle) navbarSubtitle.textContent = "Products listed in " + selected + " category";
@@ -12632,7 +12632,7 @@ document.addEventListener("DOMContentLoaded",()=>{
             showHomePageFromCategory();
         }
     });
-});;
+});
 
 /* Homepage search strip + restored filter controls */
 document.addEventListener("DOMContentLoaded", () => {
