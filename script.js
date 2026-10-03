@@ -6168,9 +6168,12 @@ function showSearchResultsPage(query, options = {}) {
     document.querySelector("main")?.classList.remove("category-page-active");
     ["home","marketplace","how-it-works","categoryPage"].forEach(id=>$(id)?.classList.add("hidden"));
     $("searchResultsPage")?.classList.remove("hidden");
+    document.body.classList.add("search-results-mobile-view");
     const title=$("searchResultsQuery"), subtitle=$("searchResultsNavbarSubtitle");
     if(title) title.textContent=selected;
     if(subtitle) subtitle.textContent="Products related to “"+selected+"”";
+    const resultInput = $("searchResultsSearchInput");
+    if(resultInput) resultInput.value = selected;
     const matches=getSearchResultMatches(selected);
     const count=$("searchResultsCount");
     if(count) count.textContent=matches.length+(matches.length===1?" listing":" listings");
@@ -6180,6 +6183,7 @@ function showSearchResultsPage(query, options = {}) {
 
 function showHomePageFromSearch(options={}) {
     $("searchResultsPage")?.classList.add("hidden");
+    document.body.classList.remove("search-results-mobile-view");
     $("categoryPage")?.classList.add("hidden");
     $("home")?.classList.remove("hidden");
     $("marketplace")?.classList.remove("hidden");
@@ -12582,6 +12586,12 @@ document.addEventListener("DOMContentLoaded", () => {
     $("searchResultsBack")?.addEventListener("click", () => {
         if (window.history.state?.page === "search") window.history.back();
         else showHomePageFromSearch();
+    });
+    $("searchResultsSearchInput")?.addEventListener("keydown", event => {
+        if(event.key !== "Enter") return;
+        event.preventDefault();
+        const value = event.currentTarget.value.trim();
+        if(value) showSearchResultsPage(value);
     });
     $("searchResultsBrowseAll")?.addEventListener("click", () => {
         showHomePageFromSearch();
