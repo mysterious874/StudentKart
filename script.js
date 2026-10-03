@@ -13290,3 +13290,37 @@ async function loadGlobalDiscoveryHomepage(){
     }
 }
 document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();});
+
+
+/* =========================================================
+   SEARCH / MARKETPLACE NAVIGATION POLISH
+   ========================================================= */
+(function(){
+    function scrollSearchToTop(input){
+        window.scrollTo({top:0,behavior:"smooth"});
+        setTimeout(()=>input?.focus({preventScroll:true}),180);
+    }
+
+    document.addEventListener("DOMContentLoaded",()=>{
+        const homeSearch=document.getElementById("heroSearchInput");
+        const resultSearch=document.getElementById("searchResultsInput");
+
+        homeSearch?.addEventListener("click",()=>scrollSearchToTop(homeSearch));
+        homeSearch?.addEventListener("focus",()=>window.scrollTo({top:0,behavior:"smooth"}));
+        resultSearch?.addEventListener("click",()=>scrollSearchToTop(resultSearch));
+        resultSearch?.addEventListener("focus",()=>window.scrollTo({top:0,behavior:"smooth"}));
+
+        document.getElementById("bottomMarketplaceButton")?.addEventListener("click",()=>{
+            window.location.href="marketplace.html";
+        });
+    });
+
+    // Android/browser Back should restore the normal home search state cleanly.
+    window.addEventListener("popstate",()=>{
+        setTimeout(()=>{
+            if(!document.getElementById("searchResultsPage")?.classList.contains("hidden")){
+                window.scrollTo({top:0,behavior:"auto"});
+            }
+        },40);
+    });
+})();
