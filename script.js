@@ -12857,6 +12857,39 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+/* =========================================================
+   HERO SEARCH — LIVE OLX-STYLE AUTOCOMPLETE
+   ========================================================= */
+document.addEventListener("DOMContentLoaded", () => {
+    const input=document.getElementById("heroSearchInput"), panel=document.getElementById("heroSearchSuggestions"), navInput=document.getElementById("navbarSearchInput");
+    if(!input||!panel) return;
+    let activeIndex=-1;
+    const hide=()=>{panel.classList.add("hidden");panel.innerHTML="";activeIndex=-1;input.removeAttribute("aria-activedescendant");};
+    const getSuggestions=query=>{
+        const q=String(query||"").trim().toLowerCase(); if(!q) return [];
+        const popular=[["Laptop","Electronics","fa-laptop"],["Laptop Stand","Electronics","fa-laptop"],["Mobile Phone","Electronics","fa-mobile-screen"],["Headphones","Electronics","fa-headphones"],["Programming Books","Books","fa-book"],["Textbooks","Books","fa-book-open"],["Bicycle","Vehicles","fa-bicycle"],["Calculator","Electronics","fa-calculator"],["Study Table","Furniture","fa-table"],["Chair","Furniture","fa-chair"],["Room for Rent","Services","fa-house"],["Notes","Books","fa-note-sticky"]];
+        const categories=["Books","Electronics","Vehicles","Furniture","Services","Fashion"], results=[], seen=new Set();
+        const add=(title,meta,icon,value)=>{const key=String(title||"").trim().toLowerCase();if(!key||seen.has(key))return;seen.add(key);results.push({title,meta,icon,value});};
+        popular.filter(x=>x[0].toLowerCase().includes(q)).sort((a,b)=>Number(!a[0].toLowerCase().startsWith(q))-Number(!b[0].toLowerCase().startsWith(q))).forEach(x=>add(x[0],x[1],x[2],x[0]));
+        categories.filter(x=>x.toLowerCase().includes(q)).sort((a,b)=>Number(!a.toLowerCase().startsWith(q))-Number(!b.toLowerCase().startsWith(q))).forEach(x=>add(x,"Category","fa-layer-group",x));
+        [...(Array.isArray(currentProducts)?currentProducts:[])].filter(p=>[p.name,p.category,p.location,p.description,p.condition].join(" ").toLowerCase().includes(q)).sort((a,b)=>{const an=String(a.name||"").toLowerCase(),bn=String(b.name||"").toLowerCase();return Number(!an.startsWith(q))-Number(!bn.startsWith(q))||an.localeCompare(bn);}).forEach(p=>add(p.name,p.category||"Listing","fa-tag",p.name));
+        return results.slice(0,7);
+    };
+    const position=()=>{if(panel.classList.contains("hidden"))return;const r=input.getBoundingClientRect();panel.style.top=(r.bottom+6)+"px";panel.style.left=r.left+"px";panel.style.width=r.width+"px";};
+    const render=query=>{
+        const list=getSuggestions(query);if(!list.length){hide();return;}
+        panel.innerHTML=list.map((x,i)=>'<button type="button" class="hero-search-suggestion" id="heroSearchSuggestion-'+i+'" role="option" aria-selected="false" data-suggestion-value="'+escapeHTML(x.value)+'"><span class="hero-search-suggestion-icon"><i class="fas '+x.icon+'"></i></span><span class="hero-search-suggestion-copy"><span class="hero-search-suggestion-title">'+escapeHTML(x.title)+'</span><span class="hero-search-suggestion-meta">'+escapeHTML(x.meta)+'</span></span><i class="fas fa-chevron-right hero-search-suggestion-arrow"></i></button>').join("");
+        panel.classList.remove("hidden");position();
+        panel.querySelectorAll(".hero-search-suggestion").forEach(b=>{b.addEventListener("mousedown",e=>e.preventDefault());b.addEventListener("click",()=>{input.value=b.dataset.suggestionValue||"";if(navInput)navInput.value=input.value;hide();if(typeof applyFilters==="function")applyFilters();input.focus({preventScroll:true});});});
+    };
+    const move=d=>{if(panel.classList.contains("hidden"))return;const items=[...panel.querySelectorAll(".hero-search-suggestion")];if(!items.length)return;activeIndex=(activeIndex+d+items.length)%items.length;items.forEach((x,i)=>{const a=i===activeIndex;x.classList.toggle("is-active",a);x.setAttribute("aria-selected",a?"true":"false");});input.setAttribute("aria-activedescendant",items[activeIndex].id);items[activeIndex].scrollIntoView({block:"nearest"});};
+    input.addEventListener("input",()=>{activeIndex=-1;if(navInput)navInput.value=input.value;render(input.value);});
+    input.addEventListener("focus",()=>{if(input.value.trim())render(input.value);});
+    input.addEventListener("keydown",e=>{if(e.key==="ArrowDown"){e.preventDefault();move(1);}else if(e.key==="ArrowUp"){e.preventDefault();move(-1);}else if(e.key==="Enter"){e.preventDefault();const a=panel.querySelector(".hero-search-suggestion.is-active");if(a)input.value=a.dataset.suggestionValue||input.value;if(navInput)navInput.value=input.value;hide();if(typeof applyFilters==="function")applyFilters();}else if(e.key==="Escape"){hide();input.blur();}});
+    input.addEventListener("blur",()=>setTimeout(hide,120));window.addEventListener("resize",position,{passive:true});window.addEventListener("scroll",position,{passive:true});
+});
+
+
 
 /* =========================================================
    STUDENTKART TOUCH RIPPLE
