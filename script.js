@@ -4628,6 +4628,19 @@ async function checkStudentKartUsername(username) {
     return { available: !error && !(data || []).length, error };
 }
 
+async function checkStudentKartEmail(email) {
+    const normalized = normalizeAuthEmail(email);
+    if (!normalized) return { available: false, valid: false };
+
+    const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("id")
+        .ilike("email", normalized)
+        .limit(1);
+
+    return { available: !error && !(data || []).length, error };
+}
+
 function setupSignupUsernameSuggestions() {
     const input = $("signupUsername");
     const box = $("signupUsernameSuggestions");
@@ -4730,6 +4743,81 @@ function setupSignupUsernameSuggestions() {
         setTimeout(() => box.classList.add("hidden"), 150);
     });
 }
+
+function setupSignupEmailAvailability() {
+    const input = $("signupIdentifier");
+    const help = $("signupEmailHelp");
+    if (!input || !help) return;
+
+    let availabilityTimer = null;
+    let availabilityRequest = 0;
+
+    const setEmailStatus = (message, type = "") => {
+        help.textContent = message;
+        help.classList.remove(
+            "username-status-available",
+            "username-status-taken",
+            "username-status-checking"
+        );
+        if (type) help.classList.add("username-status-" + type);
+    };
+
+    const checkAvailabilityLive = async email => {
+        const requestId = ++availabilityRequest;
+
+        if (!email) {
+            setEmailStatus("Enter a valid email address.");
+            return;
+        }
+
+        setEmailStatus("Checking email…", "checking");
+
+        try {
+            const result = await checkStudentKartEmail(email);
+
+            if (requestId !== availabilityRequest) return;
+
+            if (result.error) {
+                setEmailStatus("Could not check email right now.");
+                return;
+            }
+
+            if (result.available) {
+                setEmailStatus("");
+            } else {
+                setEmailStatus("✕ Email already taken", "taken");
+            }
+        } catch (error) {
+            if (requestId !== availabilityRequest) return;
+            console.error("Live email availability check failed:", error);
+            setEmailStatus("Could not check email right now.");
+        }
+    };
+
+    input.addEventListener("input", () => {
+        const email = String(input.value || "").trim().toLowerCase();
+
+        clearTimeout(availabilityTimer);
+        availabilityRequest++;
+
+        if (!email) {
+            setEmailStatus("Enter a valid email address.");
+            return;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setEmailStatus("Enter a valid email address.");
+            return;
+        }
+
+        input.value = email;
+
+        availabilityTimer = setTimeout(() => {
+            checkAvailabilityLive(email);
+        }, 450);
+    });
+}
+
 async function signupUser(event) {
     event.preventDefault();
 
@@ -4771,6 +4859,18 @@ async function signupUser(event) {
         if (!usernameCheck.available) {
             showToast("That username is already taken. Please choose another.", "warning");
             $("signupUsername")?.focus();
+            return;
+        }
+
+        const emailCheck = await checkStudentKartEmail(email);
+
+        if (emailCheck.error) {
+            throw new Error("Could not check email availability. Please try again.");
+        }
+
+        if (!emailCheck.available) {
+            showToast("That email is already taken. Please use another email.", "warning");
+            $("signupIdentifier")?.focus();
             return;
         }
 
@@ -7450,6 +7550,7 @@ document.addEventListener("click", event => {
         );
 
     setupSignupUsernameSuggestions();
+    setupSignupEmailAvailability();
 
     $("switchToSignup")
         ?.addEventListener(
