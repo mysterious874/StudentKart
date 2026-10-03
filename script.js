@@ -4366,97 +4366,52 @@ async function deleteProduct(
    LOGIN / SIGNUP / LOGOUT
    ========================================================= */
 
-function normalizeAuthEmail(raw) {
-    const value = String(raw || "").trim().toLowerCase();
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? value : null;
+function normalizeAuthPhone(raw) {
+    const digits = String(raw || "").replace(/\D/g, "");
+    if (digits.length !== 10) return null;
+    return "+91" + digits;
 }
+function isSixDigitPassword(value) { return /^\d{6}$/.test(String(value || "")); }
 
 async function loginUser(event) {
     event.preventDefault();
-
-    const email = normalizeAuthEmail($("loginIdentifier")?.value);
+    const phone = normalizeAuthPhone($("loginIdentifier")?.value);
     const password = $("loginPassword")?.value || "";
-
-    if (!email || !password) {
-        showToast("Enter your email and password", "warning");
-        return;
-    }
-
+    if (!phone) { showToast("Enter a valid 10-digit mobile number", "warning"); return; }
+    if (!isSixDigitPassword(password)) { showToast("Password must be exactly 6 digits", "warning"); return; }
     const button = $("loginForm")?.querySelector('button[type="submit"]');
     if (button) button.disabled = true;
-
     try {
-        const { error } = await supabaseClient.auth.signInWithPassword({
-            email,
-            password
-        });
-
+        const { error } = await supabaseClient.auth.signInWithPassword({ phone, password });
         if (error) throw error;
-
-        closeModal("loginModal");
-        localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
-        updateNavbar();
+        closeModal("loginModal"); localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY); updateNavbar();
         showToast("Logged in successfully", "success");
     } catch (error) {
         console.error("Login error:", error);
-        showToast(error?.message || "Could not login. Check your email and password.", "error");
-    } finally {
-        if (button) button.disabled = false;
-    }
+        showToast(error?.message || "Could not login. Check your mobile number and password.", "error");
+    } finally { if (button) button.disabled = false; }
 }
 
 async function signupUser(event) {
     event.preventDefault();
-
-    const name = $("signupName")?.value?.trim();
-    const college = $("signupCollege")?.value?.trim();
-    const email = normalizeAuthEmail($("signupIdentifier")?.value);
+    const phone = normalizeAuthPhone($("signupIdentifier")?.value);
     const password = $("signupPassword")?.value || "";
-
-    if (!name || !college || !state || !city || !email || !password) {
-        showToast("Please fill all fields correctly", "warning");
-        return;
-    }
-
-    if (password.length < 6) {
-        showToast("Password must be at least 6 characters", "warning");
-        return;
-    }
-
+    const confirmPassword = $("signupPasswordConfirm")?.value || "";
+    if (!phone) { showToast("Enter a valid 10-digit mobile number", "warning"); return; }
+    if (!isSixDigitPassword(password) || !isSixDigitPassword(confirmPassword)) { showToast("Password must be exactly 6 digits", "warning"); return; }
+    if (password !== confirmPassword) { showToast("Passwords do not match", "warning"); return; }
     const button = $("signupForm")?.querySelector('button[type="submit"]');
     if (button) button.disabled = true;
-
     try {
-        const { data, error } = await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: {
-                data: { name, college, state, city, area }
-            }
-        });
-
+        const { data, error } = await supabaseClient.auth.signUp({ phone, password, options: { data: { phone } } });
         if (error) throw error;
-
-        if (data?.user && data?.session) {
-            await ensureProfileAfterPasswordSignup(data.user);
-        }
-
-        closeModal("signupModal");
-        localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
-        updateNavbar();
-
-        showToast(
-            data?.session
-                ? "Account created successfully"
-                : "Account created. Check your email to confirm, then login.",
-            "success"
-        );
+        if (data?.user && data?.session) await ensureProfileAfterPasswordSignup(data.user);
+        closeModal("signupModal"); localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY); updateNavbar();
+        showToast(data?.session ? "Account created successfully" : "Account created. Complete phone verification, then login.", "success");
     } catch (error) {
         console.error("Signup error:", error);
         showToast(error?.message || "Could not create account", "error");
-    } finally {
-        if (button) button.disabled = false;
-    }
+    } finally { if (button) button.disabled = false; }
 }
 
 async function ensureProfileAfterPasswordSignup(user) {
@@ -4481,12 +4436,13 @@ async function ensureProfileAfterPasswordSignup(user) {
 
         const profile = {
             id: user.id,
-            name: metadata.name || user.email?.split("@")[0] || "Student",
+            name: metadata.name || user.phone || "Student",
             college: metadata.college || "",
             state: metadata.state || "",
             city: metadata.city || "",
             area: metadata.area || "",
             email: user.email || "",
+            phone: user.phone || metadata.phone || "",
             avatar_url: ""
         };
 
