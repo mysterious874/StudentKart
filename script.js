@@ -9885,22 +9885,99 @@ async function loadChatMessages() {
     const container = $("chatMessages");
     if (!container) return;
 
-    /*
-     * Message refresh is intentionally silent.
-     * Keep the current chat visible while Supabase fetches in the
-     * background so realtime refreshes never show a loading bubble.
-     */
     try {
-        const { data, error } = await supabaseClient
+        const inquiryId = String(currentChatInquiry.id);
+        const otherUserId =
+            String(currentChatInquiry.seller_id) === String(currentUser.id)
+                ? currentChatInquiry.buyer_id
+                : currentChatInquiry.seller_id;
+
+        /*
+         * Primary path: load the exact conversation by inquiry_id.
+         * Fallback: some older/externally-created messages can have a
+         * missing or mismatched inquiry_id even though the sender and
+         * receiver identify the same conversation.
+         */
+        let { data, error } = await supabaseClient
             .from("messages")
             .select("*")
             .eq("inquiry_id", currentChatInquiry.id)
             .order("created_at", { ascending: true });
 
-        if (error) throw error;
+        if (error) {
+            console.warn("Primary chat message query failed; trying participant fallback:", error);
+        }
+
+        if (error || !Array.isArray(data)) {
+            const [sentResult, receivedResult] = await Promise.all([
+                supabaseClient
+                    .from("messages")
+                    .select("*")
+                    .eq("sender_id", currentUser.id)
+                    .eq("receiver_id", otherUserId)
+                    .order("created_at", { ascending: true }),
+                supabaseClient
+                    .from("messages")
+                    .select("*")
+                    .eq("sender_id", otherUserId)
+                    .eq("receiver_id", currentUser.id)
+                    .order("created_at", { ascending: true })
+            ]);
+
+            const fallbackError = sentResult.error || receivedResult.error;
+            if (fallbackError) throw fallbackError;
+
+            data = [
+                ...(sentResult.data || []),
+                ...(receivedResult.data || [])
+            ].sort((a, b) =>
+                new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            );
+        } else if (data.length === 0) {
+            /*
+             * If the exact inquiry has no rows, check the two participants.
+             * Only use messages that belong to this inquiry when that field
+             * is populated; allow legacy null inquiry_id messages through.
+             */
+            const [sentResult, receivedResult] = await Promise.all([
+                supabaseClient
+                    .from("messages")
+                    .select("*")
+                    .eq("sender_id", currentUser.id)
+                    .eq("receiver_id", otherUserId)
+                    .order("created_at", { ascending: true }),
+                supabaseClient
+                    .from("messages")
+                    .select("*")
+                    .eq("sender_id", otherUserId)
+                    .eq("receiver_id", currentUser.id)
+                    .order("created_at", { ascending: true })
+            ]);
+
+            const fallbackError = sentResult.error || receivedResult.error;
+            if (!fallbackError) {
+                const participantMessages = [
+                    ...(sentResult.data || []),
+                    ...(receivedResult.data || [])
+                ];
+
+                const inquiryMessages = participantMessages.filter(message =>
+                    !message.inquiry_id ||
+                    String(message.inquiry_id) === inquiryId
+                );
+
+                if (inquiryMessages.length > 0) {
+                    data = inquiryMessages.sort((a, b) =>
+                        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                    );
+                }
+            }
+        }
 
         const hiddenMessageIds = getHiddenChatMessageIds();
-        const visibleMessages = (data || []).filter(message => !hiddenMessageIds.has(String(message.id)));
+        const visibleMessages = (data || []).filter(
+            message => !hiddenMessageIds.has(String(message.id))
+        );
 
         const nextSignature = JSON.stringify(visibleMessages.map(message => [
             message.id,
@@ -9915,7 +9992,7 @@ async function loadChatMessages() {
         const profileIntro = container.querySelector("#chatProfileIntro");
         const profileIntroHtml = profileIntro ? profileIntro.outerHTML : "";
 
-        if (!visibleMessages || visibleMessages.length === 0) {
+        if (!visibleMessages.length) {
             container.innerHTML = profileIntroHtml + `
                 <div class="chat-empty">
                     <i class="fas fa-comment-dots"></i>
@@ -9925,10 +10002,8 @@ async function loadChatMessages() {
             return;
         }
 
-
-
         container.innerHTML = profileIntroHtml + visibleMessages.map(message => {
-            const isMine = message.sender_id === currentUser.id;
+            const isMine = String(message.sender_id) === String(currentUser.id);
             const isDeletedForEveryone = String(message.message || "") === CHAT_DELETED_MESSAGE;
             const reply = isDeletedForEveryone ? null : parseChatReplyMessage(message.message);
             const actualMessage = reply ? reply.content : message.message;
@@ -9944,10 +10019,21 @@ async function loadChatMessages() {
                     </div>
                 `;
             }
+
             if (reply) {
                 const quoted = reply.replyTo || {};
-                const quotedText = quoted.text || (quoted.mediaType === "video" ? "Video" : quoted.mediaType === "image" ? "Photo" : "Message");
-                replyHtml = '<div class="chat-quoted-message" data-reply-to-id="' + escapeHtml(String(quoted.id || "")) + '" role="button" tabindex="0"><span class="chat-quoted-line"></span><div class="chat-quoted-content"><strong>Replying to</strong><span>' + escapeHtml(quotedText).slice(0, 180) + '</span></div></div>';
+                const quotedText = quoted.text ||
+                    (quoted.mediaType === "video" ? "Video" :
+                        quoted.mediaType === "image" ? "Photo" : "Message");
+
+                replyHtml =
+                    '<div class="chat-quoted-message" data-reply-to-id="' +
+                    escapeHtml(String(quoted.id || "")) +
+                    '" role="button" tabindex="0">' +
+                    '<span class="chat-quoted-line"></span>' +
+                    '<div class="chat-quoted-content"><strong>Replying to</strong><span>' +
+                    escapeHtml(quotedText).slice(0, 180) +
+                    '</span></div></div>';
             }
 
             if (!isDeletedForEveryone) {
@@ -10002,13 +10088,10 @@ async function loadChatMessages() {
         const profileIntro = container.querySelector("#chatProfileIntro");
         container.innerHTML = (profileIntro ? profileIntro.outerHTML : "") + `
             <div class="chat-empty">
-                Could not load messages.
+                Could not load messages. Please reopen this chat.
             </div>`;
-    } finally {
-        /* No visible loading state here — chat refresh stays in background. */
     }
 }
-
 async function sendChatMessage(event) {
 
     event.preventDefault();
