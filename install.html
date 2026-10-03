@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f8b8d">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/globedisc-icon-v2.svg">
+  <title>Install GlobeDisc</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:Arial,sans-serif;background:#f4fbfb;color:#102a43}
+    .card{width:min(460px,100%);background:#fff;border:1px solid #dceff0;border-radius:24px;padding:32px;text-align:center;box-shadow:0 12px 40px rgba(16,42,67,.1)}
+    .logo{width:92px;height:92px;border-radius:22px;margin:0 auto 18px;display:block}
+    h1{margin:0 0 10px;font-size:30px}
+    p{margin:0 auto 22px;line-height:1.6;color:#526777}
+    button{width:100%;border:0;border-radius:14px;padding:15px 18px;background:#0f8b8d;color:#fff;font-size:17px;font-weight:700;cursor:pointer}
+    button:disabled{opacity:.55;cursor:default}
+    .help{margin-top:18px;font-size:14px;color:#71818d}
+    .open-link{display:inline-block;margin-top:14px;color:#0f8b8d;font-weight:700;text-decoration:none}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img class="logo" src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc">
+    <h1>Install GlobeDisc</h1>
+    <p>GlobeDisc ko apne phone par app ki tarah install karo. Install hone ke baad ye home screen se directly open hoga.</p>
+    <button id="installButton" type="button" disabled>Install GlobeDisc</button>
+    <div id="helpText" class="help">Install option tayyar ho raha hai…</div>
+    <a class="open-link" href="/">Open GlobeDisc</a>
+  </main>
+
+  <script>
+    let deferredInstallPrompt = null;
+    const installButton = document.getElementById("installButton");
+    const helpText = document.getElementById("helpText");
+
+    async function setupPwaInstall() {
+      if ("serviceWorker" in navigator) {
+        try {
+          await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+          await navigator.serviceWorker.ready;
+        } catch (error) {
+          console.error("GlobeDisc service worker setup failed:", error);
+        }
+      }
+
+      if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true) {
+        helpText.textContent = "GlobeDisc already installed hai.";
+        return;
+      }
+
+      helpText.textContent = "Agar browser install prompt dikhaye, Install select karo.";
+    }
+
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      installButton.disabled = false;
+      helpText.textContent = "Ready! Neeche button dabao.";
+    });
+
+    installButton.addEventListener("click", async () => {
+      if (!deferredInstallPrompt) {
+        helpText.textContent = "Browser ke menu (⋮) se “Add to Home screen” ya “Install app” choose karo.";
+        return;
+      }
+
+      deferredInstallPrompt.prompt();
+      const result = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      installButton.disabled = true;
+      helpText.textContent = result.outcome === "accepted"
+        ? "GlobeDisc install ho raha hai…"
+        : "Install cancel hua. Jab chaaho dobara try kar sakte ho.";
+    });
+
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      installButton.disabled = true;
+      helpText.textContent = "GlobeDisc successfully install ho gaya.";
+    });
+
+    setupPwaInstall();
+  </script>
+</body>
+</html>
