@@ -18401,3 +18401,25 @@ body.studentkart-search-results-active{
     .internet-news-grid,.internet-date-grid{grid-template-columns:1fr;}
     .internet-news-card img{width:90px;height:68px;flex-basis:90px;}
 }
+
+
+/* Internet knowledge aggregate */
+.internet-aggregate-section{margin:0 0 22px;scroll-margin-top:90px}
+.internet-aggregate-head{display:flex;flex-direction:column;gap:6px;padding:18px 20px;margin-bottom:18px;border:1px solid var(--border,#dfe8e7);border-radius:18px;background:linear-gradient(135deg,#ffffff,#f2fbfa);box-shadow:0 8px 24px rgba(16,42,67,.06)}
+.internet-aggregate-head strong{font-size:18px;color:var(--text,#102a43)}
+.internet-aggregate-head small{font-size:12px;line-height:1.6;color:var(--muted,#667)}
+.internet-aggregate-section .internet-panel-card{margin-bottom:12px}
+.internet-date-card{display:flex;flex-direction:column;gap:7px;padding:14px;border:1px solid var(--border,#dfe8e7);border-radius:14px;background:#fff}
+.internet-date-card strong{font-size:13px;color:var(--text,#102a43)}
+.internet-date-card span{font-size:11px;color:var(--muted,#667);display:flex;align-items:flex-start;gap:7px;line-height:1.45}
+.internet-date-card i{color:#0f8b8d;margin-top:2px}
+.internet-news-card{overflow:hidden}
+.internet-news-card img{width:100%;height:150px;object-fit:cover;display:block}
+.internet-news-card>div{padding:12px}
+.internet-news-card strong{display:block;font-size:13px;line-height:1.45;color:var(--text,#102a43);margin:5px 0}
+.internet-news-card p{font-size:11px;line-height:1.55;color:var(--muted,#667);margin:0}
+@media(max-width:700px){
+ .internet-aggregate-head{padding:15px;border-radius:15px}
+ .internet-aggregate-head strong{font-size:16px}
+ .internet-news-card img{height:130px}
+}
