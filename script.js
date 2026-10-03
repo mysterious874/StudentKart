@@ -12936,23 +12936,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const seen=new Set();
         const list=[];
 
-        // Google-like natural-language query starters.
-        const base=query.trim();
-        const lower=base.toLowerCase();
-        const starters=[];
-        if(base && !/^(what|how|where|who|when|why|which|can|is|are|should|best)\\b/i.test(base)){
-            starters.push(
-                ["What is "+base+"?","Ask a question","fa-circle-question"],
-                ["How to "+base+"?","How-to guide","fa-circle-info"],
-                ["Where is "+base+"?","Find a place","fa-location-dot"],
-                ["Why is "+base+"?","Understand it","fa-lightbulb"]
-            );
-        }else if(base){
-            starters.push([base,"Search the web","fa-magnifying-glass"]);
-        }
-
-        starters.forEach(([value,meta,icon])=>addUnique(list,seen,value,value,meta,icon));
-        local.forEach(x=>addUnique(list,seen,x.value,x.title,x.meta,x.icon));
+        // Use only natural/local and real public-web suggestions. No generated question prefixes.        local.forEach(x=>addUnique(list,seen,x.value,x.title,x.meta,x.icon));
         world.forEach(title=>addUnique(list,seen,title,title,"Web search suggestion","fa-globe"));
 
         const limited=list.slice(0,20);
