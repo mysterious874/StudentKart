@@ -3614,10 +3614,10 @@ async function searchStudentKartUsers(query) {
     if (!box || !currentUser) return;
 
     const raw = String(query || "").trim();
-    const digits = raw.replace(/\D/g, "");
+    let digits = raw.replace(/\\D/g, "");
 
-    // Search only by the digits currently typed. Show every registered
-    // profile whose mobile number starts with that prefix.
+    if (digits.startsWith("91") && digits.length > 10) digits = digits.slice(-10);
+
     if (!digits.length) {
         box.innerHTML = "";
         box.classList.add("hidden");
@@ -3626,49 +3626,66 @@ async function searchStudentKartUsers(query) {
 
     box.classList.remove("hidden");
     box.innerHTML =
-        '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding matching numbers...</span></div>';
+        '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Searching registered mobile numbers...</span></div>';
 
     try {
+        // Read profiles and normalize phone numbers in the browser so
+        // +91XXXXXXXXXX, 91XXXXXXXXXX and XXXXXXXXXX all match reliably.
         const { data, error } = await supabaseClient
             .from("profiles")
             .select("id,name,username,phone,email,college,avatar_url,city,area")
             .not("phone", "is", null)
-            .ilike("phone", "+91" + digits + "%")
-            .order("name", { ascending: true })
-            .limit(20);
+            .limit(200);
 
         if (error) throw error;
 
-        if (!data?.length) {
+        const matches = (data || []).filter(profile => {
+            const p = String(profile.phone || "").replace(/\\D/g, "");
+            const normalized = p.startsWith("91") && p.length > 10 ? p.slice(-10) : p;
+            return normalized.startsWith(digits);
+        });
+
+        // Always include the logged-in account when its own registered number matches.
+        if (currentUser?.id && currentUser?.phone) {
+            const currentDigits = String(currentUser.phone).replace(/\\D/g, "").slice(-10);
+            if (currentDigits.startsWith(digits) && !matches.some(x => String(x.id) === String(currentUser.id))) {
+                matches.unshift({
+                    id: currentUser.id,
+                    name: currentUser.user_metadata?.name || "Student",
+                    username: currentUser.user_metadata?.username || "",
+                    phone: currentUser.phone,
+                    email: currentUser.email || "",
+                    college: currentUser.user_metadata?.college || "",
+                    avatar_url: currentUser.user_metadata?.avatar_url || "",
+                    city: currentUser.user_metadata?.city || "",
+                    area: currentUser.user_metadata?.area || ""
+                });
+            }
+        }
+
+        if (!matches.length) {
             box.innerHTML =
-                '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No matching profile</strong><span>No registered mobile number starts with ' +
-                escapeHTML(digits) +
-                '.</span></div>';
+                '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No registered number found</strong><span>Try entering the full or first few digits of the mobile number.</span></div>';
             return;
         }
 
         box.innerHTML =
             '<div class="chat-user-search-title"><span>MOBILE MATCHES</span><small>' +
-            data.length +
-            (data.length === 20 ? "+ results" : data.length === 1 ? " result" : " results") +
+            matches.length + (matches.length === 1 ? " result" : " results") +
             '</small></div>' +
-            data.map(x => {
+            matches.slice(0, 20).map(x => {
                 const n = x.username || x.name || "Student";
-                const s = x.name || x.college || "GlobeDisc user";
-                const phoneDigits = String(x.phone || "").replace(/^\+91/, "");
+                const phoneDigits = String(x.phone || "").replace(/\\D/g, "").slice(-10);
                 const a = x.avatar_url
                     ? '<img src="' + escapeHTML(x.avatar_url) + '" alt="">'
                     : '<span>' + escapeHTML(getInitials(n)) + '</span>';
+                const selfLabel = String(x.id) === String(currentUser?.id) ? "You • " : "";
 
                 return '<button type="button" class="chat-user-search-card" data-user-search-id="' +
-                    escapeHTML(x.id) +
-                    '"><span class="chat-user-search-avatar">' +
-                    a +
-                    '</span><span class="chat-user-search-main"><strong>' +
-                    escapeHTML(n) +
-                    '</strong><small>' +
-                    escapeHTML(phoneDigits || s) +
-                    '</small></span><i class="fas fa-chevron-right"></i></button>';
+                    escapeHTML(x.id) + '"><span class="chat-user-search-avatar">' +
+                    a + '</span><span class="chat-user-search-main"><strong>' +
+                    escapeHTML(selfLabel + n) + '</strong><small>' +
+                    escapeHTML(phoneDigits) + '</small></span><i class="fas fa-chevron-right"></i></button>';
             }).join("");
 
         box.querySelectorAll("[data-user-search-id]").forEach(card => {
@@ -3676,19 +3693,14 @@ async function searchStudentKartUsers(query) {
                 const targetId = card.dataset.userSearchId;
                 box.classList.add("hidden");
                 box.innerHTML = "";
-
                 const searchInput = $("chatListSearchInput");
                 if (searchInput) searchInput.value = "";
 
                 if (String(targetId) === String(currentUser?.id)) {
-                            await openStudentKartUserProfile(targetId);
-                        } else {
-                            if (String(targetId) === String(currentUser?.id)) {
                     await openStudentKartUserProfile(targetId);
                 } else {
                     await openStudentKartUserChat(targetId);
                 }
-                        }
             });
         });
     } catch (error) {
