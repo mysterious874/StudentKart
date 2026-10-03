@@ -11,7 +11,17 @@ webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS"
+};
+
 Deno.serve(async req => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   try {
     const payload = await req.json();
     const record = payload?.record || payload?.new || payload;
@@ -76,7 +86,7 @@ Deno.serve(async req => {
     console.error("send-chat-push error:", error);
     return new Response(JSON.stringify({ ok: false, error: error?.message || "Push failed" }), {
       status: 500,
-      headers: { "content-type": "application/json" }
+      headers: { "content-type": "application/json", ...corsHeaders }
     });
   }
 });
