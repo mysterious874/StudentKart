@@ -4,19 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="StudentKart - Discover what is happening around the world, explore stories, search the web and stay informed.">
-    <meta name="theme-color" content="#27aaa6">
+    <meta name="description" content="GlobeDisc - Discover what is happening around the world, explore stories, search the web and stay informed.">
+    <meta name="theme-color" content="#0f8b8d">
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/svg+xml" href="/icons/studentkart-icon.svg">
-    <link rel="apple-touch-icon" href="/icons/studentkart-icon.svg">
-    <title>StudentKart — Discover What's Happening</title>
+    <link rel="icon" type="image/svg+xml" href="/icons/globedisc-icon.svg">
+    <link rel="apple-touch-icon" href="/icons/globedisc-icon.svg">
+    <title>GlobeDisc — Discover What's Happening</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20261003-campus-1">
+    <link rel="stylesheet" href="style.css?v=20261004-globedisc-1">
 </head>
 
 <body>
+    <div id="globediscSplash" class="globedisc-splash" aria-label="GlobeDisc loading" role="status">
+        <div class="globedisc-splash-orbit globedisc-orbit-one"></div><div class="globedisc-splash-orbit globedisc-orbit-two"></div>
+        <div class="globedisc-splash-logo" aria-hidden="true"><span class="globedisc-globe"></span><span class="globedisc-ring"></span></div>
+        <div class="globedisc-splash-name"><span>Globe</span><b>Disc</b></div>
+        <div class="globedisc-splash-tagline">Search Beyond Boundaries.</div>
+        <div class="globedisc-splash-progress"><span></span></div>
+    </div>
 
-        <div id="navbarSearchPanel" class="navbar-search-panel hidden" aria-label="Search StudentKart">
+        <div id="navbarSearchPanel" class="navbar-search-panel hidden" aria-label="Search GlobeDisc">
         <div class="navbar-search-inner">
             <div class="navbar-search-field">
                 <i class="fas fa-search"></i>
@@ -108,7 +115,7 @@
         <div class="modal-content" style="max-width:520px;">
             <div class="modal-header page-popup-header">
                 <h2><i class="fas fa-building-columns"></i> Choose Your Campus</h2>
-                <p>Select your campus to personalize StudentKart.</p>
+                <p>Select your campus to personalize GlobeDisc.</p>
             </div>
             <div class="campus-picker-list" id="campusPickerList"></div>
         </div>
@@ -255,7 +262,7 @@
             <div class="search-results-container">
                 <div id="searchResultsWebContainer" class="search-results-web-container"></div>
                 <div class="search-results-section-label" id="searchResultsMarketplaceLabel">
-                    <i class="fas fa-store"></i><span>StudentKart Marketplace</span>
+                    <i class="fas fa-store"></i><span>GlobeDisc Marketplace</span>
                 </div>
                 <div id="searchResultsProductContainer" class="products-grid"></div>
                 <div id="searchResultsEmptyState" class="empty-state hidden">
@@ -270,7 +277,7 @@
             <div class="section-heading world-news-heading">
                 <span class="section-label">WHAT’S HAPPENING NOW</span>
                 <h2>Recently around the world</h2>
-                <p>Fresh stories gathered from public news sources, with the latest details available inside StudentKart.</p>
+                <p>Fresh stories gathered from public news sources, with the latest details available inside GlobeDisc.</p>
             </div>
             <div id="worldNewsGrid" class="world-news-grid">
                 <div class="world-news-loading"><i class="fas fa-spinner fa-spin"></i><span>Loading the latest world updates...</span></div>
@@ -298,7 +305,7 @@
             <div class="footer-brand">
                 <a href="#home" class="logo">
                     <div class="logo-mark"><span class="logo-s">S</span><span class="logo-cap"><i class="fas fa-graduation-cap"></i></span></div>
-                    <span class="logo-text">StudentKart</span>
+                    <span class="logo-text">GlobeDisc</span>
                 </a>
                 <p>A student-first discovery platform for exploring the world, finding useful information and staying connected.</p>
                 <div class="footer-brand-badge"><i class="fas fa-shield-halved"></i><span>Built for students</span></div>
@@ -321,7 +328,7 @@
             <div class="footer-creator">
                 <strong>Built by</strong>
                 <div class="footer-creator-name">Harish Lahu Rathod</div>
-                <span>Founder &amp; Developer · StudentKart</span>
+                <span>Founder &amp; Developer · GlobeDisc</span>
                 <a href="mailto:rathodharish004@gmail.com" class="footer-contact-link"><i class="fas fa-envelope"></i> <span>rathodharish004@gmail.com</span></a>
                 <a href="https://www.google.com/maps/search/?api=1&query=Titwala%2C%20Kalyan%2C%20Maharashtra%2C%20India" target="_blank" rel="noopener noreferrer" class="footer-contact-link"><i class="fas fa-location-dot"></i> <span>Titwala, Kalyan, Maharashtra</span></a>
             </div>
@@ -332,8 +339,8 @@
         </div>
 
         <div class="footer-bottom">
-            <span>© 2026 StudentKart. All rights reserved.</span>
-            <span>Made for campus life <i class="fas fa-heart"></i></span>
+            <span>© 2026 GlobeDisc. All rights reserved.</span>
+            <span>Search Beyond Boundaries <i class="fas fa-globe"></i></span>
         </div>
     </footer>
 
@@ -342,7 +349,7 @@
         <div class="modal-overlay" data-close-modal></div>
         <div class="modal-content settings-modal-content">
             <div class="settings-page-header">
-                <div class="settings-title-wrap"><div class="settings-icon"><i class="fas fa-gear"></i></div><div><span class="section-label">ACCOUNT SETTINGS</span><h2>Settings</h2><p>Manage your StudentKart account, privacy and preferences.</p></div></div>
+                <div class="settings-title-wrap"><div class="settings-icon"><i class="fas fa-gear"></i></div><div><span class="section-label">ACCOUNT SETTINGS</span><h2>Settings</h2><p>Manage your GlobeDisc account, privacy and preferences.</p></div></div>
                 <button type="button" class="modal-close" data-close-modal aria-label="Close">&times;</button>
             </div>
             <div class="settings-grid">
@@ -378,7 +385,7 @@
                     <div class="settings-icon"><i class="fas fa-circle-info"></i></div>
                     <div>
                         <span class="section-label">STUDENTKART</span>
-                        <h2 id="footerInfoTitle">About StudentKart</h2>
+                        <h2 id="footerInfoTitle">About GlobeDisc</h2>
                         <p>Information, policies and support.</p>
                     </div>
                 </div>
@@ -603,7 +610,7 @@
             <div class="auth-header">
                 <div class="auth-icon"><i class="fas fa-right-to-bracket"></i></div>
                 <h2>Welcome Back</h2>
-                <p>Login to your StudentKart account.</p>
+                <p>Login to your GlobeDisc account.</p>
             </div>
             <form id="loginForm">
                 <div class="form-group">
@@ -632,7 +639,7 @@
             <div class="auth-header">
                 <div class="auth-icon"><i class="fas fa-user-plus"></i></div>
                 <h2>Create Account</h2>
-                <p>Join the StudentKart marketplace.</p>
+                <p>Join the GlobeDisc marketplace.</p>
             </div>
             <form id="signupForm">
                 <div class="form-group">
@@ -768,7 +775,7 @@
         <div class="modal-content wide-modal">
             <div class="modal-header page-popup-header">
                 <h2>My Listings</h2>
-                <p>Products you have listed on StudentKart.</p>
+                <p>Products you have listed on GlobeDisc.</p>
             </div>
             <div id="myListingsContainer" class="products-grid"></div>
         </div>
@@ -935,6 +942,7 @@
     <script src="/report-listing.js?v=20261003-report-listing-1"></script>
     <script src="/my-reports.js?v=20261003-my-reports-1"></script>
     <script src="/my-listings.js?v=20261003-my-listings-1"></script>
+<script>(function(){const s=document.getElementById("globediscSplash");if(!s)return;setTimeout(()=>{s.classList.add("is-hidden");setTimeout(()=>s.remove(),500)},3000)})();</script>
 </body>
 
 </html>
