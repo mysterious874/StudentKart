@@ -4682,9 +4682,6 @@ async function deleteProduct(productId) {
     if (!window.confirm("Delete this listing?")) return;
 
     const productKey = String(productId);
-    const productIndex = currentProducts.findIndex(
-        item => String(item.id) === productKey
-    );
     const previousProducts = [...currentProducts];
 
     // Remove it from the visible UI immediately.
@@ -4722,9 +4719,6 @@ async function deleteProduct(productId) {
 
         // Roll back the optimistic deletion.
         currentProducts = previousProducts;
-        if (productIndex >= 0) {
-            currentProducts.splice(productIndex, 0, product);
-        }
 
         showToast("Could not delete listing. Restored.", "error");
         void loadMyListings().catch(refreshError => {
