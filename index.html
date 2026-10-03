@@ -659,11 +659,8 @@
                 <div class="profile-info-row"><i class="fas fa-graduation-cap"></i>
                     <div><small>College</small><span id="profileCollegeInfo">—</span></div>
                 </div>
-                <div class="profile-info-row"><i class="fas fa-envelope"></i>
-                    <div><small>Email</small><span id="profileEmailInfo">—</span></div>
-                </div>
                 <div class="profile-info-row"><i class="fas fa-phone"></i>
-                    <div><small>Mobile</small><span id="profilePhoneInfo">—</span></div>
+                    <div><small>Login Mobile</small><span id="profilePhoneInfo">—</span></div>
                 </div>
             </div>
             <div class="profile-actions"><button type="button" class="btn btn-outline" id="editProfileButton"><i
@@ -715,14 +712,18 @@
                         required></div>
                 <div class="form-group"><label for="editProfileUsername">Username / Search ID</label><input type="text" id="editProfileUsername" placeholder="e.g. harish123, your email or mobile number" maxlength="80" autocomplete="username">
                     <small class="form-help">Others can find you in Chat using this username, email or mobile number.</small></div>
-                <div class="form-group"><label for="editProfilePhone">Mobile Number</label><input type="tel" id="editProfilePhone" placeholder="10-digit mobile number" inputmode="numeric" maxlength="15" autocomplete="tel"></div>
+                <div class="form-group"><label for="editProfilePhone">Login Mobile</label><input type="tel" id="editProfilePhone" placeholder="10-digit mobile number" inputmode="numeric" autocomplete="tel" readonly>
+                    <small class="form-help">This is your login mobile number and cannot be changed from Edit Profile.</small></div>
                 <div class="form-group"><label for="editProfileCollege">College / University</label><input type="text"
                         id="editProfileCollege" list="studentkartInstitutionList" placeholder="Search your college or university"></div>
                 <div class="form-group"><label for="editProfileState">State / Union Territory</label><select id="editProfileState"><option value="">Select state / UT</option></select></div>
                 <div class="form-group"><label for="editProfileCity">City</label><div class="profile-city-input-wrap"><input type="text" id="editProfileCity" autocomplete="off" placeholder="Search city / district / village"><button type="button" id="editProfileCityLocationButton" class="profile-city-location-button" title="Use my current location" aria-label="Use my current location"><i class="fas fa-location-crosshairs"></i></button><div id="editProfileCitySuggestions" class="profile-city-suggestions hidden" role="listbox" aria-label="City and village suggestions"></div></div><small class="profile-city-help">Search any Indian city or use your current location.</small></div>
                 <div class="form-group"><label for="editProfileArea">Area / Locality</label><input type="text" id="editProfileArea" placeholder="Your area / locality"></div>
-                <div class="form-group"><label for="editProfileEmail">Email</label><input type="email"
-                        id="editProfileEmail"></div><button type="submit" class="btn btn-primary btn-full"><i
+                <div class="profile-password-divider"><span>Security</span></div>
+                <div class="form-group"><label for="editProfileNewPassword">New 6-Digit Password</label><input type="password" id="editProfileNewPassword" class="auth-pin-input" placeholder="••••••" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="new-password">
+                    <small class="form-help">Leave blank to keep your current password.</small></div>
+                <div class="form-group"><label for="editProfileConfirmPassword">Confirm New 6-Digit Password</label><input type="password" id="editProfileConfirmPassword" class="auth-pin-input" placeholder="••••••" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="new-password"></div>
+                <button type="submit" class="btn btn-primary btn-full"><i
                         class="fas fa-check"></i> Save Changes</button>
             </form>
         </div>
