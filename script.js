@@ -11973,8 +11973,20 @@ async function handleSettingAction(action) {
                 <h3><i class="fas fa-laptop-code"></i> What I Work On</h3>
                 <ul class="info-list">
                     <li>StudentKart product and website development</li>
-                    <li>Marketplace, authentication and chat features</li>
+                    <li>Marketplace, authentication, wishlist and chat features</li>
                     <li>User experience, responsive design and future improvements</li>
+                </ul>
+            </div>
+            <div class="info-section">
+                <h3><i class="fas fa-layer-group"></i> Built With</h3>
+                <ul class="info-list">
+                    <li><strong>HTML5</strong> — website structure and UI</li>
+                    <li><strong>CSS3</strong> — responsive design, layouts, animations and styling</li>
+                    <li><strong>JavaScript</strong> — application logic and interactive features</li>
+                    <li><strong>Supabase</strong> — authentication, database, storage and realtime features</li>
+                    <li><strong>Font Awesome</strong> — interface icons</li>
+                    <li><strong>GitHub</strong> — source-code version control and project deployment workflow</li>
+                    <li><strong>Progressive Web App (PWA)</strong> — installable app experience and web manifest</li>
                 </ul>
             </div>
             <div class="info-note"><i class="fas fa-rocket"></i><span>StudentKart is being built to make campus buying, selling and discovering products easier for students.</span></div>
