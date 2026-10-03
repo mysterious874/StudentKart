@@ -18058,3 +18058,21 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
     color: #64748b !important;
     font-weight: 600;
 }
+
+
+/* Login field validation */
+.login-validation-error {
+    color: #d64545 !important;
+    font-weight: 700;
+    margin-top: 6px;
+}
+
+#loginForm .input-validation-error {
+    border-color: #d64545 !important;
+    box-shadow: 0 0 0 2px rgba(214, 69, 69, 0.10);
+}
+
+#loginForm .input-validation-error:focus {
+    border-color: #d64545 !important;
+    box-shadow: 0 0 0 3px rgba(214, 69, 69, 0.14);
+}
