@@ -18621,3 +18621,9 @@ body:has(#editProfileModal:not(.hidden)) .mobile-bottom-nav{
   color:#fff!important;
   -webkit-text-fill-color:#fff!important;
 }
+
+
+/* ============================================================
+   FLOATING NAV — REMOVED
+   ============================================================ */
+.mobile-bottom-nav{display:none!important;visibility:hidden!important;pointer-events:none!important;}
