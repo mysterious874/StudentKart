@@ -28,26 +28,9 @@
 
     <div class="marketplace-page-search">
         <i class="fas fa-search"></i>
-        <input id="marketplaceSearch" type="search" placeholder="Search products, books, phones, bikes..." autocomplete="off">
+        <input id="marketplaceSearch" type="search" placeholder="Search new products, laptops, books, phones..." autocomplete="off">
         <button type="button" id="marketplacePageSearchButton" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
         <div id="marketplacePageSuggestions" class="marketplace-page-suggestions hidden"></div>
-    </div>
-
-    <div class="marketplace-page-categories" id="marketplacePageCategories" aria-label="Marketplace categories">
-        <button type="button" class="marketplace-category-button active" data-category="all"><i class="fas fa-layer-group"></i> All</button>
-        <button type="button" class="marketplace-category-button" data-category="Books"><i class="fas fa-book"></i> Books</button>
-        <button type="button" class="marketplace-category-button" data-category="Electronics"><i class="fas fa-laptop"></i> Electronics</button>
-        <button type="button" class="marketplace-category-button" data-category="Vehicles"><i class="fas fa-motorcycle"></i> Vehicles</button>
-        <button type="button" class="marketplace-category-button" data-category="Furniture"><i class="fas fa-couch"></i> Furniture</button>
-        <button type="button" class="marketplace-category-button" data-category="Services"><i class="fas fa-handshake"></i> Services</button>
-        <button type="button" class="marketplace-category-button" data-category="Fashion"><i class="fas fa-shirt"></i> Fashion</button>
-        <button type="button" class="marketplace-category-button" data-category="Gaming"><i class="fas fa-gamepad"></i> Gaming</button>
-        <button type="button" class="marketplace-category-button" data-category="Other"><i class="fas fa-ellipsis"></i> Other</button>
-    </div>
-
-    <div class="marketplace-page-toolbar">
-        <span id="marketplacePageCount" class="marketplace-page-count">Loading listings...</span>
-        <button type="button" class="btn btn-outline" id="marketplacePageClearSearch"><i class="fas fa-xmark"></i> Clear</button>
     </div>
 
     <!-- =====================================================
@@ -93,40 +76,11 @@
         </div>
     </section>
 
-    <section id="marketplace" class="marketplace-section">
-        <div id="filterStatus" class="filter-status hidden">Showing latest listings</div>
-        <div id="productContainer" class="products-grid"></div>
-        <div id="emptyState" class="marketplace-page-empty hidden">
-            <i class="fas fa-box-open" style="font-size:32px"></i>
-            <h3>No marketplace listings found</h3>
-            <p>Try another product or category.</p>
-        </div>
-    </section>
+ion>
 </div>
 </main>
 
-<div id="productModal" class="modal hidden">
-    <div class="modal-overlay" data-close-modal></div>
-    <div class="modal-content product-details-modal">
-        <button type="button" class="modal-close product-details-close" data-close-modal aria-label="Close"><i class="fas fa-xmark"></i></button>
-        <div class="details-image-container"><img id="detailsImage" src="" alt="Product"></div>
-        <div class="product-details-content">
-            <div class="product-details-top"><span id="detailsCategory" class="product-badge">Category</span><span id="detailsCondition" class="condition-badge">Condition</span></div>
-            <h2 id="detailsName">Product Name</h2>
-            <div class="details-price" id="detailsPrice">₹0</div>
-            <div class="details-meta"><div class="details-meta-card"><i class="fas fa-location-dot"></i><span><small>Location</small><strong id="detailsLocation">Location</strong></span></div></div>
-            <div class="details-description"><div class="details-section-heading"><i class="fas fa-align-left"></i><h3>Description</h3></div><p id="detailsDescription">Product description</p></div>
-            <div class="seller-box"><div id="detailsSellerAvatar" class="seller-avatar">S</div><div><small>Listed by</small><strong id="detailsSeller">Seller</strong></div></div>
-            <div class="details-actions">
-                <button type="button" class="btn btn-outline btn-full" id="viewSellerProfileButton"><i class="fas fa-user"></i> View Seller Profile</button>
-                <button type="button" class="btn btn-primary btn-full" id="contactSellerButton"><i class="fas fa-message"></i> Contact Seller</button>
-                <button type="button" class="btn btn-outline btn-full" id="reportProductButton"><i class="fas fa-flag"></i> Report Listing</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="toast" class="toast hidden"><div id="toastIcon"><i class="fas fa-check"></i></div><span id="toastMessage"></span></div>
+/div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js?v=20261004-marketplace-engine-1"></script>
