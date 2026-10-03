@@ -11958,56 +11958,95 @@ async function handleSettingAction(action) {
     if (action === "developer") {
         closeModal("settingsModal");
         const title = $("footerInfoTitle"), body = $("footerInfoBody");
-        if (title) title.textContent = "Developer";
+        if (title) title.textContent = "Developer — Harish Rathod";
         if (body) body.innerHTML = `
-            <div class="developer-profile-card">
-                <div class="developer-photo-wrap">
-                    <img class="developer-photo" src="assets/developer-photo.jpg" alt="Harish Rathod - Developer of StudentKart">
+            <div class="developer-page">
+                <div class="developer-hero">
+                    <div class="developer-hero-photo">
+                        <img src="assets/developer-photo.jpg" alt="Harish Rathod — StudentKart Developer">
+                        <span class="developer-status"><i class="fas fa-circle"></i> Building StudentKart</span>
+                    </div>
+                    <div class="developer-hero-copy">
+                        <span class="developer-eyebrow"><i class="fas fa-code"></i> STUDENTKART DEVELOPER</span>
+                        <h2>Harish <span>Rathod</span></h2>
+                        <h3>Founder & Developer</h3>
+                        <p>I’m a BCA student building practical technology products while learning, experimenting and improving one feature at a time.</p>
+                        <div class="developer-mini-tags">
+                            <span><i class="fas fa-graduation-cap"></i> BCA Student</span>
+                            <span><i class="fas fa-laptop-code"></i> Web Development</span>
+                            <span><i class="fas fa-shield-halved"></i> Cybersecurity Learner</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="developer-profile-copy">
-                    <span class="developer-eyebrow"><i class="fas fa-code"></i> StudentKart Developer</span>
-                    <h3>Harish Rathod</h3>
-                    <p>Founder & Developer of StudentKart</p>
+
+                <div class="developer-quote-card">
+                    <i class="fas fa-quote-left"></i>
+                    <p>“Building with curiosity, learning with every line of code, and creating technology that makes student life easier.”</p>
+                </div>
+
+                <div class="developer-section">
+                    <div class="developer-section-heading">
+                        <span class="section-label">ABOUT THE DEVELOPER</span>
+                        <h3>From learning to building</h3>
+                    </div>
+                    <p>Harish Rathod is the founder and developer behind StudentKart. The project combines a student-focused marketplace with authentication, listings, wishlist, search, notifications and chat features.</p>
+                    <p>The goal is to keep learning practical: understand a problem, build a feature, test it, fix what breaks and keep improving the product.</p>
+                </div>
+
+                <div class="developer-section">
+                    <div class="developer-section-heading">
+                        <span class="section-label">WHAT I WORK ON</span>
+                        <h3>Current focus</h3>
+                    </div>
+                    <div class="developer-feature-grid">
+                        <div class="developer-feature-card"><i class="fas fa-store"></i><div><strong>StudentKart</strong><span>Marketplace, listings and student-first UX</span></div></div>
+                        <div class="developer-feature-card"><i class="fas fa-comments"></i><div><strong>Real-time Features</strong><span>Chat, inquiries and notifications</span></div></div>
+                        <div class="developer-feature-card"><i class="fas fa-mobile-screen"></i><div><strong>Responsive UI</strong><span>Mobile-friendly and desktop-ready interfaces</span></div></div>
+                        <div class="developer-feature-card"><i class="fas fa-shield-halved"></i><div><strong>Cybersecurity</strong><span>Learning networking, Linux and web security fundamentals</span></div></div>
+                    </div>
+                </div>
+
+                <div class="developer-section">
+                    <div class="developer-section-heading">
+                        <span class="section-label">TECH STACK</span>
+                        <h3>What powers StudentKart</h3>
+                    </div>
+                    <div class="developer-stack">
+                        <span><i class="fab fa-html5"></i> HTML5</span>
+                        <span><i class="fab fa-css3-alt"></i> CSS3</span>
+                        <span><i class="fab fa-js"></i> JavaScript</span>
+                        <span><i class="fas fa-database"></i> Supabase</span>
+                        <span><i class="fab fa-github"></i> GitHub</span>
+                        <span><i class="fas fa-icons"></i> Font Awesome</span>
+                        <span><i class="fas fa-mobile-screen-button"></i> PWA</span>
+                    </div>
+                </div>
+
+                <div class="developer-section developer-ai-section">
+                    <div class="developer-section-heading">
+                        <span class="section-label">DEVELOPMENT APPROACH</span>
+                        <h3>AI-assisted, human-directed</h3>
+                    </div>
+                    <p>AI has been used as a development assistant for coding, debugging, UI ideas, feature implementation and problem-solving. The product idea, direction, feature decisions and final review remain guided by Harish.</p>
+                    <div class="developer-ai-note"><i class="fas fa-wand-magic-sparkles"></i><span>AI helps accelerate the build; the developer decides what belongs in StudentKart.</span></div>
+                </div>
+
+                <div class="developer-vision">
+                    <i class="fas fa-lightbulb"></i>
+                    <div>
+                        <span class="section-label">VISION</span>
+                        <p>“StudentKart is being built to make campus life more connected, convenient and student-friendly.”</p>
+                    </div>
+                </div>
+
+                <div class="developer-footer-card">
+                    <div>
+                        <strong>Harish Rathod</strong>
+                        <span>Founder & Developer · StudentKart</span>
+                    </div>
+                    <a href="mailto:rathodharish004@gmail.com" class="btn btn-primary"><i class="fas fa-envelope"></i> Contact</a>
                 </div>
             </div>
-            <div class="developer-quote-card">
-                <i class="fas fa-quote-left"></i>
-                <p>“Building with curiosity, learning with every line of code, and creating technology that makes student life easier.”</p>
-            </div>
-            <div class="developer-quote-card developer-vision-quote">
-                <i class="fas fa-lightbulb"></i>
-                <p>“StudentKart is built with the vision of making campus life more connected, convenient, and student-friendly.”</p>
-            </div>
-            <div class="info-section ai-development-section">
-                <h3><i class="fas fa-robot"></i> AI-Assisted Development</h3>
-                <p>StudentKart has been developed with the help of AI as a development assistant. AI has supported coding, debugging, UI improvements, feature implementation and problem-solving throughout the development process.</p>
-                <p class="ai-development-note"><i class="fas fa-user-gear"></i> The product idea, direction, decisions and final implementation are guided and reviewed by <strong>Harish Rathod</strong>.</p>
-            </div>
-            <div class="info-section">
-                <h3><i class="fas fa-user-tie"></i> Role</h3>
-                <p>Founder & Developer of StudentKart.</p>
-            </div>
-            <div class="info-section">
-                <h3><i class="fas fa-laptop-code"></i> What I Work On</h3>
-                <ul class="info-list">
-                    <li>StudentKart product and website development</li>
-                    <li>Marketplace, authentication, wishlist and chat features</li>
-                    <li>User experience, responsive design and future improvements</li>
-                </ul>
-            </div>
-            <div class="info-section">
-                <h3><i class="fas fa-layer-group"></i> Built With</h3>
-                <ul class="info-list">
-                    <li><strong>HTML5</strong> — website structure and UI</li>
-                    <li><strong>CSS3</strong> — responsive design, layouts, animations and styling</li>
-                    <li><strong>JavaScript</strong> — application logic and interactive features</li>
-                    <li><strong>Supabase</strong> — authentication, database, storage and realtime features</li>
-                    <li><strong>Font Awesome</strong> — interface icons</li>
-                    <li><strong>GitHub</strong> — source-code version control and project deployment workflow</li>
-                    <li><strong>Progressive Web App (PWA)</strong> — installable app experience and web manifest</li>
-                </ul>
-            </div>
-            <div class="info-note"><i class="fas fa-rocket"></i><span>StudentKart is being built to make campus buying, selling and discovering products easier for students.</span></div>
         `;
         openModal("footerInfoModal");
         return;
