@@ -3617,9 +3617,7 @@ async function searchStudentKartUsers(query) {
     window.clearTimeout(studentKartUserSearchTimer);
 
     if (!q) {
-        box.innerHTML = "";
-        box.classList.add("hidden");
-        return;
+        box.classList.remove("hidden");
     }
 
     const requestId = ++studentKartUserSearchRequest;
