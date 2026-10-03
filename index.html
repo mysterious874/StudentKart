@@ -378,7 +378,7 @@ body.studentkart-product-page-open #heroSearchStrip {
                     </button>
                 </div>
 
-                <div class="dashboard-lower-grid">
+                <div class="dashboard-marketplace-cta"><div><span class="panel-kicker">CAMPUS EXCHANGE</span><h3>Need something from campus?</h3><p>Open the dedicated marketplace to buy, sell or discover student essentials.</p></div><button type="button" id="dashboardMarketplaceButton" class="dashboard-marketplace-button"><i class="fas fa-store"></i> Open Marketplace</button></div>\n\n                <div class="dashboard-lower-grid">
                     <article class="dashboard-panel">
                         <div class="dashboard-panel-head"><div><span class="panel-kicker">TODAY</span><h3>Your student checklist</h3></div><i class="fas fa-calendar-check"></i></div>
                         <div class="dashboard-checklist">
@@ -400,8 +400,16 @@ body.studentkart-product-page-open #heroSearchStrip {
             </div>
         </section>
 
-        <section id="marketplace" class="section marketplace-section" aria-label="Campus Marketplace">
-        <div class="marketplace-section-intro">
+        <section id="studentToolPage" class="student-tool-page hidden" aria-label="Student tool">
+  <div class="student-tool-navbar">
+    <button type="button" id="studentToolBack" class="student-tool-back" aria-label="Back to home"><i class="fas fa-arrow-left"></i></button>
+    <div><span id="studentToolKicker">STUDENTKART</span><h2 id="studentToolTitle">Student Tool</h2></div>
+  </div>
+  <div id="studentToolContent" class="student-tool-content"></div>
+</section>
+
+<section id="marketplace" class="section marketplace-section hidden" aria-label="Campus Marketplace">
+        <div class="marketplace-page-header"><button type="button" id="marketplaceBackButton" class="marketplace-back-button" aria-label="Back to Home"><i class="fas fa-arrow-left"></i></button><div class="marketplace-section-intro">
             <span class="section-label">CAMPUS EXCHANGE</span>
             <h2>Marketplace</h2>
             <p>Buy, sell and discover useful things around your campus.</p>
