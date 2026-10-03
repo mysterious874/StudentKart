@@ -143,7 +143,10 @@
             <div class="studentkart-top-content">
                 <div class="top-search-strip">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="heroSearchInput" placeholder="Search books, electronics, furniture, services..." autocomplete="off">
+                    <div class="hero-search-input-wrap">
+                        <input type="text" id="heroSearchInput" placeholder="Search books, electronics, furniture, services..." autocomplete="off" aria-autocomplete="list" aria-controls="heroSearchSuggestions">
+                        <div id="heroSearchSuggestions" class="hero-search-suggestions hidden" role="listbox"></div>
+                    </div>
                     <button type="button" id="heroFilterButton" class="top-filter-button" aria-label="Filters" title="Filters"><i class="fas fa-sliders"></i></button>
                     <button type="button" id="heroSearchButton" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
                 </div>
