@@ -18962,3 +18962,16 @@ body.marketplace-page-active .new-product-card img{
   .product-card .product-image-wrap{height:135px!important}
   .product-card .product-body{padding:9px!important}
 }
+
+/* Chat number suggestions: keep the popup above the chat list and visible while searching. */
+#inquiriesModal #chatUserSearchResults[data-search-open="true"]{
+  display:block!important;
+  position:relative;
+  z-index:50;
+  width:100%;
+  box-sizing:border-box;
+  background:#f8fbfb;
+}
+#inquiriesModal #chatUserSearchResults[data-search-open="true"].hidden{
+  display:block!important;
+}
