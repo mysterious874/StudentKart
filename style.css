@@ -18633,3 +18633,42 @@ body.marketplace-page-active .footer{display:none!important}
 /* Force the GlobeDisc launch screen to cover the complete mobile viewport */
 html:has(.globedisc-splash),body:has(.globedisc-splash){width:100%;min-width:100%;min-height:100%;height:100%;margin:0;padding:0;overflow:hidden!important}
 .globedisc-splash{box-sizing:border-box;isolation:isolate}
+
+
+/* GlobeDisc mobile + 6-digit PIN authentication */
+body #loginModal .auth-pin-input,
+body #signupModal .auth-pin-input {
+    width: 100%;
+    height: 58px;
+    border: 2px solid #d9e2ec;
+    border-radius: 14px;
+    background: #f8fbfb;
+    color: #102a43;
+    text-align: center;
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: 10px;
+    padding: 0 18px 0 28px;
+    outline: none;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+body #loginModal .auth-pin-input::placeholder,
+body #signupModal .auth-pin-input::placeholder {
+    color: #8fa6ad;
+    letter-spacing: 8px;
+}
+body #loginModal .auth-pin-input:focus,
+body #signupModal .auth-pin-input:focus {
+    border-color: #0f8b8d;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(15,139,141,.12);
+}
+@media(max-width:520px){
+    body #loginModal .auth-pin-input,
+    body #signupModal .auth-pin-input {
+        height: 56px;
+        font-size: 23px;
+        letter-spacing: 9px;
+        padding-left: 25px;
+    }
+}
