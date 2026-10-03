@@ -18519,3 +18519,46 @@ body:has(#editProfileModal:not(.hidden)) .mobile-bottom-nav{
   color:#fff!important;
   -webkit-text-fill-color:#fff!important;
 }
+
+
+/* FINAL FLOATING NAV — BLACK BUTTON BACKGROUNDS */
+.mobile-bottom-nav .bottom-nav-item,
+.mobile-bottom-nav .bottom-nav-item:not(.bottom-sell-item),
+#navSearchButton,
+#bottomCategoriesButton,
+#bottomWishlistButton,
+#profileButton,
+#bottomSettingsButton,
+.bottom-chat-nav-item{
+  background:#000!important;
+  background-color:#000!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  border:1px solid #000!important;
+  box-shadow:0 3px 10px rgba(0,0,0,.18)!important;
+}
+.mobile-bottom-nav .bottom-nav-item i,
+.mobile-bottom-nav .bottom-nav-item span,
+#navSearchButton *,
+#bottomCategoriesButton *,
+#bottomWishlistButton *,
+#profileButton *,
+#bottomSettingsButton *,
+.bottom-chat-nav-item *{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.mobile-bottom-nav .bottom-nav-item:hover,
+.mobile-bottom-nav .bottom-nav-item:focus-visible{
+  background:#111!important;
+  background-color:#111!important;
+  color:#fff!important;
+}
+.mobile-bottom-nav .bottom-sell-item,
+.mobile-bottom-nav .bottom-sell-item *{
+  background:#000!important;
+  background-color:#000!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  border-color:#000!important;
+}
