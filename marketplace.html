@@ -3,240 +3,246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0f8b8d">
-<title>StudentKart — New Products Marketplace</title>
+<meta name="theme-color" content="#102a43">
+<title>GlobeDisc — New Products</title>
 <link rel="icon" type="image/svg+xml" href="/icons/globedisc-icon.svg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="style.css?v=20261004-globedisc-1">
+<link rel="stylesheet" href="style.css?v=20261004-marketplace-fast-2">
 <style>
-.hidden{display:none!important}
+body.marketplace-page-active .new-products-grid{display:grid!important;visibility:visible!important;opacity:1!important}
+body.marketplace-page-active .new-products-section{display:block!important;visibility:visible!important}
+.marketplace-mobile-back{
+  display:none;position:fixed;left:14px;bottom:18px;z-index:9999;
+  border:1px solid #d6e4e6;background:#102a43;color:#fff;border-radius:999px;
+  padding:10px 14px;font-size:12px;font-weight:800;box-shadow:0 8px 24px rgba(16,42,67,.22)
+}
+@media(max-width:600px){.marketplace-mobile-back{display:inline-flex;align-items:center;gap:7px}}
+.fast-product-image{width:100%;height:100%;display:grid;place-items:center;background:#f5faf9;color:#8aa1a5;font-size:34px}
 </style>
 </head>
 <body class="marketplace-page-active">
-<main class="marketplace-page">
-<div class="marketplace-page-shell">
-    <div class="marketplace-page-search">
 
-        <i class="fas fa-search"></i>
-        <input id="marketplaceSearch" type="search" placeholder="Search new products, laptops, books, phones..." autocomplete="off">
-        <button type="button" id="marketplacePageSearchButton" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
-        <div id="marketplacePageSuggestions" class="marketplace-page-suggestions hidden"></div>
+<main class="marketplace-page">
+  <div class="marketplace-page-shell">
+
+    <div class="marketplace-page-search">
+      <i class="fas fa-search"></i>
+      <input id="marketplaceSearch" type="search" placeholder="Search new products, laptops, books, phones..." autocomplete="off">
+      <button type="button" id="marketplacePageSearchButton" aria-label="Search">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <div id="marketplacePageSuggestions" class="marketplace-page-suggestions hidden"></div>
     </div>
 
-    <!-- =====================================================
-         NEW PRODUCTS — AMAZON + FLIPKART
-         Only new products appear in this section.
-         Live feed endpoint will be connected server-side.
-         ===================================================== -->
     <section id="newProductsSection" class="new-products-section" aria-labelledby="newProductsTitle">
-        <div class="new-products-heading">
-            <div>
-                <span class="section-label"><i class="fas fa-sparkles"></i> NEW PRODUCTS</span>
-                <h2 id="newProductsTitle">Shop New Products</h2>
-                <p>New products from Amazon and Flipkart — no used listings.</p>
-            </div>
-            <div class="new-products-sources" aria-label="Product sources">
-                <span class="new-source-badge amazon"><i class="fab fa-amazon"></i> Amazon</span>
-                <span class="new-source-badge flipkart"><i class="fas fa-shopping-bag"></i> Flipkart</span>
-            </div>
+      <div class="new-products-heading">
+        <div>
+          <span class="section-label"><i class="fas fa-sparkles"></i> NEW PRODUCTS</span>
+          <h2 id="newProductsTitle">Shop New Products</h2>
+          <p>Only new products. Open any product to view it on its store.</p>
         </div>
+        <div class="new-products-sources">
+          <span class="new-source-badge amazon"><i class="fab fa-amazon"></i> Amazon</span>
+          <span class="new-source-badge flipkart"><i class="fas fa-shopping-bag"></i> Flipkart</span>
+        </div>
+      </div>
 
-        <div class="new-products-toolbar">
-            <div class="new-products-tabs" role="tablist" aria-label="New product categories">
-                <button type="button" class="new-products-tab active" data-new-category="all">All</button>
-                <button type="button" class="new-products-tab" data-new-category="electronics">Electronics</button>
-                <button type="button" class="new-products-tab" data-new-category="books">Books</button>
-                <button type="button" class="new-products-tab" data-new-category="fashion">Fashion</button>
-                <button type="button" class="new-products-tab" data-new-category="home">Home</button>
-                <button type="button" class="new-products-tab" data-new-category="gaming">Gaming</button>
-            </div>
-            <button type="button" class="new-products-refresh" id="newProductsRefresh">
-                <i class="fas fa-rotate"></i> Refresh
-            </button>
+      <div class="new-products-toolbar">
+        <div class="new-products-tabs" role="tablist">
+          <button type="button" class="new-products-tab active" data-new-category="all">All</button>
+          <button type="button" class="new-products-tab" data-new-category="electronics">Electronics</button>
+          <button type="button" class="new-products-tab" data-new-category="books">Books</button>
+          <button type="button" class="new-products-tab" data-new-category="fashion">Fashion</button>
+          <button type="button" class="new-products-tab" data-new-category="home">Home</button>
+          <button type="button" class="new-products-tab" data-new-category="gaming">Gaming</button>
         </div>
+        <button type="button" class="new-products-refresh" id="newProductsRefresh">
+          <i class="fas fa-rotate"></i> Refresh
+        </button>
+      </div>
 
-        <div id="newProductsStatus" class="new-products-status">
-            <i class="fas fa-spinner fa-spin"></i> Loading new products…
-        </div>
-        <div id="newProductsGrid" class="new-products-grid"></div>
-        <div id="newProductsEmpty" class="new-products-empty hidden">
-            <i class="fas fa-store"></i>
-            <h3>New-product feed is ready</h3>
-            <p>Products are added to StudentKart manually. No API or affiliate credentials are required.</p>
-        </div>
+      <div id="newProductsStatus" class="new-products-status">
+        <i class="fas fa-circle-check"></i> Loading catalog…
+      </div>
+      <div id="newProductsGrid" class="new-products-grid"></div>
+      <div id="newProductsEmpty" class="new-products-empty hidden">
+        <i class="fas fa-box-open"></i>
+        <h3>No products found</h3>
+        <p>Try another search or category.</p>
+      </div>
     </section>
-</div>
+  </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=20261004-marketplace-engine-1"></script>
+<button type="button" class="marketplace-mobile-back" id="marketplaceMobileBack">
+  <i class="fas fa-arrow-left"></i> Back
+</button>
+
 <script>
-/* =========================================================
-   NEW PRODUCTS — MANUAL CATALOG MODE
-   No Amazon/Flipkart API required.
-   Add/edit products in the PRODUCTS array below.
-   ========================================================= */
-document.addEventListener("DOMContentLoaded",()=>{
-    const input=document.getElementById("marketplaceSearch");
-    const panel=document.getElementById("marketplacePageSuggestions");
-    const grid=document.getElementById("newProductsGrid");
-    const status=document.getElementById("newProductsStatus");
-    const empty=document.getElementById("newProductsEmpty");
-    const tabs=[...document.querySelectorAll(".new-products-tab")];
-    if(!input||!grid||!status)return;
+(function(){
+  "use strict";
 
-    /*
-      MANUAL PRODUCT CATALOG
-      sourceUrl can point to any website where the product is sold/displayed.
-      No API key, affiliate credential, or scraping is used.
-    */
-    const PRODUCTS=[
-      {id:"sk-001",name:"HP 15 Laptop",category:"electronics",price:42999,source:"HP",image:"https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c08972762.png",url:"https://www.hp.com/in-en/shop/"},
-      {id:"sk-002",name:"Samsung Galaxy Smartphone",category:"electronics",price:18999,source:"Samsung",image:"https://images.samsung.com/is/image/samsung/p6pim/in/sm-s721blbkins/gallery/in-galaxy-s24-fe-s721-sm-s721blbkins-thumb-543773685",url:"https://www.samsung.com/in/smartphones/"},
-      {id:"sk-003",name:"Wireless Headphones",category:"electronics",price:2499,source:"Sony",image:"https://electronics.sony.com/image/jp/1a7d7d6e5f8b7f6d8b2b7b7c7b6b7b7c",url:"https://electronics.sony.com/audio/headphones"},
-      {id:"sk-004",name:"Programming Books",category:"books",price:799,source:"Amazon",image:"",url:"https://www.amazon.in/s?k=programming+books"},
-      {id:"sk-005",name:"Cybersecurity Books",category:"books",price:899,source:"Amazon",image:"",url:"https://www.amazon.in/s?k=cybersecurity+books"},
-      {id:"sk-006",name:"College Backpack",category:"fashion",price:1299,source:"Myntra",image:"",url:"https://www.myntra.com/backpacks"},
-      {id:"sk-007",name:"Study Table",category:"home",price:3499,source:"IKEA",image:"",url:"https://www.ikea.com/in/en/cat/desks-computer-desks-20649/"},
-      {id:"sk-008",name:"Gaming Mouse",category:"gaming",price:1499,source:"Logitech",image:"",url:"https://www.logitech.com/en-in/shop/c/gaming-mice"},
-      {id:"sk-009",name:"Gaming Keyboard",category:"gaming",price:2499,source:"Logitech",image:"",url:"https://www.logitech.com/en-in/shop/c/gaming-keyboards"},
-      {id:"sk-010",name:"Smartwatch",category:"electronics",price:2999,source:"boAt",image:"",url:"https://www.boat-lifestyle.com/collections/smart-watches"}
-    ];
+  const SUPABASE_URL="https://yymzfjfkmsrymqhpnfqz.supabase.co";
+  const SUPABASE_KEY="sb_publishable_tEePI-aSGDkt_2S6oiEfPw_Hy_mEXkw";
 
-    let activeCategory="all";
-    let products=[...PRODUCTS];
+  const $=id=>document.getElementById(id);
+  const input=$("marketplaceSearch");
+  const grid=$("newProductsGrid");
+  const status=$("newProductsStatus");
+  const empty=$("newProductsEmpty");
+  const suggestionPanel=$("marketplacePageSuggestions");
+  const searchButton=$("marketplacePageSearchButton");
+  const refreshButton=$("newProductsRefresh");
+  const tabs=[...document.querySelectorAll(".new-products-tab")];
 
-    async function loadAdminProducts(){
-      try{
-        if(typeof SUPABASE_URL==="undefined"||typeof SUPABASE_KEY==="undefined") return;
-        const controller=new AbortController();
-        const timeout=setTimeout(()=>controller.abort(),900);
-        const response=await fetch(SUPABASE_URL+"/rest/v1/new_products?select=id,name,category,price,source,image,url&order=created_at.desc",{
-          headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"},
-          signal:controller.signal
-        });
-        clearTimeout(timeout);
-        if(!response.ok)return;
-        const remote=await response.json();
-        if(Array.isArray(remote)&&remote.length){
-          const ids=new Set(remote.map(p=>p.id));
-          products=[...remote.map(p=>({...p,price:Number(p.price||0})),...products.filter(p=>!ids.has(p.id))];
-          render();
-        }
-      }catch(error){console.warn("New product catalog:",error);}
+  const LOCAL_PRODUCTS=[
+    {id:"sk-001",name:"HP 15 Laptop",category:"electronics",price:42999,source:"HP",url:"https://www.hp.com/in-en/shop/"},
+    {id:"sk-002",name:"Samsung Galaxy Smartphone",category:"electronics",price:18999,source:"Samsung",url:"https://www.samsung.com/in/smartphones/"},
+    {id:"sk-003",name:"Wireless Headphones",category:"electronics",price:2499,source:"Sony",url:"https://electronics.sony.com/audio/headphones"},
+    {id:"sk-004",name:"Programming Books",category:"books",price:799,source:"Amazon",url:"https://www.amazon.in/s?k=programming+books"},
+    {id:"sk-005",name:"Cybersecurity Books",category:"books",price:899,source:"Amazon",url:"https://www.amazon.in/s?k=cybersecurity+books"},
+    {id:"sk-006",name:"College Backpack",category:"fashion",price:1299,source:"Myntra",url:"https://www.myntra.com/backpacks"},
+    {id:"sk-007",name:"Study Table",category:"home",price:3499,source:"IKEA",url:"https://www.ikea.com/in/en/cat/desks-computer-desks-20649/"},
+    {id:"sk-008",name:"Gaming Mouse",category:"gaming",price:1499,source:"Logitech",url:"https://www.logitech.com/en-in/shop/c/gaming-mice"},
+    {id:"sk-009",name:"Gaming Keyboard",category:"gaming",price:2499,source:"Logitech",url:"https://www.logitech.com/en-in/shop/c/gaming-keyboards"},
+    {id:"sk-010",name:"Smartwatch",category:"electronics",price:2999,source:"boAt",url:"https://www.boat-lifestyle.com/collections/smart-watches"}
+  ];
+
+  let products=LOCAL_PRODUCTS.slice();
+  let activeCategory="all";
+
+  const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  const money=v=>{
+    const n=Number(v);
+    return Number.isFinite(n)&&n>0
+      ? new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(n)
+      : "Check price";
+  };
+
+  function filtered(){
+    const q=input.value.trim().toLowerCase();
+    return products.filter(p=>{
+      const categoryOk=activeCategory==="all" || String(p.category||"").toLowerCase()===activeCategory;
+      const haystack=(p.name+" "+p.category+" "+p.source).toLowerCase();
+      return categoryOk && (!q || haystack.includes(q));
+    });
+  }
+
+  function card(p){
+    const image='<div class="fast-product-image"><i class="fas fa-box-open"></i></div>';
+    return '<article class="new-product-card">'+
+      '<div class="new-product-image-wrap">'+image+
+      '<span class="new-product-badge">NEW</span>'+
+      '<span class="new-product-source">'+esc(p.source||"Store")+'</span></div>'+
+      '<div class="new-product-body">'+
+      '<span class="new-product-category">'+esc(p.category||"product")+'</span>'+
+      '<h3>'+esc(p.name||"New Product")+'</h3>'+
+      '<div class="new-product-price">'+money(p.price)+'</div>'+
+      '<a class="new-product-buy" href="'+esc(p.url||"#")+'" target="_blank" rel="noopener noreferrer">View Product <i class="fas fa-arrow-up-right-from-square"></i></a>'+
+      '</div></article>';
+  }
+
+  function render(){
+    const list=filtered();
+    if(!list.length){
+      grid.innerHTML="";
+      grid.style.display="none";
+      empty.classList.remove("hidden");
+      status.innerHTML='<i class="fas fa-circle-info"></i> No matching products';
+      return;
     }
+    empty.classList.add("hidden");
+    grid.style.display="grid";
+    grid.innerHTML=list.map(card).join("");
+    status.innerHTML='<i class="fas fa-circle-check"></i> '+list.length+' new products available';
+  }
 
-    const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-    const money=v=>{
-      const n=Number(v);
-      return Number.isFinite(n)&&n>0
-        ? new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(n)
-        : "Check price";
-    };
-
-    function render(){
-      const q=input.value.trim().toLowerCase();
-      let list=products.filter(p=>{
-        const matchesCategory=activeCategory==="all"||p.category===activeCategory;
-        const text=(p.name+" "+p.category+" "+p.source).toLowerCase();
-        return matchesCategory&&(!q||text.includes(q));
+  function renderSuggestions(){
+    const q=input.value.trim().toLowerCase();
+    if(!q){suggestionPanel.classList.add("hidden");suggestionPanel.innerHTML="";return;}
+    const seen=new Set();
+    const list=products.filter(p=>{
+      const match=(p.name+" "+p.category+" "+p.source).toLowerCase().includes(q);
+      const key=String(p.name).toLowerCase();
+      if(match&&!seen.has(key)){seen.add(key);return true;}
+      return false;
+    }).slice(0,8);
+    if(!list.length){suggestionPanel.classList.add("hidden");suggestionPanel.innerHTML="";return;}
+    suggestionPanel.innerHTML=list.map(p=>
+      '<button type="button" class="marketplace-page-suggestion" data-name="'+esc(p.name)+'">'+
+      '<span class="marketplace-page-suggestion-icon"><i class="fas fa-box"></i></span>'+
+      '<span class="marketplace-page-suggestion-copy"><strong>'+esc(p.name)+'</strong><small>New product • '+esc(p.source)+'</small></span>'+
+      '<i class="fas fa-chevron-right"></i></button>'
+    ).join("");
+    suggestionPanel.classList.remove("hidden");
+    suggestionPanel.querySelectorAll("button").forEach(btn=>{
+      btn.addEventListener("mousedown",e=>e.preventDefault());
+      btn.addEventListener("click",()=>{
+        input.value=btn.dataset.name||"";
+        suggestionPanel.classList.add("hidden");
+        activeCategory="all";
+        tabs.forEach(t=>t.classList.toggle("active",t.dataset.newCategory==="all"));
+        render();
       });
+    });
+  }
 
-      if(!list.length){
-        grid.innerHTML="";
-        empty.classList.remove("hidden");
-        empty.querySelector("h3").textContent="No products found";
-        empty.querySelector("p").textContent="Try another product name or category.";
-        status.innerHTML='<i class="fas fa-circle-info"></i> No matching products';
-        return;
-      }
+  async function loadAdminProducts(){
+    try{
+      const controller=new AbortController();
+      const timer=setTimeout(()=>controller.abort(),1200);
+      const response=await fetch(
+        SUPABASE_URL+"/rest/v1/new_products?select=id,name,category,price,source,image,url&order=created_at.desc",
+        {headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"},signal:controller.signal}
+      );
+      clearTimeout(timer);
+      if(!response.ok) return;
+      const remote=await response.json();
+      if(!Array.isArray(remote)||!remote.length) return;
 
-      empty.classList.add("hidden");
-      status.innerHTML='<i class="fas fa-circle-check"></i> '+list.length+' new products available';
-      grid.innerHTML=list.map(p=>{
-        const source=esc(p.source||"Store");
-        const image=p.image
-          ? '<img src="'+esc(p.image)+'" alt="'+esc(p.name)+'" loading="lazy" onerror="this.parentElement.classList.add(\'image-failed\');this.remove()">'
-          : '<div class="new-product-image-placeholder"><i class="fas fa-box-open"></i></div>';
-        return '<article class="new-product-card">'+
-          '<div class="new-product-image-wrap">'+image+
-          '<span class="new-product-badge">NEW</span>'+
-          '<span class="new-product-source">'+source+'</span></div>'+
-          '<div class="new-product-body">'+
-          '<span class="new-product-category">'+esc(p.category)+'</span>'+
-          '<h3>'+esc(p.name)+'</h3>'+
-          '<div class="new-product-price">'+money(p.price)+'</div>'+
-          '<a class="new-product-buy" href="'+esc(p.url)+'" target="_blank" rel="noopener noreferrer sponsored">View Product <i class="fas fa-arrow-up-right-from-square"></i></a>'+
-          '</div></article>';
-      }).join("");
-    }
-
-    function suggestions(q){
-      const query=String(q||"").trim().toLowerCase();
-      const seen=new Set();
-      const out=[];
-      products.forEach(p=>{
-        if(!query||(p.name+" "+p.category+" "+p.source).toLowerCase().includes(query)){
-          const key=p.name.toLowerCase();
-          if(!seen.has(key)){seen.add(key);out.push(p);}
-        }
-      });
-      return out.slice(0,8);
-    }
-
-    function renderSuggestions(){
-      const list=suggestions(input.value);
-      if(!list.length){panel.classList.add("hidden");panel.innerHTML="";return;}
-      panel.innerHTML=list.map(p=>
-        '<button type="button" class="marketplace-page-suggestion" data-value="'+esc(p.name)+'">'+
-        '<span class="marketplace-page-suggestion-icon"><i class="fas fa-box"></i></span>'+
-        '<span class="marketplace-page-suggestion-copy"><strong>'+esc(p.name)+'</strong><small>New product • '+esc(p.source)+'</small></span>'+
-        '<i class="fas fa-chevron-right"></i></button>'
-      ).join("");
-      panel.classList.remove("hidden");
-      panel.querySelectorAll("button").forEach(b=>{
-        b.addEventListener("mousedown",e=>e.preventDefault());
-        b.addEventListener("click",()=>{
-          input.value=b.dataset.value||"";
-          panel.classList.add("hidden");
-          activeCategory="all";
-          tabs.forEach(t=>t.classList.toggle("active",t.dataset.newCategory==="all"));
-          render();
-        });
-      });
-    }
-
-    tabs.forEach(tab=>tab.addEventListener("click",()=>{
-      tabs.forEach(t=>t.classList.remove("active"));
-      tab.classList.add("active");
-      activeCategory=tab.dataset.newCategory||"all";
+      const ids=new Set(remote.map(p=>String(p.id)));
+      products=remote.map(p=>({
+        id:p.id,name:p.name,category:p.category,price:Number(p.price||0),
+        source:p.source||"Store",url:p.url||"#"
+      })).concat(products.filter(p=>!ids.has(String(p.id))));
       render();
-    }));
-
-    input.addEventListener("focus",renderSuggestions);
-    input.addEventListener("input",()=>{renderSuggestions();render();});
-    input.addEventListener("keydown",e=>{
-      if(e.key==="Enter"){e.preventDefault();panel.classList.add("hidden");render();}
-      if(e.key==="Escape")panel.classList.add("hidden");
-    });
-    input.addEventListener("blur",()=>setTimeout(()=>panel.classList.add("hidden"),160));
-    document.getElementById("marketplacePageSearchButton")?.addEventListener("click",()=>{
-      panel.classList.add("hidden");render();
-    });
-
-    // Render the local catalog immediately; remote admin products are an enhancement only.
-    try { render(); } catch(error) {
-      console.error("Marketplace render failed:", error);
-      status.innerHTML='<i class="fas fa-triangle-exclamation"></i> Products could not be rendered. Please refresh.';
+    }catch(e){
+      console.warn("Admin product feed unavailable:",e);
     }
-    void loadAdminProducts();
+  }
 
-    // Keep browser / Android back navigation natural. If this page was opened directly,
-    // provide a safe fallback to the main app when history has no previous entry.
-    window.addEventListener("pageshow",()=>{
-      if(document.referrer && /studentskart\.netlify\.app|localhost|127\.0\.0\.1/i.test(document.referrer)) return;
-    });
-});
+  tabs.forEach(tab=>tab.addEventListener("click",()=>{
+    tabs.forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    activeCategory=tab.dataset.newCategory||"all";
+    render();
+  }));
+
+  input.addEventListener("input",()=>{renderSuggestions();render();});
+  input.addEventListener("focus",renderSuggestions);
+  input.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){e.preventDefault();suggestionPanel.classList.add("hidden");render();}
+    if(e.key==="Escape")suggestionPanel.classList.add("hidden");
+  });
+  input.addEventListener("blur",()=>setTimeout(()=>suggestionPanel.classList.add("hidden"),180));
+  searchButton.addEventListener("click",()=>{suggestionPanel.classList.add("hidden");render();});
+  refreshButton.addEventListener("click",async()=>{
+    refreshButton.disabled=true;
+    status.innerHTML='<i class="fas fa-spinner fa-spin"></i> Refreshing…';
+    render();
+    await loadAdminProducts();
+    refreshButton.disabled=false;
+    render();
+  });
+  $("marketplaceMobileBack").addEventListener("click",()=>{
+    if(window.history.length>1) window.history.back();
+    else window.location.href="/";
+  });
+
+  // IMPORTANT: render synchronously before any network request.
+  render();
+  void loadAdminProducts();
+})();
 </script>
 </body>
 </html>
