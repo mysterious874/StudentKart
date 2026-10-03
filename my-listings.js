@@ -22,9 +22,20 @@ async function open(){
  const modal=document.getElementById("myListingsModal"),container=document.getElementById("myListingsContainer");
  if(!modal||!container){window.showToast?.("My Listings is unavailable","error");return}
  modal.classList.remove("hidden");container.innerHTML='<div class="sk-my-listings-empty"><i class="fas fa-spinner fa-spin"></i> Loading your listings...</div>';
- const {data,error}=await supabaseClient.from("products").select("id,name,category,price,location,condition,description,image,created_at,updated_at,status,moderation_reason,moderated_at").eq("user_id",user.id).order("created_at",{ascending:false});
- if(error){container.innerHTML='<div class="sk-my-listings-empty">Could not load your listings.<br><small>'+esc(error.message)+'</small></div>';return}
- const rows=data||[];if(!rows.length){container.innerHTML='<div class="sk-my-listings-empty"><i class="fas fa-box-open"></i><br><strong>No listings yet</strong><br><small>Your listings will appear here.</small></div>';return}
+ const fields="id,name,category,price,location,condition,description,image,created_at,updated_at,status,moderation_reason,moderated_at,user_id,seller_email";
+ const byUser=await supabaseClient.from("products").select(fields).eq("user_id",user.id);
+ if(byUser.error){container.innerHTML='<div class="sk-my-listings-empty">Could not load your listings.<br><small>'+esc(byUser.error.message)+'</small></div>';return}
+ let rows=byUser.data||[];
+ // Support older listings that were created before user_id was attached.
+ if(user.email){
+   const byEmail=await supabaseClient.from("products").select(fields).eq("seller_email",user.email);
+   if(!byEmail.error){
+     const seen=new Set(rows.map(x=>String(x.id)));
+     (byEmail.data||[]).forEach(x=>{if(!seen.has(String(x.id))){rows.push(x);seen.add(String(x.id));}});
+   }
+ }
+ rows.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+ if(!rows.length){container.innerHTML='<div class="sk-my-listings-empty"><i class="fas fa-box-open"></i><br><strong>No listings yet</strong><br><small>Your listings will appear here.</small></div>';return}
  const appeals=await loadAppeals(user,rows.map(x=>x.id));
  container.innerHTML=rows.map(p=>{
   const st=p.status||"active",sm=statusMeta[st]||statusMeta.active,a=appeals[p.id],am=a?appealMeta[a.status]:null;
