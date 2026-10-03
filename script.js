@@ -13299,6 +13299,17 @@ document.addEventListener("pointerdown", event => {
 
 
 /* Footer information links */
+const bottomMarketplaceButton = $("bottomMarketplaceButton");
+if (bottomMarketplaceButton) {
+    bottomMarketplaceButton.addEventListener("click", () => {
+        closeAllModals({ fromPopState: true });
+        const marketplace = $("marketplace");
+        if (marketplace) {
+            marketplace.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    });
+}
+
 const bottomSettingsButton = $("bottomSettingsButton");
 if (bottomSettingsButton) {
     bottomSettingsButton.addEventListener("click", () => {
