@@ -5239,6 +5239,64 @@ function openCategoryPage(category, options = {}) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function getSearchResultMatches(query) {
+    const q = String(query || "").trim().toLowerCase();
+    if (!q) return [];
+    const terms = q.split(/\s+/).filter(Boolean);
+    const categoryQuery = ["books","electronics","vehicles","furniture","services","fashion","gaming","other"].includes(q);
+    return [...currentProducts].filter(product => {
+        const haystack = [product.name,product.category,product.location,product.condition,product.description,product.seller].join(" ").toLowerCase();
+        return categoryQuery
+            ? String(product.category || "").toLowerCase() === q
+            : terms.every(term => haystack.includes(term));
+    }).sort((a,b) => {
+        const an=String(a.name||"").toLowerCase(), bn=String(b.name||"").toLowerCase();
+        return (Number(bn.startsWith(q))-Number(an.startsWith(q))) || (new Date(b.createdAt)-new Date(a.createdAt));
+    });
+}
+
+function showSearchResultsPage(query, options = {}) {
+    const selected=String(query||"").trim();
+    if(!selected) return;
+    if(!options.fromPopState && !studentKartHandlingPopState){
+        ensureStudentKartHistory();
+        const state={studentKart:true,modalId:null,modalStack:[],page:"search",searchQuery:selected};
+        const hash="#search-"+encodeURIComponent(selected);
+        if(window.history.state?.page==="search") window.history.replaceState(state,"",window.location.pathname+window.location.search+hash);
+        else window.history.pushState(state,"",window.location.pathname+window.location.search+hash);
+    }
+    document.querySelectorAll(".modal").forEach(modal=>{modal.classList.remove("modal-closing");modal.classList.add("hidden");});
+    document.body.classList.remove("modal-open","studentkart-modal-navigation-hidden","category-page-active");
+    document.querySelector("main")?.classList.remove("category-page-active");
+    ["home","marketplace","how-it-works","categoryPage"].forEach(id=>$(id)?.classList.add("hidden"));
+    $("searchResultsPage")?.classList.remove("hidden");
+    const title=$("searchResultsQuery"), subtitle=$("searchResultsNavbarSubtitle");
+    if(title) title.textContent=selected;
+    if(subtitle) subtitle.textContent="Products related to “"+selected+"”";
+    const matches=getSearchResultMatches(selected);
+    const count=$("searchResultsCount");
+    if(count) count.textContent=matches.length+(matches.length===1?" listing":" listings");
+    renderProducts(matches,"searchResultsProductContainer","searchResultsEmptyState");
+    window.scrollTo({top:0,behavior:"auto"});
+}
+
+function showHomePageFromSearch(options={}) {
+    $("searchResultsPage")?.classList.add("hidden");
+    $("categoryPage")?.classList.add("hidden");
+    $("home")?.classList.remove("hidden");
+    $("marketplace")?.classList.remove("hidden");
+    $("how-it-works")?.classList.remove("hidden");
+    document.body.classList.remove("category-page-active");
+    document.querySelector("main")?.classList.remove("category-page-active");
+    $("navbarSearchInput")&&( $("navbarSearchInput").value="" );
+    $("heroSearchInput")&&( $("heroSearchInput").value="" );
+    $("navbarSearchSuggestions")?.classList.add("hidden");
+    $("heroSearchSuggestions")?.classList.add("hidden");
+    window.scrollTo({top:0,behavior:options.fromPopState?"smooth":"auto"});
+}
+
+
+
 function selectCategory(category) {
     const selected = category || "all";
     if (selected === "all") {
@@ -12364,5 +12422,18 @@ document.addEventListener("DOMContentLoaded", () => {
     searchButton?.addEventListener("click", runHeroSearch);
     searchInput?.addEventListener("keydown", event => {
         if (event.key === "Enter") runHeroSearch();
+    });
+});
+
+
+/* Search results navigation */
+document.addEventListener("DOMContentLoaded", () => {
+    $("searchResultsBack")?.addEventListener("click", () => {
+        if (window.history.state?.page === "search") window.history.back();
+        else showHomePageFromSearch();
+    });
+    $("searchResultsBrowseAll")?.addEventListener("click", () => {
+        showHomePageFromSearch();
+        document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
     });
 });
