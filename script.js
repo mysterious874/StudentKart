@@ -3632,7 +3632,6 @@ async function searchStudentKartUsers(query) {
         const { data, error } = await supabaseClient
             .from("profiles")
             .select("id,name,username,phone,email,college,avatar_url,city,area")
-            .neq("id", currentUser.id)
             .not("phone", "is", null)
             .ilike("phone", "+91" + digits + "%")
             .order("name", { ascending: true })
@@ -3684,7 +3683,11 @@ async function searchStudentKartUsers(query) {
                 if (String(targetId) === String(currentUser?.id)) {
                             await openStudentKartUserProfile(targetId);
                         } else {
-                            await openStudentKartUserChat(targetId);
+                            if (String(targetId) === String(currentUser?.id)) {
+                    await openStudentKartUserProfile(targetId);
+                } else {
+                    await openStudentKartUserChat(targetId);
+                }
                         }
             });
         });
