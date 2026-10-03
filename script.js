@@ -5272,6 +5272,8 @@ function showSearchResultsPage(query, options = {}) {
     document.body.classList.add("studentkart-search-results-active");
     document.querySelector(".mobile-bottom-nav")?.classList.add("hidden");
     $("searchResultsPage")?.classList.remove("hidden");
+    const resultInput=$("searchResultsInput");
+    if(resultInput) resultInput.value=selected;
     const title=$("searchResultsQuery"), subtitle=$("searchResultsNavbarSubtitle");
     if(title) title.textContent=selected;
     if(subtitle) subtitle.textContent="Products related to “"+selected+"”";
