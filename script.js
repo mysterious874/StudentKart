@@ -11978,6 +11978,11 @@ async function handleSettingAction(action) {
                 <i class="fas fa-lightbulb"></i>
                 <p>“StudentKart is built with the vision of making campus life more connected, convenient, and student-friendly.”</p>
             </div>
+            <div class="info-section ai-development-section">
+                <h3><i class="fas fa-robot"></i> AI-Assisted Development</h3>
+                <p>StudentKart has been developed with the help of AI as a development assistant. AI has supported coding, debugging, UI improvements, feature implementation and problem-solving throughout the development process.</p>
+                <p class="ai-development-note"><i class="fas fa-user-gear"></i> The product idea, direction, decisions and final implementation are guided and reviewed by <strong>Harish Rathod</strong>.</p>
+            </div>
             <div class="info-section">
                 <h3><i class="fas fa-user-tie"></i> Role</h3>
                 <p>Founder & Developer of StudentKart.</p>
