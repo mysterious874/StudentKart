@@ -927,6 +927,28 @@ button:disabled {
 }
 
 
+.navbar-search-panel.marketplace-local-filter {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(920px, calc(100% - 32px));
+    z-index: 1200;
+}
+
+.navbar-search-panel.marketplace-local-filter .navbar-search-inner {
+    display: none;
+}
+
+.navbar-search-panel.marketplace-local-filter .navbar-filter-panel {
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .navbar-search-panel.marketplace-local-filter {
+        width: calc(100% - 24px);
+    }
+}
+
 /* =========================================================
    MARKETPLACE
    ========================================================= */
