@@ -12348,11 +12348,7 @@ async function handleSettingAction(action) {
     if (action === "hide-email") return settingsToggle("privacy.hideEmail");
     if (action === "blocked-users") return settingsBlockedUsers();
 
-    if (action === "report-problem") {
-        const body = encodeURIComponent("StudentKart problem report:\n\n");
-        window.location.href = `mailto:rathodharish004@gmail.com?subject=StudentKart%20Problem%20Report&body=${body}`;
-        return;
-    }
+    if (action === "report-problem") return settingsReportProblem();
 
     if (action === "safety-tips" || action === "safety-about" || action === "about" ||
         action === "terms" || action === "privacy-policy" || action === "contact") {
@@ -12394,6 +12390,10 @@ const SETTINGS_SECTION_TEMPLATES = {
         title: "Account", icon: "fa-user", subtitle: "Manage your profile and account details.",
         html: `
             <button class="settings-row" type="button" data-setting-action="edit-profile"><span><i class="fas fa-pen"></i><b>Edit Profile</b><small>Update your profile details</small></span><i class="fas fa-chevron-right"></i></button>
+            <button class="settings-row" type="button" data-setting-action="email"><span><i class="fas fa-envelope"></i><b>Email Address</b><small>Change the email connected to your account</small></span><i class="fas fa-chevron-right"></i></button>
+            <button class="settings-row" type="button" data-setting-action="mobile"><span><i class="fas fa-mobile-screen"></i><b>Mobile Number</b><small>Change your mobile number</small></span><i class="fas fa-chevron-right"></i></button>
+            <button class="settings-row" type="button" data-setting-action="college"><span><i class="fas fa-building-columns"></i><b>College / University</b><small>Update your education details</small></span><i class="fas fa-chevron-right"></i></button>
+            <button class="settings-row" type="button" data-setting-action="profile-photo"><span><i class="fas fa-camera"></i><b>Profile Photo</b><small>Update your profile picture</small></span><i class="fas fa-chevron-right"></i></button>
         `
     },
     notifications: {
