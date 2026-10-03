@@ -22,6 +22,18 @@
         <div class="globedisc-splash-tagline">Search Beyond Boundaries.</div>
         <div class="globedisc-splash-progress"><span></span></div>
     </div>
+    <script>
+    (function () {
+        var splash = document.getElementById("globediscSplash");
+        if (!splash) return;
+        window.setTimeout(function () {
+            splash.classList.add("is-hidden");
+            window.setTimeout(function () {
+                if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+            }, 550);
+        }, 2800);
+    })();
+    </script>
 
         <div id="navbarSearchPanel" class="navbar-search-panel hidden" aria-label="Search GlobeDisc">
         <div class="navbar-search-inner">
