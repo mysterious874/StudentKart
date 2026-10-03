@@ -12442,6 +12442,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const runResultSearch=()=>{ const q=resultInput?.value?.trim(); if(q) showSearchResultsPage(q); };
     $("searchResultsSearchButton")?.addEventListener("click",runResultSearch);
     resultInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();runResultSearch();}});
+    const resultFilterPanel=$("searchResultsFilterPanel");
+    $("searchResultsFilterButton")?.addEventListener("click",()=>resultFilterPanel?.classList.toggle("hidden"));
+    $("searchResultsFilterClose")?.addEventListener("click",()=>resultFilterPanel?.classList.add("hidden"));
+    $("searchResultsFilterClear")?.addEventListener("click",()=>{
+        ["searchResultsFilterCategory","searchResultsFilterCondition","searchResultsFilterSort"].forEach(id=>{
+            const el=$(id); if(el) el.value=id==="searchResultsFilterSort"?"newest":"all";
+        });
+        ["searchResultsFilterMin","searchResultsFilterMax","searchResultsFilterLocation"].forEach(id=>{const el=$(id);if(el)el.value=""});
+    });
+    $("searchResultsFilterApply")?.addEventListener("click",()=>{
+        const q=resultInput?.value?.trim(); if(!q) return;
+        const matches=getSearchResultMatches(q).filter(p=>{
+            const cat=$("searchResultsFilterCategory")?.value||"all";
+            const cond=$("searchResultsFilterCondition")?.value||"all";
+            const min=Number($("searchResultsFilterMin")?.value||0);
+            const max=Number($("searchResultsFilterMax")?.value||0);
+            const loc=String($("searchResultsFilterLocation")?.value||"").trim().toLowerCase();
+            const price=Number(p.price)||0;
+            return (cat==="all"||String(p.category||"").toLowerCase()===cat.toLowerCase()) &&
+                   (cond==="all"||String(p.condition||"").toLowerCase()===cond.toLowerCase()) &&
+                   (!min||price>=min) && (!max||price<=max) &&
+                   (!loc||[p.location,p.name,p.description].join(" ").toLowerCase().includes(loc));
+        }).sort((a,b)=>{
+            const s=$("searchResultsFilterSort")?.value||"newest";
+            if(s==="price-low") return (Number(a.price)||0)-(Number(b.price)||0);
+            if(s==="price-high") return (Number(b.price)||0)-(Number(a.price)||0);
+            return new Date(b.createdAt)-new Date(a.createdAt);
+        });
+        const count=$("searchResultsCount"); if(count) count.textContent=matches.length+(matches.length===1?" listing":" listings");
+        renderProducts(matches,"searchResultsProductContainer","searchResultsEmptyState");
+        resultFilterPanel?.classList.add("hidden");
+    });
         $("searchResultsBrowseAll")?.addEventListener("click", () => {
         showHomePageFromSearch();
         document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
