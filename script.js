@@ -3280,7 +3280,7 @@ async function loadReceivedInquiries() {
             (hiddenChats || []).map(row => String(row.inquiry_id))
         );
 
-        const visibleInquiries = inquiries.filter(
+        let visibleInquiries = inquiries.filter(
             inquiry => !hiddenInquiryIds.has(String(inquiry.id))
         );
 
@@ -3441,9 +3441,11 @@ async function loadReceivedInquiries() {
         // one real message exists. Opening a direct chat creates the
         // conversation record in the background, but that empty record
         // must stay out of the list until a message is actually sent.
-        if (!messageListQueryFailed) {
+        if (!messageListQueryFailed && Object.keys(latestMessages).length) {
             visibleInquiries = visibleInquiries.filter(
-                inquiry => Boolean(latestMessages[String(inquiry.id)])
+                inquiry =>
+                    Boolean(latestMessages[String(inquiry.id)]) ||
+                    Boolean(String(inquiry.message || "").trim())
             );
         }
 
