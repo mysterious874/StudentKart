@@ -12853,7 +12853,7 @@ function settingsDeleteAccount() {
         }
     });
 }
-async function handleSettingAction(action) {
+async async function handleSettingAction(action) {
     if (!currentUser) {
         closeModal("settingsModal");
         openModal("loginModal");
@@ -12887,6 +12887,9 @@ async function handleSettingAction(action) {
             if (permission !== "granted") {
                 showToast("Browser notification permission was not granted", "warning");
                 return;
+            }
+            if (typeof window.registerStudentKartPush === "function") {
+                await window.registerStudentKartPush();
             }
         }
         return settingsToggle("notifications.push");
