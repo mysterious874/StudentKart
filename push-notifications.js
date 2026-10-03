@@ -22,7 +22,8 @@
 
     try {
       const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
-      await navigator.serviceWorker.ready;
+      await registration.update().catch(() => {});
+      const readyRegistration = await navigator.serviceWorker.ready;
 
       if (!VAPID_PUBLIC_KEY) {
         console.warn("StudentKart push: VAPID public key is not configured yet.");
@@ -33,10 +34,10 @@
         return registration;
       }
 
-      let subscription = await registration.pushManager.getSubscription();
+      let subscription = await readyRegistration.pushManager.getSubscription();
 
       if (!subscription) {
-        subscription = await registration.pushManager.subscribe({
+        subscription = await readyRegistration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
         });
@@ -61,7 +62,13 @@
 
       return subscription;
     } catch (error) {
-      console.warn("StudentKart push setup failed:", error);
+      console.error("StudentKart push setup failed:", error);
+      const message = error?.message || "Push setup failed on this device.";
+      try {
+        if (typeof window.showToast === "function") {
+          window.showToast("Mobile push setup failed: " + message, "error");
+        }
+      } catch (_) {}
       return null;
     }
   }
