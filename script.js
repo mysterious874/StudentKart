@@ -3611,7 +3611,7 @@ function bindChatLongPress() {
 
 async function searchStudentKartUsers(query) {
     const box = $("chatUserSearchResults");
-    if (!box || !currentUser) return;
+    if (!box) return;
 
     const q = String(query || "").trim().toLowerCase();
     window.clearTimeout(studentKartUserSearchTimer);
