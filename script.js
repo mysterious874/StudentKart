@@ -3681,7 +3681,11 @@ async function searchStudentKartUsers(query) {
                 const searchInput = $("chatListSearchInput");
                 if (searchInput) searchInput.value = "";
 
-                await openStudentKartUserChat(targetId);
+                if (String(targetId) === String(currentUser?.id)) {
+                            await openStudentKartUserProfile(targetId);
+                        } else {
+                            await openStudentKartUserChat(targetId);
+                        }
             });
         });
     } catch (error) {
