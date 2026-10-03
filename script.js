@@ -562,7 +562,16 @@ window.addEventListener("popstate", event => {
         marketplaceFilterPanel?.classList.add("hidden");
 
         const navbarSearchInput = document.getElementById("navbarSearchInput");
-        if (navbarSearchInput) navbarSearchInput.blur();
+        if (navbarSearchInput) {
+            navbarSearchInput.blur();
+            navbarSearchInput.setAttribute("readonly", "readonly");
+            window.setTimeout(() => {
+                navbarSearchInput.blur();
+                if (document.activeElement === navbarSearchInput) {
+                    try { document.activeElement.blur(); } catch (error) {}
+                }
+            }, 0);
+        }
 
         return;
     }
@@ -12467,17 +12476,34 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
     };
 
+    // Fully release the search input when the overlay closes. On some
+    // Android browsers the caret can remain visually active for a moment
+    // even after the panel is hidden, so blur again on the next frame.
+    const closeNavbarSearch = () => {
+        studentKartNavbarSearchOpen = false;
+        searchInput.blur();
+        searchInput.setAttribute("readonly", "readonly");
+        searchPanel.classList.add("hidden");
+
+        window.requestAnimationFrame(() => {
+            searchInput.blur();
+            if (document.activeElement === searchInput) {
+                try { document.activeElement.blur(); } catch (error) {}
+            }
+        });
+    };
+
     navSearchButton.addEventListener("click", () => {
         const opening = searchPanel.classList.contains("hidden");
 
         if (!opening) {
-            searchPanel.classList.add("hidden");
-            studentKartNavbarSearchOpen = false;
+            closeNavbarSearch();
             return;
         }
 
         searchPanel.classList.remove("hidden");
         studentKartNavbarSearchOpen = true;
+        searchInput.removeAttribute("readonly");
 
         // Give the open search panel its own browser-history entry so
         // Android/browser Back closes the search first instead of navigating
@@ -12512,7 +12538,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (studentKartNavbarSearchOpen) {
                 window.history.back();
             } else {
-                searchPanel.classList.add("hidden");
+                closeNavbarSearch();
             }
         }
     });
