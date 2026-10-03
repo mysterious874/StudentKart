@@ -577,17 +577,19 @@
                 <div class="form-group">
                     <label for="loginIdentifier">Email Address</label>
                     <input type="email" id="loginIdentifier" placeholder="you@example.com"
-                        autocomplete="email" required>
+                        autocomplete="email" required aria-describedby="loginEmailHelp">
+                    <small class="form-help login-validation-error hidden" id="loginEmailHelp"></small>
                 </div>
                 <div class="form-group password-field-group">
                     <label for="loginPassword">Password</label>
                     <div class="password-input-wrap">
                         <input type="password" id="loginPassword" placeholder="Enter your password"
-                            autocomplete="current-password" required>
+                            autocomplete="current-password" required aria-describedby="loginPasswordHelp">
                         <button type="button" class="password-toggle-button" data-password-toggle="loginPassword" aria-label="Show password" title="Show password">
                             <i class="far fa-eye"></i>
                         </button>
                     </div>
+                    <small class="form-help login-validation-error hidden" id="loginPasswordHelp"></small>
                 </div>
                 <button type="submit" class="btn btn-primary btn-full">
                     <i class="fas fa-right-to-bracket"></i> Login
