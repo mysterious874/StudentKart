@@ -164,10 +164,10 @@
         try{
             const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
             const path=`${currentUser.id}/${crypto.randomUUID()}.${ext}`;
-            const upload=await supabaseClient.storage.from("student-ids").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});
+            const upload=await supabaseClient.storage.from("student-id-cards").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});
             if(upload.error)throw upload.error;
             const insert=await supabaseClient.from("campus_verifications").insert({
-                user_id:currentUser.id,campus,student_name:studentName,student_id:studentId,id_image_path:path,status:"pending"
+                user_id:currentUser.id,campus,student_name:studentName,student_id:studentId,document_path:path,status:"pending"
             });
             if(insert.error)throw insert.error;
             if(typeof showToast==="function")showToast("Student ID submitted for verification.","success");
