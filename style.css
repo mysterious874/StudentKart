@@ -18478,3 +18478,125 @@ body.studentkart-search-results-active{
     .world-news-card-grid{grid-template-columns:1fr}
     .world-news-featured-body{padding:22px}
 }
+
+
+/* =========================================================
+   SEARCH UX + SEPARATE MARKETPLACE PAGE
+   ========================================================= */
+.search-results-web-heading{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+.search-results-web-heading > div:first-child{
+    order:2;
+}
+.search-results-web-heading .internet-quick-links{
+    order:1;
+    width:100%;
+    display:flex;
+    flex-wrap:nowrap;
+    align-items:center;
+    gap:8px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:2px 0 8px;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+}
+.search-results-web-heading .internet-quick-links::-webkit-scrollbar{display:none}
+.search-results-web-heading .internet-quick-link{
+    flex:0 0 auto;
+    white-space:nowrap;
+}
+#heroSearchInput:focus,
+#searchResultsInput:focus{
+    outline:none;
+}
+.marketplace-page{
+    min-height:100vh;
+    padding:24px 18px 80px;
+    background:var(--bg,#f7faf9);
+}
+.marketplace-page-shell{
+    width:min(1180px,100%);
+    margin:0 auto;
+}
+.marketplace-page-header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:18px;
+}
+.marketplace-page-back{
+    width:44px;height:44px;border:1px solid var(--border,#dbe3e8);
+    border-radius:14px;background:var(--card-bg,#fff);cursor:pointer;
+    display:grid;place-items:center;font-size:17px;
+}
+.marketplace-page-title h1{margin:0;font-size:clamp(25px,4vw,36px)}
+.marketplace-page-title p{margin:4px 0 0;color:#64748b}
+.marketplace-page-search{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--card-bg,#fff);
+    border:1px solid var(--border,#dbe3e8);
+    border-radius:18px;
+    padding:8px 10px 8px 16px;
+    box-shadow:0 8px 26px rgba(15,23,42,.06);
+}
+.marketplace-page-search > i{color:#64748b}
+.marketplace-page-search input{
+    flex:1;border:0;outline:0;background:transparent;min-width:0;
+    font:inherit;font-size:15px;padding:10px 0;
+}
+.marketplace-page-search button{
+    width:42px;height:42px;border:0;border-radius:13px;
+    background:#27aaa6;color:#fff;cursor:pointer;
+}
+.marketplace-page-suggestions{
+    position:absolute;z-index:50;left:0;right:0;top:calc(100% + 8px);
+    background:#fff;border:1px solid #e1e8ec;border-radius:16px;
+    box-shadow:0 18px 40px rgba(15,23,42,.14);overflow:hidden;
+}
+.marketplace-page-suggestion{
+    width:100%;border:0;background:#fff;text-align:left;padding:12px 14px;
+    display:flex;align-items:center;gap:12px;cursor:pointer;
+}
+.marketplace-page-suggestion:hover,.marketplace-page-suggestion.active{background:#f1f8f7}
+.marketplace-page-suggestion-icon{
+    width:34px;height:34px;border-radius:10px;background:#e8f5f3;
+    display:grid;place-items:center;color:#168b87;flex:0 0 auto;
+}
+.marketplace-page-suggestion-copy{display:flex;flex-direction:column;min-width:0}
+.marketplace-page-suggestion-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.marketplace-page-suggestion-copy small{color:#64748b;margin-top:2px}
+.marketplace-page-categories{
+    display:flex;gap:9px;overflow-x:auto;padding:14px 1px 18px;
+    scrollbar-width:none;
+}
+.marketplace-page-categories::-webkit-scrollbar{display:none}
+.marketplace-category-button{
+    flex:0 0 auto;border:1px solid #dbe5e7;background:#fff;border-radius:999px;
+    padding:10px 15px;display:inline-flex;align-items:center;gap:7px;
+    cursor:pointer;font:inherit;color:#334155;white-space:nowrap;
+}
+.marketplace-category-button.active,.marketplace-category-button:hover{
+    background:#27aaa6;color:#fff;border-color:#27aaa6;
+}
+.marketplace-page-toolbar{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    margin:4px 0 18px;
+}
+.marketplace-page-count{color:#64748b;font-size:14px}
+.marketplace-page-empty{padding:50px 20px;text-align:center;color:#64748b}
+.marketplace-page .products-grid{margin-top:0}
+@media(max-width:600px){
+    .marketplace-page{padding:16px 12px 90px}
+    .marketplace-page-header{margin-bottom:14px}
+    .marketplace-page-title p{font-size:13px}
+    .marketplace-page-toolbar{margin-bottom:12px}
+}
+body.marketplace-page-active .mobile-bottom-nav,
+body.marketplace-page-active .footer{display:none!important}
