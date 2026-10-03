@@ -17903,3 +17903,23 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
         padding: 0 11px !important;
     }
 }
+
+
+/* WhatsApp-style deleted message */
+.chat-message-deleted {
+    color: rgba(255,255,255,.58) !important;
+    font-style: italic;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.chat-message-deleted i {
+    font-size: 12px;
+    opacity: .75;
+}
+.chat-message-own .chat-message-deleted {
+    color: rgba(255,255,255,.68) !important;
+}
+.chat-message-other .chat-message-deleted {
+    color: #7b8794 !important;
+}
