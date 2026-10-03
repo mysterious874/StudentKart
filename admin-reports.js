@@ -53,12 +53,19 @@
                 <div class="sk-admin-card-head"><div><strong>${esc(r.reason)}</strong><div class="sk-admin-meta">Status: ${esc(r.status)} · ${esc(new Date(r.created_at).toLocaleString("en-IN"))}<br>Listing: <strong>${esc(modal._products?.[r.product_id]?.name||"Deleted/unknown")}</strong>${modal._products?.[r.product_id]?.price!=null?` · ₹${esc(Number(modal._products[r.product_id].price).toLocaleString("en-IN"))}`:""}<br>Seller: ${esc(modal._products?.[r.product_id]?.seller||modal._products?.[r.product_id]?.seller_email||"Unknown")}<br>Product ID: ${esc(r.product_id||"Deleted/unknown")}<br>Reporter ID: ${esc(r.reporter_id||"Unknown")}</div></div></div>
                 ${r.details?`<div class="sk-admin-meta" style="margin-top:10px">${esc(r.details)}</div>`:""}
                 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+                  ${r.product_id && modal._products?.[r.product_id] ? `<button class="btn btn-outline" type="button" data-view-report-product="${esc(r.product_id)}"><i class="fas fa-eye"></i> View Listing</button>` : ""}
                   <button class="btn btn-outline" type="button" data-report-status="reviewed" data-report-id="${esc(r.id)}">Reviewed</button>
                   <button class="btn btn-primary" type="button" data-report-status="resolved" data-report-id="${esc(r.id)}">Resolve</button>
                   <button class="btn btn-outline" type="button" data-report-status="dismissed" data-report-id="${esc(r.id)}">Dismiss</button>
                 </div>
               </article>`).join("");
             list.querySelectorAll("[data-report-status]").forEach(btn=>btn.addEventListener("click",()=>update(btn.dataset.reportId,btn.dataset.reportStatus)));
+            list.querySelectorAll("[data-view-report-product]").forEach(btn=>btn.addEventListener("click",async()=>{
+                const productId=btn.dataset.viewReportProduct;
+                if(typeof window.StudentKartOpenProductDetails!=="function"){window.showToast?.("Product details are unavailable","error");return;}
+                modal.classList.add("hidden");
+                await window.StudentKartOpenProductDetails(productId);
+            }));
         }
         async function update(id,status){
             const {error}=await supabaseClient.from("reports").update({status,reviewed_at:new Date().toISOString(),reviewed_by:(window.currentUser?.id||null)}).eq("id",id);
