@@ -12207,3 +12207,33 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }, { passive: true });
 })();
+
+
+/* FINAL FLOATING CHAT BUTTON REPAIR */
+(function repairFloatingChatButton(){
+  function bind(){
+    const bottomChat = document.querySelector('.bottom-chat-nav-item');
+    if(!bottomChat || bottomChat.dataset.skChatBound === '1') return;
+    bottomChat.dataset.skChatBound = '1';
+    bottomChat.removeAttribute('onclick');
+    bottomChat.addEventListener('click', function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      const chatButton = document.getElementById('chatButton');
+      if(chatButton){
+        chatButton.click();
+        return;
+      }
+      if(typeof openModal === 'function'){
+        if(!currentUser){
+          openModal('loginModal');
+          if(typeof showToast === 'function') showToast('Please login to chat','warning');
+        }else if(typeof openChat === 'function'){
+          openModal('inquiriesModal');
+        }
+      }
+    }, {passive:false});
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
+  else bind();
+})();
