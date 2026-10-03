@@ -6336,7 +6336,6 @@ function setupSearchResultsFilter() {
                         option.addEventListener("click", () => {
                             locationInput.value = option.dataset.locationValue || "";
                             targetBox.classList.add("hidden");
-                            applySearchResultFilter();
                         });
                     });
                     originalInput.value = originalValue;
