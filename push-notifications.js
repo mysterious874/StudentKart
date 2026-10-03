@@ -4,12 +4,13 @@
    ========================================================= */
 
 (() => {
-  const VAPID_PUBLIC_KEY = window.STUDENTKART_VAPID_PUBLIC_KEY || "BF50nHBqRCYR9Qi3KM8vbeePaI0u-PHQ2XKDKqv72-HnScp4s-JDG3a1jyuMz1hqZGYuAQIdqXsVEerVuxHVsQI";
+  // Must match the VAPID_PUBLIC_KEY configured in Supabase Edge Function Secrets.
+  const VAPID_PUBLIC_KEY = window.STUDENTKART_VAPID_PUBLIC_KEY || "BIEwus1tRSv6jRG2hFUVkM5RTe1oGeGB0QwndkWwDEboyn7uJyUsUQahePpV7E1OhXM23TBBk813zTXxE9Dz0l4";
 
   function urlBase64ToUint8Array(base64String) {
     const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
     const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-    const rawData = atob(base64);
+    const rawData = atob(base64String);
     return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
   }
 
