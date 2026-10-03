@@ -17076,3 +17076,16 @@ header.navbar,
 body.studentkart-search-results-active .mobile-bottom-nav{display:none!important}
 body.studentkart-search-results-active .navbar{display:none!important}
 @media(max-width:700px){.search-results-search-strip{padding:8px 10px;gap:7px}.search-results-search-strip input{height:40px;font-size:14px}.search-results-container{padding:18px 12px 40px}}
+
+
+/* FINAL RESTORED STUDENTKART SEARCH COLOUR OVERRIDE */
+.search-results-page{min-height:calc(100vh - 76px);background:linear-gradient(180deg,#eefaf9 0%,#f7faf9 36%,#fff 100%)!important}
+.search-results-navbar{background:linear-gradient(135deg,#102a43 0%,#0f8b8d 100%)!important;border-bottom:1px solid rgba(255,255,255,.16)!important;box-shadow:0 6px 20px rgba(16,42,67,.16)!important}
+.search-results-back{border-color:rgba(255,255,255,.28)!important;background:rgba(255,255,255,.12)!important;color:#fff!important}
+.search-results-back:hover{background:rgba(255,255,255,.2)!important}
+.search-results-navbar-title span{color:#8de3df!important}
+.search-results-navbar-title small{color:#d9f4f2!important}
+.search-results-heading{padding:18px 20px;border:1px solid #d8eeee;border-radius:18px;background:linear-gradient(135deg,#fff,#f0fbfa);box-shadow:0 8px 24px rgba(16,42,67,.07)}
+.search-results-heading h1{color:#102a43}
+.search-results-count{font-weight:800;color:#0f8b8d;background:#e4f6f4;border:1px solid #c7e9e6;border-radius:999px;padding:8px 12px}
+@media(max-width:700px){.search-results-heading{padding:15px}}
