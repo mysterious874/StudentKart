@@ -17780,20 +17780,20 @@ body #logoutConfirmModal.modal:not(.hidden) > .logout-confirm-modal {
 
 
 /* =========================================================
-   FINAL NAVBAR STABILITY + EDGE-TO-EDGE
-   Keep the navbar pinned, visible, and flush with the screen edges.
+   FINAL NAVBAR — FIXED + EDGE-TO-EDGE
+   The main navbar stays fixed at the top of the screen.
    ========================================================= */
 .navbar,
 .navbar.navbar-scroll-hidden {
-    position: sticky !important;
+    position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    margin: 0 !important;
     border-radius: 0 !important;
     transform: translate3d(0, 0, 0) !important;
     visibility: visible !important;
     opacity: 1 !important;
+    z-index: 3000 !important;
 }
