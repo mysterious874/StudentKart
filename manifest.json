@@ -1,15 +1,15 @@
 {
-  "name": "StudentKart",
-  "short_name": "StudentKart",
+  "name": "GlobeDisc",
+  "short_name": "GlobeDisc",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f5fffe",
-  "theme_color": "#27aaa6",
-  "description": "Student marketplace for buying, selling, renting and discovering products and services.",
+  "background_color": "#102a43",
+  "theme_color": "#0f8b8d",
+  "description": "A global search and discovery platform for exploring the web, news, places, media and more.",
   "icons": [
     {
-      "src": "/icons/studentkart-icon.svg",
+      "src": "/icons/globedisc-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
