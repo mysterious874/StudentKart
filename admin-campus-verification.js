@@ -122,7 +122,7 @@
 
         let query = supabaseClient
             .from("campus_verifications")
-            .select("id,user_id,campus,student_name,student_id,document_path,status,rejection_reason,created_at,updated_at")
+            .select("id,user_id,campus,student_name,student_id,id_image_path,status,rejection_reason,created_at,updated_at")
             .order("created_at", { ascending:false })
             .limit(50);
 
@@ -151,8 +151,8 @@
         card.className = "sk-admin-card";
 
         let imageUrl = "";
-        if (item.document_path) {
-            const signed = await supabaseClient.storage.from("student-id-cards").createSignedUrl(item.document_path, 300);
+        if (item.id_image_path) {
+            const signed = await supabaseClient.storage.from("student-ids").createSignedUrl(item.id_image_path, 300);
             imageUrl = signed?.data?.signedUrl || "";
         }
 
