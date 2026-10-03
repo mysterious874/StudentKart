@@ -13229,10 +13229,21 @@ async function loadGlobalDiscoveryHomepage(){
     try{
         grid.innerHTML='<div class="world-news-empty"><i class="fas fa-spinner fa-spin"></i><h3>Loading latest updates…</h3><p>Collecting fresh global stories.</p></div>';
 
-        const items=await fetchInternetPanelData(
-            "news",
-            '(world OR international OR global OR technology OR science OR AI OR space OR business OR economy OR markets OR sports OR entertainment OR culture)'
+        const newsFunctionUrl = SUPABASE_URL + "/functions/v1/global-news?q=" + encodeURIComponent(
+            "(world OR international OR global OR technology OR science OR AI OR space OR business OR economy OR markets OR sports OR entertainment OR culture)"
         );
+        const newsResponse = await fetchWithTimeout(newsFunctionUrl, {
+            headers: {
+                "apikey": SUPABASE_KEY,
+                "Authorization": "Bearer " + SUPABASE_KEY,
+                "Accept": "application/json"
+            }
+        }, 12000);
+        if (!newsResponse.ok) {
+            throw new Error("Global news function returned HTTP " + newsResponse.status);
+        }
+        const newsData = await newsResponse.json();
+        const items = Array.isArray(newsData?.articles) ? newsData.articles : [];
 
         const all=items
             .map(classify)
