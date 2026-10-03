@@ -3391,6 +3391,52 @@ async function loadReceivedInquiries() {
             });
         }
 
+        // Recover from an inquiry-scoped query that is blocked, delayed,
+        // or returns no rows by reading the participant's messages.
+        if (messageListQueryFailed || !Object.keys(latestMessages).length) {
+            const [sentMessagesResult, receivedMessagesResult] = await Promise.all([
+                supabaseClient
+                    .from("messages")
+                    .select("id,inquiry_id,sender_id,receiver_id,message,created_at,is_read")
+                    .eq("sender_id", currentUser.id)
+                    .order("created_at", { ascending: false })
+                    .limit(500),
+                supabaseClient
+                    .from("messages")
+                    .select("id,inquiry_id,sender_id,receiver_id,message,created_at,is_read")
+                    .eq("receiver_id", currentUser.id)
+                    .order("created_at", { ascending: false })
+                    .limit(500)
+            ]);
+
+            const fallbackMessages = [
+                ...(sentMessagesResult.data || []),
+                ...(receivedMessagesResult.data || [])
+            ].sort(
+                (a, b) =>
+                    new Date(b.created_at || 0).getTime() -
+                    new Date(a.created_at || 0).getTime()
+            );
+
+            fallbackMessages.forEach(message => {
+                const key = String(message.inquiry_id || "");
+                if (!key) return;
+
+                if (!latestMessages[key]) {
+                    latestMessages[key] = message;
+                }
+
+                if (
+                    String(message.receiver_id) === String(currentUser.id) &&
+                    message.is_read === false
+                ) {
+                    unreadCounts[key] = (unreadCounts[key] || 0) + 1;
+                }
+            });
+
+            messageListQueryFailed = false;
+        }
+
         // A conversation belongs in the Chat List only after at least
         // one real message exists. Opening a direct chat creates the
         // conversation record in the background, but that empty record
