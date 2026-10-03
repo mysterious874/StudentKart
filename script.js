@@ -12231,3 +12231,75 @@ document.addEventListener("DOMContentLoaded", () => {
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, {once:true});
   else bind();
 })();
+
+
+/* Homepage search strip + restored filter controls */
+document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("heroSearchInput");
+    const searchButton = document.getElementById("heroSearchButton");
+    const filterButton = document.getElementById("heroFilterButton");
+    const filterPanel = document.getElementById("heroFilterPanel");
+    const filterClose = document.getElementById("heroFilterClose");
+    const filterApply = document.getElementById("heroFilterApply");
+    const filterClear = document.getElementById("heroFilterClear");
+
+    const syncHeroFilters = () => {
+        const map = [
+            ["heroFilterCategory", "categoryFilter"],
+            ["heroFilterMin", "minPrice"],
+            ["heroFilterMax", "maxPrice"],
+            ["heroFilterLocation", "locationFilter"],
+            ["heroFilterCondition", "conditionFilter"],
+            ["heroFilterSort", "sortFilter"]
+        ];
+        map.forEach(([from, to]) => {
+            const source = document.getElementById(from);
+            const target = document.getElementById(to);
+            if (source && target) target.value = source.value;
+        });
+    };
+
+    const runHeroSearch = () => {
+        const value = searchInput?.value?.trim() || "";
+        const target = document.getElementById("marketplaceSearch") || document.getElementById("navbarSearchInput");
+        if (target) target.value = value;
+        if (typeof applyFilters === "function") applyFilters();
+        document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth", block:"start"});
+    };
+
+    filterButton?.addEventListener("click", event => {
+        event.preventDefault();
+        filterPanel?.classList.toggle("hidden");
+    });
+
+    filterClose?.addEventListener("click", () => filterPanel?.classList.add("hidden"));
+
+    filterApply?.addEventListener("click", () => {
+        syncHeroFilters();
+        const searchTarget = document.getElementById("marketplaceSearch") || document.getElementById("navbarSearchInput");
+        if (searchTarget && searchInput) searchTarget.value = searchInput.value.trim();
+        if (typeof applyFilters === "function") applyFilters();
+        filterPanel?.classList.add("hidden");
+        document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth", block:"start"});
+        if (typeof showToast === "function") showToast("Filters applied", "success");
+    });
+
+    filterClear?.addEventListener("click", () => {
+        ["heroFilterCategory","heroFilterCondition","heroFilterSort"].forEach(id => {
+            const el=document.getElementById(id); if(el) el.value=id==="heroFilterCategory"||id==="heroFilterCondition"?"all":"newest";
+        });
+        ["heroFilterMin","heroFilterMax","heroFilterLocation"].forEach(id => {
+            const el=document.getElementById(id); if(el) el.value="";
+        });
+        syncHeroFilters();
+        if (searchInput) searchInput.value="";
+        const searchTarget = document.getElementById("marketplaceSearch") || document.getElementById("navbarSearchInput");
+        if (searchTarget) searchTarget.value="";
+        if (typeof applyFilters === "function") applyFilters();
+    });
+
+    searchButton?.addEventListener("click", runHeroSearch);
+    searchInput?.addEventListener("keydown", event => {
+        if (event.key === "Enter") runHeroSearch();
+    });
+});
