@@ -13128,9 +13128,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const name=String(p.name||"").trim(),cat=String(p.category||"").trim(),loc=String(p.location||"").trim();
                 if(name) add(name,name,cat+(loc?" • "+loc:""),iconFor(cat));
             });
-            ["Books","Electronics","Vehicles","Furniture","Services","Fashion"].forEach(cat=>{
-                add(cat,cat,"Browse marketplace category","fa-layer-group");
-            });
             return out.slice(0,8);
         }
         [...currentProducts].forEach(p=>{
