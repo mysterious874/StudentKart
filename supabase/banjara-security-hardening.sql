@@ -254,7 +254,8 @@ end $$;
 grant execute on function private.is_chat_member(uuid) to authenticated;
 grant execute on function private.user_blocked_in_chat(uuid) to authenticated;
 grant execute on function private.can_view_post(uuid) to authenticated;
-grant select on public.profiles to authenticated;
+revoke select on public.profiles from authenticated, anon;
+grant select (id,name,bio,college,state,city,area,avatar_url,created_at,updated_at,username,cover_url,is_online,last_seen_at) on public.profiles to authenticated;
 
 -- Policies using auth.uid() directly are evaluated per row. Wrap the auth call
 -- in a SELECT so PostgreSQL can initialize it once per statement.
