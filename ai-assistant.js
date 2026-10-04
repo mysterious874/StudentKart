@@ -43,13 +43,13 @@ async function ask(question){
  if(send)send.disabled=true;if(input)input.disabled=true;
  addMessage("user",q);const pending=addMessage("assistant","Thinking…");
  try{
-  const response=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({question:q,history,research:false})});
-  const data=await response.json().catch(()=>({}));
+  const controller=new AbortController(); const timeout=setTimeout(()=>controller.abort(),30000); const response=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",signal:controller.signal,headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({question:q,history,research:false})});
+  const data=await response.json().catch(()=>({})); clearTimeout(timeout);
   if(!response.ok||!data.answer)throw new Error(data.error||"AI service is temporarily unavailable.");
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=data.answer;
   history.push({role:"user",content:q},{role:"assistant",content:data.answer});history=history.slice(-20);
  }catch(error){
-  const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=error?.message||"Could not get an AI answer.";
+  const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=error?.name==="AbortError"?"AI is taking too long. Please try again.":(error?.message||"Could not get an AI answer.");
  }finally{
   if(send)send.disabled=false;if(input){input.disabled=false;input.value="";input.focus();}
  }
