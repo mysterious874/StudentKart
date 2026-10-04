@@ -18684,7 +18684,7 @@ body.marketplace-page-active .marketplace-page-suggestion>.fa-chevron-right{flex
 .globedisc-splash-name span{color:#fff}.globedisc-splash-name b{color:#8de3df}
 .globedisc-splash-tagline{margin-top:12px;color:#d9f4f2;font-size:14px;letter-spacing:.7px;animation:globediscTextIn .65s .65s ease both}
 .globedisc-splash-progress{width:150px;height:4px;margin-top:28px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.14);animation:globediscTextIn .5s .8s ease both}
-.globedisc-splash-progress span{display:block;width:0;height:100%;border-radius:inherit;background:#8de3df;box-shadow:0 0 10px rgba(141,227,223,.8);animation:globediscProgress 4.6s .15s linear forwards}
+.globedisc-splash-progress span{display:block;width:0;height:100%;border-radius:inherit;background:#8de3df;box-shadow:0 0 10px rgba(141,227,223,.8);animation:globediscProgress 3.6s .15s linear forwards}
 @keyframes globediscProgress{to{width:100%}}@keyframes globediscLogoIn{from{opacity:0;transform:scale(.72) rotate(-10deg)}to{opacity:1;transform:scale(1) rotate(0)}}@keyframes globediscTextIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes globediscOrbit{0%,100%{opacity:.35;transform:rotate(-18deg) scale(.98)}50%{opacity:.8;transform:rotate(-18deg) scale(1.04)}}
 @media(max-width:520px){.globedisc-splash::before{width:300px;height:300px}.globedisc-splash-orbit{width:275px;height:90px}.globedisc-orbit-two{width:295px;height:98px}.globedisc-splash-name{font-size:38px}.globedisc-splash-logo,.banjara-splash-icon{width:112px;height:112px}}
 @media(prefers-reduced-motion:reduce){.globedisc-splash *{animation:none!important}}
