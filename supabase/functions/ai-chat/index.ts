@@ -65,15 +65,6 @@ ${research ? (sourceContext || "No live sources were supplied.") : "Not requeste
 CURRENT USER MESSAGE:
 ${question}`;
 
-CONVERSATION:
-${historyContext || "No previous conversation."}
-
-LIVE RESEARCH:
-${research ? (sourceContext || "No live sources were supplied.") : "Not requested for this message."}
-
-CURRENT USER MESSAGE:
-${question}`;
-
     const response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
       method: "POST",
       headers: {
