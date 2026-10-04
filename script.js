@@ -14600,6 +14600,67 @@ document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+        const newsTopicButtons = [...document.querySelectorAll(".globedisc-news-topic")];
+        newsTopicButtons.forEach(button => {
+            button.addEventListener("click", async () => {
+                newsTopicButtons.forEach(x => x.classList.remove("active"));
+                button.classList.add("active");
+                const topic = String(button.dataset.newsTopic || "All").trim();
+                const grid = document.getElementById("worldNewsGrid");
+                if (!grid) return;
+                if (topic === "All") {
+                    loadGlobalDiscoveryHomepage();
+                    return;
+                }
+                const topicQueries = {
+                    Religion: "religion faith spirituality temple church mosque festival beliefs",
+                    Politics: "India politics government parliament election policy",
+                    Business: "India business economy markets finance companies",
+                    Technology: "technology AI software smartphones cybersecurity",
+                    Science: "science research space NASA health discovery",
+                    Health: "health medicine wellness public health",
+                    Sports: "India sports cricket football tennis",
+                    Entertainment: "India entertainment cinema music streaming",
+                    Gaming: "gaming video games esports PlayStation Xbox",
+                    Environment: "environment climate pollution sustainability",
+                    Education: "India education schools colleges exams",
+                    Auto: "India automobiles cars bikes EV",
+                    Travel: "India travel tourism destinations flights hotels",
+                    Lifestyle: "India lifestyle food fashion wellness",
+                    Space: "space NASA astronomy rockets satellites",
+                    Trending: "India trending latest news"
+                };
+                const query = topicQueries[topic] || (topic + " latest India news");
+                grid.innerHTML = '<div class="world-news-empty"><i class="fas fa-spinner fa-spin"></i><h3>Loading '+escapeHTML(topic)+' news…</h3><p>Fetching the latest stories.</p></div>';
+                try {
+                    const response = await fetchWithTimeout(
+                        SUPABASE_URL + "/functions/v1/global-news?q=" + encodeURIComponent(query),
+                        {headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"}},
+                        9000
+                    );
+                    if (!response.ok) throw new Error("News request failed");
+                    const payload = await response.json();
+                    const articles = Array.isArray(payload?.articles) ? payload.articles : [];
+                    if (!articles.length) {
+                        grid.innerHTML = '<div class="world-news-empty"><i class="fas fa-newspaper"></i><h3>No '+escapeHTML(topic)+' news found</h3><p>Try another topic or refresh shortly.</p></div>';
+                        return;
+                    }
+                    grid.innerHTML = '<div class="world-news-card-grid">' + articles.slice(0,24).map(article => {
+                        const title = escapeHTML(article.title || "Latest story");
+                        const url = escapeHTML(article.url || "#");
+                        const source = escapeHTML(article.source || "News");
+                        const image = article.image
+                            ? '<img src="'+escapeHTML(article.image)+'" alt="" loading="lazy" onerror="this.outerHTML=\'<div class="world-news-card-placeholder"><i class="fas fa-newspaper"></i></div>\'">'
+                            : '<div class="world-news-card-placeholder"><i class="fas fa-newspaper"></i></div>';
+                        return '<article class="world-news-card">'+image+'<div class="world-news-card-body"><div class="world-news-meta"><span>'+escapeHTML(topic)+'</span><small>'+source+'</small></div><h3>'+title+'</h3><a href="'+url+'" target="_blank" rel="noopener noreferrer">Details <i class="fas fa-arrow-right"></i></a></div></article>';
+                    }).join("") + '</div>';
+                } catch (error) {
+                    console.warn("Topic news failed:", error);
+                    grid.innerHTML = '<div class="world-news-empty"><i class="fas fa-triangle-exclamation"></i><h3>News is temporarily unavailable</h3><p>Try this topic again in a moment.</p></div>';
+                }
+            });
+        });
+
         // Keep the main search bar at the top when the user opens it.
         const homeSearch = document.getElementById("heroSearchInput");
         homeSearch?.addEventListener("click", () => scrollSearchToTop(homeSearch));
