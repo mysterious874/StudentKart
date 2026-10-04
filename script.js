@@ -5648,6 +5648,7 @@ function globeDiscRouteSearch(query) {
     const routes = [
         {keys:["emi","loan emi","interest rate","gst","sip","percentage","currency converter","money hub","budget planner"], url:"money-hub.html"},
         {keys:["calculate","calculator","math","solve equation"], url:"ai-calculator.html"},
+        {keys:["daily tools","todo","to do","pomodoro","dictionary","json formatter","base64","text tools","image compressor","random picker","world clock","timezone"], url:"daily-tools.html"},
         {keys:["emergency","police emergency","ambulance","fire emergency","112"], url:"emergency-hub.html"},
         {keys:["cybersecurity","cyber security","phishing","scam","online fraud","password safety"], url:"cybersecurity-hub.html"},
         {keys:["career","career roadmap","internship","internships","jobs","job search","resume"], url:"career-hub.html"},
