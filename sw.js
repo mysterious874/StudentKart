@@ -1,5 +1,5 @@
-/* GlobeDisc Web Push Service Worker */
-const CACHE_NAME = "globedisc-shell-v3";
+/* Banjara Connect Web Push Service Worker */
+const CACHE_NAME = "banjara-shell-v3";
 
 self.addEventListener("install", event => {
   event.waitUntil(
@@ -56,16 +56,16 @@ self.addEventListener("push", event => {
     data = {
       body: event.data
         ? event.data.text()
-        : "You have a new GlobeDisc message."
+        : "You have a new Banjara Connect message."
     };
   }
 
-  const title = data.title || "GlobeDisc • New message";
+  const title = data.title || "Banjara Connect • New message";
   const options = {
     body: data.body || "You have received a new message.",
-    icon: data.icon || "/icons/globedisc-icon-v2.svg",
-    badge: data.badge || "/icons/globedisc-icon-v2.svg",
-    tag: data.tag || "globedisc-chat",
+    icon: data.icon || "/icons/banjara-icon-v2.svg",
+    badge: data.badge || "/icons/banjara-icon-v2.svg",
+    tag: data.tag || "banjara-chat",
     renotify: true,
     data: {
       url: data.url || "/#chat"
