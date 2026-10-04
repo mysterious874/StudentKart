@@ -5262,49 +5262,8 @@ async function loadMyListings() {
 
 
 /* =========================================================
-   SEARCH
+   BANJARA CONNECT SEARCH
    ========================================================= */
-
-function banjaraRouteSearch(query) {
-    const q = String(query || "").trim();
-    const l = q.toLowerCase();
-    if (!q) return false;
-
-    const routes = [
-        {keys:["emi","loan emi","interest rate","gst","sip","percentage","currency converter","money hub","budget planner"], url:"money-hub.html"},
-        {keys:["calculate","calculator","math","solve equation"], url:"ai-calculator.html"},
-        {keys:["daily tools","todo","to do","pomodoro","dictionary","json formatter","base64","text tools","image compressor","random picker","world clock","timezone"], url:"daily-tools.html"},
-        {keys:["budget planner","expense tracker","track expenses","budget"], url:"budget-planner.html"},
-        {keys:["savings goal","savings goals","save money","saving target"], url:"savings-goal.html"},
-        {keys:["study planner","study schedule","study plan"], url:"study-planner.html"},
-        {keys:["travel checklist","packing list","trip checklist"], url:"travel-checklist.html"},
-        {keys:["security dev tools","jwt decoder","regex tester","hash generator","uuid generator"], url:"security-dev-tools.html"},
-        {keys:["creator tools","case converter","slug generator","markdown preview","text to speech"], url:"creator-tools.html"},
-        {keys:["application tracker","job applications","track applications"], url:"application-tracker.html"},
-        {keys:["emergency","police emergency","ambulance","fire emergency","112"], url:"emergency-hub.html"},
-        {keys:["cybersecurity","cyber security","phishing","scam","online fraud","password safety"], url:"cybersecurity-hub.html"},
-        {keys:["career","career roadmap","internship","internships","jobs","job search","resume"], url:"career-hub.html"},
-        {keys:["travel","trip planner","flight","hotel","tourist","places to visit"], url:"travel.html"},
-        {keys:["study","student","exam","assignment","notes","homework"], url:"student-hub.html"},
-        {keys:["translate","translation","translator"], url:"translator.html"},
-        {keys:["grammar","proofread","correct my english"], url:"grammar-checker.html"},
-        {keys:["code","coding","programming","debug this"], url:"code-helper.html"},
-        {keys:["pdf","summarize pdf","pdf summary"], url:"pdf-summarizer.html"},
-        {keys:["image to text","ocr","extract text from image"], url:"image-to-text.html"},
-        {keys:["voice search","search by voice"], url:"voice-search.html"},
-        {keys:["lens","search with image","visual search"], url:"banjara-lens.html"},
-        {keys:["ai chat","ask ai","ai assistant"], url:"index.html#aiAssistantPage"}
-    ];
-    for (const route of routes) {
-        if (route.keys.some(k => l === k || l.includes(k))) {
-            location.href = route.url;
-            return true;
-        }
-    }
-    return false;
-}
-
-document.addEventListener("DOMContentLoaded", setupbanjaraSearchIntents);
 
 function showHomePageFromSearch(options={}) {
     $("searchResultsPage")?.classList.add("hidden");
