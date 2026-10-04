@@ -160,10 +160,6 @@ async function ask(question){
   const data=await response.json().catch(()=>({})); clearTimeout(timeout);
   if(!response.ok||!data.answer)throw new Error(data.error||"AI service is temporarily unavailable.");
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=data.answer;
-  if (String(data.answer).length > 700 && document.activeElement === input) {
-   input.blur();
-   window.scrollTo({top:0,behavior:"auto"});
-  }
   history.push({role:"assistant",content:data.answer});history=history.slice(-AI_HISTORY_MAX);saveAIHistory();
   await saveCloudAIHistory();
  }catch(error){
@@ -173,8 +169,8 @@ async function ask(question){
   if(input){
    input.readOnly=false;
    input.value="";
-   // Never refocus after sending. The user must tap the composer to reopen the keyboard.
-   input.blur();
+   // Keep the composer focused after sending so the mobile keyboard stays open.
+   input.focus({preventScroll:true});
    updateAIViewport();
    scrollAIToBottom("smooth");
   }
