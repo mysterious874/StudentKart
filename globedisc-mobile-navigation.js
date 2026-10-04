@@ -56,7 +56,7 @@
     modal = document.createElement("div");
     modal.id = "settingsModal";
     modal.className = "modal hidden";
-    modal.innerHTML = '<div class="modal-overlay" data-settings-close></div><div class="modal-content settings-modal-content"><div class="settings-modal-header"><div><span class="section-label">GLOBEDISC</span><h2>Settings</h2><p>Manage your account, privacy and app preferences.</p></div><button type="button" class="modal-close" data-settings-close aria-label="Close">&times;</button></div><div class="settings-sections">' +
+    modal.innerHTML = '<div class="modal-overlay" data-settings-close></div><div class="modal-content settings-modal-content"><div class="settings-clean-title"><h2>Settings</h2><button type="button" class="modal-close" data-settings-close aria-label="Close">&times;</button></div><div class="settings-sections">' +
       '<button type="button" class="settings-section-button" data-settings-section="account"><span><i class="fas fa-user"></i><b>Account</b><small>Profile and account details</small></span><i class="fas fa-chevron-right"></i></button>' +
       '<button type="button" class="settings-section-button" data-settings-section="notifications"><span><i class="fas fa-bell"></i><b>Notifications</b><small>Control notification preferences</small></span><i class="fas fa-chevron-right"></i></button>' +
       '<button type="button" class="settings-section-button" data-settings-section="privacy"><span><i class="fas fa-shield-halved"></i><b>Privacy &amp; Safety</b><small>Control privacy and blocked users</small></span><i class="fas fa-chevron-right"></i></button>' +
