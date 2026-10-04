@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0f8b8d"><title>GlobeDisc — Code Helper</title>
+<link rel="icon" type="image/svg+xml" href="/icons/globedisc-icon-v2.svg">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#f5fbfc;color:#102a2c}
+.top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid #dceced;padding:12px 16px;display:flex;align-items:center;gap:12px}.back{border:0;background:#e8f6f7;border-radius:12px;width:42px;height:42px;color:#0f7779;font-size:16px}.brand{display:flex;align-items:center;gap:9px}.brand img{width:36px;height:36px}.brand strong{display:block}.brand small{color:#668184}
+main{max-width:900px;margin:auto;padding:20px 14px 50px}.hero,.panel{background:#fff;border:1px solid #dcebec;border-radius:18px;padding:18px;margin-bottom:14px}.hero{background:linear-gradient(135deg,#e9fbfb,#fff);border-color:#d7eeee}.eyebrow{font-size:12px;color:#0f8587;font-weight:700}.hero h1{margin:5px 0;font-size:28px}.hero p{margin:7px 0;color:#607477;font-size:14px}
+label{display:block;font-size:12px;font-weight:700;color:#557174;margin:0 0 7px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}select,textarea,input{width:100%;border:1px solid #cfe4e5;border-radius:12px;background:#fbfefe;color:#17383b;padding:12px;font:inherit}textarea{min-height:180px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:700;cursor:pointer}.primary{background:#0f8b8d;color:#fff}.secondary{background:#e8f6f7;color:#0f7779}.status{font-size:12px;color:#718486;margin-top:9px;min-height:17px}.output{display:none;margin-top:14px;border:1px solid #dcebec;border-radius:14px;overflow:hidden}.output pre{margin:0;padding:15px;white-space:pre-wrap;word-break:break-word;overflow:auto;background:#f8fcfc;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}.output-head{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#eef9f9;border-bottom:1px solid #dcebec;font-size:13px;font-weight:700}
+@media(max-width:650px){.row{grid-template-columns:1fr}.hero h1{font-size:25px}}
+</style>
+</head>
+<body>
+<header class="top"><button class="back" onclick="location.href='features.html'">←</button><div class="brand"><img src="/icons/globedisc-icon-v2.svg"><div><strong>GlobeDisc</strong><small>Code Helper</small></div></div></header>
+<main>
+<section class="hero"><div class="eyebrow">AI TOOLS · CODE HELPER</div><h1>Write, explain & debug code</h1><p>Paste code or describe what you need. GlobeDisc AI can explain errors, improve code and help you learn.</p></section>
+<section class="panel">
+<div class="row"><div><label for="language">Language</label><select id="language"><option>Auto detect</option><option>Python</option><option>JavaScript</option><option>HTML</option><option>CSS</option><option>Java</option><option>C</option><option>C++</option><option>C#</option><option>SQL</option><option>PHP</option><option>Go</option><option>Rust</option><option>TypeScript</option><option>Other</option></select></div>
+<div><label for="task">What do you want?</label><select id="task"><option>Explain this code</option><option>Find and fix bugs</option><option>Improve / optimize code</option><option>Write code from my requirements</option><option>Convert to another language</option><option>Find security issues</option><option>Teach me step by step</option></select></div></div>
+<label for="code">Code / requirements</label><textarea id="code" placeholder="Paste your code here, or describe what you want to build..."></textarea>
+<div class="actions"><button class="btn primary" id="run">Ask GlobeDisc AI</button><button class="btn secondary" id="clear">Clear</button></div><div class="status" id="status"></div>
+<div class="output" id="output"><div class="output-head"><span>AI Result</span><button class="btn secondary" id="copy" style="padding:7px 10px;font-size:12px">Copy</button></div><pre id="answer"></pre></div>
+</section>
+</main>
+<script>
+const SUPABASE_URL="https://yymzfjfkmsrymqhpnfqz.supabase.co";
+const SUPABASE_KEY="sb_publishable_tEePI-aSGDkt_2S6oiEfPw_Hy_mEXkw";
+const $=id=>document.getElementById(id);
+async function ask(){
+ const code=$("code").value.trim(); if(!code){$("status").textContent="Add code or describe your requirement first.";return}
+ $("run").disabled=true;$("status").textContent="Thinking…";$("output").style.display="none";
+ const lang=$("language").value,task=$("task").value;
+ const q=`You are GlobeDisc Code Helper. Help the user with this coding request.
+Language: ${lang}
+Task: ${task}
+User input:
+${code}
+
+Give a practical answer. If debugging, identify the likely cause and provide corrected code. If explaining, teach clearly. If writing code, provide complete usable code and brief setup/use instructions. For security issues, point out risks and safer fixes. Preserve the user's intent. Do not claim code was executed or tested unless it actually was. Use markdown code fences when code is needed.`;
+ try{
+  const r=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({question:q,history:[],research:false})});
+  const d=await r.json(); if(!r.ok) throw new Error(d?.error||d?.message||"AI request failed");
+  const a=d.answer||d.response||d.text||d.message||"No answer returned.";
+  $("answer").textContent=a;$("output").style.display="block";$("status").textContent="Done.";
+ }catch(e){$("status").textContent="Could not get an AI response. "+e.message}
+ finally{$("run").disabled=false}
+}
+$("run").onclick=ask;$("clear").onclick=()=>{$("code").value="";$("answer").textContent="";$("output").style.display="none";$("status").textContent=""};
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText($("answer").textContent);$("status").textContent="Copied."}catch(e){}};
+</script>
+</body></html>
