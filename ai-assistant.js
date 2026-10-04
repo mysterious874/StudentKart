@@ -165,7 +165,7 @@ async function ask(question){
    window.scrollTo({top:0,behavior:"auto"});
   }
   history.push({role:"assistant",content:data.answer});history=history.slice(-AI_HISTORY_MAX);saveAIHistory();
-  saveCloudAIHistory();
+  await saveCloudAIHistory();
  }catch(error){
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=error?.name==="AbortError"?"AI is taking too long. Please try again.":(error?.message||"Could not get an AI answer.");
  }finally{
