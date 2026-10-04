@@ -1,5 +1,5 @@
 /* Banjara Connect Web Push Service Worker */
-const CACHE_NAME = "banjara-shell-v3";
+const CACHE_NAME = "banjara-shell-v4";
 
 self.addEventListener("install", event => {
   event.waitUntil(
