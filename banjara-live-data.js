@@ -86,16 +86,23 @@ async function openChat(chatId,name){
  const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn"); let pressTimer=null;
  const presenceEl=box.querySelector("#bcChatPresence"); let typingTimer=null;
  const {data:members}=await sb.from("chat_members").select("user_id").eq("chat_id",chatId);
+ const memberIds=(members||[]).map(x=>x.user_id).filter(Boolean); const {data:presenceProfiles}=memberIds.length?await sb.from("profiles").select("id,last_seen_at").in("id",memberIds):{data:[]}; const lastSeenMap=new Map((presenceProfiles||[]).map(x=>[x.id,x.last_seen_at]));
  const otherChatUser=(members||[]).map(x=>x.user_id).find(id=>id!==user.id);
  if(otherChatUser&&(blockedByMe.has(otherChatUser)||blockedMe.has(otherChatUser))){alert("Chat is unavailable because one of you has blocked the other.");box.remove();return;}
  const otherId=(members||[]).map(x=>x.user_id).find(id=>id!==user.id);
+ const formatLastSeen=ts=>{if(!ts)return"Offline";const diff=Date.now()-new Date(ts).getTime();if(diff<60000)return"Last seen just now";if(diff<3600000)return"Last seen "+Math.floor(diff/60000)+"m ago";if(diff<86400000)return"Last seen "+Math.floor(diff/3600000)+"h ago";return"Last seen "+new Date(ts).toLocaleDateString([], {day:"numeric",month:"short"});};
  const chatChannel=sb.channel("bc-chat-presence-"+chatId,{config:{presence:{key:user.id}}});
- chatChannel.on("presence",{event:"sync"},()=>{const state=chatChannel.presenceState();const online=otherId&&!!state[otherId];if(presenceEl)presenceEl.textContent=online?"Online":"Offline";})
- .on("broadcast",{event:"typing"},({payload})=>{if(payload?.user_id!==user.id&&payload?.typing){presenceEl.textContent="typing...";clearTimeout(typingTimer);typingTimer=setTimeout(()=>{if(presenceEl)presenceEl.textContent="Online";},1800);}})
+ chatChannel.on("presence",{event:"sync"},()=>{const state=chatChannel.presenceState();const online=otherId&&!!state[otherId];if(presenceEl)presenceEl.textContent=online?"Online":formatLastSeen(lastSeenMap.get(otherId));})
+ .on("presence",{event:"join"},({key})=>{if(key===otherId&&presenceEl)presenceEl.textContent="Online";})
+ .on("presence",{event:"leave"},({key})=>{if(key===otherId&&presenceEl)presenceEl.textContent=formatLastSeen(new Date().toISOString());})
+ .on("broadcast",{event:"typing"},({payload})=>{if(payload?.user_id!==user.id){clearTimeout(typingTimer);if(payload?.typing){presenceEl.textContent="typing...";typingTimer=setTimeout(()=>{if(presenceEl)presenceEl.textContent=otherId&&chatChannel.presenceState()[otherId]?"Online":formatLastSeen(lastSeenMap.get(otherId));} ,1800);}else{presenceEl.textContent="Online";}}})
  .subscribe(async status=>{if(status==="SUBSCRIBED")await chatChannel.track({online_at:new Date().toISOString()});});
- const emitTyping=()=>{chatChannel.send({type:"broadcast",event:"typing",payload:{user_id:user.id,typing:true}});};
+ let typingStopTimer=null;
+ const emitTyping=()=>{chatChannel.send({type:"broadcast",event:"typing",payload:{user_id:user.id,typing:true}});clearTimeout(typingStopTimer);typingStopTimer=setTimeout(()=>chatChannel.send({type:"broadcast",event:"typing",payload:{user_id:user.id,typing:false}}),1200);};
  input?.addEventListener("input",emitTyping);
- box.querySelector("[data-chat-close]").onclick=async()=>{const topic=box.dataset.channel;const ch=topic?sb.getChannels().find(x=>x.topic===topic):null;if(ch)await sb.removeChannel(ch);try{await sb.removeChannel(chatChannel);}catch(e){}box.remove();};
+ const touchLastSeen=()=>void sb.from("profiles").update({last_seen_at:new Date().toISOString()}).eq("id",user.id);
+ touchLastSeen(); const seenHeartbeat=setInterval(touchLastSeen,60000);
+ box.querySelector("[data-chat-close]").onclick=async()=>{clearInterval(seenHeartbeat);clearTimeout(typingStopTimer);chatChannel.send({type:"broadcast",event:"typing",payload:{user_id:user.id,typing:false}});const topic=box.dataset.channel;const ch=topic?sb.getChannels().find(x=>x.topic===topic):null;if(ch)await sb.removeChannel(ch);try{await sb.removeChannel(chatChannel);}catch(e){}box.remove();};
  const replyBar=box.querySelector("#bcReplyBar"),replyText=box.querySelector("#bcReplyText"); let replyTo=null;
  const setReply=m=>{replyTo=m;replyText.textContent=(m.body||("["+m.message_type+"]")).slice(0,90);replyBar.hidden=false;input.focus();};
  box.querySelector("[data-reply-cancel]").onclick=()=>{replyTo=null;replyBar.hidden=true;};
