@@ -3779,15 +3779,44 @@ async function searchNewChatUsersByPhone(query) {
     results.classList.remove("hidden");
 
     try {
-        const { data, error } = await supabaseClient.rpc(
-            "search_chat_users_by_phone",
-            { search_query: digits }
-        );
+        const { data: profiles, error } = await supabaseClient
+            .from("profiles")
+            .select("id,name,username,phone,avatar_url,city,area")
+            .limit(500);
 
         if (requestId !== newChatSearchRequest) return;
         if (error) throw error;
 
-        renderNewChatUserSearchResults(data || []);
+        const normalize = value => String(value || "").replace(/\D/g, "");
+
+        const users = (profiles || [])
+            .filter(profile => String(profile.id) !== String(currentUser?.id))
+            .filter(profile => {
+                const phone = normalize(profile.phone);
+                const username = normalize(profile.username);
+                return phone.includes(digits) || username.includes(digits);
+            })
+            .sort((x, y) => {
+                const xPhone = normalize(x.phone);
+                const xUser = normalize(x.username);
+                const yPhone = normalize(y.phone);
+                const yUser = normalize(y.username);
+
+                const xExact = xPhone === digits || xUser === digits;
+                const yExact = yPhone === digits || yUser === digits;
+                if (xExact !== yExact) return xExact ? -1 : 1;
+
+                const xPrefix = xPhone.startsWith(digits) || xUser.startsWith(digits);
+                const yPrefix = yPhone.startsWith(digits) || yUser.startsWith(digits);
+                if (xPrefix !== yPrefix) return xPrefix ? -1 : 1;
+
+                return String(x.username || x.phone || "").localeCompare(
+                    String(y.username || y.phone || "")
+                );
+            })
+            .slice(0, 10);
+
+        renderNewChatUserSearchResults(users);
     } catch (error) {
         if (requestId !== newChatSearchRequest) return;
         console.error("New chat phone search error:", error);
@@ -3795,7 +3824,6 @@ async function searchNewChatUsersByPhone(query) {
         results.classList.remove("hidden");
     }
 }
-
 function setupNewChatPhoneSearch() {
     const input = $("newChatSearchInput");
     const clear = $("newChatSearchClear");
