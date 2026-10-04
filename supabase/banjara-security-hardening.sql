@@ -428,3 +428,6 @@ alter function private.notify_connection() set search_path = public;
 -- Only the community creator may change member roles; identity/community/joined_at columns are not UPDATE-granted.
 revoke update on table public.community_members from authenticated;
 grant update(role) on table public.community_members to authenticated;
+
+-- 2026-10-04 auth endpoint body-size hardening
+-- prepare-account rejects bodies above 16 KB and mobile-login rejects bodies above 8 KB after reading the actual request bytes.
