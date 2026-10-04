@@ -12,7 +12,9 @@ label{display:block;font-size:12px;font-weight:700;color:#557174;margin:0 0 7px}
 @media(max-width:650px){.row{grid-template-columns:1fr}.hero h1{font-size:25px}}
 </style>
 </head>
-<body>
+<body><script>
+(function(){try{const a=JSON.parse(localStorage.getItem("globedisc_recent_tools")||"[]");a.push({name:"Code Helper",at:Date.now()});localStorage.setItem("globedisc_recent_tools",JSON.stringify(a.slice(-30)))}catch{}})();
+</script>
 <header class="top"><button class="back" onclick="location.href='features.html'">←</button><div class="brand"><img src="/icons/globedisc-icon-v2.svg"><div><strong>GlobeDisc</strong><small>Code Helper</small></div></div></header>
 <main>
 <section class="hero"><div class="eyebrow">AI TOOLS · CODE HELPER</div><h1>Write, explain & debug code</h1><p>Paste code or describe what you need. GlobeDisc AI can explain errors, improve code and help you learn.</p></section>
