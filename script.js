@@ -6277,6 +6277,9 @@ async function showSearchResultsPage(query, options = {}) {
     document.body.classList.add("studentkart-search-results-active");
     document.querySelector(".mobile-bottom-nav")?.classList.add("hidden");
     $("searchResultsPage")?.classList.remove("hidden");
+    document.querySelectorAll(".search-results-intent").forEach(button=>{
+        button.classList.toggle("active",(button.dataset.searchIntent||"Overview")===searchIntent);
+    });
     const resultInput=$("searchResultsInput");
     if(resultInput) resultInput.value=selected;
     const title=$("searchResultsQuery"), subtitle=$("searchResultsNavbarSubtitle");
