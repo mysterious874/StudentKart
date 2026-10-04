@@ -30,7 +30,7 @@ function normalizePhone(raw: unknown) {
 }
 
 function internalEmail(phone: string) {
-  return `account+${phone.replace(/\D/g, "")}@globedisc.app`;
+  return `account+${phone.replace(/\D/g, "")}@banjaraconnect.app`;
 }
 
 function allowedRequest(req: Request) {
