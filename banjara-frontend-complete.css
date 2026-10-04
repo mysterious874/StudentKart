@@ -185,3 +185,14 @@ body.bc-auth-mode .bc-app{padding-bottom:24px}
 .bc-community-banner{height:90px;border-radius:14px;background:linear-gradient(135deg,var(--bc-maroon),var(--bc-orange));display:grid;place-items:center;color:#fff;font-size:30px;margin-bottom:10px}
 .bc-community-detail .bc-stat-row{margin:10px 0}
 @media(max-width:560px){.bc-chat-tools{overflow-x:auto}.bc-chat-tools button{white-space:nowrap}.bc-community-banner{height:78px}}
+
+/* Banjara Connect — full-screen intro splash */
+.banjara-splash{background:radial-gradient(circle at 50% 42%,rgba(216,120,47,.16),transparent 32%),linear-gradient(145deg,#fff7eb 0%,#f7e7d5 48%,#f2d6c2 100%);color:#5b1721;isolation:isolate}
+.banjara-splash::before{content:"";position:absolute;inset:18px;border:1px solid rgba(91,23,33,.16);border-radius:28px;pointer-events:none}
+.banjara-splash-logo{position:relative;width:104px;height:104px;border-radius:30px;display:grid;place-items:center;background:linear-gradient(145deg,#6f1d2a,#a33d2d);box-shadow:0 18px 45px rgba(91,23,33,.22),0 0 0 8px rgba(255,255,255,.42);animation:bcSplashLogo .8s ease both}
+.banjara-splash-icon{width:70px;height:70px;object-fit:contain;filter:drop-shadow(0 5px 8px rgba(0,0,0,.14))}
+.banjara-splash-name{position:relative;margin-top:20px;font-size:32px;line-height:1;font-weight:900;letter-spacing:-1px;text-align:center;animation:bcSplashUp .7s .12s ease both}.banjara-splash-name span{color:#6f1d2a}.banjara-splash-name b{color:#d8782f}
+.banjara-splash-tagline{position:relative;margin-top:10px;padding:0 18px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.2px;color:#795b50;animation:bcSplashUp .7s .2s ease both}
+.banjara-splash-progress{position:relative;width:170px;height:4px;margin-top:24px;border-radius:99px;overflow:hidden;background:rgba(111,29,42,.13);animation:bcSplashUp .7s .25s ease both}.banjara-splash-progress span{display:block;width:100%;height:100%;transform-origin:left;background:linear-gradient(90deg,#6f1d2a,#d8782f);animation:bcSplashProgress 4s linear forwards}
+.banjara-splash-orbit{position:absolute;border:1px solid rgba(111,29,42,.12);border-radius:50%;pointer-events:none}.banjara-orbit-one{width:270px;height:270px;animation:bcSplashSpin 14s linear infinite}.banjara-orbit-two{width:390px;height:390px;border-color:rgba(216,120,47,.1);animation:bcSplashSpin 20s linear infinite reverse}
+@keyframes bcSplashLogo{from{opacity:0;transform:scale(.78) translateY(8px)}to{opacity:1;transform:none}}@keyframes bcSplashUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes bcSplashProgress{from{transform:scaleX(0)}to{transform:scaleX(1)}}@keyframes bcSplashSpin{to{transform:rotate(360deg)}}
