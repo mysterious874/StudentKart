@@ -44,20 +44,66 @@ function refreshUI(){
  if(ns)ns.innerHTML=d.notifications.length?d.notifications.map(n=>'<div class="bc-row" data-notification-id="'+n.id+'"><div class="bc-avatar">'+initials(n.title)+'</div><div class="bc-row-main"><strong>'+escLive(n.title)+'</strong><small>'+escLive(n.message)+' • '+ago(n.created_at)+'</small></div>'+(n.is_read?'':'<span class="bc-badge">•</span>')+'</div>').join(""):'<div class="bc-empty"><i class="fas fa-bell"></i><strong>All caught up</strong><span>You have no new notifications.</span></div>';
 }
 async function openChat(chatId,name){
- const existing=document.getElementById("bcChatOverlay"); if(existing){const oldChannel=existing.dataset.channel;if(oldChannel){try{await SB().removeChannel(SB().getChannels().find(x=>x.topic===oldChannel)||oldChannel);}catch(e){}}existing.remove();}
+ const existing=document.getElementById("bcChatOverlay");if(existing){const topic=existing.dataset.channel;const old=topic?SB().getChannels().find(x=>x.topic===topic):null;if(old)await SB().removeChannel(old);existing.remove();}
  const box=document.createElement("section");box.id="bcChatOverlay";box.className="bc-chat-overlay";
- box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small>Message</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><form class="bc-chat-composer" id="bcChatForm"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button><i class="fas fa-paper-plane"></i></button></form>';
+ box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small>Message</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><form class="bc-chat-composer" id="bcChatForm"><button type="button" class="bc-chat-tool" id="bcAttachBtn" title="Photo, video or file"><i class="fas fa-paperclip"></i></button><input type="file" id="bcAttachInput" hidden accept="image/*,video/*,.pdf"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button type="button" class="bc-chat-tool" id="bcVoiceBtn" title="Voice message"><i class="fas fa-microphone"></i></button><button type="submit" class="bc-send-btn"><i class="fas fa-paper-plane"></i></button></form>';
  document.body.appendChild(box);
- const sb=SB(), {data:{user}}=await sb.auth.getUser(); if(!user)return;
- let q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
+ const sb=SB(),{data:{user}}=await sb.auth.getUser();if(!user)return;
+ const mediaUrl=async path=>{if(!path)return null;const r=await sb.storage.from("banjara-media").createSignedUrl(path,3600);return r.data?.signedUrl||null;};
+ const renderMessage=async m=>{
+   const mine=m.sender_id===user.id, type=m.message_type||"text", url=await mediaUrl(m.attachment_url);
+   let content=escLive(m.body||"");
+   if(type==="image"&&url)content='<img class="bc-msg-image" src="'+url+'" alt="Image" loading="lazy">';
+   else if(type==="video"&&url)content='<video class="bc-msg-video" controls playsinline preload="metadata" src="'+url+'"></video>';
+   else if(type==="voice"&&url)content='<audio class="bc-msg-audio" controls preload="metadata" src="'+url+'"></audio>';
+   else if(type==="file"&&url)content='<a class="bc-msg-file" href="'+url+'" target="_blank" rel="noopener"><i class="fas fa-file-lines"></i><span>'+escLive(m.body||"Attachment")+'</span></a>';
+   return '<div class="bc-msg '+(mine?"mine":"theirs")+'">'+content+'<small>'+ago(m.created_at)+'</small></div>';
+ };
+ const render=async rows=>{const el=box.querySelector("#bcChatMessages");const html=await Promise.all((rows||[]).map(renderMessage));el.innerHTML=html.join("");el.scrollTop=el.scrollHeight;};
+ const q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
  const {data,error}=await q;if(error){box.querySelector("#bcChatMessages").innerHTML='<div class="bc-empty"><strong>Could not load messages</strong><span>Please try again.</span></div>';return;}
- const render=rows=>{const el=box.querySelector("#bcChatMessages");el.innerHTML=(rows||[]).map(m=>'<div class="bc-msg '+(m.sender_id===user.id?'mine':'theirs')+'"><div>'+escLive(m.body)+'</div><small>'+ago(m.created_at)+'</small></div>').join("");el.scrollTop=el.scrollHeight;};
- render(data);
+ await render(data);
  await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);
  if(window.__bcLive?.chats){const current=window.__bcLive.chats.find(x=>x.id===chatId);if(current)current.unread=false;}
+ const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn");
  box.querySelector("[data-chat-close]").onclick=async()=>{const topic=box.dataset.channel;const ch=topic?sb.getChannels().find(x=>x.topic===topic):null;if(ch)await sb.removeChannel(ch);box.remove();};
- box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const input=box.querySelector("#bcChatInput"),body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text"});if(ins.error){input.value=body;return;}const latest=await sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);render(latest.data||[]);input.focus();};
- const channel=sb.channel("bc-chat-"+chatId).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},payload=>{if(payload.new.sender_id!==user.id){const el=box.querySelector("#bcChatMessages");const m=payload.new;el.insertAdjacentHTML("beforeend",'<div class="bc-msg theirs"><div>'+escLive(m.body)+'</div><small>'+ago(m.created_at)+'</small></div>');el.scrollTop=el.scrollHeight;}}).subscribe();
+ const sendAttachment=async file=>{
+   if(!file)return;if(file.size>25*1024*1024){alert("File is too large. Maximum 25 MB.");return;}
+   const mime=file.type||"",type=mime.startsWith("image/")?"image":mime.startsWith("video/")?"video":mime==="application/pdf"?"file":null;
+   if(!type){alert("Please choose an image, video or PDF.");return;}
+   const ext=(file.name.split(".").pop()||"bin").toLowerCase(),path=user.id+"/"+chatId+"/"+crypto.randomUUID()+"."+ext;
+   attachBtn.disabled=true;attachBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+   const up=await sb.storage.from("banjara-media").upload(path,file,{contentType:mime,upsert:false});
+   if(up.error){alert("Could not upload attachment.");attachBtn.disabled=false;attachBtn.innerHTML='<i class="fas fa-paperclip"></i>';return;}
+   const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body:type==="file"?file.name:"",message_type:type,attachment_url:path}).select("id,body,sender_id,created_at,message_type,attachment_url").single();
+   if(ins.error){await sb.storage.from("banjara-media").remove([path]);alert("Could not send attachment.");}
+   else await render([...(data||[]),ins.data]);
+   attachBtn.disabled=false;attachBtn.innerHTML='<i class="fas fa-paperclip"></i>';attachInput.value="";input.focus();
+ };
+ attachBtn.onclick=()=>attachInput.click();attachInput.onchange=()=>sendAttachment(attachInput.files?.[0]);
+ let recorder=null,chunks=[];
+ voiceBtn.onclick=async()=>{
+   if(recorder&&recorder.state==="recording"){recorder.stop();return;}
+   if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){alert("Voice recording is not supported in this browser.");return;}
+   try{
+     const stream=await navigator.mediaDevices.getUserMedia({audio:true});chunks=[];
+     recorder=new MediaRecorder(stream);voiceBtn.classList.add("recording");voiceBtn.innerHTML='<i class="fas fa-stop"></i>';
+     recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+     recorder.onstop=async()=>{
+       stream.getTracks().forEach(t=>t.stop());voiceBtn.classList.remove("recording");voiceBtn.innerHTML='<i class="fas fa-microphone"></i>';
+       const blob=new Blob(chunks,{type:recorder.mimeType||"audio/webm"});if(blob.size>25*1024*1024)return;
+       const ext=(blob.type.includes("ogg")?"ogg":blob.type.includes("mp4")?"m4a":"webm"),path=user.id+"/"+chatId+"/"+crypto.randomUUID()+"."+ext;
+       const up=await sb.storage.from("banjara-media").upload(path,blob,{contentType:blob.type||"audio/webm",upsert:false});
+       if(up.error){alert("Could not upload voice message.");return;}
+       const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body:"",message_type:"voice",attachment_url:path}).select("id,body,sender_id,created_at,message_type,attachment_url").single();
+       if(ins.error){await sb.storage.from("banjara-media").remove([path]);alert("Could not send voice message.");return;}
+       await render([...(data||[]),ins.data]);
+     };
+     recorder.start();
+   }catch(e){alert("Microphone permission is required for voice messages.");}
+ };
+ box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text"}).select("id,body,sender_id,created_at,message_type,attachment_url").single();if(ins.error){input.value=body;return;}await render([...(data||[]),ins.data]);input.focus();};
+ const channel=sb.channel("bc-chat-"+chatId).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}});
  box.dataset.channel="bc-chat-"+chatId;
 }
 async function newChat(){
