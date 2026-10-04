@@ -6261,7 +6261,7 @@ function renderInternetSearchResults(query, results){
 async function showSearchResultsPage(query, options = {}) {
     const selected=String(query||"").trim();
     const searchIntent=String(options.intent||"Overview").trim()||"Overview";
-    const focusedQuery=searchIntent==="Overview" ? selected : selected+" "+searchIntent;
+    const focusedQuery=(searchIntent==="Overview"||searchIntent==="All") ? selected : selected+" "+searchIntent;
     if(!selected) return;
     if(!options.fromPopState && !studentKartHandlingPopState){
         ensureStudentKartHistory();
