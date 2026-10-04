@@ -581,6 +581,6 @@ html body .home-discovery-heading .banjara-ask-ai{
 
 /* Match main community heading to Ask AI accent */
 html body .home-discovery-heading h1{
-  color:var(--bc-orange)!important;
-  -webkit-text-fill-color:var(--bc-orange)!important;
+  color:var(--bc-maroon)!important;
+  -webkit-text-fill-color:var(--bc-maroon)!important;
 }
