@@ -17,6 +17,25 @@ function init(){
     ['fa-message','Chat','#chat'],
     ['fa-compass','Discovery','discovery-hub.html'],
     ['fa-newspaper','News','#worldNewsSection'],
+    ['fa-newspaper','All News','#news-topic-All'],
+    ['fa-flag','India','#news-topic-India'],
+    ['fa-globe','World','#news-topic-World'],
+    ['fa-landmark','Politics','#news-topic-Politics'],
+    ['fa-chart-line','Business','#news-topic-Business'],
+    ['fa-microchip','Technology','#news-topic-Technology'],
+    ['fa-flask','Science','#news-topic-Science'],
+    ['fa-heart-pulse','Health','#news-topic-Health'],
+    ['fa-futbol','Sports','#news-topic-Sports'],
+    ['fa-film','Entertainment','#news-topic-Entertainment'],
+    ['fa-gamepad','Gaming','#news-topic-Gaming'],
+    ['fa-leaf','Environment','#news-topic-Environment'],
+    ['fa-graduation-cap','Education','#news-topic-Education'],
+    ['fa-place-of-worship','Religion','#news-topic-Religion'],
+    ['fa-car','Auto','#news-topic-Auto'],
+    ['fa-plane','Travel','#news-topic-Travel'],
+    ['fa-heart','Lifestyle','#news-topic-Lifestyle'],
+    ['fa-rocket','Space','#news-topic-Space'],
+    ['fa-fire','Trending','#news-topic-Trending'],
     ['fa-gear','Settings','#settings']
   ];
 
@@ -49,6 +68,10 @@ function init(){
     close();
     if(target==='#chat'){
       document.getElementById('chatButton')?.click();
+    }else if(target.startsWith('#news-topic-')){
+      const topic=target.slice('#news-topic-'.length);
+      if(typeof window.selectBanjaraNewsTopic==='function') window.selectBanjaraNewsTopic(topic);
+      else document.querySelector('#worldNewsSection')?.scrollIntoView({behavior:'smooth',block:'start'});
     }else if(target==='#worldNewsSection'){
       document.querySelector(target)?.scrollIntoView({behavior:'smooth',block:'start'});
     }else if(target==='#settings'){
