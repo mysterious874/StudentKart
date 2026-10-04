@@ -49,6 +49,9 @@ async function openChat(chatId,name){
  box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small id="bcChatPresence">Offline</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><div id="bcReplyBar" class="bc-reply-bar" hidden><button type="button" data-reply-cancel><i class="fas fa-xmark"></i></button><div><small>Replying to</small><strong id="bcReplyText"></strong></div></div><form class="bc-chat-composer" id="bcChatForm"><button type="button" class="bc-chat-tool" id="bcAttachBtn" title="Photo, video or file"><i class="fas fa-paperclip"></i></button><input type="file" id="bcAttachInput" hidden accept="image/*,video/*,.pdf"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button type="button" class="bc-chat-tool" id="bcVoiceBtn" title="Voice message"><i class="fas fa-microphone"></i></button><button type="submit" class="bc-send-btn"><i class="fas fa-paper-plane"></i></button></form>';
  document.body.appendChild(box);
  const sb=SB(),{data:{user}}=await sb.auth.getUser();if(!user)return;
+ const {data:blockRows}=await sb.from("user_blocks").select("blocker_id,blocked_id").or("blocker_id.eq."+user.id+",blocked_id.eq."+user.id);
+ const blockedByMe=new Set((blockRows||[]).filter(x=>x.blocker_id===user.id).map(x=>x.blocked_id));
+ const blockedMe=new Set((blockRows||[]).filter(x=>x.blocked_id===user.id).map(x=>x.blocker_id));
  const mediaUrl=async path=>{if(!path)return null;const r=await sb.storage.from("banjara-media").createSignedUrl(path,3600);return r.data?.signedUrl||null;};
  const renderMessage=async m=>{
    const mine=m.sender_id===user.id, type=m.message_type||"text", url=await mediaUrl(m.attachment_url);
@@ -80,6 +83,8 @@ async function openChat(chatId,name){
  const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn"); let pressTimer=null;
  const presenceEl=box.querySelector("#bcChatPresence"); let typingTimer=null;
  const {data:members}=await sb.from("chat_members").select("user_id").eq("chat_id",chatId);
+ const otherChatUser=(members||[]).map(x=>x.user_id).find(id=>id!==user.id);
+ if(otherChatUser&&(blockedByMe.has(otherChatUser)||blockedMe.has(otherChatUser))){alert("Chat is unavailable because one of you has blocked the other.");box.remove();return;}
  const otherId=(members||[]).map(x=>x.user_id).find(id=>id!==user.id);
  const chatChannel=sb.channel("bc-chat-presence-"+chatId,{config:{presence:{key:user.id}}});
  chatChannel.on("presence",{event:"sync"},()=>{const state=chatChannel.presenceState();const online=otherId&&!!state[otherId];if(presenceEl)presenceEl.textContent=online?"Online":"Offline";})
