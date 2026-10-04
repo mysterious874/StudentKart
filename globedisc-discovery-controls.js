@@ -33,6 +33,7 @@ function topicLoad(topic){
    grid.innerHTML='<div class="world-news-card-grid">'+unique.map(a=>'<article class="world-news-card"><a href="'+esc(a.url||a.link||"#")+'" target="_blank" rel="noopener"><img src="'+esc(a.image||a.image_url||a.thumbnail||"")+'" alt=""><div><strong>'+esc(a.title||"News")+'</strong><small>'+esc(a.source||a.publisher||"Web")+'</small></div></a></article>').join("")+'</div>';
  }).catch(()=>{grid.innerHTML='<div class="world-news-empty"><i class="fas fa-triangle-exclamation"></i><h3>News could not be loaded</h3><p>Please try again.</p></div>'});
 }
+window.selectBanjaraNewsTopic=topicLoad;
 function bind(){
  const section=qs("home"); if(!section||section.dataset.discoveryUnified==="1")return;
  section.dataset.discoveryUnified="1";
