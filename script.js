@@ -825,6 +825,11 @@ window.addEventListener("popstate", event => {
         return;
     }
 
+    if ($("aiAssistantPage") && !$("aiAssistantPage").classList.contains("hidden")) {
+        showHomePageFromAi({ fromPopState: true });
+        return;
+    }
+
     const openModalElement = document.querySelector(".modal:not(.hidden)");
     if (openModalElement) {
         closeAllModals({ fromPopState: true });
