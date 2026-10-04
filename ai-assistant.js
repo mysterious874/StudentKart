@@ -149,7 +149,7 @@ function closeAI(){
 async function ask(question){
  const q=String(question||"").trim(); if(!q)return;
  const send=$("aiAssistantSend"),input=$("aiAssistantInput");
- if(send)send.disabled=true;if(input)input.readOnly=true;
+ if(send)send.disabled=true;
  addMessage("user",q);
  history.push({role:"user",content:q});
  history=history.slice(-20);
@@ -167,7 +167,6 @@ async function ask(question){
  }finally{
   if(send)send.disabled=false;
   if(input){
-   input.readOnly=false;
    input.value="";
    // Keep the composer focused after sending so the mobile keyboard stays open.
    input.focus({preventScroll:true});
@@ -244,6 +243,11 @@ document.addEventListener("DOMContentLoaded",()=>{
   const input=$("aiAssistantInput");
   if(input){setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},50);}
  });
+ $("aiAssistantSend")?.addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  const input=$("aiAssistantInput");
+  if(input)input.focus({preventScroll:true});
+});
  $("aiAssistantForm")?.addEventListener("submit",e=>{e.preventDefault();ask($("aiAssistantInput")?.value);});
 });
 })();
