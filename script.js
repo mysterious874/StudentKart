@@ -4831,8 +4831,8 @@ async function loginUser(event) {
         return;
     }
 
-    if (!internalEmail) {
-        showToast("Could not prepare login", "error");
+    if (!phone || !internalEmail) {
+        showToast("Enter a valid 10-digit mobile number", "warning");
         return;
     }
 
@@ -4880,8 +4880,8 @@ async function signupUser(event) {
         return;
     }
 
-    if (!internalEmail) {
-        showToast("Could not prepare account", "error");
+    if (!phone || !internalEmail) {
+        showToast("Enter a valid 10-digit mobile number", "warning");
         return;
     }
 
@@ -4924,10 +4924,15 @@ async function signupUser(event) {
         } catch (_) {}
 
         if (!response.ok) {
-            throw new Error(
-                payload?.error ||
-                "Could not create account"
-            );
+            if (response.status === 409) {
+                closeModal("signupModal");
+                openModal("loginModal");
+                const loginInput = $("loginIdentifier");
+                if (loginInput) loginInput.value = phone.replace(/^\+91/, "");
+                showToast("This mobile number is already registered. Please login.", "warning");
+                return;
+            }
+            throw new Error(payload?.error || "Could not create account");
         }
 
         // Sign in immediately so the normal session/profile flow is reused.
@@ -14707,14 +14712,24 @@ document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();
                 const query = topicQueries[topic] || (topic + " latest India news");
                 grid.innerHTML = '<div class="world-news-empty"><i class="fas fa-spinner fa-spin"></i><h3>Loading '+escapeHTML(topic)+' news…</h3><p>Fetching the latest stories.</p></div>';
                 try {
-                    const response = await fetchWithTimeout(
-                        SUPABASE_URL + "/functions/v1/global-news?q=" + encodeURIComponent(query),
-                        {headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"}},
-                        9000
-                    );
-                    if (!response.ok) throw new Error("News request failed");
-                    const payload = await response.json();
-                    const articles = Array.isArray(payload?.articles) ? payload.articles : [];
+                    const queries = topic === "Religion"
+                        ? ["India religion faith temple mosque church gurdwara festival spirituality latest news","Hindu Muslim Christian Sikh Jain Buddhist religious festivals India latest news"]
+                        : [query];
+                    const responses = await Promise.allSettled(queries.map(q =>
+                        fetchWithTimeout(SUPABASE_URL + "/functions/v1/global-news?q=" + encodeURIComponent(q),
+                            {headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"}}, 9000)
+                    ));
+                    const seen = new Set(), articles = [];
+                    for (const result of responses) {
+                        if (result.status !== "fulfilled" || !result.value.ok) continue;
+                        const payload = await result.value.json().catch(()=>({}));
+                        for (const article of (Array.isArray(payload?.articles) ? payload.articles : [])) {
+                            const key = String(article?.url || article?.title || "").trim();
+                            if (!key || seen.has(key)) continue;
+                            seen.add(key); articles.push(article);
+                        }
+                    }
+                    articles.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
                     if (!articles.length) {
                         grid.innerHTML = '<div class="world-news-empty"><i class="fas fa-newspaper"></i><h3>No '+escapeHTML(topic)+' news found</h3><p>Try another topic or refresh shortly.</p></div>';
                         return;
