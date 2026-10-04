@@ -1,8 +1,8 @@
-/* StudentKart Admin — Users */
+/* GlobeDisc Admin — Users */
 (function(){
     const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
     async function openUsers(){
-        if(!window.StudentKartAdminTool || !(await window.StudentKartAdminTool.checkAdmin())) return;
+        if(!window.GlobeDiscAdminTool || !(await window.GlobeDiscAdminTool.checkAdmin())) return;
         let m=document.getElementById("adminUsersModal");
         if(!m){
             m=document.createElement("div"); m.id="adminUsersModal"; m.className="modal sk-admin-tool-modal hidden";
@@ -10,7 +10,7 @@
               <div class="modal-overlay" data-close-users></div>
               <div class="modal-content">
                 <div class="settings-page-header">
-                  <div class="settings-title-wrap"><div class="settings-icon"><i class="fas fa-users"></i></div><div><span class="section-label">STUDENTKART ADMIN</span><h2>Users</h2><p>Registered StudentKart profiles.</p></div></div>
+                  <div class="settings-title-wrap"><div class="settings-icon"><i class="fas fa-users"></i></div><div><span class="section-label">GLOBEDISC ADMIN</span><h2>Users</h2><p>Registered GlobeDisc profiles.</p></div></div>
                   <button type="button" class="modal-close" data-close-users>&times;</button>
                 </div>
                 <div id="adminUsersStats" class="sk-admin-user-stats"></div>
@@ -53,6 +53,6 @@
             }).join("");
         }
     }
-    window.StudentKartAdminUsers={openUsers};
+    window.GlobeDiscAdminUsers={openUsers};
     document.addEventListener("click",e=>{if(e.target.closest("#adminUsersTool"))openUsers();});
 })();
