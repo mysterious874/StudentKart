@@ -5746,20 +5746,59 @@ function openCategoryPage(category, options = {}) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function getSearchResultMatches(query) {
+async function getSearchResultMatches(query) {
     const q = String(query || "").trim().toLowerCase();
     if (!q) return [];
+
     const terms = q.split(/\s+/).filter(Boolean);
     const categoryQuery = ["books","electronics","vehicles","furniture","services","fashion","gaming","other"].includes(q);
-    return [...currentProducts].filter(product => {
-        const haystack = [product.name,product.category,product.location,product.condition,product.description,product.seller].join(" ").toLowerCase();
-        return categoryQuery
-            ? String(product.category || "").toLowerCase() === q
-            : terms.every(term => haystack.includes(term));
-    }).sort((a,b) => {
-        const an=String(a.name||"").toLowerCase(), bn=String(b.name||"").toLowerCase();
-        return (Number(bn.startsWith(q))-Number(an.startsWith(q))) || (new Date(b.createdAt)-new Date(a.createdAt));
-    });
+
+    try {
+        let request = supabaseClient
+            .from("products")
+            .select("*")
+            .eq("status", "active")
+            .order("created_at", { ascending: false })
+            .order("id", { ascending: false })
+            .limit(100);
+
+        if (categoryQuery) {
+            request = request.ilike("category", q);
+        } else {
+            for (const term of terms) {
+                const safeTerm = term.replace(/[\\%_]/g, "\\$&");
+                const pattern = "%" + safeTerm + "%";
+                request = request.or([
+                    "name.ilike." + pattern,
+                    "category.ilike." + pattern,
+                    "location.ilike." + pattern,
+                    "condition.ilike." + pattern,
+                    "description.ilike." + pattern,
+                    "seller.ilike." + pattern
+                ].join(","));
+            }
+        }
+
+        const { data, error } = await request;
+        if (error) throw error;
+
+        return (Array.isArray(data) ? data : [])
+            .map(normalizeProduct)
+            .sort((a, b) => {
+                const an = String(a.name || "").toLowerCase();
+                const bn = String(b.name || "").toLowerCase();
+                return (Number(bn.startsWith(q)) - Number(an.startsWith(q))) ||
+                    (new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            });
+    } catch (error) {
+        console.warn("Database marketplace search failed, using loaded listings:", error);
+        return [...currentProducts].filter(product => {
+            const haystack = [product.name,product.category,product.location,product.condition,product.description,product.seller].join(" ").toLowerCase();
+            return categoryQuery
+                ? String(product.category || "").toLowerCase() === q
+                : terms.every(term => haystack.includes(term));
+        });
+    }
 }
 
 async function fetchWithTimeout(url, options={}, timeout=9000){
@@ -6145,7 +6184,12 @@ async function showSearchResultsPage(query, options = {}) {
     if(title) title.textContent=selected;
     if(subtitle) subtitle.textContent="Internet + StudentKart results for “"+selected+"”";
 
-    const matches=getSearchResultMatches(selected);
+    const resultContainer=$("searchResultsProductContainer");
+    if(resultContainer){
+        resultContainer.innerHTML='<div class="loading-state"><i class="fas fa-spinner fa-spin"></i><p>Searching marketplace…</p></div>';
+    }
+
+    const matches=await getSearchResultMatches(selected);
     const count=$("searchResultsCount");
     if(count) count.textContent=matches.length+(matches.length===1?" listing":" listings");
     renderProducts(matches,"searchResultsProductContainer","searchResultsEmptyState");
