@@ -181,14 +181,14 @@
             <div class="ai-assistant-navbar">
                 <div class="ai-assistant-navbar-inner">
                     <button type="button" id="aiAssistantBack" class="ai-assistant-back" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
-                    <div class="ai-assistant-brand"><span class="ai-assistant-brand-icon"><img src="/icons/banjara-connect-icon.svg" alt="GlobeDisc"></span><div><strong>Ask with AI</strong><small>Banjara Connect AI</small></div></div>
+                    <div class="ai-assistant-brand"><span class="ai-assistant-brand-icon"><img src="/icons/banjara-connect-icon.svg" alt="Banjara Connect"></span><div><strong>Ask with AI</strong><small>Banjara Connect AI</small></div></div>
                     <button type="button" id="aiAssistantNewChat" class="ai-assistant-new-chat" aria-label="New chat"><i class="fas fa-pen-to-square"></i></button>
                 </div>
             </div>
             <div class="ai-assistant-shell">
                 <div id="aiAssistantMessages" class="ai-assistant-messages">
                     <div id="aiAssistantWelcome" class="ai-assistant-welcome">
-                        <div class="ai-assistant-welcome-icon"><img src="/icons/banjara-connect-icon.svg" alt="GlobeDisc"></div>
+                        <div class="ai-assistant-welcome-icon"><img src="/icons/banjara-connect-icon.svg" alt="Banjara Connect"></div>
                         <h1>What can I help you with?</h1>
                         <p>Ask anything. Banjara Connect AI will bring together answers and useful sources.</p>
                     </div>
@@ -275,7 +275,7 @@
             <div class="search-results-container">
                 <div id="searchResultsWebContainer" class="search-results-web-container"></div>
                 <div class="search-results-section-label" id="searchResultsMarketplaceLabel">
-                    <i class="fas fa-store"></i><span>GlobeDisc Marketplace</span>
+                    <i class="fas fa-store"></i><span>Banjara Connect Marketplace</span>
                 </div>
                 <div id="searchResultsProductContainer" class="products-grid"></div>
                 <div id="searchResultsEmptyState" class="empty-state hidden">
@@ -308,8 +308,8 @@
         <div class="footer-container">
             <div class="footer-brand">
                 <a href="#home" class="logo">
-                    <div class="logo-mark globedisc-brand-mark"><img src="/icons/banjara-connect-icon.svg" alt="GlobeDisc"></div>
-                    <span class="logo-text">GlobeDisc</span>
+                    <div class="logo-mark banjara-brand-mark"><img src="/icons/banjara-connect-icon.svg" alt="Banjara Connect"></div>
+                    <span class="logo-text">Banjara Connect</span>
                 </a>
                 <p>A student-first discovery platform for exploring the world, finding useful information and staying connected.</p>
                 <div class="footer-brand-badge"><i class="fas fa-shield-halved"></i><span>Built for students</span></div>
@@ -318,7 +318,6 @@
             <div class="footer-link-group">
                 <strong>Explore</strong>
                 <button type="button" data-footer-info="how"><i class="fas fa-route"></i><span>How It Works</span></button>
-                <a href="travel.html"><i class="fas fa-plane-departure"></i><span>Travel Hub</span></a>
                 <button type="button" data-footer-info="about"><i class="fas fa-circle-info"></i><span>About Us</span></button>
                 <button type="button" data-footer-info="safety"><i class="fas fa-shield-heart"></i><span>Safety Tips</span></button>
             </div>
@@ -333,7 +332,7 @@
             <div class="footer-creator">
                 <strong>Built by</strong>
                 <div class="footer-creator-name">Harish Lahu Rathod</div>
-                <span>Founder &amp; Developer · GlobeDisc</span>
+                <span>Founder &amp; Developer · Banjara Connect</span>
                 <a href="mailto:rathodharish004@gmail.com" class="footer-contact-link"><i class="fas fa-envelope"></i> <span>rathodharish004@gmail.com</span></a>
                 <a href="https://www.google.com/maps/search/?api=1&query=Titwala%2C%20Kalyan%2C%20Maharashtra%2C%20India" target="_blank" rel="noopener noreferrer" class="footer-contact-link"><i class="fas fa-location-dot"></i> <span>Titwala, Kalyan, Maharashtra</span></a>
             </div>
@@ -344,7 +343,7 @@
         </div>
 
         <div class="footer-bottom">
-            <span>© 2026 GlobeDisc. All rights reserved.</span>
+            <span>© 2026 Banjara Connect. All rights reserved.</span>
             <span>Search Beyond Boundaries <i class="fas fa-globe"></i></span>
         </div>
     </footer>
@@ -412,7 +411,7 @@
         <div class="modal-content wide-modal">
             <div class="modal-header page-popup-header">
                 <h2>My Listings</h2>
-                <p>Products you have listed on GlobeDisc.</p>
+                <p>Products you have listed on Banjara Connect.</p>
             </div>
             <div id="myListingsContainer" class="products-grid"></div>
         </div>
@@ -427,12 +426,12 @@
         <div id="toastIcon" class="toast-icon"><i class="fas fa-check"></i></div>
         <div id="toastMessage">Done</div>
     </div>
-<!-- Register GlobeDisc service worker early so browsers and PWA validators can detect it. -->
+<!-- Register Banjara Connect service worker early so browsers and PWA validators can detect it. -->
 <script>
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
         navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(function (error) {
-            console.error("GlobeDisc service worker registration failed:", error);
+            console.error("Banjara Connect service worker registration failed:", error);
         });
     });
 }
@@ -441,9 +440,5 @@ if ("serviceWorker" in navigator) {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js?v=20261004-ai-chat-10"></script>
     
-    <script src="/admin-tool.js?v=20261003-admin-tool-1"></script>
-<script src="/admin-users.js?v=20261003-users-1"></script>
-<script src="/admin-listings.js?v=20261003-listings-1"></script>
-<script src="/ai-assistant.js?v=20261004-11" defer></script>
-    <script src="/globedisc-final-hardening.js?v=20261004-final-1" defer></script>
+    <script src="/ai-assistant.js?v=20261004-11" defer></script>
     
