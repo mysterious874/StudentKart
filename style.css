@@ -5761,48 +5761,6 @@ body { font-weight: 400; }
     to { transform: rotate(360deg); }
 }
 
-.chat-list-search {
-    height: 44px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 13px;
-    border-radius: 12px;
-    background: #f1f5f5;
-    color: #789096;
-}
-
-.chat-list-search > i {
-    font-size: 13px;
-}
-
-.chat-list-search input {
-    min-width: 0;
-    flex: 1;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: #20373d;
-    font: inherit;
-    font-size: 13px;
-}
-
-.chat-list-search input::placeholder {
-    color: #899ba0;
-}
-
-.chat-list-search button {
-    width: 25px;
-    height: 25px;
-    display: grid;
-    place-items: center;
-    border: 0;
-    border-radius: 50%;
-    background: #dfe8e8;
-    color: #62767b;
-    cursor: pointer;
-}
-
 .chat-list-tabs {
     display: flex;
     gap: 7px;
@@ -18946,30 +18904,3 @@ body.marketplace-page-active .new-product-card img{
 
 
 
-#inquiriesModal:not(.hidden) .chat-list-header .chat-list-search{
-    display:flex !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    position:relative !important;
-    z-index:60 !important;
-    width:100% !important;
-    min-width:0 !important;
-    min-height:46px !important;
-    height:46px !important;
-    box-sizing:border-box !important;
-    flex:none !important;
-    overflow:visible !important;
-}
-#inquiriesModal:not(.hidden) .chat-list-header #inquiriesModal:not(.hidden) .chat-list-header .chat-list-search > i{
-    display:block !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    flex:0 0 auto !important;
-}
-@media(max-width:560px){
-    #inquiriesModal:not(.hidden) .chat-list-header .chat-list-search{
-        min-height:44px !important;
-        height:44px !important;
-        margin-top:2px !important;
-    }
-}
