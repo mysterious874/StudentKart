@@ -85,9 +85,9 @@ async function bcStartSessionGuard(user,sessionId){
     if(!user?.id||!bcSessionIdValue)return;
     try{
       const sb=BC_SUPABASE();
-      const {data,error}=await sb.rpc("get_my_active_session_id");
+      const {data,error}=await sb.functions.invoke("get-active-session");
       if(error||!data)return;
-      if(data && data!==bcSessionIdValue){
+      if(data?.active_session_id && data.active_session_id!==bcSessionIdValue){
         clearInterval(bcSessionTimer); bcSessionTimer=null;
         await sb.auth.signOut({scope:"local"});
         state.auth="login"; state.screen="auth"; renderAll(); showScreen("auth");
