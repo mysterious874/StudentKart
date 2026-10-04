@@ -12,7 +12,8 @@ const AI_REOPEN_MESSAGES=[
   "Back already? I’m not complaining 😉 Tell me what’s on your mind.",
   "Look who’s back 💫 Come on, tell me everything. I’m listening.",
   "You came back… cute 😏 Now, what shall we get curious about together?",
-  "Missed our little chats already? 😌 Come here, ask me something."\n];
+  "Missed our little chats already? 😌 Come here, ask me something."
+];
 function loadAIHistory(){try{const saved=localStorage.getItem(AI_HISTORY_KEY);const parsed=saved?JSON.parse(saved):[];return Array.isArray(parsed)?parsed.slice(-20):[];}catch(_){return [];}}
 function saveAIHistory(){try{localStorage.setItem(AI_HISTORY_KEY,JSON.stringify(history.slice(-20)));}catch(_){} }
 
