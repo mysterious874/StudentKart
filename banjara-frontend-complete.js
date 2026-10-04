@@ -88,7 +88,7 @@ function bcInitSafeHistory(){
   const target=(e.state&&e.state.bcScreen)||bcHistoryScreen();
   if(BC_HISTORY_SCREENS.includes(target))showScreen(target);
  });
- document.addEventListener("click",function(e){
+ document.addEventListener("click",async function(e){
   const nav=e.target.closest("[data-screen]");
   if(nav)bcPushHistory(nav.dataset.screen);
   else if(e.target.closest("[data-more]"))bcPushHistory("settings");
