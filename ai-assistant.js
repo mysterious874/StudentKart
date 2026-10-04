@@ -151,4 +151,4 @@ document.addEventListener("DOMContentLoaded",()=>{
  $("aiAssistantForm")?.addEventListener("submit",e=>{e.preventDefault();ask($("aiAssistantInput")?.value);});
 });
 })();
-window.openBanjara ConnectAI=openAI;window.closeBanjara ConnectAI=closeAI;window.addEventListener("load",bindAIControls,{once:true});
+window.openBanjaraConnectAI=openAI;window.closeBanjaraConnectAI=closeAI;window.addEventListener("load",bindAIControls,{once:true});
