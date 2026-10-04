@@ -13923,11 +13923,14 @@ async function loadGlobalDiscoveryHomepage(){
     if(!grid) return;
 
     const profile=typeof getSavedProfile==="function" ? getSavedProfile() : null;
-    const location={
+    const newsLocation={
         area:String(profile?.area||"").trim(),
         city:String(profile?.city||"").trim(),
         state:String(profile?.state||"").trim()
     };
+    const area=newsLocation.area;
+    const city=newsLocation.city;
+    const state=newsLocation.state;
     // Geolocation is intentionally background-only so first paint stays fast.
     void resolveNewsLocation().then(loc=>{
         try{ localStorage.setItem("globedisc_last_news_location",JSON.stringify(loc||{})); }catch(_){}
