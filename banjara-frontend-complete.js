@@ -70,10 +70,10 @@ function bcInternalEmail(phone){return "account+"+String(phone).replace(/\D/g,""
 function bcSessionId(){return crypto.randomUUID ? crypto.randomUUID() : (Date.now()+"-"+Math.random().toString(36).slice(2));}
 async function bcEnsureProfile(user, phone, sessionId){
   const sb=BC_SUPABASE(); if(!sb||!user?.id)return null;
-  const {data:existing}=await sb.from("profiles").select("id,name,bio,college,state,city,area,avatar_url,active_session_id").eq("id",user.id).maybeSingle();
-  const payload={id:user.id,phone:phone||existing?.phone||user.user_metadata?.phone||"",active_session_id:sessionId,updated_at:new Date().toISOString()};
+  const {data:existing}=await sb.from("profiles").select("id,name,bio,college,state,city,area,avatar_url").eq("id",user.id).maybeSingle();
+  const payload={id:user.id,phone:phone||user.user_metadata?.phone||"",active_session_id:sessionId,updated_at:new Date().toISOString()};
   if(!existing){payload.name="Banjara Member";}
-  const {data,error}=await sb.from("profiles").upsert(payload,{onConflict:"id"}).select("id,name,bio,college,state,city,area,avatar_url,active_session_id").single();
+  const {data,error}=await sb.from("profiles").upsert(payload,{onConflict:"id"}).select("id,name,bio,college,state,city,area,avatar_url").single();
   if(error) throw error;
   return data;
 }
@@ -85,9 +85,9 @@ async function bcStartSessionGuard(user,sessionId){
     if(!user?.id||!bcSessionIdValue)return;
     try{
       const sb=BC_SUPABASE();
-      const {data,error}=await sb.from("profiles").select("active_session_id").eq("id",user.id).maybeSingle();
+      const {data,error}=await sb.rpc("get_my_active_session_id");
       if(error||!data)return;
-      if(data.active_session_id && data.active_session_id!==bcSessionIdValue){
+      if(data && data!==bcSessionIdValue){
         clearInterval(bcSessionTimer); bcSessionTimer=null;
         await sb.auth.signOut({scope:"local"});
         state.auth="login"; state.screen="auth"; renderAll(); showScreen("auth");
