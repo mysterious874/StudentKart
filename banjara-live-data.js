@@ -8,7 +8,7 @@ async function loadLive(){
  const sb=SB(); if(!sb)return;
  const {data:{user}}=await sb.auth.getUser(); if(!user)return;
  try{
-  const [people,communities,posts,notifications,members]=await Promise.all([
+  const [profile,people,communities,posts,notifications,members]=await Promise.all([sb.from("profiles").select("id,name,bio,city,state,area,avatar_url,cover_url,username,phone").eq("id",user.id).maybeSingle()),
    sb.from("profiles").select("id,name,bio,city,state,avatar_url").neq("id",user.id).order("created_at",{ascending:false}).limit(60),
    sb.from("communities").select("id,name,description,cover_url,created_at").order("created_at",{ascending:false}).limit(30),
    sb.from("posts").select("id,author_id,community_id,body,created_at").order("created_at",{ascending:false}).limit(40),
@@ -16,7 +16,7 @@ async function loadLive(){
    sb.from("chat_members").select("chat_id,last_read_at").eq("user_id",user.id)
   ]);
   if(people.error||communities.error)throw people.error||communities.error;
-  const {data:cmembers}=await sb.from("community_members").select("community_id,user_id,role").eq("user_id",user.id); const myCommunityIds=new Set((cmembers||[]).map(x=>x.community_id)); const {data:sent}=await sb.from("connections").select("id,addressee_id,status").eq("requester_id",user.id); const {data:received}=await sb.from("connections").select("id,requester_id,status").eq("addressee_id",user.id); const conMap=new Map(); (sent||[]).forEach(x=>conMap.set(x.addressee_id,{...x,direction:"sent"})); (received||[]).forEach(x=>conMap.set(x.requester_id,{...x,direction:"received"})); const postIds=(posts.data||[]).map(x=>x.id); let likes=[] , comments=[]; if(postIds.length){const lr=await sb.from("post_likes").select("post_id,user_id").in("post_id",postIds);likes=lr.data||[];const cr=await sb.from("comments").select("id,post_id,user_id,body,created_at").in("post_id",postIds).order("created_at",{ascending:true});comments=cr.data||[];} window.__bcLive={people:people.data||[],communities:communities.data||[],posts:posts.data||[],notifications:notifications.data||[],chats:[],connections:conMap,myCommunityIds,likes,comments,currentUserId:user.id};
+  const {data:cmembers}=await sb.from("community_members").select("community_id,user_id,role").eq("user_id",user.id); const myCommunityIds=new Set((cmembers||[]).map(x=>x.community_id)); const {data:sent}=await sb.from("connections").select("id,addressee_id,status").eq("requester_id",user.id); const {data:received}=await sb.from("connections").select("id,requester_id,status").eq("addressee_id",user.id); const conMap=new Map(); (sent||[]).forEach(x=>conMap.set(x.addressee_id,{...x,direction:"sent"})); (received||[]).forEach(x=>conMap.set(x.requester_id,{...x,direction:"received"})); const postIds=(posts.data||[]).map(x=>x.id); let likes=[] , comments=[]; if(postIds.length){const lr=await sb.from("post_likes").select("post_id,user_id").in("post_id",postIds);likes=lr.data||[];const cr=await sb.from("comments").select("id,post_id,user_id,body,created_at").in("post_id",postIds).order("created_at",{ascending:true});comments=cr.data||[];} window.__bcProfile=profile.data||{};window.__bcLive={people:people.data||[],communities:communities.data||[],posts:posts.data||[],notifications:notifications.data||[],chats:[],connections:conMap,myCommunityIds,likes,comments,currentUserId:user.id};
   const pmap=new Map((people.data||[]).map(p=>[p.id,p])), cmap=new Map((communities.data||[]).map(c=>[c.id,c]));
   for(const m of (members.data||[])){
    const {data:others}=await sb.from("chat_members").select("user_id").eq("chat_id",m.chat_id).neq("user_id",user.id);
@@ -25,7 +25,7 @@ async function loadLive(){
    const last=msgs?.[0];
    window.__bcLive.chats.push({id:m.chat_id,name:pmap.get(other)?.name||"Banjara Member",preview:last?.body||"No messages yet",unread:!!(last&&last.sender_id!==user.id&&new Date(last.created_at)>(m.last_read_at?new Date(m.last_read_at):new Date(0)))});
   }
-  refreshUI();
+  refreshUI();subscribeLive();
  }catch(e){console.warn("Banjara live data:",e);}
 }
 function refreshUI(){
@@ -94,6 +94,10 @@ async function createCommunity(){
  if(r.error){alert("Could not create community.");return;}
  const m=await sb.from("community_members").insert({community_id:r.data.id,user_id:user.id,role:"admin"});if(m.error){alert("Community created, but owner membership could not be added.");}
  await loadLive();
+}
+function subscribeLive(){
+ const sb=SB();if(!sb||window.__bcLiveChannel)return;
+ window.__bcLiveChannel=sb.channel("banjara-live").on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:"user_id=eq."+window.__bcLive.currentUserId},()=>loadLive()).on("postgres_changes",{event:"*",schema:"public",table:"connections"},()=>loadLive()).on("postgres_changes",{event:"*",schema:"public",table:"community_members"},()=>loadLive()).on("postgres_changes",{event:"*",schema:"public",table:"posts"},()=>loadLive()).on("postgres_changes",{event:"*",schema:"public",table:"post_likes"},()=>loadLive()).on("postgres_changes",{event:"*",schema:"public",table:"comments"},()=>loadLive()).subscribe();
 }
 window.bcReloadLive=loadLive;window.bcConnect=connectAction;window.bcCommunityAction=communityAction;window.bcCreateCommunity=createCommunity;window.bcCreatePost=createPost;window.bcPostAction=postAction;window.bcOpenChat=openChat;window.bcNewChat=newChat;
 
