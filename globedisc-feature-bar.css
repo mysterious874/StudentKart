@@ -24,3 +24,8 @@ body.globedisc-more-open{overflow:hidden}
 @media(min-width:561px){
  .globedisc-more-sheet{margin-bottom:10px;border-bottom:1px solid #eadbc8;border-radius:24px}
 }
+
+
+/* More menu now contains all former homepage news topics */
+.globedisc-more-sheet{max-height:min(86dvh,760px)!important;overflow-y:auto!important}
+.globedisc-more-grid{max-height:none!important}
