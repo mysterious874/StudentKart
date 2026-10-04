@@ -343,3 +343,12 @@ html body #home .banjara-home-name{font-size:18px!important;margin-bottom:8px!im
 html body #home .banjara-home-search{height:38px!important}
 html body #home .banjara-home-search input{font-size:13px!important}
 html body #home .banjara-home-search button{width:29px!important;height:29px!important;flex-basis:29px!important}
+
+
+/* Minimal compact home header */
+html body #home.banjara-home-top{padding:7px 10px 7px!important}
+html body #home .banjara-home-logo{width:40px!important;height:40px!important;margin-bottom:2px!important}
+html body #home .banjara-home-name{font-size:16px!important;margin-bottom:6px!important}
+html body #home .banjara-home-search{height:34px!important;padding-left:11px!important}
+html body #home .banjara-home-search input{font-size:12px!important}
+html body #home .banjara-home-search button{width:26px!important;height:26px!important;flex-basis:26px!important}
