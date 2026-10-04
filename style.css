@@ -19035,19 +19035,3 @@ body.marketplace-page-active .new-product-card img{
  .world-news-location-note{padding:14px}
 }
 
-
-/* FINAL FLOATING NAV CLICK/TAP RECOVERY
-   Keep the floating navigation above every page layer and make sure
-   touch/click events reach the actual buttons. */
-html body .mobile-bottom-nav{
-    position:fixed !important;
-    z-index:2147483000 !important;
-    pointer-events:auto !important;
-    touch-action:manipulation !important;
-}
-html body .mobile-bottom-nav .bottom-nav-item,
-html body .mobile-bottom-nav .bottom-nav-item *,
-html body .mobile-bottom-nav a.bottom-nav-item{
-    pointer-events:auto !important;
-    touch-action:manipulation !important;
-}
