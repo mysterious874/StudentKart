@@ -6260,10 +6260,12 @@ function renderInternetSearchResults(query, results){
 
 async function showSearchResultsPage(query, options = {}) {
     const selected=String(query||"").trim();
+    const searchIntent=String(options.intent||"Overview").trim()||"Overview";
+    const focusedQuery=searchIntent==="Overview" ? selected : selected+" "+searchIntent;
     if(!selected) return;
     if(!options.fromPopState && !studentKartHandlingPopState){
         ensureStudentKartHistory();
-        const state={studentKart:true,modalId:null,modalStack:[],page:"search",searchQuery:selected};
+        const state={studentKart:true,modalId:null,modalStack:[],page:"search",searchQuery:selected,searchIntent};
         const hash="#search-"+encodeURIComponent(selected);
         if(window.history.state?.page==="search") window.history.replaceState(state,"",window.location.pathname+window.location.search+hash);
         else window.history.pushState(state,"",window.location.pathname+window.location.search+hash);
@@ -6293,10 +6295,10 @@ async function showSearchResultsPage(query, options = {}) {
     const marketplaceLabel=$("searchResultsMarketplaceLabel");
     if(marketplaceLabel) marketplaceLabel.classList.toggle("hidden",matches.length===0);
 
-    const webResults=await fetchInternetSearchResults(selected);
+    const webResults=await fetchInternetSearchResults(focusedQuery);
     const enriched=await enrichWikiFacts(webResults.wiki);
     if(document.getElementById("searchResultsPage")?.classList.contains("hidden")) return;
-    renderInternetSearchResults(selected,{...webResults,wiki:enriched});
+    renderInternetSearchResults(selected,{...webResults,wiki:enriched,searchIntent});
     window.scrollTo({top:0,behavior:"auto"});
 }
 
@@ -13887,6 +13889,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const runResultSearch=()=>{ const q=resultInput?.value?.trim(); if(q) showSearchResultsPage(q); };
     $("searchResultsSearchButton")?.addEventListener("click",runResultSearch);
     resultInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();runResultSearch();}});
+    document.querySelectorAll(".search-results-intent").forEach(button=>{
+        button.addEventListener("click",()=>{
+            const q=resultInput?.value?.trim();
+            if(!q) return;
+            document.querySelectorAll(".search-results-intent").forEach(item=>item.classList.toggle("active",item===button));
+            showSearchResultsPage(q,{intent:button.dataset.searchIntent||"Overview"});
+        });
+    });
     const resultFilterPanel=$("searchResultsFilterPanel");
     $("searchResultsFilterButton")?.addEventListener("click",()=>resultFilterPanel?.classList.toggle("hidden"));
     $("searchResultsFilterClose")?.addEventListener("click",()=>resultFilterPanel?.classList.add("hidden"));
