@@ -1,2 +1,5 @@
 [functions.global-news]
 verify_jwt = false
+
+[functions.prepare-account]
+verify_jwt = false
