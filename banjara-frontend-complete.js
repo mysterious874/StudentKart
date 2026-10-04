@@ -62,11 +62,11 @@ function toast(msg){const t=$("#bcToast");if(!t)return;t.textContent=msg;t.class
 
 const BC_SUPABASE = () => window.supabaseClient;
 function bcNormalizePhone(value){
-  let d=String(value||"").replace(/\\D/g,"");
+  let d=String(value||"").replace(/\D/g,"");
   if(d.startsWith("91")&&d.length===12)d=d.slice(2);
-  return /^\\d{10}$/.test(d) ? "+91"+d : null;
+  return /^\d{10}$/.test(d) ? "+91"+d : null;
 }
-function bcInternalEmail(phone){return "account+"+String(phone).replace(/\\D/g,"")+"@banjaraconnect.app";}
+function bcInternalEmail(phone){return "account+"+String(phone).replace(/\D/g,"")+"@banjaraconnect.app";}
 function bcSessionId(){return crypto.randomUUID ? crypto.randomUUID() : (Date.now()+"-"+Math.random().toString(36).slice(2));}
 async function bcEnsureProfile(user, phone, sessionId){
   const sb=BC_SUPABASE(); if(!sb||!user?.id)return null;
@@ -117,7 +117,7 @@ async function bcHandleAuth(form){
   const phone=bcNormalizePhone(inputs[0]?.value);
   const password=String(inputs[1]?.value||"");
   if(!phone){toast("Enter a valid 10-digit mobile number");return;}
-  if(!/^\\d{6}$/.test(password)){toast("Password must be exactly 6 digits");return;}
+  if(!/^\d{6}$/.test(password)){toast("Password must be exactly 6 digits");return;}
   const sb=BC_SUPABASE(); if(!sb){toast("Authentication is not ready");return;}
   const submit=form.querySelector("button[type=submit]"); if(submit){submit.disabled=true;submit.textContent=mode==="signup"?"Creating...":"Logging in...";}
   try{
