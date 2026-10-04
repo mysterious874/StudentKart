@@ -16,7 +16,7 @@ function avatar(x){return '<div class="bc-avatar">'+x+'</div>'}
 function build(){
  const oldMain=$("main"); if(oldMain) oldMain.style.display="none";
  const oldSplash=$("#banjaraSplash"); if(oldSplash){oldSplash.classList.add("is-hidden");oldSplash.remove();}
- document.body.classList.add("bc-app-ready");
+ document.body.classList.add("bc-app-ready");document.body.classList.remove("banjara-splash-active");
  const root=document.createElement("div");root.id="bcAppShell";
  root.innerHTML='<div class="bc-app">'+
  '<header class="bc-topbar"><div class="bc-brand"><img src="/icons/banjara-connect-icon.svg" alt=""><div class="bc-brand-text"><strong>Banjara Connect</strong><small>People • Community • Culture</small></div></div><div class="bc-top-actions"><button class="bc-icon-btn" data-screen="notifications" aria-label="Notifications"><i class="fas fa-bell"></i></button><button class="bc-icon-btn" data-screen="profile" aria-label="Profile"><i class="fas fa-user"></i></button></div></header>'+
