@@ -6287,6 +6287,46 @@ async function showSearchResultsPage(query, options = {}) {
     window.scrollTo({top:0,behavior:"auto"});
 }
 
+function handleGlobeDiscSearchIntent(intent, query) {
+    const q = String(query || "").trim();
+    if (!q) return;
+    const mode = String(intent || "All");
+    if (mode === "All" || mode === "Overview") {
+        showSearchResultsPage(q);
+        return;
+    }
+    if (mode === "Videos") {
+        window.open("https://www.youtube.com/results?search_query=" + encodeURIComponent(q), "_blank", "noopener");
+        return;
+    }
+    if (mode === "Photos") {
+        window.open("https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(q), "_blank", "noopener");
+        return;
+    }
+    const suffix = {
+        News: " latest news",
+        Reviews: " reviews",
+        Price: " price",
+        Specs: " specifications",
+        "How to": " how to"
+    }[mode] || "";
+    showSearchResultsPage(q + suffix);
+}
+
+function setupGlobeDiscSearchIntents() {
+    document.querySelectorAll("[data-search-intent]").forEach(button => {
+        if (button.dataset.globediscIntentBound === "1") return;
+        button.dataset.globediscIntentBound = "1";
+        button.addEventListener("click", () => {
+            document.querySelectorAll("[data-search-intent]").forEach(x => x.classList.remove("active"));
+            button.classList.add("active");
+            const input = $("searchResultsInput");
+            handleGlobeDiscSearchIntent(button.dataset.searchIntent, input?.value || "");
+        });
+    });
+}
+document.addEventListener("DOMContentLoaded", setupGlobeDiscSearchIntents);
+
 function showHomePageFromSearch(options={}) {
     $("searchResultsPage")?.classList.add("hidden");
     document.body.classList.remove("studentkart-search-results-active");
