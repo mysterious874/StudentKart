@@ -5028,6 +5028,9 @@ async function logoutUser() {
         await supabaseClient.auth.signOut();
 
         localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
+        localStorage.removeItem("globedisc_ai_chat_history_v1");
+        localStorage.removeItem("globedisc_ai_chat_history_backup_v1");
+        sessionStorage.removeItem("globedisc_ai_chat_history_v1");
         currentUser = null;
         currentNotifications = [];
 
