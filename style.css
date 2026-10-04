@@ -16956,6 +16956,58 @@ header.navbar,
 .navbar:not(.mobile-bottom-nav){display:none!important;visibility:hidden!important;pointer-events:none!important;}
 
 
+/* GLOBEDISC HOMEPAGE NEWS TOPIC STRIP */
+.globedisc-news-topic-strip{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    width:100%;
+    margin-top:12px;
+    padding:3px 2px 6px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-behavior:smooth;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+}
+.globedisc-news-topic-strip::-webkit-scrollbar{display:none}
+.globedisc-news-topic{
+    flex:0 0 auto;
+    height:36px;
+    padding:0 15px;
+    border:1px solid #dbe4ee;
+    border-radius:999px;
+    background:#fff;
+    color:#475569;
+    font-size:13px;
+    font-weight:600;
+    white-space:nowrap;
+    cursor:pointer;
+    transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease;
+}
+.globedisc-news-topic:hover{
+    border-color:#9bb6d2;
+    color:#173b68;
+}
+.globedisc-news-topic.active{
+    background:#173b68;
+    border-color:#173b68;
+    color:#fff;
+}
+@media(max-width:700px){
+    .globedisc-news-topic-strip{
+        margin-top:10px;
+        gap:7px;
+        padding-bottom:5px;
+    }
+    .globedisc-news-topic{
+        height:34px;
+        padding:0 13px;
+        font-size:12.5px;
+    }
+}
+
 /* SEARCH + CATEGORY TOP STRIP */
 .studentkart-top{min-height:0!important;height:auto!important;padding:18px 0 10px!important;background:transparent!important}
 .studentkart-top-content{width:min(1180px,calc(100% - 28px));margin:0 auto}
