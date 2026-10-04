@@ -47,21 +47,6 @@
         }, 3200);
     })();
     </script>
-    <script>
-    (function () {
-        var splash = document.getElementById("banjaraSplash");
-        if (!splash) return;
-        window.setTimeout(function () {
-            document.body.classList.remove("banjara-splash-active");
-            splash.classList.add("is-hidden");
-            splash.style.pointerEvents = "none";
-            window.setTimeout(function () {
-                if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
-            }, 4250);
-        }, 4000);
-    })();
-    </script>
-
         <section id="aiAssistantPage" class="ai-assistant-page hidden" aria-label="Ask with AI">
             <div class="ai-assistant-navbar">
                 <div class="ai-assistant-navbar-inner">
