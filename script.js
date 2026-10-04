@@ -13922,12 +13922,16 @@ async function loadGlobalDiscoveryHomepage(){
     const grid=$("worldNewsGrid");
     if(!grid) return;
 
-    const locationPromise=resolveNewsLocation();
-    const area="";
-    const city="";
-    const state="";
-    const city=location.city;
-    const state=location.state;
+    const profile=typeof getSavedProfile==="function" ? getSavedProfile() : null;
+    const location={
+        area:String(profile?.area||"").trim(),
+        city:String(profile?.city||"").trim(),
+        state:String(profile?.state||"").trim()
+    };
+    // Geolocation is intentionally background-only so first paint stays fast.
+    void resolveNewsLocation().then(loc=>{
+        try{ localStorage.setItem("globedisc_last_news_location",JSON.stringify(loc||{})); }catch(_){}
+    }).catch(()=>{});
 
     // Hyperlocal-first: the most specific saved place is always searched first.
     // We do not pretend to know exact GPS distance; this is based on the user's
@@ -13988,7 +13992,7 @@ async function loadGlobalDiscoveryHomepage(){
         },
         {
             key:"state",
-            label:state ? state + " Regional",
+            label:state ? state + " Regional" : "Regional",
             icon:"fa-map",
             queries:state
                 ? [
