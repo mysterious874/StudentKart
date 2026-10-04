@@ -118,8 +118,8 @@ async function openChat(chatId,name){
  input?.addEventListener("input",emitTyping);
  const touchLastSeen=()=>void sb.from("profiles").update({last_seen_at:new Date().toISOString()}).eq("id",user.id);
  touchLastSeen(); const seenHeartbeat=setInterval(touchLastSeen,60000);
- box.querySelector("[data-chat-close]").onclick=async()=>{clearInterval(seenHeartbeat);clearTimeout(typingStopTimer);chatChannel.send({type:"broadcast",event:"typing",payload:{user_id:user.id,typing:false}});const topic=box.dataset.channel;const ch=topic?sb.getChannels().find(x=>x.topic===topic):null;if(ch)await sb.removeChannel(ch);try{await sb.removeChannel(chatChannel);}catch(e){}box.remove();};
- const replyBar=box.querySelector("#bcReplyBar"),replyText=box.querySelector("#bcReplyText"); let replyTo=null;
+ box.querySelector("[data-chat-close]").onclick=async()=>{clearInterval(seenHeartbeat);clearTimeout(typingStopTimer);chatChannel.send({type:"broadcast",event:"typing",payload:{user_id:user.id,typing:false}});const topic=box.dataset.channel;const ch=topic?sb.getChannels().find(x=>x.topic===topic):null;if(ch)await sb.removeChannel(ch);try{await sb.removeChannel(chatChannel);}catch(e){}if(recordingKeyHandler)document.removeEventListener("keydown",recordingKeyHandler);box.remove();};
+ let recordingKeyHandler=null; const replyBar=box.querySelector("#bcReplyBar"),replyText=box.querySelector("#bcReplyText"); let replyTo=null;
  const setReply=m=>{replyTo=m;replyText.textContent=(m.body||("["+m.message_type+"]")).slice(0,90);replyBar.hidden=false;input.focus();};
  box.querySelector("[data-reply-cancel]").onclick=()=>{replyTo=null;replyBar.hidden=true;};
  box.querySelector("#bcChatMessages").addEventListener("click",ev=>{const media=ev.target.closest(".bc-msg-image,.bc-msg-video");if(!media)return;ev.preventDefault();const viewer=document.createElement("div");viewer.className="bc-media-viewer";viewer.innerHTML='<button type="button" aria-label="Close"><i class="fas fa-xmark"></i></button>'+media.outerHTML;document.body.appendChild(viewer);const close=()=>viewer.remove();viewer.onclick=e=>{if(e.target===viewer||e.target.closest("button"))close();};});
@@ -200,7 +200,7 @@ async function openChat(chatId,name){
      recordStartedAt=Date.now();updateRecordTimer();recordTimer=setInterval(updateRecordTimer,1000);recorder.start();
    }catch(e){alert("Microphone permission is required for voice messages.");}
  };
- document.addEventListener("keydown",ev=>{if(ev.key==="Escape"&&recorder&&recorder.state==="recording")stopRecording(false);});
+ recordingKeyHandler=ev=>{if(ev.key==="Escape"&&recorder&&recorder.state==="recording")stopRecording(false);};document.addEventListener("keydown",recordingKeyHandler);
  box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text",reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url,delivered_at,read_at").single();if(ins.error){input.value=body;return;}replyTo=null;replyBar.hidden=true;await render([...currentMessages,ins.data]);input.focus();};
  const channel=sb.channel("bc-chat-"+chatId)
  .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){currentMessages=[...currentMessages,payload.new];await sb.from("messages").update({delivered_at:new Date().toISOString(),read_at:new Date().toISOString()}).eq("id",payload.new.id);const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}})
