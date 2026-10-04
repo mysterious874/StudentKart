@@ -13072,6 +13072,16 @@ body.studentkart-dark .notification-count { border-color:#102a43; }
 @media (max-width:720px) { .nav-notification-button { width:38px; min-width:38px; height:38px; } }
 
 
+/* GlobeDisc AI — own full-screen page; never show global floating navigation. */
+body.ai-assistant-open .mobile-bottom-nav,
+body.ai-assistant-open > .mobile-bottom-nav,
+body.ai-assistant-open .bottom-floating-nav,
+body.ai-assistant-open .floating-bottom-nav {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
 /* =========================================================
    CHAT FOCUS + BACKGROUND LOADING
    ========================================================= */
