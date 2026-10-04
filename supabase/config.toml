@@ -1,5 +1,32 @@
+# Banjara Connect Edge Function auth policy.
+# Keep public endpoints explicit and require JWTs everywhere else.
+
 [functions.global-news]
+verify_jwt = false
+
+[functions.new-products]
+verify_jwt = false
+
+[functions.ai-chat]
 verify_jwt = false
 
 [functions.prepare-account]
 verify_jwt = false
+
+[functions.mobile-login]
+verify_jwt = false
+
+[functions.send-chat-push]
+verify_jwt = true
+
+[functions.search-profile-by-phone]
+verify_jwt = true
+
+[functions.get-active-session]
+verify_jwt = true
+
+[functions.delete-account]
+verify_jwt = true
+
+[functions.register-active-session]
+verify_jwt = true
