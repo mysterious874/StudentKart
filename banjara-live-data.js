@@ -59,7 +59,7 @@ async function openChat(chatId,name){
    else if(type==="file"&&url)content='<a class="bc-msg-file" href="'+url+'" target="_blank" rel="noopener"><i class="fas fa-file-lines"></i><span>'+escLive(m.body||"Attachment")+'</span></a>';
    return '<div class="bc-msg '+(mine?"mine":"theirs")+'">'+content+'<small>'+ago(m.created_at)+'</small></div>';
  };
- const render=async rows=>{const el=box.querySelector("#bcChatMessages");const html=await Promise.all((rows||[]).map(renderMessage));el.innerHTML=html.join("");el.scrollTop=el.scrollHeight;};
+ let currentMessages=[]; const render=async rows=>{currentMessages=rows||[];const el=box.querySelector("#bcChatMessages");const html=await Promise.all(currentMessages.map(renderMessage));el.innerHTML=html.join("");el.scrollTop=el.scrollHeight;};
  const q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
  const {data,error}=await q;if(error){box.querySelector("#bcChatMessages").innerHTML='<div class="bc-empty"><strong>Could not load messages</strong><span>Please try again.</span></div>';return;}
  await render(data);
@@ -77,7 +77,7 @@ async function openChat(chatId,name){
    if(up.error){alert("Could not upload attachment.");attachBtn.disabled=false;attachBtn.innerHTML='<i class="fas fa-paperclip"></i>';return;}
    const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body:type==="file"?file.name:"",message_type:type,attachment_url:path}).select("id,body,sender_id,created_at,message_type,attachment_url").single();
    if(ins.error){await sb.storage.from("banjara-media").remove([path]);alert("Could not send attachment.");}
-   else await render([...(data||[]),ins.data]);
+   else await render([...currentMessages,ins.data]);
    attachBtn.disabled=false;attachBtn.innerHTML='<i class="fas fa-paperclip"></i>';attachInput.value="";input.focus();
  };
  attachBtn.onclick=()=>attachInput.click();attachInput.onchange=()=>sendAttachment(attachInput.files?.[0]);
@@ -97,7 +97,7 @@ async function openChat(chatId,name){
        if(up.error){alert("Could not upload voice message.");return;}
        const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body:"",message_type:"voice",attachment_url:path}).select("id,body,sender_id,created_at,message_type,attachment_url").single();
        if(ins.error){await sb.storage.from("banjara-media").remove([path]);alert("Could not send voice message.");return;}
-       await render([...(data||[]),ins.data]);
+       await render([...currentMessages,ins.data]);
      };
      recorder.start();
    }catch(e){alert("Microphone permission is required for voice messages.");}
