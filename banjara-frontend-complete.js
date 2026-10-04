@@ -6,13 +6,21 @@
 "use strict";
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const state={screen:"home",auth:"welcome",query:"",theme:"light",notifications:3,language:"English",connectTab:"Discover",communityTab:"Discover",chatFilter:"",profile:{name:"Harish Rathod",bio:"Building connections through community and culture."}};
+try{
+ const saved=JSON.parse(localStorage.getItem("banjara_connect_settings_v1")||"{}");
+ if(saved&&typeof saved==="object"){
+  if(["light","dark"].includes(saved.theme))state.theme=saved.theme;
+  if(["English","Hindi","Gor Boli (Lambadi)"].includes(saved.language))state.language=saved.language;
+ }
+}catch(_){}
+function bcSaveSettings(){try{localStorage.setItem("banjara_connect_settings_v1",JSON.stringify({theme:state.theme,language:state.language}));}catch(_){}}
+function bcApplyTheme(){document.body.classList.toggle("bc-dark",state.theme==="dark");}
 let people=[];
 let communities=[];
 function avatar(x){return '<div class="bc-avatar">'+x+'</div>'}
 function getInitials(x){var s=String(x||"Member").trim();return s?s.split(" ").filter(Boolean).slice(0,2).map(function(v){return v.charAt(0)}).join("").toUpperCase():"M"}
 function build(){
  const oldMain=$("main"); if(oldMain) oldMain.style.display="none";
- const oldSplash=$("#banjaraSplash"); if(oldSplash){oldSplash.classList.add("is-hidden");oldSplash.remove();}
  document.body.classList.add("bc-app-ready");document.body.classList.remove("banjara-splash-active");
  const root=document.createElement("div");root.id="bcAppShell";
  root.innerHTML='<div class="bc-app">'+
@@ -244,9 +252,9 @@ const media=e.target.closest("[data-chat-media]");if(media){const file=media.fil
 const send=e.target.closest("[data-send-chat]");if(send){const input=$("#bcModal [data-chat-input]");const v=(input?.value||"").trim();if(!v){toast("Type a message first");return;}const box=$("#bcModal .bc-chat-messages");if(box){box.insertAdjacentHTML("beforeend",'<div class="bc-chat-bubble outgoing">'+esc(v)+'</div>');box.scrollTop=box.scrollHeight;}input.value="";return;}
  const create=e.target.closest(".bc-create");if(create){const label=(create.querySelector("strong")||{}).textContent||"Post";closeModal();bcComposer(label);return;}
  const action=e.target.closest("[data-post-action]");if(action){const a=action.dataset.postAction;if(a==="like"){action.classList.toggle("is-active");action.textContent=action.classList.contains("is-active")?"♥ Liked":"♡ Like";}else if(a==="save"){action.classList.toggle("is-active");action.textContent=action.classList.contains("is-active")?"🔖 Saved":"🔖 Save";}else if(a==="comment"){modal("Comments",'<div class="bc-card"><p>No comments yet. Start the conversation.</p></div><div class="bc-chat-composer"><input placeholder="Write a comment..."><button data-demo="Comment added">Send</button></div>');}else{modal("Share post",'<div class="bc-card"><p>Choose where you want to share this post.</p><button class="bc-action primary" data-demo="Post link copied">Copy link</button></div>');}return;}
- const setting=e.target.closest("[data-setting]");if(setting){const labels=["Profile","Notifications","Appearance","Language","Privacy","Security","Blocked accounts","Sessions","Help & About","Account"];const k=labels[+setting.dataset.setting]||"Settings";if(k==="Profile"){showScreen("profile");return;}if(k==="Appearance"){modal("Appearance",'<div class="bc-theme-grid"><button class="bc-card" data-theme="light">☀️<strong>Light</strong><small>Warm Banjara theme</small></button><button class="bc-card" data-theme="dark">🌙<strong>Dark</strong><small>Low-light theme</small></button></div>');return;}if(k==="Language"){modal("Language",'<div class="bc-language-grid">'+["English","Hindi","Lambadi"].map(x=>'<button class="bc-action '+(state.language===x?"primary":"")+'" data-language="'+x+'">'+x+'</button>').join("")+'</div>');return;}modal(k,'<div class="bc-card"><p>'+esc(k==="Notifications"?"Choose notification preferences.":k==="Privacy"?"Control your visibility.":k==="Security"?"Security controls are ready for backend wiring.":k==="Blocked accounts"?"No blocked accounts yet.":k==="Sessions"?"This device is the current session.":"This frontend section is ready for backend controls.")+'</p><button class="bc-action primary" data-close-modal>Done</button></div>');return;}
- const theme=e.target.closest("[data-theme]");if(theme){state.theme=theme.dataset.theme;document.body.classList.toggle("bc-dark",state.theme==="dark");closeModal();renderAll();showScreen("settings");toast(state.theme==="dark"?"Dark theme enabled":"Light theme enabled");return;}
- const lang=e.target.closest("[data-language]");if(lang){state.language=lang.dataset.language;closeModal();renderAll();showScreen("settings");toast("Language: "+state.language);return;}
+ const setting=e.target.closest("[data-setting]");if(setting){const labels=["Profile","Notifications","Appearance","Language","Privacy","Security","Blocked accounts","Sessions","Help & About","Account"];const k=labels[+setting.dataset.setting]||"Settings";if(k==="Profile"){showScreen("profile");return;}if(k==="Appearance"){modal("Appearance",'<div class="bc-theme-grid"><button class="bc-card" data-theme="light">☀️<strong>Light</strong><small>Warm Banjara theme</small></button><button class="bc-card" data-theme="dark">🌙<strong>Dark</strong><small>Low-light theme</small></button></div>');return;}if(k==="Language"){modal("Language",'<div class="bc-language-grid">'+["English","Hindi","Gor Boli (Lambadi)"].map(x=>'<button class="bc-action '+(state.language===x?"primary":"")+'" data-language="'+x+'">'+x+'</button>').join("")+'</div>');return;}modal(k,'<div class="bc-card"><p>'+esc(k==="Notifications"?"Choose notification preferences.":k==="Privacy"?"Control your visibility.":k==="Security"?"Security controls are ready for backend wiring.":k==="Blocked accounts"?"No blocked accounts yet.":k==="Sessions"?"This device is the current session.":"This frontend section is ready for backend controls.")+'</p><button class="bc-action primary" data-close-modal>Done</button></div>');return;}
+ const theme=e.target.closest("[data-theme]");if(theme){state.theme=theme.dataset.theme;bcSaveSettings();bcApplyTheme();closeModal();renderAll();showScreen("settings");toast(state.theme==="dark"?"Dark theme enabled":"Light theme enabled");return;}
+ const lang=e.target.closest("[data-language]");if(lang){state.language=lang.dataset.language;bcSaveSettings();closeModal();renderAll();showScreen("settings");toast("Language: "+state.language);return;}
  const ct=e.target.closest("[data-connect-tab]");if(ct){state.connectTab=ct.dataset.connectTab;renderAll();showScreen("connect");return;}
  const com=e.target.closest("[data-community-tab]");if(com){state.communityTab=com.dataset.communityTab;renderAll();showScreen("community");return;}
  const ev=e.target.closest("[data-event-open]");if(ev){modal(ev.dataset.eventOpen,'<div class="bc-card"><h3>'+esc(ev.dataset.eventOpen)+'</h3><p>Community gathering and connection event.</p><button class="bc-action primary" data-demo="Event reminder set">Remind me</button></div>');return;}
@@ -265,7 +273,20 @@ document.addEventListener("input",function(e){
  if(el.matches("[data-feed-search]")){const q=el.value.toLowerCase();$(".bc-post").forEach(x=>x.style.display=!q||x.textContent.toLowerCase().includes(q)?"":"none");}
 },true);
 document.addEventListener("change",function(e){if(e.target.matches("[data-chat-media]")){const file=e.target.files&&e.target.files[0],box=$("#bcMediaPreview");if(file&&box){const url=URL.createObjectURL(file);box.innerHTML=file.type.startsWith("video/")?'<video class="bc-media-preview" controls src="'+url+'"></video>':'<img class="bc-media-preview" src="'+url+'" alt="Preview">';}}},true);
-document.addEventListener("submit",function(e){if(e.target.matches("[data-composer-form]")){e.preventDefault();closeModal();toast("Published locally — backend connection comes later.");}if(e.target.matches("[data-profile-form]")){e.preventDefault();const f=e.target;state.profile=state.profile||{};state.profile.name=f.name.value||"Harish Rathod";state.profile.bio=f.bio.value||"";closeModal();renderAll();showScreen("profile");toast("Profile updated");}});
+document.addEventListener("submit",async function(e){
+ if(e.target.matches("[data-composer-form]")){e.preventDefault();closeModal();toast("Published locally — backend connection comes later.");}
+ if(e.target.matches("[data-profile-form]")){
+  e.preventDefault();
+  const f=e.target;state.profile=state.profile||{};
+  state.profile.name=f.name.value||"Banjara Member";state.profile.bio=f.bio.value||"";
+  try{
+   const sb=BC_SUPABASE(),{data:{user}}=await sb.auth.getUser();
+   if(user)await sb.from("profiles").update({name:state.profile.name,bio:state.profile.bio,updated_at:new Date().toISOString()}).eq("id",user.id);
+  }catch(err){console.warn("Profile update:",err);}
+  closeModal();renderAll();showScreen("profile");toast("Profile updated");
+ }
+});
 
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",build,{once:true});else build();
+bcApplyTheme();
 })();
