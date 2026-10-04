@@ -13874,8 +13874,10 @@ async function loadGlobalDiscoveryHomepage(){
     const grid=$("worldNewsGrid");
     if(!grid) return;
 
-    const location=await resolveNewsLocation();
-    const area=location.area;
+    const locationPromise=resolveNewsLocation();
+    const area="";
+    const city="";
+    const state="";
     const city=location.city;
     const state=location.state;
 
@@ -14000,16 +14002,9 @@ async function loadGlobalDiscoveryHomepage(){
         $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
     };
 
-    const fetchScope=async(scope)=>{
-        if(scopeFetched.has(scope.key) && scopeQueues.has(scope.key)){
-            return scopeQueues.get(scope.key);
-        }
+    const scopeBackgroundLoads=new Map();
 
-        const queries=Array.isArray(scope.queries) ? scope.queries.filter(Boolean) : [];
-        if(!queries.length) return [];
-
-        scopeFetched.add(scope.key);
-
+    const runNewsQueries=async(queries,timeout=4500)=>{
         const results=await Promise.allSettled(
             queries.map(async query=>{
                 const newsFunctionUrl=SUPABASE_URL+"/functions/v1/global-news?q="+encodeURIComponent(query);
@@ -14019,7 +14014,7 @@ async function loadGlobalDiscoveryHomepage(){
                         "Authorization":"Bearer "+SUPABASE_KEY,
                         "Accept":"application/json"
                     }
-                },12000);
+                },timeout);
                 if(!response.ok) throw new Error("News function returned HTTP "+response.status);
                 return response.json();
             })
@@ -14038,8 +14033,45 @@ async function loadGlobalDiscoveryHomepage(){
         });
 
         items.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
-        scopeQueues.set(scope.key,items);
         return items;
+    };
+
+    const fetchScope=async(scope)=>{
+        const existingQueue=scopeQueues.get(scope.key);
+        if(existingQueue && existingQueue.length) return existingQueue;
+
+        const background=scopeBackgroundLoads.get(scope.key);
+        if(existingQueue && background){
+            await background.catch(()=>[]);
+            return scopeQueues.get(scope.key)||[];
+        }
+
+        const queries=Array.isArray(scope.queries) ? scope.queries.filter(Boolean) : [];
+        if(!queries.length) return [];
+
+        // First paint uses only the two fastest/most relevant queries.
+        // The remaining queries continue in the background, so users never
+        // wait for every source before seeing the first stories.
+        const initialQueries=queries.slice(0,2);
+        const remainingQueries=queries.slice(2);
+
+        const initialItems=await runNewsQueries(initialQueries,4500);
+        scopeQueues.set(scope.key,initialItems);
+
+        if(remainingQueries.length){
+            const backgroundPromise=runNewsQueries(remainingQueries,9000)
+                .then(items=>{
+                    const current=scopeQueues.get(scope.key)||[];
+                    const merged=[...current,...items].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+                    scopeQueues.set(scope.key,merged);
+                    return merged;
+                })
+                .catch(()=>scopeQueues.get(scope.key)||[])
+                .finally(()=>scopeBackgroundLoads.delete(scope.key));
+            scopeBackgroundLoads.set(scope.key,backgroundPromise);
+        }
+
+        return initialItems;
     };
 
     const articleHtml=(item,featured=false)=>{
@@ -14165,17 +14197,77 @@ async function loadGlobalDiscoveryHomepage(){
     },{root:null,rootMargin:"1200px 0px",threshold:0});
 
     try{
-        const startText=locationParts.length
-            ? "Starting with "+localLabel+" and loading more nearby stories as you scroll."
-            : "Set your area/city in Profile to get hyperlocal news first.";
-        grid.innerHTML='<div class="world-news-loading"><i class="fas fa-spinner fa-spin"></i><h3>Finding news around you…</h3><p>'+escapeHTML(startText)+'</p></div>';
+        // Resolve location with a short race, then paint immediately.
+        // If permission/reverse-geocoding is slow, the saved profile location
+        // remains the fallback rather than blocking the news UI.
+        const resolvedLocation=await Promise.race([
+            locationPromise,
+            new Promise(resolve=>setTimeout(()=>resolve({
+                area:String(getSavedProfile?.()?.area||"").trim(),
+                city:String(getSavedProfile?.()?.city||"").trim(),
+                state:String(getSavedProfile?.()?.state||"").trim()
+            }),1800))
+        ]);
 
-        if(!locationParts.length){
-            activeScopeIndex=1;
-        }
+        const resolvedArea=String(resolvedLocation?.area||"").trim();
+        const resolvedCity=String(resolvedLocation?.city||"").trim();
+        const resolvedState=String(resolvedLocation?.state||"").trim();
+
+        // Rebuild the scope queries from the fast location result.
+        const localLabelFast=resolvedArea||resolvedCity||resolvedState||"your area";
+        const locationPartsFast=[resolvedArea,resolvedCity,resolvedState].filter(Boolean);
+        scopes[0].label=localLabelFast+" • Nearby";
+        scopes[0].queries=[
+            resolvedArea ? '"'+cleanPart(resolvedArea)+'"' : "",
+            resolvedArea&&resolvedCity ? '"'+cleanPart(resolvedArea)+'" "'+cleanPart(resolvedCity)+'"' : "",
+            resolvedCity ? '"'+cleanPart(resolvedCity)+'" local news' : ""
+        ].filter(Boolean);
+
+        scopes[1].label=resolvedCity ? resolvedCity+" & Nearby" : "Nearby";
+        scopes[1].queries=resolvedCity ? [
+            '"'+cleanPart(resolvedCity)+'" latest news',
+            '"'+cleanPart(resolvedCity)+'" local news',
+            '"'+cleanPart(resolvedCity)+'" civic',
+            '"'+cleanPart(resolvedCity)+'" traffic',
+            '"'+cleanPart(resolvedCity)+'" railway',
+            '"'+cleanPart(resolvedCity)+'" Maharashtra'
+        ] : [];
+
+        scopes[2].label=resolvedState ? resolvedState+" Regional" : "Maharashtra Regional";
+        scopes[2].queries=resolvedState ? [
+            '"'+cleanPart(resolvedState)+'" latest news',
+            '"'+cleanPart(resolvedState)+'" local news',
+            '"'+cleanPart(resolvedState)+'" regional news'
+        ] : ["Maharashtra latest news","Maharashtra regional news"];
+
+        const cacheKey="globedisc_news_cache_v2_"+[resolvedArea,resolvedCity,resolvedState].join("|").toLowerCase();
+        let cached=[];
+        try{
+            cached=JSON.parse(localStorage.getItem(cacheKey)||"[]");
+            if(!Array.isArray(cached)) cached=[];
+        }catch(_){cached=[];}
+
+        const startText=locationPartsFast.length
+            ? "Showing nearby news instantly. More stories are loading in the background."
+            : "Showing the latest news. Add your area/city in Profile for hyperlocal news.";
 
         grid.innerHTML="";
-        await loadNextScope();
+        if(cached.length){
+            appendScope(scopes[0],cached.slice(0,24));
+            activeScopeIndex=1;
+            setTimeout(()=>loadNextScope(),0);
+        }else{
+            grid.innerHTML='<div class="world-news-loading"><i class="fas fa-spinner fa-spin"></i><h3>'+escapeHTML(startText)+'</h3><p>Getting the first nearby stories…</p></div>';
+            if(!locationPartsFast.length) activeScopeIndex=1;
+            grid.innerHTML="";
+            await loadNextScope();
+        }
+
+        // Keep a small instant-start cache for the next visit.
+        const firstScopeItems=scopeQueues.get("local")||[];
+        if(firstScopeItems.length){
+            try{localStorage.setItem(cacheKey,JSON.stringify(firstScopeItems.slice(0,24)));}catch(_){}
+        }
     }catch(error){
         console.error("Global discovery feed failed:",error);
         renderUnavailable();
