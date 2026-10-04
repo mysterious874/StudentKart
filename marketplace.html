@@ -194,7 +194,7 @@ body.marketplace-page-active .new-products-section{display:block!important;visib
       const functionUrl=SUPABASE_URL+"/functions/v1/new-products?q="+encodeURIComponent(input.value.trim()||"student essentials");
       const functionResponse=await timeoutFetch(functionUrl,{
         headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"}
-      },15000);
+      },8000);
 
       let liveProducts=[];
       if(functionResponse.ok){
@@ -206,7 +206,7 @@ body.marketplace-page-active .new-products-section{display:block!important;visib
       if(!liveProducts.length){
         const response=await timeoutFetch(
           SUPABASE_URL+"/rest/v1/new_products?select=id,name,category,price,source,image,url,created_at&order=created_at.desc&limit=1000",
-          {headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"}},10000
+          {headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"}},7000
         );
         if(response.ok) liveProducts=mapProducts(await response.json());
       }
