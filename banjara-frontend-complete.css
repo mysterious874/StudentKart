@@ -235,3 +235,5 @@ body.bc-auth-mode .bc-app{padding-bottom:24px}
 #bcChatPresence{font-size:10px;color:rgba(255,255,255,.72);min-height:12px;transition:color .2s ease}#bcChatPresence:not(:empty){display:block}
 
 .bc-msg-receipt{margin-left:5px;font-size:9px;letter-spacing:-1px;color:#8a6b60}.bc-msg-receipt.seen{color:#1769aa}
+
+.bc-media-viewer{position:fixed;inset:0;z-index:260000;background:rgba(18,10,12,.94);display:flex;align-items:center;justify-content:center;padding:22px}.bc-media-viewer img,.bc-media-viewer video{max-width:96vw;max-height:90vh;border-radius:12px;object-fit:contain;box-shadow:0 20px 70px rgba(0,0,0,.45)}.bc-media-viewer button{position:absolute;top:14px;right:14px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:18px}.bc-chat-tool.recording:after{content:attr(data-recording-time);font-size:9px;margin-left:4px}
