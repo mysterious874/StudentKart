@@ -10,11 +10,40 @@ const corsHeaders = {
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 const GEMINI_MODEL = "gemini-3.5-flash-lite";
 
+// Lightweight abuse protection for the public web client. This intentionally stays
+// compatible with logged-out AI tools; authenticated callers can still use the same endpoint.
+const rateBuckets = new Map<string, { started: number; count: number }>();
+const RATE_WINDOW_MS = 60_000;
+const RATE_LIMIT = 20;
+const MAX_BODY_BYTES = 1_500_000;
+const MAX_QUESTION_CHARS = 12_000;
+
+function clientKey(req: Request) {
+  return req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "POST required" }), { status: 405, headers: corsHeaders });
   }
+  const now = Date.now();
+  const key = clientKey(req);
+  const bucket = rateBuckets.get(key);
+  if (!bucket || now - bucket.started >= RATE_WINDOW_MS) {
+    rateBuckets.set(key, { started: now, count: 1 });
+  } else {
+    bucket.count += 1;
+    if (bucket.count > RATE_LIMIT) {
+      return new Response(JSON.stringify({ error: "Too many AI requests. Please wait a minute and try again." }), { status: 429, headers: { ...corsHeaders, "Retry-After": "60" } });
+    }
+  }
+
+  const contentLength = Number(req.headers.get("content-length") || 0);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(JSON.stringify({ error: "AI request is too large." }), { status: 413, headers: corsHeaders });
+  }
+
   if (!GEMINI_API_KEY) {
     return new Response(
       JSON.stringify({ error: "AI backend is not configured. GEMINI_API_KEY is missing." }),
@@ -23,11 +52,19 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const body = await req.json();
+    const rawBody = await req.text();
+    if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) {
+      return new Response(JSON.stringify({ error: "AI request is too large." }), { status: 413, headers: corsHeaders });
+    }
+    const body = JSON.parse(rawBody);
     const question = String(body?.question || "").trim();
     const sources = Array.isArray(body?.sources) ? body.sources.slice(0, 8) : [];
     const history = Array.isArray(body?.history) ? body.history.slice(-10) : [];
     const research = Boolean(body?.research);
+
+    if (question.length > MAX_QUESTION_CHARS) {
+      return new Response(JSON.stringify({ error: "Question is too long." }), { status: 413, headers: corsHeaders });
+    }
 
     if (!question) {
       return new Response(JSON.stringify({ error: "Question is required" }), {
