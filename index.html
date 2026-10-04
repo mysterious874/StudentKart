@@ -239,6 +239,35 @@
             </div>
         </section>
 
+        <button type="button" id="askWithAiButton" class="ask-with-ai-home-button" aria-label="Ask with AI">
+            <span class="ask-with-ai-spark">✦</span>
+            <span><strong>Ask with AI</strong><small>Get answers, sources, news & more</small></span>
+            <i class="fas fa-arrow-right"></i>
+        </button>
+
+        <section id="aiAssistantPage" class="ai-assistant-page hidden" aria-label="Ask with AI">
+            <div class="ai-assistant-navbar">
+                <div class="ai-assistant-navbar-inner">
+                    <button type="button" id="aiAssistantBack" class="ai-assistant-back" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
+                    <div class="ai-assistant-brand"><span class="ai-assistant-brand-icon">✦</span><div><strong>Ask with AI</strong><small>GlobeDisc AI</small></div></div>
+                    <button type="button" id="aiAssistantNewChat" class="ai-assistant-new-chat" aria-label="New chat"><i class="fas fa-pen-to-square"></i></button>
+                </div>
+            </div>
+            <div class="ai-assistant-shell">
+                <div id="aiAssistantMessages" class="ai-assistant-messages">
+                    <div id="aiAssistantWelcome" class="ai-assistant-welcome">
+                        <div class="ai-assistant-welcome-icon">✦</div>
+                        <h1>What can I help you with?</h1>
+                        <p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p>
+                    </div>
+                </div>
+                <form id="aiAssistantForm" class="ai-assistant-composer">
+                    <textarea id="aiAssistantInput" rows="1" placeholder="Ask anything..." autocomplete="off" aria-label="Ask anything"></textarea>
+                    <button type="submit" id="aiAssistantSend" aria-label="Send"><i class="fas fa-arrow-up"></i></button>
+                </form>
+            </div>
+        </section>
+
         <section id="worldNewsSection" class="section world-news-section" aria-label="Latest news">
             <div id="worldNewsGrid" class="world-news-grid"></div>
         </section>
