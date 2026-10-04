@@ -12108,18 +12108,70 @@ document.addEventListener("click", event => {
 });
 
 function handleNewSettingsAction(action){
-  if(action==="theme"){ document.documentElement.classList.toggle("bc-dark"); localStorage.setItem("bc_theme",document.documentElement.classList.contains("bc-dark")?"dark":"light"); return; }
-  if(action==="language"){ const current=localStorage.getItem("bc_language")||"English"; const next=current==="English"?"Hindi":current==="Hindi"?"Lambadi":"English"; localStorage.setItem("bc_language",next); openNewSettingsSection("language"); return; }
-  if(action==="about"){ showNewSettingsInfo("About GlobeDisc","GlobeDisc is your global discovery platform for search, information, news and community features."); return; }
-  if(action==="help"){ showNewSettingsInfo("Help Center","Use the search bar to discover information. For account or feature problems, use Send Feedback."); return; }
-  if(action==="feedback"){ showNewSettingsInfo("Send Feedback","Feedback form will be connected here next. Your suggestions will help shape GlobeDisc."); return; }
-  if(action==="profile"){ if(typeof window.openProfile==="function") window.openProfile(); else showNewSettingsInfo("Profile","Profile editing is being connected to the new account system."); return; }
-  if(action==="account-info"){ showNewSettingsInfo("Account Information","Your account details are kept private and managed through your GlobeDisc account."); return; }
-  if(action==="sessions"){ showNewSettingsInfo("Active Sessions","Session management is being connected to the new mobile-only account system."); return; }
-  if(action==="password"){ showNewSettingsInfo("Password","Password management is being connected to the new mobile-only account system."); return; }
-  if(action==="blocked"){ showNewSettingsInfo("Blocked Accounts","Your blocked-account manager will appear here."); return; }
-  if(action==="logout"){ if(typeof window.logout==="function") window.logout(); else if(typeof window.handleLogout==="function") window.handleLogout(); return; }
-  if(action==="delete"){ showNewSettingsInfo("Delete Account","Account deletion will permanently remove your account and associated data."); return; }
+  if(action==="theme"){
+    const dark=document.documentElement.classList.toggle("bc-dark");
+    localStorage.setItem("bc_theme",dark?"dark":"light");
+    return;
+  }
+  if(action==="language"){
+    const current=localStorage.getItem("bc_language")||"English";
+    const next=current==="English"?"Hindi":current==="Hindi"?"Lambadi":"English";
+    localStorage.setItem("bc_language",next);
+    openNewSettingsSection("language");
+    return;
+  }
+  if(action==="accent"){ showNewSettingsInfo("Accent","Banjara Connect uses its default maroon and orange accent. Custom accents will be added later."); return; }
+  if(action==="about"){ showNewSettingsInfo("About Banjara Connect","Banjara Connect is being built as a community-first platform for discovery, connection and useful local features."); return; }
+  if(action==="help"){ showNewSettingsInfo("Help Center","If a feature is not working, use Send Feedback from Settings. Account and privacy controls are kept inside your account."); return; }
+  if(action==="feedback"){ showNewSettingsInfo("Send Feedback","Thanks for helping improve Banjara Connect. Feedback collection will be connected to the support system."); return; }
+  if(action==="profile"){
+    if(typeof window.openProfile==="function"){ window.openProfile(); }
+    else if(typeof window.openEditProfile==="function"){ window.openEditProfile(); }
+    else showNewSettingsInfo("Profile","Profile editing screen is being connected to the new Banjara Connect account profile.");
+    return;
+  }
+  if(action==="account-info"){ showNewSettingsInfo("Account Information","Your account information is managed privately through your Banjara Connect account."); return; }
+  if(action==="sessions"){ showNewSettingsInfo("Active Sessions","Your current device session is active. Multi-device session controls will be connected to the account security layer."); return; }
+  if(action==="password"){
+    showNewSettingsInfo("Password","Password changes are handled by the new account system. This screen will be connected when the account-security endpoint is enabled.");
+    return;
+  }
+  if(action==="blocked"){ showNewSettingsInfo("Blocked Accounts","No blocked accounts are configured yet."); return; }
+  if(action==="logout"){
+    performBanjaraLogout();
+    return;
+  }
+  if(action==="delete"){
+    showNewSettingsConfirm("Delete Account","This will sign you out. Permanent account deletion will only be performed after the secure account-deletion service confirms the request.",function(){ performBanjaraLogout(); });
+    return;
+  }
+}
+
+async function performBanjaraLogout(){
+  try{
+    if(window.supabase && window.supabase.auth && typeof window.supabase.auth.signOut==="function"){
+      await window.supabase.auth.signOut();
+    } else if(window.sb && window.sb.auth && typeof window.sb.auth.signOut==="function"){
+      await window.sb.auth.signOut();
+    }
+  }catch(_){}
+  try{
+    localStorage.removeItem("studentkart_current_user");
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem("loggedInUser");
+    sessionStorage.clear();
+  }catch(_){}
+  try{ closeModal("settingsDetailModal"); closeModal("settingsModal"); }catch(_){}
+  location.href="/";
+}
+
+function showNewSettingsConfirm(title,body,onYes){
+  const content=$("settingsDetailContent"); if(!content) return;
+  content.innerHTML='<div class="settings-info-card"><div class="settings-info-icon"><i class="fas fa-triangle-exclamation"></i></div><h3>'+title+'</h3><p>'+body+'</p><div style="display:flex;gap:8px;justify-content:center"><button class="btn" type="button" data-settings-cancel>Cancel</button><button class="btn btn-primary" type="button" data-settings-confirm>Continue</button></div></div>';
+  const cancel=content.querySelector("[data-settings-cancel]");
+  const confirm=content.querySelector("[data-settings-confirm]");
+  if(cancel) cancel.addEventListener("click",()=>closeModal("settingsDetailModal"));
+  if(confirm) confirm.addEventListener("click",()=>onYes());
 }
 
 function showNewSettingsInfo(title,body){
