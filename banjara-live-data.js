@@ -21,9 +21,12 @@ async function loadLive(){
   for(const m of (members.data||[])){
    const {data:others}=await sb.from("chat_members").select("user_id").eq("chat_id",m.chat_id).neq("user_id",user.id);
    const other=others?.[0]?.user_id;
-   const {data:msgs}=await sb.from("messages").select("body,created_at,sender_id").eq("chat_id",m.chat_id).is("deleted_at",null).order("created_at",{ascending:false}).limit(1);
+   const {data:msgs}=await sb.from("messages").select("body,created_at,sender_id,message_type").eq("chat_id",m.chat_id).is("deleted_at",null).order("created_at",{ascending:false}).limit(1);
    const last=msgs?.[0];
-   window.__bcLive.chats.push({id:m.chat_id,name:pmap.get(other)?.name||"Banjara Member",preview:last?.body||"No messages yet",unread:!!(last&&last.sender_id!==user.id&&new Date(last.created_at)>(m.last_read_at?new Date(m.last_read_at):new Date(0)))});
+   const previewType=last?.message_type;
+   const preview=previewType==="image"?"📷 Photo":previewType==="video"?"🎥 Video":previewType==="voice"?"🎙 Voice message":previewType==="file"?"📎 File":last?.body||"No messages yet";
+   window.__bcLive.chats.push({id:m.chat_id,name:pmap.get(other)?.name||"Banjara Member",preview,previewType,previewSender:last?.sender_id,updatedAt:last?.created_at||null,unread:!!(last&&last.sender_id!==user.id&&new Date(last.created_at)>(m.last_read_at?new Date(m.last_read_at):new Date(0)))});
+
   }
   refreshUI();subscribeLive();
  }catch(e){console.warn("Banjara live data:",e);}
@@ -31,7 +34,7 @@ async function loadLive(){
 function refreshUI(){
  const d=window.__bcLive;if(!d)return;
  const chatList=document.querySelector("#bc-chats .bc-list");
- if(chatList)chatList.innerHTML=d.chats.length?d.chats.map(c=>'<div class="bc-row" data-chat-name="'+escLive(c.name)+'" data-chat-id="'+c.id+'"><div class="bc-avatar">'+initials(c.name)+'</div><div class="bc-row-main"><strong>'+escLive(c.name)+'</strong><small>'+escLive(c.preview)+'</small></div>'+(c.unread?'<span class="bc-badge">1</span>':'')+'</div>').join(""):'<div class="bc-empty"><i class="fas fa-comments"></i><strong>No conversations yet</strong><span>Start a chat from Connect.</span></div>';
+ if(chatList)chatList.innerHTML=d.chats.length?d.chats.map(c=>'<div class="bc-row bc-chat-row" data-chat-name="'+escLive(c.name)+'" data-chat-id="'+c.id+'"><div class="bc-avatar">'+initials(c.name)+'</div><div class="bc-row-main"><strong>'+escLive(c.name)+'</strong><small class="'+(c.unread?"is-unread":"")+'">'+escLive(c.preview)+'</small></div><div class="bc-chat-row-meta">'+(c.updatedAt?'<time>'+ago(c.updatedAt)+'</time>':'')+(c.unread?'<span class="bc-badge">1</span>':'')+'</div></div>').join(""):'<div class="bc-empty"><i class="fas fa-comments"></i><strong>No conversations yet</strong><span>Start a chat from Connect.</span></div>';
  const connect=document.querySelector("#bc-connect .bc-grid");
  if(connect)connect.innerHTML=d.people.length?d.people.map(p=>'<div class="bc-card"><div class="bc-post-head"><div class="bc-avatar">'+initials(p.name)+'</div><div><h3>'+escLive(p.name||"Banjara Member")+'</h3><p>'+escLive([p.city,p.state].filter(Boolean).join(" • ")||"Banjara Connect member")+'</p></div></div><button class="bc-action primary" data-connect-user="'+p.id+'">'+(d.connections?.get(p.id)?.status==="accepted"?"Connected":d.connections?.get(p.id)?.status==="pending"&&d.connections?.get(p.id)?.direction==="received"?"Accept":d.connections?.get(p.id)?.status==="pending"?"Pending":"Connect")+'</button></div>').join(""):'<div class="bc-empty"><i class="fas fa-user-group"></i><strong>No other members yet</strong><span>New members will appear here automatically.</span></div>';
  const comm=document.querySelector("#bc-community .bc-grid");
