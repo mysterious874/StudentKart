@@ -14349,25 +14349,25 @@ async function loadGlobeDiscNewsTopic(topic){
     }
 
     const topicQueries={
-        India:["India latest news","India breaking news","India news today"],
-        World:["world latest news","international breaking news","global news today"],
-        Politics:["politics latest news","government politics latest","elections political news"],
-        Business:["business latest news","economy markets latest","finance companies latest"],
-        Technology:["technology latest news","AI latest news","cybersecurity technology latest"],
-        Science:["science latest news","scientific discoveries latest","research science news"],
-        Health:["health latest news","medical news latest","healthcare news today"],
-        Sports:["sports latest news","cricket football sports latest","sports breaking news"],
-        Entertainment:["entertainment latest news","movies music celebrity news","film entertainment today"],
-        Gaming:["gaming latest news","video games gaming news","gaming industry latest"],
-        Environment:["environment latest news","climate change latest","nature environment news"],
-        Education:["education latest news","schools universities education","student education news"],
-        Auto:["automobile latest news","cars bikes auto industry","electric vehicles latest"],
-        Travel:["travel latest news","tourism travel destinations","aviation travel news"],
-        Lifestyle:["lifestyle latest news","food fashion lifestyle","wellness lifestyle news"],
-        Space:["space latest news","NASA space news","astronomy space discoveries"],
-        Trending:["trending news today","viral news today","latest trending stories"]
+        India:["India latest news","India news today","India breaking news","Indian news"],
+        World:["world latest news","international news today","global news","world news"],
+        Politics:["politics news today","political news latest","government news today","election news"],
+        Business:["business news today","economy news latest","stock market business news","finance companies news"],
+        Technology:["technology news today","tech news latest","AI technology news","cybersecurity news"],
+        Science:["science news today","scientific discoveries news","research news latest","science technology news"],
+        Health:["health news today","medical news latest","healthcare news","medicine health news"],
+        Sports:["sports news today","sports latest news","cricket football sports news","sports breaking news"],
+        Entertainment:["entertainment news today","movies music celebrity news","film news latest","celebrity entertainment"],
+        Gaming:["gaming news today","video game news latest","gaming industry news","games esports news"],
+        Environment:["environment news today","climate news latest","environmental news","nature climate news"],
+        Education:["education news today","school university news","student education news","education policy news"],
+        Auto:["auto news today","automobile news latest","cars bikes news","electric vehicle news"],
+        Travel:["travel news today","tourism news latest","aviation travel news","travel destinations news"],
+        Lifestyle:["lifestyle news today","fashion food lifestyle news","wellness lifestyle news","culture lifestyle news"],
+        Space:["space news today","NASA space news","astronomy news latest","space exploration news"],
+        Trending:["trending news today","top news today","latest trending stories","viral news today"]
     };
-    const queries=topicQueries[selected]||[selected+" latest news",selected+" news today"];
+    const queries=topicQueries[selected]||[selected+" news today",selected+" latest news",selected+" news"];
     grid.innerHTML='<div class="world-news-loading"><i class="fas fa-spinner fa-spin"></i><h3>Loading '+escapeHTML(selected)+' news…</h3><p>Fetching the latest stories.</p></div>';
 
     try{
@@ -14385,9 +14385,9 @@ async function loadGlobeDiscNewsTopic(topic){
         }));
         const seen=new Set();
         const articles=[];
-        results.forEach(result=>{
-            if(result.status!=="fulfilled") return;
-            (Array.isArray(result.value?.articles)?result.value.articles:[]).forEach(article=>{
+
+        const addArticles=(items)=>{
+            (Array.isArray(items)?items:[]).forEach(article=>{
                 const url=String(article?.url||"").trim();
                 const title=String(article?.title||"").trim();
                 if(!url||!title||seen.has(url)) return;
@@ -14400,8 +14400,31 @@ async function loadGlobeDiscNewsTopic(topic){
                     description:String(article?.description||article?.snippet||"").trim()
                 });
             });
+        };
+
+        results.forEach(result=>{
+            if(result.status==="fulfilled") addArticles(result.value?.articles);
         });
-        articles.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+
+        // Some topics can legitimately return an empty Edge Function result.
+        // Fall back to the existing GDELT news path instead of showing a false
+        // "No news" state. Run the fallback with broader topic wording.
+        if(!articles.length){
+            const fallbackQueries=[selected+" news",selected+" latest news",selected];
+            const fallbackResults=await Promise.allSettled(
+                fallbackQueries.map(query=>fetchInternetPanelData("news",query))
+            );
+            fallbackResults.forEach(result=>{
+                if(result.status!=="fulfilled") return;
+                addArticles(result.value);
+            });
+        }
+
+        articles.sort((a,b)=>{
+            const da=new Date(a.date||0).getTime();
+            const db=new Date(b.date||0).getTime();
+            return (Number.isFinite(db)?db:0)-(Number.isFinite(da)?da:0);
+        });
 
         if(!articles.length){
             grid.innerHTML='<div class="world-news-empty"><i class="fas fa-newspaper"></i><h3>No '+escapeHTML(selected)+' news found</h3><p>Try another topic in a moment.</p></div>';
@@ -14409,9 +14432,10 @@ async function loadGlobeDiscNewsTopic(topic){
         }
 
         grid.innerHTML='<div class="world-news-scope topic-filter-results"><div class="world-news-scope-heading"><div><span class="world-news-scope-icon"><i class="fas fa-newspaper"></i></span><div><strong>'+escapeHTML(selected)+' News</strong><small>Latest stories for this topic</small></div></div><span class="world-news-scope-count">'+articles.slice(0,24).length+' stories</span></div><div class="world-news-card-grid">'+articles.slice(0,24).map(article=>{
-            const image=article.image
-                ? '<img src="'+escapeHTML(article.image)+'" alt="" loading="lazy">'
-                : '<div class="world-news-card-placeholder"><i class="fas fa-newspaper"></i></div>';
+            const thumb=getNewsThumbnail(article.image);
+            const image=thumb
+                ? '<img src="'+escapeHTML(thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src=newsFallbackDataUri();">'
+                : '<img src="'+newsFallbackDataUri()+'" alt="" loading="lazy">';
             return '<article class="world-news-card">'+image+'<div class="world-news-card-body"><div class="world-news-meta"><span>'+escapeHTML(selected)+'</span><small>'+escapeHTML(article.source)+'</small></div><h3>'+escapeHTML(article.title)+'</h3>'+(article.description?'<p>'+escapeHTML(article.description)+'</p>':'')+'<a href="'+escapeHTML(article.url)+'" target="_blank" rel="noopener noreferrer">Details <i class="fas fa-arrow-right"></i></a></div></article>';
         }).join("")+'</div></div>';
     }catch(error){
