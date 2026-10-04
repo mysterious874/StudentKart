@@ -3830,7 +3830,7 @@ function renderNewChatUserSearchResults(users) {
 
     results.innerHTML = users.map(user => {
         const name = escapeHTML(user.name || "Student");
-        const username = escapeHTML(user.username || "");
+        const phone = escapeHTML(user.phone || user.username || "");
         const location = escapeHTML([user.area, user.city].filter(Boolean).join(", "));
         const initials = escapeHTML(getInitials(user.name || user.username || "Student"));
         const avatar = user.avatar_url
@@ -3845,7 +3845,7 @@ function renderNewChatUserSearchResults(users) {
                 <span class="chat-search-result-avatar">${avatar}</span>
                 <span class="chat-search-result-info">
                     <span class="chat-search-result-name">${name}</span>
-                    <span class="chat-search-result-number">${username}</span>
+                    <span class="chat-search-result-number">${phone}</span>
                     ${location ? '<span class="chat-search-result-location">' + location + '</span>' : ''}
                 </span>
                 <i class="fas fa-chevron-right" aria-hidden="true"></i>
@@ -3862,6 +3862,12 @@ async function searchNewChatUsersByPhone(query) {
     const requestId = ++newChatSearchRequest;
     if (!results) return;
 
+    if (digits.length < 2) {
+        results.innerHTML = '<div class="chat-search-state">Enter at least 2 digits to search registered mobile numbers.</div>';
+        results.classList.remove("hidden");
+        return;
+    }
+
     results.innerHTML = '<div class="chat-search-state"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
     results.classList.remove("hidden");
 
@@ -3874,19 +3880,7 @@ async function searchNewChatUsersByPhone(query) {
         if (!rpc.error && Array.isArray(rpc.data)) {
             users = rpc.data;
         } else {
-            const fallback = await supabaseClient
-                .from("profiles")
-                .select("id,name,username,phone,avatar_url,city,area")
-                .limit(200);
-            if (fallback.error) throw fallback.error;
-
-            const normalize = value => String(value || "").replace(/\D/g, "");
-            users = (fallback.data || [])
-                .filter(p => String(p.id) !== String(currentUser?.id))
-                .filter(p => !digits ||
-                    normalize(p.phone).includes(digits) ||
-                    normalize(p.username).includes(digits))
-                .slice(0, 10);
+            throw rpc.error || new Error("Mobile-number search is unavailable.");
         }
 
         if (requestId !== newChatSearchRequest) return;
@@ -3918,10 +3912,12 @@ function setupNewChatPhoneSearch() {
 
     input.addEventListener("focus", () => {
         clear?.classList.toggle("hidden", Boolean(input.value.trim()));
-        clearTimeout(newChatSearchTimer);
-        newChatSearchTimer = setTimeout(() => {
-            void searchNewChatUsersByPhone(input.value.trim());
-        }, 80);
+        if (input.value.trim()) {
+            clearTimeout(newChatSearchTimer);
+            newChatSearchTimer = setTimeout(() => {
+                void searchNewChatUsersByPhone(input.value.trim());
+            }, 80);
+        }
     });
 
     input.addEventListener("keydown", event => {
@@ -4786,7 +4782,7 @@ function getInternalAuthEmail(phone) {
     const normalized = normalizeAuthPhone(phone);
     if (!normalized) return null;
     const digits = normalized.replace(/\D/g, "");
-    return `${digits}@auth.globedisc.local`;
+    return `account+${digits}@globedisc.app`;
 }
 
 function isSixDigitPassword(value) { return /^\d{6}$/.test(String(value || "")); }
