@@ -66,9 +66,11 @@ async function openChat(chatId,name){
    else if(type==="file"&&url)content='<a class="bc-msg-file" href="'+url+'" target="_blank" rel="noopener"><i class="fas fa-file-lines"></i><span>'+escLive(m.body||"Attachment")+'</span></a>';
    const reply=m.reply_to_id?currentMessages.find(x=>x.id===m.reply_to_id):null;
    const quoted=reply?'<div class="bc-msg-quote">'+escLive(reply.body||("["+reply.message_type+"]"))+'</div>':"";
-   return '<button type="button" class="bc-msg '+(mine?"mine":"theirs")+'" data-message-id="'+m.id+'">'+quoted+content+'<small>'+ago(m.created_at)+receipt+'</small></button>';
+   const rs=reactions.get(m.id)||[], counts={};rs.forEach(r=>counts[r.reaction]=(counts[r.reaction]||0)+1);const reactionHtml=Object.entries(counts).map(([emoji,count])=>'<span class="bc-msg-reaction">'+emoji+(count>1?'<b>'+count+'</b>':'')+'</span>').join("");
+ return '<button type="button" class="bc-msg '+(mine?"mine":"theirs")+'" data-message-id="'+m.id+'">'+quoted+content+'<small>'+ago(m.created_at)+receipt+'</small>'+(reactionHtml?'<div class="bc-msg-reactions">'+reactionHtml+'</div>':"")+'</button>';
  };
  let currentMessages=[];
+ const reactionMap=()=>{const map=new Map();(reactionRows||[]).forEach(r=>{if(!map.has(r.message_id))map.set(r.message_id,[]);map.get(r.message_id).push(r);});return map;}; let reactions=reactionMap();
  const render=async rows=>{
    currentMessages=rows||[];
    const el=box.querySelector("#bcChatMessages");
@@ -76,6 +78,7 @@ async function openChat(chatId,name){
    el.innerHTML=html.join("");el.scrollTop=el.scrollHeight;
  };
  const {data:hiddenRows}=await sb.from("message_hidden").select("message_id").eq("user_id",user.id);
+ const {data:reactionRows}=await sb.from("message_reactions").select("message_id,user_id,reaction").in("message_id",(data||[]).map(x=>x.id));
  const hiddenIds=new Set((hiddenRows||[]).map(x=>x.message_id));
  const q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url,reply_to_id,delivered_at,read_at").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
  const {data,error}=await q;if(error){box.querySelector("#bcChatMessages").innerHTML='<div class="bc-empty"><strong>Could not load messages</strong><span>Please try again.</span></div>';return;}
@@ -114,10 +117,11 @@ async function openChat(chatId,name){
    const item=ev.target.closest("[data-message-id]");if(!item)return;
    const m=currentMessages.find(x=>x.id===item.dataset.messageId);if(!m)return;
    const action=document.createElement("div");action.className="bc-msg-actions";
+   const picker=document.createElement("div");picker.className="bc-reaction-picker";picker.innerHTML=['❤️','😂','👍','🔥'].map(x=>'<button type="button" data-reaction="'+x+'">'+x+'</button>').join("");document.body.appendChild(picker);const rr=item.getBoundingClientRect();picker.style.left=Math.max(10,Math.min(window.innerWidth-220,rr.left))+"px";picker.style.top=Math.max(10,rr.top-55)+"px";
    action.innerHTML='<button type="button" data-action="reply"><i class="fas fa-reply"></i> Reply</button><button type="button" data-action="hide"><i class="fas fa-eye-slash"></i> Delete for me</button>'+(m.sender_id===user.id?'<button type="button" data-action="delete"><i class="fas fa-trash"></i> Delete for everyone</button>':'<button type="button" data-action="block"><i class="fas fa-user-slash"></i> Block user</button>');
    document.body.appendChild(action);
    const rect=item.getBoundingClientRect();action.style.left=Math.max(10,Math.min(window.innerWidth-220,rect.left))+"px";action.style.top=Math.max(10,rect.top-8-action.offsetHeight)+"px";
-   const close=()=>action.remove();action.onclick=async a=>{
+   const close=()=>{action.remove();picker.remove();};picker.onclick=async a=>{const b=a.target.closest("[data-reaction]");if(!b)return;const reaction=b.dataset.reaction;const existing=(reactions.get(m.id)||[]).find(x=>x.user_id===user.id);let r;if(existing?.reaction===reaction)r=await sb.from("message_reactions").delete().eq("message_id",m.id).eq("user_id",user.id);else if(existing)r=await sb.from("message_reactions").update({reaction}).eq("message_id",m.id).eq("user_id",user.id);else r=await sb.from("message_reactions").insert({message_id:m.id,user_id:user.id,reaction});if(!r.error){const rr=await sb.from("message_reactions").select("message_id,user_id,reaction").eq("message_id",m.id);reactions.set(m.id,rr.data||[]);await render(currentMessages);}close();};action.onclick=async a=>{
      const b=a.target.closest("[data-action]");if(!b)return;const kind=b.dataset.action;close();
      if(kind==="reply"){setReply(m);return;}
      if(kind==="block"){const ok=confirm("Block this user? You will no longer be able to chat with them.");if(!ok)return;const r=await sb.from("user_blocks").insert({blocker_id:user.id,blocked_id:m.sender_id});if(!r.error){alert("User blocked.");box.remove();}return;}
@@ -167,6 +171,7 @@ async function openChat(chatId,name){
  box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text",reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url,delivered_at,read_at").single();if(ins.error){input.value=body;return;}replyTo=null;replyBar.hidden=true;await render([...currentMessages,ins.data]);input.focus();};
  const channel=sb.channel("bc-chat-"+chatId)
  .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){currentMessages=[...currentMessages,payload.new];await sb.from("messages").update({delivered_at:new Date().toISOString(),read_at:new Date().toISOString()}).eq("id",payload.new.id);const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}})
+ .on("postgres_changes",{event:"*",schema:"public",table:"message_reactions"},async payload=>{const mid=payload.new?.message_id||payload.old?.message_id;if(!mid)return;const r=await sb.from("message_reactions").select("message_id,user_id,reaction").eq("message_id",mid);reactions.set(mid,r.data||[]);await render(currentMessages);})
  .on("postgres_changes",{event:"UPDATE",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.deleted_at){await render(currentMessages.filter(x=>x.id!==payload.new.id));return;}const i=currentMessages.findIndex(x=>x.id===payload.new.id);if(i>=0){currentMessages[i]=payload.new;await render(currentMessages);}});
  box.dataset.channel="bc-chat-"+chatId;
 }
