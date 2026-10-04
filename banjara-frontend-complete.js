@@ -6,8 +6,8 @@
 "use strict";
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const state={screen:"home",auth:"welcome",query:"",theme:"light",notifications:3};
-const people=[];
-const communities=[];
+let people=[];
+let communities=[];
 function avatar(x){return '<div class="bc-avatar">'+x+'</div>'}
 function build(){
  const oldMain=$("main"); if(oldMain) oldMain.style.display="none";
@@ -30,17 +30,17 @@ function renderAll(){
  $("#bc-home").innerHTML=homeHTML();$("#bc-chats").innerHTML=chatsHTML();$("#bc-connect").innerHTML=connectHTML();$("#bc-community").innerHTML=communityHTML();$("#bc-feed").innerHTML=feedHTML();$("#bc-notifications").innerHTML=notificationsHTML();$("#bc-profile").innerHTML=profileHTML();$("#bc-settings").innerHTML=settingsHTML();$("#bc-auth").innerHTML=authHTML();
 }
 function homeHTML(){return '<div class="bc-hero"><h1>Welcome to Banjara Connect</h1><p>Connect with people, communities and culture.</p><div class="bc-search"><i class="fas fa-search"></i><input data-search placeholder="Search people, communities or posts..." value="'+esc(state.query)+'"><button data-do-search><i class="fas fa-arrow-right"></i></button></div><div class="bc-chips"><button class="bc-chip active" data-feed-tab="all">For You</button><button class="bc-chip" data-feed-tab="people">People</button><button class="bc-chip" data-feed-tab="communities">Communities</button><button class="bc-chip" data-feed-tab="events">Events</button></div></div>'+
-'<div class="bc-section"><div class="bc-section-head"><h2>People you may know</h2><button data-screen="connect">See all</button></div><div class="bc-grid">'+people.slice(0,3).map(personCard).join("")+'</div></div>'+
-'<div class="bc-section"><div class="bc-section-head"><h2>Communities</h2><button data-screen="community">Explore</button></div><div class="bc-grid">'+communities.slice(0,3).map(communityCard).join("")+'</div></div>'+
-'<div class="bc-section"><div class="bc-section-head"><h2>Community feed</h2><button data-screen="feed">View all</button></div>'+postCard("Ravi S.","Banjara Youth","Aaj ka thought: apni culture aur apni skills dono ko next generation tak le jaana hai. ❤️")+'</div>'+
-'<div class="bc-section"><div class="bc-section-head"><h2>Upcoming</h2><button data-screen="community">Events</button></div><div class="bc-row"><div class="bc-avatar sm"><i class="fas fa-calendar"></i></div><div class="bc-row-main"><strong>Banjara Youth Meet</strong><small>Saturday • Community Hall • 120 interested</small></div><button class="bc-action" style="width:auto;padding:0 12px">View</button></div></div>'}
+'<div class="bc-section"><div class="bc-section-head"><h2>People you may know</h2><button data-screen="connect">See all</button></div><div class="bc-grid">'+(people.length?people.slice(0,3).map(personCard).join(""):empty("fa-user-plus","No members yet","Real Banjara Connect members will appear here."))+'</div></div>'+
+'<div class="bc-section"><div class="bc-section-head"><h2>Communities</h2><button data-screen="community">Explore</button></div><div class="bc-grid">'+(communities.length?communities.slice(0,3).map(communityCard).join(""):empty("fa-users","No communities yet","Communities created by real members will appear here."))+'</div></div>'+
+'<div class="bc-section"><div class="bc-section-head"><h2>Community feed</h2><button data-screen="feed">View all</button></div>'+empty("fa-newspaper","No posts yet","Real member posts will appear here.")+'</div>'+
+'<div class="bc-section"><div class="bc-section-head"><h2>Upcoming</h2><button data-screen="community">Events</button></div>'+empty("fa-calendar","No events yet","Community events will appear here.")+'</div>'}
 function personCard(p){return '<article class="bc-card">'+ '<div class="bc-person">'+avatar(p[0])+'<div><h3>'+p[1]+'</h3><p>'+p[2]+'</p></div></div><button class="bc-action primary" data-demo="Connection request sent">Connect</button></article>'}
 function communityCard(c){return '<article class="bc-card bc-community-card"><div class="bc-community-icon">'+c[0]+'</div><div><h3>'+c[1]+'</h3><p>'+c[2]+'<br>'+c[3]+'</p></div><button class="bc-action" data-demo="Community opened">Explore</button></article>'}
 function chatsHTML(){return '<div class="bc-hero"><h1>Chats</h1><p>Your conversations in one place.</p><div class="bc-search"><i class="fas fa-search"></i><input placeholder="Search chats..."><button><i class="fas fa-pen"></i></button></div></div><div class="bc-list">'+[['MP','Meena P.','Kal Banjara event ke baare mein...','2'],['RS','Ravi S.','See you at the community meet.',''],['NK','Nisha K.','Voice message • 0:18','1']].map(x=>'<div class="bc-row" data-demo="Chat opened">'+avatar(x[0])+'<div class="bc-row-main"><strong>'+x[1]+'</strong><small>'+x[2]+'</small></div>'+(x[3]?'<span class="bc-badge">'+x[3]+'</span>':'')+'</div>').join("")+'</div><div class="bc-section">'+empty("fa-comments","No more conversations","Backend chat will be connected after frontend completion.")+'</div>'}
-function connectHTML(){return '<div class="bc-hero"><h1>Connect</h1><p>Discover people who share your interests.</p><div class="bc-search"><i class="fas fa-search"></i><input placeholder="Search people..."><button><i class="fas fa-search"></i></button></div><div class="bc-tabs"><button class="bc-tab active">Discover</button><button class="bc-tab">Requests</button><button class="bc-tab">My Connections</button></div></div><div class="bc-section"><div class="bc-section-head"><h2>Suggested for you</h2><button>Refresh</button></div><div class="bc-grid">'+people.map(personCard).join("")+'</div></div>'}
-function communityHTML(){return '<div class="bc-hero"><h1>Community</h1><p>Find your people, interests and culture.</p><div class="bc-search"><i class="fas fa-search"></i><input placeholder="Search communities..."><button><i class="fas fa-search"></i></button></div><div class="bc-tabs"><button class="bc-tab active">Discover</button><button class="bc-tab">My Communities</button><button class="bc-tab">Featured</button></div></div><div class="bc-grid">'+communities.map(communityCard).join("")+'</div><div class="bc-section"><div class="bc-section-head"><h2>Community events</h2><button data-demo="All events opened">See all</button></div><div class="bc-row"><div class="bc-avatar sm"><i class="fas fa-calendar-days"></i></div><div class="bc-row-main"><strong>Heritage & Culture Evening</strong><small>Friday • Jaipur • 86 going</small></div><button class="bc-action" style="width:auto;padding:0 12px">Join</button></div></div>'}
+function connectHTML(){return '<div class="bc-hero"><h1>Connect</h1><p>Discover people who share your interests.</p><div class="bc-search"><i class="fas fa-search"></i><input placeholder="Search people..."><button><i class="fas fa-search"></i></button></div><div class="bc-tabs"><button class="bc-tab active">Discover</button><button class="bc-tab">Requests</button><button class="bc-tab">My Connections</button></div></div><div class="bc-section"><div class="bc-section-head"><h2>People on Banjara Connect</h2><button data-refresh-social>Refresh</button></div><div class="bc-grid">'+(people.length?people.map(personCard).join(""):empty("fa-user-group","No other members yet","New members will appear here automatically."))+'</div></div>'}
+function communityHTML(){return '<div class="bc-hero"><h1>Community</h1><p>Find your people, interests and culture.</p><div class="bc-search"><i class="fas fa-search"></i><input placeholder="Search communities..."><button><i class="fas fa-search"></i></button></div><div class="bc-tabs"><button class="bc-tab active">Discover</button><button class="bc-tab">My Communities</button><button class="bc-tab">Featured</button></div></div><div class="bc-section"><div class="bc-grid">'+(communities.length?communities.map(communityCard).join(""):empty("fa-users","No communities yet","Create or join a community and it will appear here."))+'</div></div><div class="bc-section">'+empty("fa-calendar-days","No events yet","Events from real communities will appear here.")+'</div>'}
 function postCard(name,community,text){return '<article class="bc-card bc-post"><div class="bc-post-head">'+avatar(name.split(" ").map(x=>x[0]).join(""))+'<div><h3>'+name+'</h3><p>'+community+' • 2h</p></div></div><div class="bc-post-body">'+text+'</div><div class="bc-post-media"><i class="fas fa-mountain"></i></div><div class="bc-post-actions"><button data-demo="Liked">♡ Like</button><button data-demo="Comments opened">💬 Comment</button><button data-demo="Share sheet opened">↗ Share</button><button data-demo="Saved">🔖 Save</button></div></article>'}
-function feedHTML(){return '<div class="bc-hero"><h1>Feed</h1><p>What is happening across your communities.</p></div><div class="bc-feed-grid"><div class="bc-list">'+postCard("Ravi S.","Banjara Youth","Apni language, apni stories aur apni creativity ko share karna hi connection hai.")+postCard("Meena P.","Banjara Students","Students ke liye ek new study circle start kar rahe hain. Interested?")+'</div><aside class="bc-card"><h3>Trending communities</h3>'+communities.map(c=>'<div class="bc-row" style="margin-top:8px"><div class="bc-community-icon">'+c[0]+'</div><div class="bc-row-main"><strong>'+c[1]+'</strong><small>'+c[2]+'</small></div></div>').join("")+'</aside></div>'}
+function feedHTML(){return '<div class="bc-hero"><h1>Feed</h1><p>What is happening across your communities.</p></div><div class="bc-section">'+empty("fa-newspaper","Your feed is empty","Real posts from people and communities will appear here.")+'</div>'}
 function notificationsHTML(){return '<div class="bc-hero"><h1>Notifications</h1><p>Stay updated without missing what matters.</p></div><div class="bc-list">'+[['RS','Ravi S.','sent you a connection request','2m'],['NK','Nisha K.','liked your community post','18m'],['🎓','Banjara Students','new event: Study Circle','1h'],['💬','Meena P.','sent you a message','2h']].map(x=>'<div class="bc-row">'+avatar(x[0])+'<div class="bc-row-main"><strong>'+x[1]+'</strong><small>'+x[2]+' • '+x[3]+'</small></div><span class="bc-badge">•</span></div>').join("")+'</div><div class="bc-section">'+empty("fa-bell","All caught up","Read and unread notification states are ready for backend data.")+'</div>'}
 function profileHTML(){return '<div class="bc-profile-hero">'+avatar("HR").replace("bc-avatar","bc-profile-avatar")+'<div><h1>Harish Rathod</h1><p>Building connections through community and culture.</p><button class="bc-action primary" data-edit-profile style="width:auto;padding:0 14px">Edit Profile</button></div></div><div class="bc-stat-row"><div class="bc-stat"><strong>128</strong><span>Connections</span></div><div class="bc-stat"><strong>12</strong><span>Communities</span></div><div class="bc-stat"><strong>24</strong><span>Posts</span></div></div><div class="bc-section"><div class="bc-section-head"><h2>About</h2></div><div class="bc-card"><p>Community builder • Student • Technology enthusiast</p></div></div><div class="bc-section"><div class="bc-section-head"><h2>My posts</h2><button data-screen="feed">View all</button></div>'+postCard("Harish Rathod","Banjara Connect","Welcome to our new community space. ❤️")+'</div>'}
 function settingsHTML(){const rows=[["fa-user","Profile","Personal information"],["fa-bell","Notifications","Choose what you receive"],["fa-palette","Appearance","Theme and visual preferences"],["fa-language","Language","English • Hindi • Lambadi"],["fa-shield-halved","Privacy","Control your visibility"],["fa-lock","Security","Account security"],["fa-user-slash","Blocked accounts","Manage blocked people"],["fa-mobile-screen","Sessions","Manage active sessions"],["fa-circle-info","Help & About","Help, feedback and app info"],["fa-user-gear","Account","Account actions"]];return '<div class="bc-hero"><h1>Settings</h1><p>Make Banjara Connect feel like yours.</p></div><div class="bc-setting-list">'+rows.map((r,i)=>'<button class="bc-setting" data-setting="'+i+'"><span class="bc-setting-icon"><i class="fas '+r[0]+'"></i></span><span class="bc-setting-main"><strong>'+r[1]+'</strong><small>'+r[2]+'</small></span><i class="fas fa-chevron-right"></i></button>').join("")+'</div><div class="bc-section"><button class="bc-action" data-demo="Logged out in frontend preview" style="height:42px">Log out</button></div>'}
@@ -102,7 +102,7 @@ async function bcAfterLogin(user,phone){
     const profile=await bcEnsureProfile(user,phone,sid);
     window.__bcProfile=profile; window.__bcSessionId=sid;
     await bcStartSessionGuard(user,sid);
-    state.auth="welcome"; renderAll(); showScreen("home"); toast("Welcome to Banjara Connect");
+    state.auth="welcome"; renderAll(); showScreen("home"); await bcLoadSocialData(); toast("Welcome to Banjara Connect");
     return true;
   }catch(e){
     console.error("Profile setup:",e);
@@ -137,6 +137,29 @@ async function bcHandleAuth(form){
     toast(msg.includes("Invalid login")?"Mobile number or password is incorrect":msg||"Could not complete login");
   }finally{if(submit){submit.disabled=false;submit.textContent=mode==="signup"?"Create account":"Log in";}}
 }
+async function bcLoadSocialData(){
+ const sb=BC_SUPABASE(); if(!sb)return;
+ try{
+  const {data:{user}}=await sb.auth.getUser(); if(!user)return;
+  const [pr,cr]=await Promise.all([
+   sb.from("profiles").select("id,name,bio,college,state,city,area,avatar_url").neq("id",user.id).order("created_at",{ascending:false}).limit(60),
+   sb.from("communities").select("id,name,description,cover_url,created_at").order("created_at",{ascending:false}).limit(30)
+  ]);
+  if(pr.error)throw pr.error; if(cr.error)throw cr.error;
+  people=(pr.data||[]).map(p=>[getInitials(p.name||"Member"),p.name||"Banjara Member",[p.city,p.state].filter(Boolean).join(" • ")||"Banjara Connect member",p.id]);
+  communities=(cr.data||[]).map(x=>["👥",x.name||"Community",x.description||"Community",x.id]);
+  renderAll(); showScreen(state.screen==="auth"?"home":state.screen);
+ }catch(e){console.warn("Social data load:",e);}
+}
+async function bcSendConnection(userId,button){
+ const sb=BC_SUPABASE(); const {data:{user}}=await sb.auth.getUser(); if(!user)return;
+ button.disabled=true;
+ try{
+  const {error}=await sb.from("connections").insert({requester_id:user.id,addressee_id:userId,status:"pending"});
+  if(error&&error.code!=="23505")throw error;
+  button.textContent=error?"Requested":"Requested"; toast(error?"Request already sent":"Connection request sent");
+ }catch(e){button.disabled=false;console.error(e);toast("Could not send connection request");}
+}
 async function bcRestoreSession(){
   const sb=BC_SUPABASE(); if(!sb)return;
   try{
@@ -155,12 +178,15 @@ function bind(){
   const nav=e.target.closest("[data-screen]");if(nav){e.preventDefault();showScreen(nav.dataset.screen==="more"?"settings":nav.dataset.screen);return}
   if(e.target.closest("[data-create]")){create();return}
   if(e.target.closest("[data-close-modal]")||e.target.id==="bcModal"){closeModal();return}
+  const connect=e.target.closest("[data-connect-user]");if(connect){void bcSendConnection(connect.dataset.connectUser,connect);return}
+  if(e.target.closest("[data-community-id]")){toast("Community selected");return}
   const demo=e.target.closest("[data-demo]");if(demo){toast(demo.dataset.demo);return}
   const tab=e.target.closest(".bc-tab,.bc-chip");if(tab){const group=tab.parentElement;$(".bc-tab,.bc-chip",group).forEach(x=>x.classList.remove("active"));tab.classList.add("active");toast(tab.textContent.trim()+" selected");return}
   const auth=e.target.closest("[data-auth]");if(auth){state.auth=auth.dataset.auth;renderAll();showScreen("auth");return}
   if(e.target.closest("[data-do-search]")){state.query=$("[data-search]")?.value||"";toast(state.query?"Searching "+state.query+"…":"Type something to search");return}
   const refresh=e.target.closest(".bc-section-head button");if(refresh && refresh.textContent.trim()==="Refresh"){toast("Suggestions refreshed");return}
   const setting=e.target.closest("[data-setting]");if(setting){const labels=["Profile","Notifications","Appearance","Language","Privacy","Security","Blocked accounts","Sessions","Help & About","Account"];modal(labels[+setting.dataset.setting]||"Settings",'<div class="bc-card"><p>This frontend section is ready. Backend controls will be connected in the backend phase.</p><button class="bc-action primary" data-close-modal>Done</button></div>');return}
+  if(e.target.closest("[data-refresh-social]")){void bcLoadSocialData();return}
   if(e.target.closest("[data-logout]")){void (async()=>{try{clearInterval(bcSessionTimer);bcSessionTimer=null;await BC_SUPABASE()?.auth.signOut({scope:"local"});}catch(err){console.warn(err);}state.auth="welcome";renderAll();showScreen("auth");toast("Logged out");})();return}
   if(e.target.closest("[data-edit-profile]")){modal("Edit Profile",'<form class="bc-form"><div class="bc-field"><label>Name</label><input value="Harish Rathod"></div><div class="bc-field"><label>Bio</label><textarea>Community builder • Student • Technology enthusiast</textarea></div><button type="button" class="bc-action primary" data-demo="Profile changes saved locally">Save changes</button></form>');return}
  });
