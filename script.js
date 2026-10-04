@@ -8818,10 +8818,14 @@ async async function initializeStudentKart() {
 
     try {
 
+        // Bind UI controls immediately. Never make button interactivity
+        // wait for Supabase auth/network requests.
         ensureSellerProfileUI();
-
         ensureNotificationsUI();
+        setupEventListeners();
+        setupAuthListener();
 
+        // Auth/data hydration happens after the UI is already interactive.
         await getCurrentUser();
 
         if (currentUser) {
@@ -8834,10 +8838,6 @@ async async function initializeStudentKart() {
         if (!currentUser && !isStudentKartGuestMode()) {
             showNewUserGate();
         }
-
-        setupEventListeners();
-
-        setupAuthListener();
 
         await loadProducts();
         startProductsRealtime();
