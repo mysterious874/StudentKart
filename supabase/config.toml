@@ -2,10 +2,10 @@
 # Keep public endpoints explicit and require JWTs everywhere else.
 
 [functions.global-news]
-verify_jwt = false
+verify_jwt = true
 
 [functions.new-products]
-verify_jwt = false
+verify_jwt = true
 
 [functions.ai-chat]
 verify_jwt = false
