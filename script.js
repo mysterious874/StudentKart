@@ -13213,3 +13213,53 @@ document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();
         });
     });
 })();
+
+
+/* Banjara community bottom navigation */
+document.addEventListener("DOMContentLoaded", () => {
+    const nav = document.querySelector(".banjara-bottom-nav");
+    const createMenu = document.getElementById("bottomCreateMenu");
+    const openCreate = () => {
+        if (!createMenu) return;
+        createMenu.classList.remove("hidden");
+        createMenu.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+    };
+    const closeCreate = () => {
+        if (!createMenu) return;
+        createMenu.classList.add("hidden");
+        createMenu.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("modal-open");
+    };
+    nav?.addEventListener("click", (event) => {
+        const item = event.target.closest("[data-bottom-action]");
+        if (!item) return;
+        event.preventDefault();
+        const action = item.dataset.bottomAction;
+        if (action === "home") {
+            window.scrollTo({top: 0, behavior: "smooth"});
+        } else if (action === "chat") {
+            window.showToast?.("Chat is coming to Banjara Connect.", "info");
+        } else if (action === "video") {
+            window.showToast?.("Video centre is coming soon.", "info");
+        } else if (action === "status") {
+            window.showToast?.("Status is coming soon.", "info");
+        } else if (action === "profile") {
+            window.showToast?.("Profile is coming soon.", "info");
+        } else if (action === "settings") {
+            window.showToast?.("Settings is coming soon.", "info");
+        }
+    });
+    document.getElementById("bottomCreateButton")?.addEventListener("click", openCreate);
+    createMenu?.addEventListener("click", (event) => {
+        if (event.target.closest("[data-close-create]")) { closeCreate(); return; }
+        const option = event.target.closest("[data-create-action]");
+        if (!option) return;
+        closeCreate();
+        const action = option.dataset.createAction;
+        if (action === "photo") window.showToast?.("Photo posting is ready to connect.", "info");
+        if (action === "video") window.showToast?.("Video posting is ready to connect.", "info");
+        if (action === "post") window.showToast?.("Post composer is ready to connect.", "info");
+    });
+});
+
