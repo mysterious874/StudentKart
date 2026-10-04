@@ -9,7 +9,7 @@
   --bc-soft:#f5e8dc;--bc-shadow:0 12px 34px rgba(84,18,28,.12);
 }
 #bcAppShell{position:relative;z-index:10;min-height:100vh;background:var(--bc-cream);color:var(--bc-text);font-family:"DM Sans",system-ui,sans-serif}
-body.bc-app-ready>main,body.bc-app-ready>#navbarSearchPanel,body.bc-app-ready>#categoryPickerModal,body.bc-app-ready>#bottomCreateMenu{display:none!important}
+body.bc-app-ready>main,body.bc-app-ready>#navbarSearchPanel,body.bc-app-ready>#categoryPickerModal,body.bc-app-ready>#bottomCreateMenu,body.bc-app-ready>.banjara-bottom-nav,body.bc-app-ready>#settingsModal,body.bc-app-ready>#settingsDetailModal{display:none!important}
 .bc-app{width:min(100%,1180px);margin:0 auto;padding:0 16px 110px}
 .bc-topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;min-height:62px;padding:8px 0;background:rgba(251,244,232,.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(234,219,200,.7)}
 .bc-brand{display:flex;align-items:center;gap:9px;min-width:0}
