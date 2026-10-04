@@ -19244,3 +19244,36 @@ html body:has(#aiAssistantPage:not(.hidden)) .floating-nav{
 #aiAssistantPage .ai-assistant-composer textarea::placeholder{
     color:#829ab1;
 }
+
+
+/* AI assistant active state — hard isolate bottom navigation */
+html body.ai-assistant-page-active .mobile-bottom-nav{
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+}
+
+/* Dedicated AI search bar */
+#aiAssistantPage .ai-assistant-composer{
+    flex:0 0 auto !important;
+    display:flex !important;
+    width:100% !important;
+    min-height:70px;
+    box-sizing:border-box;
+    position:relative !important;
+    z-index:100001 !important;
+    margin:0 !important;
+    padding:10px 14px 14px !important;
+    background:#f6fbfb !important;
+    border-top:1px solid #d9e2ec;
+}
+#aiAssistantPage .ai-assistant-composer textarea{
+    display:block !important;
+    min-height:48px !important;
+    width:100%;
+    font-size:14px !important;
+    background:#fff !important;
+    color:#102a43 !important;
+    border:1px solid #c5dfe0 !important;
+    box-shadow:0 2px 8px rgba(16,42,67,.05);
+}
