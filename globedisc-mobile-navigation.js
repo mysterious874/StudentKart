@@ -71,14 +71,6 @@
         return;
       }
 
-      var el = e.target && e.target.closest ? e.target.closest(
-        "#marketplaceMobileBack,.marketplace-mobile-back,[data-mobile-back]"
-      ) : null;
-      if (!el) return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      goPrevious();
-    }, true);
   }
 
   if (document.readyState === "loading") {
