@@ -318,3 +318,129 @@ body:before{
 #aiAssistantPage .ai-assistant-composer button{background:var(--bc-maroon)!important}
 #aiAssistantPage .ai-chat-user{background:var(--bc-maroon)!important}
 #aiAssistantPage .ai-chat-assistant{background:#fffaf2!important;border-color:#e6d7c8!important}
+
+
+/* =========================================================
+   BANJARA CONNECT — TEXT CONTRAST / VISIBILITY HARDENING
+   Prevents legacy GlobeDisc/StudentKart text colors from becoming
+   invisible after the Banjara light/cream theme is applied.
+   ========================================================= */
+html body,
+html body p,
+html body span,
+html body label,
+html body small,
+html body li,
+html body td,
+html body th,
+html body .card,
+html body .section,
+html body .panel,
+html body .content,
+html body .modal-content,
+html body .dropdown-menu,
+html body .menu,
+html body .settings-card,
+html body .profile-card,
+html body .listing-card,
+html body .product-card{
+  color:var(--bc-text);
+}
+
+/* Headings must remain readable on the cream/paper surfaces. */
+html body h1,
+html body h2,
+html body h3,
+html body h4,
+html body h5,
+html body h6{
+  color:var(--bc-text);
+}
+
+/* Secondary copy: readable but still visually muted. */
+html body .muted,
+html body .text-muted,
+html body .subtitle,
+html body .description,
+html body .helper-text,
+html body .form-hint,
+html body .meta,
+html body .card-meta{
+  color:var(--bc-muted)!important;
+}
+
+/* Form controls on the new light theme. */
+html body input,
+html body textarea,
+html body select{
+  color:var(--bc-text)!important;
+  background:#fff!important;
+  caret-color:var(--bc-maroon)!important;
+}
+html body input::placeholder,
+html body textarea::placeholder{
+  color:#8a7b72!important;
+  opacity:1!important;
+}
+html body select option{
+  color:var(--bc-text)!important;
+  background:#fff!important;
+}
+
+/* Buttons/links that use old white text on light surfaces. */
+html body .btn-outline,
+html body .btn-secondary,
+html body .secondary-button,
+html body .ghost-button{
+  color:var(--bc-maroon)!important;
+}
+html body a:not(.btn):not(.bottom-nav-item){
+  color:var(--bc-maroon);
+}
+
+/* Keep text on intentionally dark community surfaces white. */
+html body .navbar,
+html body .navbar *,
+html body .hero.studentkart-top,
+html body .hero.studentkart-top *,
+html body .chat-list-header,
+html body #chatModal .chat-head,
+html body #inquiriesModal .chat-list-header,
+html body .globedisc-splash,
+html body .globedisc-splash *{
+  color:#fff;
+}
+html body .hero.studentkart-top .home-discovery-heading .section-label,
+html body .hero.studentkart-top .home-discovery-heading p{
+  color:#ffe1bd!important;
+}
+
+/* Icons should not disappear beside readable labels. */
+html body .card i,
+html body .section i,
+html body .panel i,
+html body .settings-card i,
+html body .profile-card i{
+  color:var(--bc-maroon);
+}
+
+/* Preserve white icons on dark buttons/headers. */
+html body .btn-primary,
+html body .btn-primary *,
+html body .chat-send-button,
+html body .chat-send-button *,
+html body .chat-like-button,
+html body .chat-like-button *,
+html body .whatsapp-unread,
+html body .whatsapp-unread *{
+  color:#fff!important;
+}
+
+/* Accessibility fallback for disabled text: still visibly distinct. */
+html body button:disabled,
+html body input:disabled,
+html body select:disabled,
+html body textarea:disabled{
+  color:#8f8178!important;
+  -webkit-text-fill-color:#8f8178!important;
+}
