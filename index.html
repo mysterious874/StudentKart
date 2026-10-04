@@ -101,7 +101,7 @@
         <a href="#home" class="bottom-nav-item">
             <i class="fas fa-house"></i><span>Home</span>
         </a>
-        <button type="button" class="bottom-nav-item" id="bottomMarketplaceButton" aria-label="Marketplace" title="Marketplace">
+        <button type="button" class="bottom-nav-item" id="bottomMarketplaceButton" onclick="window.location.href='marketplace.html'" aria-label="Marketplace" title="Marketplace">
             <i class="fas fa-store"></i><span>Marketplace</span>
         </button>
         <button type="button" class="bottom-nav-item bottom-chat-nav-item" onclick="document.getElementById('chatButton')?.click()">
@@ -111,16 +111,16 @@
             </span>
             <span>Chat</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomWishlistButton" aria-label="Wishlist">
+        <button type="button" class="bottom-nav-item" id="bottomWishlistButton" onclick="window.openWishlist?.()" aria-label="Wishlist">
             <i class="fa-solid fa-heart"></i><span>Wishlist</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomCampusButton" aria-label="Campus">
+        <button type="button" class="bottom-nav-item" id="bottomCampusButton" onclick="if(typeof renderCampusPicker==='function')renderCampusPicker(); window.openModal?.('campusModal')" aria-label="Campus">
             <i class="fas fa-building-columns"></i><span id="bottomCampusLabel">Campus</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomProfileButton" aria-label="Profile">
+        <button type="button" class="bottom-nav-item" id="bottomProfileButton" onclick="window.openProfile?.()" aria-label="Profile">
             <i class="fas fa-user"></i><span>Profile</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomSettingsButton" aria-label="Settings">
+        <button type="button" class="bottom-nav-item" id="bottomSettingsButton" onclick="window.openModal?.('settingsModal')" aria-label="Settings">
             <i class="fas fa-gear"></i><span>Settings</span>
         </button>
     </nav>
