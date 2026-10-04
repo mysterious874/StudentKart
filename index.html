@@ -579,7 +579,7 @@
                 </div>
                 <div class="chat-list-search">
                     <i class="fas fa-search"></i>
-                    <input type="search" id="chatListSearchInput" placeholder="Search chats" autocomplete="off">
+                    <input type="search" id="chatListSearchInput" placeholder="Search username" autocomplete="off">
                     <button type="button" id="chatListSearchClear" class="hidden" aria-label="Clear chat search"><i class="fas fa-xmark"></i></button>
                 </div>
                 <div id="chatUserSearchResults" class="chat-user-search-results hidden"></div>
@@ -723,8 +723,8 @@
                 </div>
                 <div class="form-group"><label for="editProfileName">Name</label><input type="text" id="editProfileName"
                         required></div>
-                <div class="form-group"><label for="editProfileUsername">Username / Search ID</label><input type="text" id="editProfileUsername" placeholder="e.g. harish123, your email or mobile number" maxlength="80" autocomplete="username">
-                    <small class="form-help">Others can find you in Chat using this username, email or mobile number.</small></div>
+                <div class="form-group"><label for="editProfileUsername">Username / Search ID</label><input type="text" id="editProfileUsername" placeholder="e.g. harish123" maxlength="80" autocomplete="username">
+                    <small class="form-help">Others can find you in Chat using this username.</small></div>
                 <div class="form-group"><label for="editProfilePhone">Login Mobile</label><input type="tel" id="editProfilePhone" placeholder="10-digit mobile number" inputmode="numeric" autocomplete="tel" readonly>
                     <small class="form-help">This is your login mobile number and cannot be changed from Edit Profile.</small></div>
                 <div class="form-group"><label for="editProfileCollege">College / University</label><input type="text"
@@ -914,7 +914,7 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=20261004-chat-search-5"></script>
+    <script src="script.js?v=20261004-username-search-1"></script>
     <script src="/push-notifications.js?v=20261002-push-1"></script>
     <script src="campus-gate.js?v=20261003-verification-1"></script>
     <script src="/admin-campus-verification.js?v=20261003-admin-2"></script>
