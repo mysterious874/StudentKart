@@ -592,3 +592,14 @@ html body #home .home-discovery-heading h1 *{
   color:var(--bc-maroon)!important;
   -webkit-text-fill-color:var(--bc-maroon)!important;
 }
+
+
+/* Community hero supporting text — lighter companion shades */
+html body #home .home-discovery-heading .section-label{
+  color:#c9828b!important;
+  -webkit-text-fill-color:#c9828b!important;
+}
+html body #home .home-discovery-heading p{
+  color:#c9828b!important;
+  -webkit-text-fill-color:#c9828b!important;
+}
