@@ -16,7 +16,7 @@ async function loadLive(){
    sb.from("chat_members").select("chat_id,last_read_at").eq("user_id",user.id)
   ]);
   if(people.error||communities.error)throw people.error||communities.error;
-  window.__bcLive={people:people.data||[],communities:communities.data||[],posts:posts.data||[],notifications:notifications.data||[],chats:[]};
+  const {data:sent}=await sb.from("connections").select("id,addressee_id,status").eq("requester_id",user.id); const {data:received}=await sb.from("connections").select("id,requester_id,status").eq("addressee_id",user.id); const conMap=new Map(); (sent||[]).forEach(x=>conMap.set(x.addressee_id,{...x,direction:"sent"})); (received||[]).forEach(x=>conMap.set(x.requester_id,{...x,direction:"received"})); window.__bcLive={people:people.data||[],communities:communities.data||[],posts:posts.data||[],notifications:notifications.data||[],chats:[],connections:conMap};
   const pmap=new Map((people.data||[]).map(p=>[p.id,p])), cmap=new Map((communities.data||[]).map(c=>[c.id,c]));
   for(const m of (members.data||[])){
    const {data:others}=await sb.from("chat_members").select("user_id").eq("chat_id",m.chat_id).neq("user_id",user.id);
@@ -33,7 +33,7 @@ function refreshUI(){
  const chatList=document.querySelector("#bc-chats .bc-list");
  if(chatList)chatList.innerHTML=d.chats.length?d.chats.map(c=>'<div class="bc-row" data-chat-name="'+escLive(c.name)+'" data-chat-id="'+c.id+'"><div class="bc-avatar">'+initials(c.name)+'</div><div class="bc-row-main"><strong>'+escLive(c.name)+'</strong><small>'+escLive(c.preview)+'</small></div>'+(c.unread?'<span class="bc-badge">1</span>':'')+'</div>').join(""):'<div class="bc-empty"><i class="fas fa-comments"></i><strong>No conversations yet</strong><span>Start a chat from Connect.</span></div>';
  const connect=document.querySelector("#bc-connect .bc-grid");
- if(connect)connect.innerHTML=d.people.length?d.people.map(p=>'<div class="bc-card"><div class="bc-post-head"><div class="bc-avatar">'+initials(p.name)+'</div><div><h3>'+escLive(p.name||"Banjara Member")+'</h3><p>'+escLive([p.city,p.state].filter(Boolean).join(" • ")||"Banjara Connect member")+'</p></div></div><button class="bc-action primary" data-connect-user="'+p.id+'">Connect</button></div>').join(""):'<div class="bc-empty"><i class="fas fa-user-group"></i><strong>No other members yet</strong><span>New members will appear here automatically.</span></div>';
+ if(connect)connect.innerHTML=d.people.length?d.people.map(p=>'<div class="bc-card"><div class="bc-post-head"><div class="bc-avatar">'+initials(p.name)+'</div><div><h3>'+escLive(p.name||"Banjara Member")+'</h3><p>'+escLive([p.city,p.state].filter(Boolean).join(" • ")||"Banjara Connect member")+'</p></div></div><button class="bc-action primary" data-connect-user="'+p.id+'">'+(d.connections?.get(p.id)?.status==="accepted"?"Connected":d.connections?.get(p.id)?.status==="pending"&&d.connections?.get(p.id)?.direction==="received"?"Accept":d.connections?.get(p.id)?.status==="pending"?"Pending":"Connect")+'</button></div>').join(""):'<div class="bc-empty"><i class="fas fa-user-group"></i><strong>No other members yet</strong><span>New members will appear here automatically.</span></div>';
  const comm=document.querySelector("#bc-community .bc-grid");
  if(comm)comm.innerHTML=d.communities.length?d.communities.map(c=>'<div class="bc-card" data-community-id="'+c.id+'"><h3>'+escLive(c.name)+'</h3><p>'+escLive(c.description||"Community")+'</p></div>').join(""):'<div class="bc-empty"><i class="fas fa-users"></i><strong>No communities yet</strong><span>Create or join a community.</span></div>';
  const feed=document.querySelector("#bc-feed #bcFeedList");
@@ -71,11 +71,19 @@ async function newChat(){
  if(!chat){const c=await sb.from("chats").insert({kind:"direct",created_by:user.id}).select("id").single();if(c.error){alert("Could not start chat.");return;}chat=c.data.id;const ins=await sb.from("chat_members").insert([{chat_id:chat,user_id:user.id},{chat_id:chat,user_id:p.id}]);if(ins.error){alert("Could not add member.");return;}}
  openChat(chat,p.name||"Banjara Member");
 }
-window.bcReloadLive=loadLive;window.bcOpenChat=openChat;window.bcNewChat=newChat;
+async function connectAction(id){
+ const sb=SB(); const {data:{user}}=await sb.auth.getUser(); if(!user||!id||user.id===id)return;
+ const current=window.__bcLive?.connections?.get(id);
+ if(current?.status==="pending"&&current.direction==="received"){await sb.from("connections").update({status:"accepted",updated_at:new Date().toISOString()}).eq("id",current.id);await loadLive();return;}
+ if(current?.status==="accepted")return;
+ if(current?.status==="pending")return;
+ const r=await sb.from("connections").insert({requester_id:user.id,addressee_id:id,status:"pending"}); if(!r.error)await loadLive();
+}
+window.bcReloadLive=loadLive;window.bcConnect=connectAction;window.bcOpenChat=openChat;window.bcNewChat=newChat;
 
 
 <style id="bc-live-chat-style">#bcChatOverlay{position:fixed;inset:0;z-index:190000;background:var(--bc-cream,#fbf4e8);display:flex;flex-direction:column}.bc-chat-head{height:64px;display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bc-maroon,#7b1e2b);color:#fff}.bc-chat-head button{border:0;background:transparent;color:#fff;font-size:18px}.bc-chat-head small{display:block;opacity:.75}.bc-chat-messages{flex:1;overflow:auto;padding:18px 14px;display:flex;flex-direction:column;gap:8px}.bc-msg{max-width:78%;padding:9px 12px;border-radius:16px;font-size:14px;line-height:1.35}.bc-msg.mine{align-self:flex-end;background:var(--bc-orange,#d97706);color:#fff;border-bottom-right-radius:5px}.bc-msg.theirs{align-self:flex-start;background:#fff;color:#3b2930;border-bottom-left-radius:5px}.bc-msg small{display:block;font-size:10px;opacity:.6;margin-top:3px}.bc-chat-composer{display:flex;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid rgba(0,0,0,.08);padding-bottom:max(10px,env(safe-area-inset-bottom))}.bc-chat-composer input{flex:1;border:1px solid #ddd;border-radius:22px;padding:11px 14px;outline:0}.bc-chat-composer button{width:44px;border:0;border-radius:50%;background:var(--bc-maroon,#7b1e2b);color:#fff}@media(min-width:800px){#bcChatOverlay{left:50%;top:8%;right:8%;bottom:8%;border-radius:18px;overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.25)}} </style>\ndocument.addEventListener("click",async e=>{
- const chat=e.target.closest("[data-chat-id]");if(chat){openChat(chat.dataset.chatId,chat.dataset.chatName||"Banjara Member");return;}const newChatBtn=e.target.closest("[data-new-chat]");if(newChatBtn){newChat();return;}const n=e.target.closest("[data-notification-id]"); if(n){await SB().from("notifications").update({is_read:true}).eq("id",n.dataset.notificationId);n.querySelector(".bc-badge")?.remove();return;}
+ const conn=e.target.closest("[data-connect-user]");if(conn){connectAction(conn.dataset.connectUser);return;}const chat=e.target.closest("[data-chat-id]");if(chat){openChat(chat.dataset.chatId,chat.dataset.chatName||"Banjara Member");return;}const newChatBtn=e.target.closest("[data-new-chat]");if(newChatBtn){newChat();return;}const n=e.target.closest("[data-notification-id]"); if(n){await SB().from("notifications").update({is_read:true}).eq("id",n.dataset.notificationId);n.querySelector(".bc-badge")?.remove();return;}
 });
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(loadLive,1200));else setTimeout(loadLive,1200);
 })();
