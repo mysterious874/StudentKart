@@ -19153,3 +19153,57 @@ html body.studentkart-search-results-active .mobile-bottom-nav{
         line-height:1.35 !important;
     }
 }
+
+
+/* Search result intent strip */
+.search-results-intent-strip{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    width:min(1180px,calc(100% - 36px));
+    margin:10px auto 0;
+    padding:4px 0 8px;
+    overflow-x:auto;
+    scrollbar-width:none;
+}
+.search-results-intent-strip::-webkit-scrollbar{display:none}
+.search-results-intent-label{
+    flex:0 0 auto;
+    font-size:11px;
+    font-weight:700;
+    color:#64748b;
+    margin-right:2px;
+}
+.search-results-intent{
+    flex:0 0 auto;
+    border:1px solid #dbe5ee;
+    background:#fff;
+    color:#334155;
+    border-radius:999px;
+    padding:8px 12px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    cursor:pointer;
+    font:inherit;
+    font-size:12px;
+    white-space:nowrap;
+    transition:.16s ease;
+}
+.search-results-intent:hover{border-color:#9bc5ee;background:#f5faff}
+.search-results-intent.active{
+    border-color:#287fd4;
+    background:#eaf5ff;
+    color:#1764a8;
+    font-weight:700;
+}
+.search-results-intent i{font-size:11px}
+@media(max-width:700px){
+    .search-results-intent-strip{
+        width:calc(100% - 24px);
+        margin-top:8px;
+        padding-bottom:7px;
+    }
+    .search-results-intent-label{font-size:10px}
+    .search-results-intent{padding:7px 10px;font-size:11px}
+}
