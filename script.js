@@ -5753,6 +5753,71 @@ async function getSearchResultMatches(query) {
     const terms = q.split(/\s+/).filter(Boolean);
     const categoryQuery = ["books","electronics","vehicles","furniture","services","fashion","gaming","other"].includes(q);
 
+    // Related-word expansion makes search useful for natural queries:
+    // "phone" can find mobile/smartphone, "laptop" can find notebook, etc.
+    const relatedMap = {
+        phone:["phone","mobile","smartphone","iphone","android"],
+        mobile:["mobile","phone","smartphone","iphone","android"],
+        laptop:["laptop","notebook","macbook","computer"],
+        computer:["computer","pc","laptop","notebook","desktop"],
+        pc:["pc","computer","desktop","laptop"],
+        bike:["bike","bicycle","cycle"],
+        bicycle:["bicycle","bike","cycle"],
+        cycle:["cycle","bicycle","bike"],
+        car:["car","automobile","vehicle"],
+        vehicle:["vehicle","car","scooter","bike"],
+        scooter:["scooter","vehicle"],
+        book:["book","books","textbook","notes","study"],
+        books:["books","book","textbook","notes","study"],
+        notes:["notes","book","books","study","textbook"],
+        furniture:["furniture","chair","table","desk","bed"],
+        chair:["chair","furniture","seat"],
+        table:["table","desk","furniture"],
+        headphones:["headphones","earphones","earbuds","airpods"],
+        earphones:["earphones","headphones","earbuds","airpods"],
+        earbuds:["earbuds","earphones","headphones","airpods"],
+        camera:["camera","dslr","photography"],
+        gaming:["gaming","game","playstation","xbox","console"],
+        game:["game","gaming","playstation","xbox","console"]
+    };
+
+    const expandTerm = term => [...new Set(relatedMap[term] || [term])];
+    const expandedTerms = terms.map(expandTerm);
+
+    const scoreProduct = product => {
+        const fields = [
+            ["name", product.name, 12],
+            ["category", product.category, 7],
+            ["description", product.description, 5],
+            ["location", product.location, 3],
+            ["condition", product.condition, 2],
+            ["seller", product.seller, 1]
+        ];
+
+        let score = 0;
+        const name = String(product.name || "").toLowerCase();
+
+        expandedTerms.forEach(group => {
+            let best = 0;
+            group.forEach(term => {
+                fields.forEach(([, value, weight]) => {
+                    const text = String(value || "").toLowerCase();
+                    if (!text) return;
+                    if (text === term) best = Math.max(best, weight + 8);
+                    else if (text.startsWith(term)) best = Math.max(best, weight + 5);
+                    else if (text.includes(term)) best = Math.max(best, weight);
+                });
+            });
+            score += best;
+        });
+
+        if (name === q) score += 100;
+        else if (name.startsWith(q)) score += 50;
+        else if (name.includes(q)) score += 25;
+
+        return score;
+    };
+
     try {
         let request = supabaseClient
             .from("products")
@@ -5760,23 +5825,24 @@ async function getSearchResultMatches(query) {
             .eq("status", "active")
             .order("created_at", { ascending: false })
             .order("id", { ascending: false })
-            .limit(100);
+            .limit(200);
 
         if (categoryQuery) {
             request = request.ilike("category", q);
         } else {
-            for (const term of terms) {
-                const safeTerm = term.replace(/[\\%_]/g, "\\$&");
-                const pattern = "%" + safeTerm + "%";
-                request = request.or([
-                    "name.ilike." + pattern,
-                    "category.ilike." + pattern,
-                    "location.ilike." + pattern,
-                    "condition.ilike." + pattern,
-                    "description.ilike." + pattern,
-                    "seller.ilike." + pattern
-                ].join(","));
-            }
+            // Require every original word to have at least one related
+            // variant somewhere in the listing.
+            expandedTerms.forEach(group => {
+                const clauses = [];
+                group.forEach(term => {
+                    const safe = term.replace(/[\\%_]/g, "\\$&");
+                    const pattern = "%" + safe + "%";
+                    ["name","category","location","condition","description","seller"].forEach(field => {
+                        clauses.push(field + ".ilike." + pattern);
+                    });
+                });
+                request = request.or(clauses.join(","));
+            });
         }
 
         const { data, error } = await request;
@@ -5784,23 +5850,23 @@ async function getSearchResultMatches(query) {
 
         return (Array.isArray(data) ? data : [])
             .map(normalizeProduct)
-            .sort((a, b) => {
-                const an = String(a.name || "").toLowerCase();
-                const bn = String(b.name || "").toLowerCase();
-                return (Number(bn.startsWith(q)) - Number(an.startsWith(q))) ||
-                    (new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-            });
+            .map(product => ({ product, score: scoreProduct(product) }))
+            .filter(item => item.score > 0)
+            .sort((a, b) =>
+                b.score - a.score ||
+                (new Date(b.product.createdAt || 0) - new Date(a.product.createdAt || 0))
+            )
+            .map(item => item.product);
     } catch (error) {
         console.warn("Database marketplace search failed, using loaded listings:", error);
-        return [...currentProducts].filter(product => {
-            const haystack = [product.name,product.category,product.location,product.condition,product.description,product.seller].join(" ").toLowerCase();
-            return categoryQuery
-                ? String(product.category || "").toLowerCase() === q
-                : terms.every(term => haystack.includes(term));
-        });
+
+        return [...currentProducts]
+            .map(product => ({ product, score: scoreProduct(product) }))
+            .filter(item => item.score > 0)
+            .sort((a,b) => b.score - a.score)
+            .map(item => item.product);
     }
 }
-
 async function fetchWithTimeout(url, options={}, timeout=9000){
     return Promise.race([
         fetch(url, options),
