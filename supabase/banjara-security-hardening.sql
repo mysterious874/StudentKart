@@ -163,3 +163,69 @@ to authenticated using (user_id=(select auth.uid())) with check (user_id=(select
 drop policy if exists "attendees self delete" on public.event_attendees;
 create policy "attendees self delete" on public.event_attendees for delete
 to authenticated using (user_id=(select auth.uid()));
+
+
+-- Live notification triggers for core social actions.
+
+create or replace function private.create_notification(p_user_id uuid,p_type text,p_title text,p_message text,p_reference_id uuid default null)
+returns void language plpgsql security definer set search_path=public as $$
+begin
+  if p_user_id is null or p_user_id=(select auth.uid()) then return; end if;
+  insert into notifications(user_id,type,title,message,reference_id)
+  values(p_user_id,left(p_type,50),left(p_title,160),left(p_message,1000),p_reference_id);
+end; $$;
+
+revoke all on function private.create_notification(uuid,text,text,text,uuid) from public,anon,authenticated;
+
+create or replace function private.notify_connection_change()
+returns trigger language plpgsql security definer set search_path=public as $$
+begin
+  if tg_op='INSERT' then
+    perform private.create_notification(new.addressee_id,'connection_request','New connection request','Someone wants to connect with you.',new.id);
+  elsif tg_op='UPDATE' and old.status is distinct from new.status and new.status in ('accepted','declined') then
+    perform private.create_notification(new.requester_id,'connection_update',
+      case when new.status='accepted' then 'Connection accepted' else 'Connection request declined' end,
+      case when new.status='accepted' then 'Your connection request was accepted.' else 'Your connection request was declined.' end,new.id);
+  end if;
+  return new;
+end; $$;
+
+drop trigger if exists trg_connection_notifications on public.connections;
+create trigger trg_connection_notifications after insert or update of status on public.connections
+for each row execute function private.notify_connection_change();
+
+create or replace function private.notify_community_join()
+returns trigger language plpgsql security definer set search_path=public as $$
+declare owner_id uuid; cname text;
+begin
+  select created_by,name into owner_id,cname from communities where id=new.community_id;
+  if owner_id is not null and owner_id<>new.user_id then
+    perform private.create_notification(owner_id,'community_join','New community member',cname||' has a new member.',new.community_id);
+  end if;
+  return new;
+end; $$;
+
+drop trigger if exists trg_community_join_notifications on public.community_members;
+create trigger trg_community_join_notifications after insert on public.community_members
+for each row execute function private.notify_community_join();
+
+create or replace function private.notify_post_interaction()
+returns trigger language plpgsql security definer set search_path=public as $$
+declare owner_id uuid;
+begin
+  select author_id into owner_id from posts where id=new.post_id;
+  perform private.create_notification(owner_id,
+    case when tg_table_name='post_likes' then 'post_like' else 'post_comment' end,
+    case when tg_table_name='post_likes' then 'Post liked' else 'New comment' end,
+    case when tg_table_name='post_likes' then 'A member liked your post.' else 'A member commented on your post.' end,
+    new.post_id);
+  return new;
+end; $$;
+
+drop trigger if exists trg_post_like_notifications on public.post_likes;
+create trigger trg_post_like_notifications after insert on public.post_likes
+for each row execute function private.notify_post_interaction();
+
+drop trigger if exists trg_post_comment_notifications on public.comments;
+create trigger trg_post_comment_notifications after insert on public.comments
+for each row execute function private.notify_post_interaction();
