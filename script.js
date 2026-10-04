@@ -14255,13 +14255,14 @@ async function loadGlobalDiscoveryHomepage(){
         // Resolve location with a short race, then paint immediately.
         // If permission/reverse-geocoding is slow, the saved profile location
         // remains the fallback rather than blocking the news UI.
+        const locationPromise=resolveNewsLocation();
         const resolvedLocation=await Promise.race([
             locationPromise,
             new Promise(resolve=>setTimeout(()=>resolve({
                 area:String(getSavedProfile?.()?.area||"").trim(),
                 city:String(getSavedProfile?.()?.city||"").trim(),
                 state:String(getSavedProfile?.()?.state||"").trim()
-            }),1800))
+            }),1200))
         ]);
 
         const resolvedArea=String(resolvedLocation?.area||"").trim();
