@@ -31,7 +31,7 @@
 <div class="section-head"><h2 id="destinationTitle">Destination</h2><span class="muted" id="coords"></span></div>
 <div class="grid">
 <div class="card"><div class="icon"><i class="fas fa-cloud-sun"></i></div><h3>Weather</h3><div id="weather" class="muted">Loading…</div></div>
-<div class="card"><div class="icon"><i class="fas fa-money-bill-transfer"></i></div><h3>Currency</h3><div id="currency" class="muted">Loading…</div></div>
+<div class="card"><div class="icon"><i class="fas fa-money-bill-transfer"></i></div><h3>Currency</h3><div class="muted" id="currency">Convert currencies instantly.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px"><input id="fxAmount" type="number" min="0" value="100" style="padding:9px;border:1px solid var(--border);border-radius:9px"><select id="fxFrom" style="padding:9px;border:1px solid var(--border);border-radius:9px"><option>INR</option><option>USD</option><option>EUR</option><option>GBP</option><option>AED</option><option>JPY</option><option>SGD</option></select><select id="fxTo" style="padding:9px;border:1px solid var(--border);border-radius:9px"><option>USD</option><option>INR</option><option>EUR</option><option>GBP</option><option>AED</option><option>JPY</option><option>SGD</option></select></div><button id="fxConvert" class="btn btn-teal" style="width:100%;margin-top:8px;padding:9px">Convert</button><strong id="fxResult" style="display:block;margin-top:9px"></strong></div>
 <div class="card"><div class="icon"><i class="fas fa-map-location-dot"></i></div><h3>Explore</h3><div class="muted">Find places, hotels and restaurants on Maps.</div><p><a id="mapsLink" href="#" target="_blank" rel="noopener">Open Maps →</a></p></div>
 <div class="card"><div class="icon"><i class="fas fa-hotel"></i></div><h3>Stay</h3><div class="muted">Search accommodation for this destination.</div><p><a id="hotelLink" href="#" target="_blank" rel="noopener">Find hotels →</a></p></div>
 </div>
@@ -61,6 +61,9 @@
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+async function getRates(base){const r=await fetch('https://open.er-api.com/v6/latest/'+encodeURIComponent(base));if(!r.ok)throw Error('Currency service unavailable');return r.json()}
+async function convertCurrency(){const amount=+$('fxAmount').value||0,from=$('fxFrom').value,to=$('fxTo').value;try{const data=await getRates(from);const value=from===to?amount:amount*(data.rates?.[to]||0);$('fxResult').textContent=amount.toLocaleString('en-IN')+' '+from+' ≈ '+value.toLocaleString('en-IN',{maximumFractionDigits:2})+' '+to}catch(e){$('fxResult').textContent='Conversion unavailable';}}
+$('fxConvert').addEventListener('click',convertCurrency);
 async function geocode(q){const u='https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=1&language=en&format=json';const r=await fetch(u);if(!r.ok)throw Error('Destination search failed');const j=await r.json();if(!j.results?.length)throw Error('Destination not found');return j.results[0]}
 async function weather(lat,lon){const u='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto';const r=await fetch(u);if(!r.ok)throw Error('Weather unavailable');return r.json()}
 
