@@ -137,3 +137,6 @@ body.bc-auth-mode .bc-app{padding-bottom:24px}
   .bc-app{padding-bottom:calc(118px + env(safe-area-inset-bottom))}
   .bc-topbar{position:sticky;top:0;z-index:70}
 }
+
+/* Mobile bottom navigation touch layer */
+.bc-bottom{pointer-events:auto;touch-action:manipulation}.bc-bottom button{pointer-events:auto;touch-action:manipulation;position:relative;z-index:2}
