@@ -588,3 +588,26 @@ html body #home.banjara-home-top::after{border-color:rgba(255,220,166,.14)!impor
 .globedisc-splash{background:linear-gradient(145deg,var(--bc-maroon-dark),var(--bc-maroon) 58%,var(--bc-orange))!important}
 .globedisc-splash::after{background-image:linear-gradient(90deg,rgba(255,220,166,.10) 1px,transparent 1px),linear-gradient(0deg,rgba(255,220,166,.10) 1px,transparent 1px)!important}
 .globedisc-splash-name span,.globedisc-splash-name b,.globedisc-splash-tagline{color:#fff!important}
+
+
+/* Settings must always sit above the Home/header navigation */
+html body #settingsModal,
+html body .settings-modal,
+html body #settingsDetailModal{
+  position:fixed!important;
+  inset:0!important;
+  z-index:250000!important;
+}
+html body #settingsModal .modal-overlay,
+html body #settingsDetailModal .modal-overlay{
+  z-index:0!important;
+}
+html body #settingsModal .modal-content,
+html body #settingsDetailModal .modal-content{
+  position:relative!important;
+  z-index:1!important;
+}
+body.modal-open .navbar,
+body.modal-open .banjara-bottom-nav{
+  z-index:1000!important;
+}
