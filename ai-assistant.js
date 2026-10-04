@@ -4,7 +4,11 @@
 const SUPABASE_URL="https://yymzfjfkmsrymqhpnfqz.supabase.co";
 const SUPABASE_KEY="sb_publishable_tEePI-aSGDkt_2S6oiEfPw_Hy_mEXkw";
 const $=id=>document.getElementById(id);
-let history=[];
+const AI_HISTORY_KEY="globedisc_ai_chat_history_v1";
+let history=loadAIHistory();
+function loadAIHistory(){try{const saved=localStorage.getItem(AI_HISTORY_KEY);const parsed=saved?JSON.parse(saved):[];return Array.isArray(parsed)?parsed.slice(-20):[];}catch(_){return [];}}
+function saveAIHistory(){try{localStorage.setItem(AI_HISTORY_KEY,JSON.stringify(history.slice(-20)));}catch(_){} }
+
 let aiUserNearBottom=true;
 function scrollAIToBottom(behavior="auto"){
  const box=$("aiAssistantMessages"); if(!box)return;
@@ -35,9 +39,16 @@ function addMessage(role,text){
  requestAnimationFrame(()=>scrollAIToBottom("auto"));
  return item;
 }
+function renderSavedAIHistory(){
+ const box=$("aiAssistantMessages"); if(!box||!history.length)return;
+ box.innerHTML="";
+ history.forEach(m=>addMessage(m.role==="assistant"?"assistant":"user",m.content));
+ requestAnimationFrame(()=>scrollAIToBottom("auto"));
+}
 function openAI(){
  const p=$("aiAssistantPage"); if(!p)return;
- p.classList.remove("hidden"); document.body.classList.add("ai-assistant-open"); const globalNav=document.querySelector(".mobile-bottom-nav"); if(globalNav){globalNav.style.setProperty("display","none","important");globalNav.style.setProperty("visibility","hidden","important");globalNav.style.setProperty("pointer-events","none","important");}
+ p.classList.remove("hidden"); document.body.classList.add("ai-assistant-open");
+ renderSavedAIHistory(); const globalNav=document.querySelector(".mobile-bottom-nav"); if(globalNav){globalNav.style.setProperty("display","none","important");globalNav.style.setProperty("visibility","hidden","important");globalNav.style.setProperty("pointer-events","none","important");}
  window.scrollTo({top:0,behavior:"auto"});
  const input=$("aiAssistantInput");
  if(input){setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},80);}
@@ -72,7 +83,7 @@ async function ask(question){
   const data=await response.json().catch(()=>({})); clearTimeout(timeout);
   if(!response.ok||!data.answer)throw new Error(data.error||"AI service is temporarily unavailable.");
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=data.answer;
-  history.push({role:"user",content:q},{role:"assistant",content:data.answer});history=history.slice(-20);
+  history.push({role:"user",content:q},{role:"assistant",content:data.answer});history=history.slice(-20);saveAIHistory();
  }catch(error){
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=error?.name==="AbortError"?"AI is taking too long. Please try again.":(error?.message||"Could not get an AI answer.");
  }finally{
@@ -108,7 +119,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  updateAIViewport();
  $("aiAssistantBack")?.addEventListener("click",closeAI);
  $("aiAssistantNewChat")?.addEventListener("click",()=>{
-  history=[];const box=$("aiAssistantMessages");
+  history=[];try{localStorage.removeItem(AI_HISTORY_KEY);}catch(_){} const box=$("aiAssistantMessages");
   if(box)box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc"></div><h1>What can I help you with?</h1><p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p></div>';
   const input=$("aiAssistantInput");
   if(input){setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},50);}
