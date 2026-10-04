@@ -19,7 +19,7 @@
 
       const id = item.id;
       if (id === "bottomSettingsButton") {
-        if (typeof window.openModal === "function" && document.getElementById("settingsModal")) window.openModal("settingsModal");
+        const settings = document.getElementById("settingsModal"); if (settings) { settings.classList.remove("hidden"); settings.setAttribute("aria-hidden","false"); document.body.classList.add("modal-open"); }
         return;
       }
 
@@ -28,19 +28,6 @@
           window.openProfile();
         } else if (typeof window.openModal === "function" && document.getElementById("profileModal")) {
           window.openModal("profileModal");
-        }
-        return;
-      }
-
-      if (item.classList.contains("bottom-chat-nav-item")) {
-        const chatButton = document.getElementById("chatButton");
-        if (chatButton) {
-          chatButton.click();
-        } else if (typeof window.openModal === "function" && document.getElementById("inquiriesModal")) {
-          window.openModal("inquiriesModal");
-        } else {
-          const modal = document.getElementById("inquiriesModal");
-          if (modal) modal.classList.remove("hidden");
         }
         return;
       }
