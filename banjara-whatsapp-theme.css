@@ -1,18 +1,18 @@
 /* Banjara Connect — WhatsApp-inspired community theme
    Additive visual layer. Keeps existing GlobeDisc functionality intact. */
 :root{
-  --bc-maroon:#0f8b8d;
-  --bc-maroon-dark:#0b6f71;
-  --bc-red:#0f8b8d;
-  --bc-orange:#8de3df;
-  --bc-indigo:#102a43;
-  --bc-teal:#0f8b8d;
-  --bc-cream:#f4fafb;
-  --bc-paper:#ffffff;
-  --bc-line:#dcebed;
-  --bc-text:#102a43;
-  --bc-muted:#627d98;
-  --bc-shadow:0 8px 24px rgba(16,42,67,.08);
+  --bc-maroon:#7b1e2b;
+  --bc-maroon-dark:#54121c;
+  --bc-red:#a52a3a;
+  --bc-orange:#d8782f;
+  --bc-indigo:#284a78;
+  --bc-teal:#177d73;
+  --bc-cream:#fbf4e8;
+  --bc-paper:#fffaf2;
+  --bc-line:#eadbc8;
+  --bc-text:#241c19;
+  --bc-muted:#766a62;
+  --bc-shadow:0 8px 24px rgba(84,18,28,.10);
 }
 
 html,body{
@@ -42,21 +42,21 @@ body:before{
   background:
     radial-gradient(circle at 15% 20%,rgba(141,227,223,.28),transparent 30%),
     radial-gradient(circle at 86% 65%,rgba(15,139,141,.10),transparent 34%),
-    linear-gradient(180deg,#eefafa 0%,#f7fcfc 58%,#ffffff 100%)!important;
+    linear-gradient(180deg,#fffaf2 0%,#f7fcfc 58%,#ffffff 100%)!important;
 }
 .globedisc-splash::after{content:"";position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(15,139,141,.075) 1px,transparent 1px),linear-gradient(0deg,rgba(15,139,141,.075) 1px,transparent 1px);background-size:64px 64px;opacity:.7;pointer-events:none}
-.globedisc-splash-name span,.globedisc-splash-name b{color:#102a43!important}
-.globedisc-splash-tagline{color:#627d98!important}
+.globedisc-splash-name span,.globedisc-splash-name b{color:#241c19!important}
+.globedisc-splash-tagline{color:#766a62!important}
 
 /* Main discovery/header becomes community-app header */
 .hero.studentkart-top{
   background:
     radial-gradient(circle at 15% 20%,rgba(141,227,223,.28),transparent 30%),
     radial-gradient(circle at 86% 65%,rgba(15,139,141,.10),transparent 34%),
-    linear-gradient(180deg,#eefafa 0%,#f7fcfc 58%,#ffffff 100%)!important;
+    linear-gradient(180deg,#fffaf2 0%,#f7fcfc 58%,#ffffff 100%)!important;
   border-radius:0!important;
   box-shadow:none!important;
-  color:#102a43!important;
+  color:#241c19!important;
 }
 .studentkart-top-content{max-width:980px!important}
 .home-discovery-heading .section-label{
@@ -168,7 +168,7 @@ html body .banjara-bottom-nav{
   align-items:center!important;
   gap:2px!important;
   padding:7px 8px!important;
-  border:1px solid #dcebed!important;
+  border:1px solid #eadbc8!important;
   border-radius:24px!important;
   background:rgba(255,250,242,.97)!important;
   box-shadow:0 14px 40px rgba(84,18,28,.20)!important;
@@ -181,7 +181,7 @@ html body .banjara-bottom-nav{
   display:flex!important;flex-direction:column!important;
   align-items:center!important;justify-content:center!important;
   gap:4px!important;padding:5px 2px!important;
-  color:#627d98!important;cursor:pointer!important;
+  color:#766a62!important;cursor:pointer!important;
 }
 .banjara-bottom-nav .bottom-nav-item i{font-size:17px!important}
 .banjara-bottom-nav .bottom-nav-item span{
@@ -405,7 +405,7 @@ html body #home.banjara-home-top > *{position:relative!important;z-index:1!impor
 
 /* GlobeDisc — clearly visible but soft home background */
 html body{
-  background:#f4fafb !important;
+  background:#fbf4e8 !important;
 }
 html body #home.banjara-home-top{
   position:relative !important;
@@ -414,7 +414,7 @@ html body #home.banjara-home-top{
   background:
     radial-gradient(circle at 15% 20%, rgba(141,227,223,.28), transparent 30%),
     radial-gradient(circle at 86% 65%, rgba(15,139,141,.10), transparent 34%),
-    linear-gradient(180deg,#eefafa 0%,#f7fcfc 58%,#ffffff 100%) !important;
+    linear-gradient(180deg,#fffaf2 0%,#f7fcfc 58%,#ffffff 100%) !important;
 }
 html body #home.banjara-home-top::before{
   content:"" !important;
@@ -458,8 +458,8 @@ html body #home.banjara-home-top > *{
 /* GlobeDisc Settings panel */
 .settings-modal-content{background:#f7fbfc!important;border-radius:20px!important;overflow:auto!important;padding:0!important}
 .settings-modal-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;background:rgba(255,255,255,.96);border-bottom:1px solid #e4eef0;position:sticky;top:0;z-index:2}
-.settings-modal-header h2{margin:3px 0;color:#102a43;font-size:22px}
-.settings-modal-header p{margin:0;color:#627d98;font-size:12px}
+.settings-modal-header h2{margin:3px 0;color:#241c19;font-size:22px}
+.settings-modal-header p{margin:0;color:#766a62;font-size:12px}
 .settings-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px}
 .settings-section-button{min-height:70px!important}
 @media(max-width:700px){.settings-sections{grid-template-columns:1fr;padding:10px}.settings-modal-header{padding:15px 16px}.settings-modal-header h2{font-size:19px}}
@@ -471,7 +471,7 @@ html body #home.banjara-home-top > *{
   max-width:560px!important;
   max-height:calc(100vh - 28px)!important;
   background:#f3f7f8!important;
-  border:1px solid #dcebed!important;
+  border:1px solid #eadbc8!important;
   border-radius:22px!important;
   box-shadow:0 18px 55px rgba(16,42,67,.16)!important;
   padding:0!important;
@@ -486,7 +486,7 @@ html body #home.banjara-home-top > *{
 }
 .settings-clean-title h2{
   margin:0!important;
-  color:#102a43!important;
+  color:#241c19!important;
   font-size:21px!important;
   font-weight:750!important;
 }
@@ -508,22 +508,22 @@ html body #home.banjara-home-top > *{
   border-radius:15px!important;
   background:#fff!important;
   box-shadow:0 3px 12px rgba(16,42,67,.045)!important;
-  color:#102a43!important;
+  color:#241c19!important;
   transform:none!important;
 }
 .settings-section-button:hover{
   background:#f8fcfc!important;
-  border-color:#b8dfe0!important;
+  border-color:#d9bba8!important;
   box-shadow:0 5px 16px rgba(15,139,141,.08)!important;
 }
 .settings-section-button>span>i{
   width:36px!important;height:36px!important;
   border-radius:11px!important;
-  background:#e5f7f7!important;
-  color:#0f8b8d!important;
+  background:#fff6eb!important;
+  color:#7b1e2b!important;
 }
 .settings-section-button b{font-size:13px!important}
-.settings-section-button small{color:#627d98!important;font-size:11px!important}
+.settings-section-button small{color:#766a62!important;font-size:11px!important}
 .settings-section-button>i{color:#9fb3c4!important}
 @media(max-width:600px){
   .settings-modal-content{width:calc(100vw - 16px)!important;max-height:calc(100vh - 16px)!important}
@@ -539,15 +539,15 @@ html body #home.banjara-home-top > *{
    ========================================================= */
 
 :root{
-  --bc-home-bg:#f4fafb;
+  --bc-home-bg:#fbf4e8;
   --bc-home-surface:#ffffff;
-  --bc-home-soft:#eefafa;
-  --bc-home-primary:#0f8b8d;
-  --bc-home-primary-dark:#0b6f71;
-  --bc-home-accent:#8de3df;
-  --bc-home-ink:#102a43;
-  --bc-home-muted:#627d98;
-  --bc-home-border:#dcebed;
+  --bc-home-soft:#fffaf2;
+  --bc-home-primary:#7b1e2b;
+  --bc-home-primary-dark:#54121c;
+  --bc-home-accent:#d8782f;
+  --bc-home-ink:#241c19;
+  --bc-home-muted:#766a62;
+  --bc-home-border:#eadbc8;
   --bc-home-shadow:0 8px 24px rgba(16,42,67,.08);
 }
 
@@ -603,7 +603,7 @@ input:focus,textarea:focus,select:focus{
 }
 .hero-search-suggestion,.chat-user-search-card{background:#fff!important;color:var(--bc-home-ink)!important}
 .hero-search-suggestion:hover,.chat-user-search-card:hover{background:#f3fafb!important}
-.hero-search-suggestion-icon{background:#e5f7f7!important;color:var(--bc-home-primary)!important}
+.hero-search-suggestion-icon{background:#fff6eb!important;color:var(--bc-home-primary)!important}
 
 /* Buttons */
 .btn-primary,.primary,.button-primary{
@@ -615,7 +615,7 @@ input:focus,textarea:focus,select:focus{
 .btn-outline,.secondary,.button-secondary{
   background:#fff!important;
   color:var(--bc-home-primary)!important;
-  border-color:#b8dfe0!important;
+  border-color:#d9bba8!important;
 }
 .btn-outline:hover,.secondary:hover,.button-secondary:hover{background:var(--bc-home-soft)!important}
 
@@ -626,21 +626,21 @@ input:focus,textarea:focus,select:focus{
   background:#fff!important;
   box-shadow:0 6px 20px rgba(16,42,67,.055)!important;
 }
-.card:hover,.product-card:hover,.new-product-card:hover{border-color:#b8dfe0!important}
+.card:hover,.product-card:hover,.new-product-card:hover{border-color:#d9bba8!important}
 
 /* Topic / intent chips */
 .globedisc-news-topic-strip{background:transparent!important}
 .globedisc-news-topic{background:#fff!important;color:var(--bc-home-primary)!important;border:1px solid var(--bc-home-border)!important}
-.globedisc-news-topic.active{background:#e5f7f7!important;color:var(--bc-home-primary-dark)!important;border-color:#b8dfe0!important}
+.globedisc-news-topic.active{background:#fff6eb!important;color:var(--bc-home-primary-dark)!important;border-color:#d9bba8!important}
 .search-results-intent{background:#fff!important;color:var(--bc-home-muted)!important;border-color:var(--bc-home-border)!important}
-.search-results-intent.active{background:#e5f7f7!important;color:var(--bc-home-primary-dark)!important;border-color:#b8dfe0!important}
+.search-results-intent.active{background:#fff6eb!important;color:var(--bc-home-primary-dark)!important;border-color:#d9bba8!important}
 
 /* Chat */
 .chat-header,.chat-modal-header,.whatsapp-chat-header{
   background:#fff!important;color:var(--bc-home-ink)!important;border-bottom:1px solid var(--bc-home-border)!important;
 }
 .chat-send-button,#chatModal .chat-send-button{background:var(--bc-home-primary)!important}
-.chat-message.user,.message.user{background:#e5f7f7!important;color:var(--bc-home-ink)!important}
+.chat-message.user,.message.user{background:#fff6eb!important;color:var(--bc-home-ink)!important}
 .chat-message.ai,.message.ai{background:#fff!important;border:1px solid var(--bc-home-border)!important;color:var(--bc-home-ink)!important}
 
 /* Marketplace */
@@ -655,7 +655,7 @@ html body #home.banjara-home-top{
   background:
     radial-gradient(circle at 15% 20%,rgba(141,227,223,.28),transparent 30%),
     radial-gradient(circle at 86% 65%,rgba(15,139,141,.10),transparent 34%),
-    linear-gradient(180deg,#eefafa 0%,#f7fcfc 58%,#ffffff 100%)!important;
+    linear-gradient(180deg,#fffaf2 0%,#f7fcfc 58%,#ffffff 100%)!important;
 }
 html body #home.banjara-home-top::before{
   content:""!important;position:absolute!important;inset:0!important;z-index:0!important;pointer-events:none!important;opacity:.95!important;
