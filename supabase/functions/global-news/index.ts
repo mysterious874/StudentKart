@@ -6,6 +6,10 @@ const corsHeaders = {
 
 const cache = new Map<string, { at: number; articles: any[] }>();
 const CACHE_TTL = 60_000;
+const rateBuckets = new Map<string, { started: number; count: number }>();
+const RATE_WINDOW_MS = 60_000;
+const RATE_LIMIT = 30;
+const clientKey = (req: Request) => req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 
 const cleanXml = (value: string) => String(value || "")
   .replace(/<!\[CDATA\[|\]\]>/g, "")
@@ -59,6 +63,9 @@ const fetchGdeltBackup = async (query: string) => {
 
 Deno.serve(async (req: Request) => {
   if(req.method==="OPTIONS") return new Response("ok",{headers:corsHeaders});
+  const key=clientKey(req); const now=Date.now(); const bucket=rateBuckets.get(key);
+  if(!bucket || now-bucket.started>=RATE_WINDOW_MS) rateBuckets.set(key,{started:now,count:1});
+  else { bucket.count+=1; if(bucket.count>RATE_LIMIT) return new Response(JSON.stringify({articles:[],provider:"rate-limited",sourceCount:0,error:"Too many requests. Please try again shortly."}),{status:429,headers:{...corsHeaders,"Content-Type":"application/json","Retry-After":"60"}}); }
   const url=new URL(req.url);
   const query=url.searchParams.get("q")||"(world OR international OR global OR technology OR science OR AI OR space OR business OR economy OR markets OR sports OR entertainment OR culture)";
   try {
