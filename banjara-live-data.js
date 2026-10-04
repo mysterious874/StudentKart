@@ -8,7 +8,7 @@ async function loadLive(){
  const sb=SB(); if(!sb)return;
  const {data:{user}}=await sb.auth.getUser(); if(!user)return;
  try{
-  const [profile,people,communities,posts,notifications,events,members]=await Promise.all([sb.from("profiles").select("id,name,bio,city,state,area,avatar_url,cover_url,username").eq("id",user.id).maybeSingle()),
+  const [profile,people,communities,posts,notifications,events,members]=await Promise.all([sb.from("profiles").select("id,name,bio,city,state,area,avatar_url,cover_url,username").eq("id",user.id).maybeSingle(),
    sb.from("profiles").select("id,name,bio,city,state,avatar_url").neq("id",user.id).order("created_at",{ascending:false}).limit(60),
    sb.from("communities").select("id,name,description,cover_url,created_at,created_by").order("created_at",{ascending:false}).limit(30),
    sb.from("posts").select("id,author_id,community_id,body,media,visibility,created_at,updated_at").order("created_at",{ascending:false}).limit(40),
