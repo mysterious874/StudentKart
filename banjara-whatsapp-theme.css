@@ -444,3 +444,121 @@ html body textarea:disabled{
   color:#8f8178!important;
   -webkit-text-fill-color:#8f8178!important;
 }
+
+
+/* =========================================================
+   BANJARA CONNECT — FINAL LIGHT-SURFACE TEXT FIX
+   Legacy component rules can force white text on the new cream cards.
+   These selectors restore readable contrast without changing dark headers.
+   ========================================================= */
+html body .section,
+html body .world-news-section,
+html body .marketplace-section,
+html body .category-page,
+html body .category-page-container,
+html body .category-page-header,
+html body .category-picker-modal,
+html body .category-picker-card,
+html body .settings-section-button,
+html body .details-meta-card,
+html body .details-section-heading,
+html body .profile-modal,
+html body .profile-main,
+html body .profile-info,
+html body .profile-info-row,
+html body .seller-profile-modal,
+html body .seller-profile-main,
+html body .seller-profile-stats,
+html body .seller-profile-listings,
+html body .listing-card,
+html body .product-card,
+html body .news-card,
+html body .world-news-card,
+html body .feature-card,
+html body .card{
+  color:var(--bc-text)!important;
+  -webkit-text-fill-color:var(--bc-text);
+}
+
+html body .section h1,
+html body .section h2,
+html body .section h3,
+html body .section h4,
+html body .section h5,
+html body .section h6,
+html body .section strong,
+html body .section b,
+html body .world-news-section strong,
+html body .marketplace-section strong,
+html body .category-picker-card strong,
+html body .category-picker-card span,
+html body .details-meta-card strong,
+html body .details-meta-card span,
+html body .profile-info strong,
+html body .profile-info span,
+html body .profile-info-row strong,
+html body .profile-info-row span,
+html body .seller-profile-main strong,
+html body .seller-profile-main span,
+html body .listing-card strong,
+html body .listing-card span,
+html body .product-card strong,
+html body .product-card span,
+html body .news-card strong,
+html body .news-card span,
+html body .world-news-card strong,
+html body .world-news-card span,
+html body .feature-card strong,
+html body .feature-card span{
+  color:var(--bc-text)!important;
+  -webkit-text-fill-color:var(--bc-text);
+}
+
+html body .section small,
+html body .world-news-section small,
+html body .marketplace-section small,
+html body .category-picker-card small,
+html body .details-meta-card small,
+html body .profile-info small,
+html body .profile-info-row small,
+html body .listing-card small,
+html body .product-card small,
+html body .news-card small,
+html body .world-news-card small,
+html body .feature-card small{
+  color:var(--bc-muted)!important;
+  -webkit-text-fill-color:var(--bc-muted);
+}
+
+/* Preserve intentional dark community surfaces after the light-surface pass. */
+html body .navbar,
+html body .navbar *,
+html body .hero.studentkart-top,
+html body .hero.studentkart-top *,
+html body .chat-list-header,
+html body .chat-list-header *,
+html body #chatModal .chat-head,
+html body #chatModal .chat-head *,
+html body #inquiriesModal .chat-list-header,
+html body #inquiriesModal .chat-list-header *,
+html body .globedisc-splash,
+html body .globedisc-splash *{
+  -webkit-text-fill-color:#fff!important;
+}
+
+/* Links on light cards remain maroon and readable. */
+html body .section a,
+html body .world-news-section a,
+html body .marketplace-section a,
+html body .category-page a,
+html body .category-picker-card a,
+html body .details-meta-card a,
+html body .profile-info a,
+html body .seller-profile-main a,
+html body .listing-card a,
+html body .product-card a,
+html body .news-card a,
+html body .world-news-card a{
+  color:var(--bc-maroon)!important;
+  -webkit-text-fill-color:var(--bc-maroon);
+}
