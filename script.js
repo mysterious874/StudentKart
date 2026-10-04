@@ -14339,7 +14339,97 @@ async function loadGlobalDiscoveryHomepage(){
         renderUnavailable();
     }
 }
-document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();});
+async function loadGlobeDiscNewsTopic(topic){
+    const grid=$("worldNewsGrid");
+    const selected=String(topic||"All").trim();
+    if(!grid) return;
+    if(selected==="All"){
+        loadGlobalDiscoveryHomepage();
+        return;
+    }
+
+    const topicQueries={
+        India:["India latest news","India breaking news","India news today"],
+        World:["world latest news","international breaking news","global news today"],
+        Politics:["politics latest news","government politics latest","elections political news"],
+        Business:["business latest news","economy markets latest","finance companies latest"],
+        Technology:["technology latest news","AI latest news","cybersecurity technology latest"],
+        Science:["science latest news","scientific discoveries latest","research science news"],
+        Health:["health latest news","medical news latest","healthcare news today"],
+        Sports:["sports latest news","cricket football sports latest","sports breaking news"],
+        Entertainment:["entertainment latest news","movies music celebrity news","film entertainment today"],
+        Gaming:["gaming latest news","video games gaming news","gaming industry latest"],
+        Environment:["environment latest news","climate change latest","nature environment news"],
+        Education:["education latest news","schools universities education","student education news"],
+        Auto:["automobile latest news","cars bikes auto industry","electric vehicles latest"],
+        Travel:["travel latest news","tourism travel destinations","aviation travel news"],
+        Lifestyle:["lifestyle latest news","food fashion lifestyle","wellness lifestyle news"],
+        Space:["space latest news","NASA space news","astronomy space discoveries"],
+        Trending:["trending news today","viral news today","latest trending stories"]
+    };
+    const queries=topicQueries[selected]||[selected+" latest news",selected+" news today"];
+    grid.innerHTML='<div class="world-news-loading"><i class="fas fa-spinner fa-spin"></i><h3>Loading '+escapeHTML(selected)+' news…</h3><p>Fetching the latest stories.</p></div>';
+
+    try{
+        const results=await Promise.allSettled(queries.map(async query=>{
+            const url=SUPABASE_URL+"/functions/v1/global-news?q="+encodeURIComponent(query);
+            const response=await fetchWithTimeout(url,{
+                headers:{
+                    "apikey":SUPABASE_KEY,
+                    "Authorization":"Bearer "+SUPABASE_KEY,
+                    "Accept":"application/json"
+                }
+            },7000);
+            if(!response.ok) throw new Error("News request failed");
+            return response.json();
+        }));
+        const seen=new Set();
+        const articles=[];
+        results.forEach(result=>{
+            if(result.status!=="fulfilled") return;
+            (Array.isArray(result.value?.articles)?result.value.articles:[]).forEach(article=>{
+                const url=String(article?.url||"").trim();
+                const title=String(article?.title||"").trim();
+                if(!url||!title||seen.has(url)) return;
+                seen.add(url);
+                articles.push({
+                    ...article,
+                    title,
+                    url,
+                    source:String(article?.source||article?.domain||"News").trim(),
+                    description:String(article?.description||article?.snippet||"").trim()
+                });
+            });
+        });
+        articles.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+
+        if(!articles.length){
+            grid.innerHTML='<div class="world-news-empty"><i class="fas fa-newspaper"></i><h3>No '+escapeHTML(selected)+' news found</h3><p>Try another topic in a moment.</p></div>';
+            return;
+        }
+
+        grid.innerHTML='<div class="world-news-scope topic-filter-results"><div class="world-news-scope-heading"><div><span class="world-news-scope-icon"><i class="fas fa-newspaper"></i></span><div><strong>'+escapeHTML(selected)+' News</strong><small>Latest stories for this topic</small></div></div><span class="world-news-scope-count">'+articles.slice(0,24).length+' stories</span></div><div class="world-news-card-grid">'+articles.slice(0,24).map(article=>{
+            const image=article.image
+                ? '<img src="'+escapeHTML(article.image)+'" alt="" loading="lazy">'
+                : '<div class="world-news-card-placeholder"><i class="fas fa-newspaper"></i></div>';
+            return '<article class="world-news-card">'+image+'<div class="world-news-card-body"><div class="world-news-meta"><span>'+escapeHTML(selected)+'</span><small>'+escapeHTML(article.source)+'</small></div><h3>'+escapeHTML(article.title)+'</h3>'+(article.description?'<p>'+escapeHTML(article.description)+'</p>':'')+'<a href="'+escapeHTML(article.url)+'" target="_blank" rel="noopener noreferrer">Details <i class="fas fa-arrow-right"></i></a></div></article>';
+        }).join("")+'</div></div>';
+    }catch(error){
+        console.error("News topic filter failed:",error);
+        grid.innerHTML='<div class="world-news-empty"><i class="fas fa-cloud-arrow-down"></i><h3>News could not be loaded</h3><p>Please try this topic again.</p></div>';
+    }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+    loadGlobalDiscoveryHomepage();
+    document.querySelectorAll(".globedisc-news-topic").forEach(button=>{
+        button.addEventListener("click",()=>{
+            document.querySelectorAll(".globedisc-news-topic").forEach(item=>item.classList.remove("active"));
+            button.classList.add("active");
+            loadGlobeDiscNewsTopic(button.dataset.newsTopic||"All");
+        });
+    });
+});
 
 
 /* =========================================================
