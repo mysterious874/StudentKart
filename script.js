@@ -3630,19 +3630,9 @@ async function searchStudentKartUsers(query) {
             if (error) throw error;
             if (requestId !== studentKartUserSearchRequest) return;
 
-            const normalizeDigits = value => String(value || "").replace(/[^0-9]/g, "");
-            const searchDigits = normalizeDigits(q);
-
-            const matches = (profiles || []).filter(user => {
-                const phoneDigits = normalizeDigits(user.phone);
-                if (!phoneDigits) return false;
-                if (!searchDigits) return true;
-
-                const last10 = phoneDigits.slice(-10);
-                const queryLast10 = searchDigits.slice(-10);
-                return phoneDigits.includes(searchDigits) ||
-                    (queryLast10.length >= 3 && last10.includes(queryLast10));
-            });
+            const matches = (profiles || []).filter(user =>
+                String(user.username || "").trim()
+            );
 
             if (!matches.length) {
                 box.classList.remove("has-more-results");
@@ -3650,11 +3640,6 @@ async function searchStudentKartUsers(query) {
                     '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No username found</strong><span>Enter a username to find users.</span></div>';
                 return;
             }
-
-            const numberText = user => {
-                const digits = normalizeDigits(user.phone);
-                return digits.length === 10 ? "+91 " + digits : "+" + digits;
-            };
 
             box.classList.toggle("has-more-results", matches.length > 10);
             box.innerHTML =
