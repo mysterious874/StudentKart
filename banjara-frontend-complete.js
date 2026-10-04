@@ -70,10 +70,10 @@ function bcInternalEmail(phone){return "account+"+String(phone).replace(/\D/g,""
 function bcSessionId(){return crypto.randomUUID ? crypto.randomUUID() : (Date.now()+"-"+Math.random().toString(36).slice(2));}
 async function bcEnsureProfile(user, phone, sessionId){
   const sb=BC_SUPABASE(); if(!sb||!user?.id)return null;
-  const {data:existing}=await sb.from("profiles").select("id,name,bio,college,state,city,area,avatar_url").eq("id",user.id).maybeSingle();
-  const payload={id:user.id,phone:phone||user.user_metadata?.phone||"",active_session_id:sessionId,updated_at:new Date().toISOString()};
-  if(!existing){payload.name="Banjara Member";}
-  const {data,error}=await sb.from("profiles").upsert(payload,{onConflict:"id"}).select("id,name,bio,college,state,city,area,avatar_url").single();
+  const {data:existing,error:readError}=await sb.from("profiles").select("id,name,bio,college,state,city,area,avatar_url").eq("id",user.id).maybeSingle();
+  if(readError) throw readError;
+  if(existing)return existing;
+  const {data,error}=await sb.from("profiles").insert({id:user.id,name:"Banjara Member"}).select("id,name,bio,college,state,city,area,avatar_url").single();
   if(error) throw error;
   return data;
 }
@@ -99,6 +99,9 @@ async function bcStartSessionGuard(user,sessionId){
 async function bcAfterLogin(user,phone){
   const sid=bcSessionId();
   try{
+    const sb=BC_SUPABASE();
+    const {data:sessionReg,error:sessionRegError}=await sb.functions.invoke("register-active-session",{body:{phone,session_id:sid}});
+    if(sessionRegError||!sessionReg?.success) throw sessionRegError||new Error(sessionReg?.error||"Could not prepare account");
     const profile=await bcEnsureProfile(user,phone,sid);
     window.__bcProfile=profile; window.__bcSessionId=sid;
     await bcStartSessionGuard(user,sid);
