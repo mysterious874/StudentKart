@@ -611,6 +611,139 @@ function closeAllModals(options = {}) {
 }
 
 
+
+/* =========================================================
+   GLOBEDISC ASK WITH AI
+   Separate page navigation + conversation shell.
+   Source retrieval uses the existing GlobeDisc web search layer.
+   ========================================================= */
+function showAiAssistantPage(options = {}) {
+    const page = $("aiAssistantPage");
+    if (!page) return;
+
+    if (!options.fromPopState && !studentKartHandlingPopState) {
+        ensureStudentKartHistory();
+        const state = {
+            studentKart: true,
+            modalId: null,
+            modalStack: [],
+            page: "ai-assistant"
+        };
+        window.history.pushState(
+            state,
+            "",
+            window.location.pathname + window.location.search + "#ask-ai"
+        );
+    }
+
+    document.querySelectorAll(".modal").forEach(modal => {
+        modal.classList.remove("modal-closing");
+        modal.classList.add("hidden");
+    });
+    ["home","marketplace","how-it-works","categoryPage","searchResultsPage"].forEach(id => $(id)?.classList.add("hidden"));
+    document.querySelector(".mobile-bottom-nav")?.classList.add("hidden");
+    document.body.classList.remove("modal-open","studentkart-search-results-active","category-page-active");
+    document.body.classList.add("globedisc-ai-active");
+    page.classList.remove("hidden");
+    window.scrollTo({top:0,behavior:"auto"});
+    setTimeout(() => $("aiAssistantInput")?.focus(), 80);
+}
+
+function showHomePageFromAi(options = {}) {
+    $("aiAssistantPage")?.classList.add("hidden");
+    document.body.classList.remove("globedisc-ai-active");
+    document.querySelector(".mobile-bottom-nav")?.classList.remove("hidden");
+    $("home")?.classList.remove("hidden");
+    $("marketplace")?.classList.remove("hidden");
+    $("how-it-works")?.classList.remove("hidden");
+    $("categoryPage")?.classList.add("hidden");
+    $("searchResultsPage")?.classList.add("hidden");
+    window.scrollTo({top:0,behavior:options.fromPopState?"smooth":"auto"});
+}
+
+function resetAiAssistant() {
+    const messages = $("aiAssistantMessages");
+    if (!messages) return;
+    messages.innerHTML = `
+        <div id="aiAssistantWelcome" class="ai-assistant-welcome">
+            <div class="ai-assistant-welcome-icon">✦</div>
+            <h1>What can I help you with?</h1>
+            <p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p>
+            <div class="ai-suggested-prompts">
+                <button type="button" data-ai-prompt="What are the latest important news today?">Latest important news today</button>
+                <button type="button" data-ai-prompt="Explain artificial intelligence in simple words">Explain AI simply</button>
+                <button type="button" data-ai-prompt="What are the best cybersecurity skills to learn in 2026?">Cybersecurity skills to learn</button>
+                <button type="button" data-ai-prompt="What is happening in technology right now?">What's happening in technology?</button>
+            </div>
+        </div>`;
+}
+
+function appendAiMessage(role, text) {
+    const messages = $("aiAssistantMessages");
+    if (!messages) return null;
+    const welcome = $("aiAssistantWelcome");
+    if (welcome) welcome.remove();
+
+    const row = document.createElement("div");
+    row.className = "ai-chat-message " + role;
+    const bubble = document.createElement("div");
+    bubble.className = "ai-chat-bubble";
+    bubble.textContent = text;
+    row.appendChild(bubble);
+    messages.appendChild(row);
+    messages.scrollTop = messages.scrollHeight;
+    return row;
+}
+
+async function submitAiQuestion(question) {
+    const q = String(question || "").trim();
+    if (!q) return;
+
+    const input = $("aiAssistantInput");
+    const send = $("aiAssistantSend");
+    if (input) input.value = "";
+    if (send) send.disabled = true;
+
+    appendAiMessage("user", q);
+
+    const thinking = appendAiMessage("assistant", "");
+    const thinkingBubble = thinking?.querySelector(".ai-chat-bubble");
+    if (thinkingBubble) {
+        thinkingBubble.innerHTML = '<span class="ai-chat-thinking"><span></span><span></span><span></span></span>';
+    }
+
+    try {
+        const results = await fetchInternetSearchResults(q);
+        const web = Array.isArray(results?.web) ? results.web : [];
+        const wiki = Array.isArray(results?.wiki) ? results.wiki : [];
+        const news = Array.isArray(results?.news) ? results.news : [];
+        const sources = [...web, ...wiki, ...news].filter(Boolean).slice(0, 5);
+
+        if (thinking) thinking.remove();
+
+        let answer = "";
+        if (!sources.length) {
+            answer = "I couldn't find useful live sources for that question yet. Try asking it in a different way.";
+        } else {
+            answer = "I found these live sources for your question:\n\n" +
+                sources.map((item, index) => {
+                    const title = String(item.title || item.name || "Source").trim();
+                    const snippet = String(item.snippet || item.description || item.extract || "").trim();
+                    return (index + 1) + ". " + title + (snippet ? "\n" + snippet.slice(0, 220) : "");
+                }).join("\n\n") +
+                "\n\nGlobeDisc AI will use these sources as the research layer. More direct AI synthesis, images, videos and richer source cards are the next integration layer.";
+        }
+        appendAiMessage("assistant", answer);
+    } catch (error) {
+        console.error("GlobeDisc AI search error:", error);
+        if (thinking) thinking.remove();
+        appendAiMessage("assistant", "I couldn't reach the live search sources right now. Please try again.");
+    } finally {
+        if (send) send.disabled = false;
+        input?.focus();
+    }
+}
+
 window.addEventListener("popstate", event => {
     /*
      * System/browser Back uses this same navigation stack as the
@@ -629,6 +762,12 @@ window.addEventListener("popstate", event => {
             showSearchResultsPage(state.searchQuery || "", { fromPopState: true });
             return;
         }
+        if (state.page === "ai-assistant") {
+            studentKartHandlingPopState = false;
+            showAiAssistantPage({ fromPopState: true });
+            return;
+        }
+
 
         // Category marketplace is a page-level navigation state rather than
         // a modal. Restore it directly when the user presses Android/browser Back.
@@ -13883,6 +14022,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* Search results navigation */
 document.addEventListener("DOMContentLoaded", () => {
+    $("askWithAiButton")?.addEventListener("click", () => showAiAssistantPage());
+    $("aiAssistantBack")?.addEventListener("click", () => {
+        if (window.history.state?.page === "ai-assistant") window.history.back();
+        else showHomePageFromAi();
+    });
+    $("aiAssistantNewChat")?.addEventListener("click", resetAiAssistant);
+
+    const aiForm = $("aiAssistantForm");
+    aiForm?.addEventListener("submit", event => {
+        event.preventDefault();
+        submitAiQuestion($("aiAssistantInput")?.value);
+    });
+    $("aiAssistantInput")?.addEventListener("keydown", event => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            aiForm?.requestSubmit();
+        }
+    });
+    document.addEventListener("click", event => {
+        const prompt = event.target.closest?.("[data-ai-prompt]");
+        if (prompt) submitAiQuestion(prompt.dataset.aiPrompt || "");
+    });
+
     const goBackFromSearch = () => {
         if (window.history.state?.page === "search") window.history.back();
         else showHomePageFromSearch();
