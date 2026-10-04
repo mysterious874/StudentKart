@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="globedisc-ux-polish.css?v=20261004-chat-search-2">
 </head>
 
-<body>
+<body class="globedisc-splash-active">
     <div id="globediscSplash" class="globedisc-splash" aria-label="GlobeDisc loading" role="status" style="pointer-events:none!important;">
         <div class="globedisc-splash-orbit globedisc-orbit-one"></div><div class="globedisc-splash-orbit globedisc-orbit-two"></div>
         <div class="globedisc-splash-logo" aria-hidden="true"><span class="globedisc-globe"></span><span class="globedisc-ring"></span></div>
@@ -28,6 +28,7 @@
         var splash = document.getElementById("globediscSplash");
         if (!splash) return;
         window.setTimeout(function () {
+            document.body.classList.remove("globedisc-splash-active");
             splash.classList.add("is-hidden");
             splash.style.pointerEvents = "none";
             window.setTimeout(function () {
