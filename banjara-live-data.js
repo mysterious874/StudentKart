@@ -131,7 +131,9 @@ async function openChat(chatId,name){
    }catch(e){alert("Microphone permission is required for voice messages.");}
  };
  box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text",reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url").single();if(ins.error){input.value=body;return;}replyTo=null;replyBar.hidden=true;await render([...currentMessages,ins.data]);input.focus();};
- const channel=sb.channel("bc-chat-"+chatId).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}});
+ const channel=sb.channel("bc-chat-"+chatId)
+ .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){currentMessages=[...currentMessages,payload.new];const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}})
+ .on("postgres_changes",{event:"UPDATE",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.deleted_at){await render(currentMessages.filter(x=>x.id!==payload.new.id));}});
  box.dataset.channel="bc-chat-"+chatId;
 }
 async function newChat(){
