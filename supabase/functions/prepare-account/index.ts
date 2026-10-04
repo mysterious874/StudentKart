@@ -33,9 +33,7 @@ function internalEmail(phone: string) {
   return `account+${phone.replace(/\D/g, "")}@banjaraconnect.app`;
 }
 
-function allowedRequest(req: Request) {
-  const forwarded = req.headers.get("x-forwarded-for") || "";
-  const key = forwarded.split(",")[0].trim() || "anonymous";
+function allowedRequest(key: string) {
   const now = Date.now();
   const current = requests.get(key);
   if (!current || now >= current.resetAt) {
@@ -50,7 +48,12 @@ function allowedRequest(req: Request) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders() });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
-  if (!allowedRequest(req)) return json({ error: "Too many attempts. Try again in a minute." }, 429);
+  const clientIp = req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown";
+  if (!allowedRequest("ip:" + clientIp)) {
+    return json({ error: "Too many attempts. Try again in a minute." }, 429);
+  }
 
   try {
     const contentLength = Number(req.headers.get("content-length") || 0);
@@ -63,6 +66,9 @@ Deno.serve(async (req) => {
     const password = String(body?.password ?? "");
 
     if (!phone) return json({ error: "Enter a valid 10-digit mobile number." }, 400);
+    if (!allowedRequest("phone:" + phone)) {
+      return json({ error: "Too many attempts for this mobile number. Try again in a minute." }, 429);
+    }
     if (!/^\d{6}$/.test(password)) return json({ error: "Password must be exactly 6 digits." }, 400);
 
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
