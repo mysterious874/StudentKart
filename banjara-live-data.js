@@ -9,7 +9,7 @@ async function loadLive(){
  const {data:{user}}=await sb.auth.getUser(); if(!user)return;
  try{
   const [profile,people,communities,posts,notifications,events,members]=await Promise.all([sb.from("profiles").select("id,name,bio,city,state,area,avatar_url,cover_url,username").eq("id",user.id).maybeSingle(),
-   sb.from("public_profiles").select("id,name,bio,city,state,avatar_url").neq("id",user.id).order("created_at",{ascending:false}).limit(60),
+   sb.from("profiles").select("id,name,bio,city,state,avatar_url").neq("id",user.id).order("created_at",{ascending:false}).limit(60),
    sb.from("communities").select("id,name,description,cover_url,created_at,created_by").order("created_at",{ascending:false}).limit(30),
    sb.from("posts").select("id,author_id,community_id,body,media,visibility,created_at,updated_at").order("created_at",{ascending:false}).limit(40),
    sb.from("notifications").select("id,title,message,is_read,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40),
@@ -109,7 +109,7 @@ async function openChat(chatId,name){
  const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn"); let pressTimer=null;
  const presenceEl=box.querySelector("#bcChatPresence"); let typingTimer=null;
  const {data:members}=await sb.from("chat_members").select("user_id").eq("chat_id",chatId);
- const memberIds=(members||[]).map(x=>x.user_id).filter(Boolean); const {data:presenceProfiles}=memberIds.length?await sb.from("public_profiles").select("id,last_seen_at").in("id",memberIds):{data:[]}; const lastSeenMap=new Map((presenceProfiles||[]).map(x=>[x.id,x.last_seen_at]));
+ const memberIds=(members||[]).map(x=>x.user_id).filter(Boolean); const {data:presenceProfiles}=memberIds.length?await sb.from("profiles").select("id,last_seen_at").in("id",memberIds):{data:[]}; const lastSeenMap=new Map((presenceProfiles||[]).map(x=>[x.id,x.last_seen_at]));
  const otherChatUser=(members||[]).map(x=>x.user_id).find(id=>id!==user.id);
  if(otherChatUser&&(blockedByMe.has(otherChatUser)||blockedMe.has(otherChatUser))){alert("Chat is unavailable because one of you has blocked the other.");box.remove();return;}
  const otherId=(members||[]).map(x=>x.user_id).find(id=>id!==user.id);
@@ -157,7 +157,7 @@ async function openChat(chatId,name){
    const ids=[...new Set((cm||[]).map(x=>x.chat_id))];if(!ids.length){alert("No other chats available.");return;}
    const {data:rows}=await sb.from("chat_members").select("chat_id,user_id").in("chat_id",ids);
    const otherIds=[...new Set((rows||[]).filter(x=>x.user_id!==user.id).map(x=>x.user_id))];
-   const {data:profiles}=otherIds.length?await sb.from("public_profiles").select("id,name,city,state").in("id",otherIds):{data:[]};
+   const {data:profiles}=otherIds.length?await sb.from("profiles").select("id,name,city,state").in("id",otherIds):{data:[]};
    const pm=new Map((profiles||[]).map(p=>[p.id,p]));
    const targets=ids.map(id=>{const other=(rows||[]).find(x=>x.chat_id===id&&x.user_id!==user.id);const p=other?pm.get(other.user_id):null;return {id,name:p?.name||"Banjara Member",sub:[p?.city,p?.state].filter(Boolean).join(" • ")};}).filter(x=>x.id);
    const overlay=document.createElement("div");overlay.className="bc-forward-overlay";
@@ -282,7 +282,7 @@ async function manageCommunity(id){
  const community=window.__bcLive?.communities?.find(x=>x.id===id);if(!community||community.created_by!==user.id)return;
  const {data:members,error}=await sb.from("community_members").select("user_id,role,joined_at").eq("community_id",id).order("joined_at",{ascending:true});
  if(error){alert("Could not load community members.");return;}
- const ids=(members||[]).map(x=>x.user_id);const {data:profiles}=ids.length?await sb.from("public_profiles").select("id,name,city,state,avatar_url").in("id",ids):{data:[]};
+ const ids=(members||[]).map(x=>x.user_id);const {data:profiles}=ids.length?await sb.from("profiles").select("id,name,city,state,avatar_url").in("id",ids):{data:[]};
  const pm=new Map((profiles||[]).map(x=>[x.id,x]));
  const overlay=document.createElement("div");overlay.className="bc-modal-overlay";
  const memberHtml=(members||[]).map(m=>{const p=pm.get(m.user_id)||{};return '<div class="bc-row"><div class="bc-avatar">'+initials(p.name||"Member")+'</div><div class="bc-row-main"><strong>'+escLive(p.name||"Banjara Member")+'</strong><small>'+escLive(m.role||"member")+' • '+escLive([p.city,p.state].filter(Boolean).join(" • "))+'</small></div>'+(m.user_id===user.id?'<span class="bc-badge">Owner</span>':'<button class="bc-action" data-community-remove="'+m.user_id+'">Remove</button>')+'</div>';}).join("");
