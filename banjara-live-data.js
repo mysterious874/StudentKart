@@ -91,6 +91,7 @@ async function openChat(chatId,name){
  const replyBar=box.querySelector("#bcReplyBar"),replyText=box.querySelector("#bcReplyText"); let replyTo=null;
  const setReply=m=>{replyTo=m;replyText.textContent=(m.body||("["+m.message_type+"]")).slice(0,90);replyBar.hidden=false;input.focus();};
  box.querySelector("[data-reply-cancel]").onclick=()=>{replyTo=null;replyBar.hidden=true;};
+ box.querySelector("#bcChatMessages").addEventListener("click",ev=>{const media=ev.target.closest(".bc-msg-image,.bc-msg-video");if(!media)return;ev.preventDefault();const viewer=document.createElement("div");viewer.className="bc-media-viewer";viewer.innerHTML='<button type="button" aria-label="Close"><i class="fas fa-xmark"></i></button>'+media.outerHTML;document.body.appendChild(viewer);const close=()=>viewer.remove();viewer.onclick=e=>{if(e.target===viewer||e.target.closest("button"))close();};});
  box.querySelector("#bcChatMessages").addEventListener("pointerdown",ev=>{const item=ev.target.closest("[data-message-id]");if(!item)return;clearTimeout(pressTimer);pressTimer=setTimeout(()=>item.click(),550);});
  box.querySelector("#bcChatMessages").addEventListener("pointerup",()=>clearTimeout(pressTimer));
  box.querySelector("#bcChatMessages").addEventListener("pointercancel",()=>clearTimeout(pressTimer));
