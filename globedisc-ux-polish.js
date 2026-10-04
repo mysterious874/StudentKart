@@ -4,49 +4,22 @@
 (function () {
   "use strict";
 
-  function trimChatSuggestions() {
+  function polishChatSuggestions() {
     const box = document.getElementById("chatUserSearchResults");
     if (!box) return;
-
     const list = box.querySelector(".chat-user-search-list");
     if (!list) return;
 
     const cards = Array.from(list.querySelectorAll(".chat-user-search-card"));
-    cards.forEach((card, index) => {
-      card.hidden = index >= 10;
-    });
+    cards.forEach(card => { card.hidden = false; });
 
     const title = box.querySelector(".chat-user-search-title");
-    if (title) {
-      const small = title.querySelector("small");
-      if (small) {
-        const total = cards.length;
-        const shown = Math.min(total, 10);
-        small.textContent = total > 10
-          ? shown + " shown • scroll for more"
-          : shown + (shown === 1 ? " number" : " numbers");
-      }
+    const small = title?.querySelector("small");
+    if (small) {
+      small.textContent = cards.length > 10
+        ? cards.length + " users • scroll for more"
+        : cards.length + (cards.length === 1 ? " user" : " users");
     }
-  }
-
-  function setupChatSuggestions() {
-    const box = document.getElementById("chatUserSearchResults");
-    const input = document.getElementById("chatListSearchInput");
-    if (!box || !input || box.dataset.uxReady === "1") return;
-
-    box.dataset.uxReady = "1";
-
-    const observer = new MutationObserver(() => {
-      trimChatSuggestions();
-    });
-    observer.observe(box, { childList: true, subtree: true });
-
-    input.addEventListener("input", () => {
-      window.setTimeout(trimChatSuggestions, 260);
-      window.setTimeout(trimChatSuggestions, 520);
-    });
-
-    window.setTimeout(trimChatSuggestions, 300);
   }
 
   function setupProductCardPolish() {
@@ -78,11 +51,11 @@
     const bodyObserver = new MutationObserver(() => {
       setupChatSuggestions();
       setupProductCardPolish();
-      trimChatSuggestions();
+      polishChatSuggestions();
     });
     bodyObserver.observe(document.body, { childList: true, subtree: true });
 
-    trimChatSuggestions();
+    polishChatSuggestions();
   }
 
   if (document.readyState === "loading") {
