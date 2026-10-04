@@ -568,3 +568,12 @@ html body .world-news-card a{
 html,body{height:auto!important;min-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:auto!important}
 main{overflow:visible!important}
 .hero.studentkart-top{overflow:visible!important;min-height:0!important;height:auto!important}
+
+
+/* Banjara Connect — Ask AI highlight */
+html body .home-discovery-heading .banjara-ask-ai{
+  color:var(--bc-orange)!important;
+  -webkit-text-fill-color:var(--bc-orange)!important;
+  font-weight:800!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.18);
+}
