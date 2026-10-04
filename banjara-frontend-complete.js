@@ -1,17 +1,13 @@
 /* =========================================================
    BANJARA CONNECT — COMPLETE FRONTEND SHELL
-   Phases 1–13. Local/mock data only. No backend integration.
+   Frontend shell + Supabase authentication integration. Real backend data is loaded in later modules.
    ========================================================= */
 (function(){
 "use strict";
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const state={screen:"home",auth:"welcome",query:"",theme:"light",notifications:3};
-const people=[
- ["RS","Ravi S.","Mumbai • 12 connections"],["MP","Meena P.","Kalyan • 8 connections"],["NK","Nisha K.","Jaipur • 21 connections"],["VS","Vijay R.","Indore • 16 connections"]
-];
-const communities=[
- ["🏕️","Banjara Youth","2.4K members","Culture • Youth • Careers"],["🎵","Banjara Culture","8.1K members","Music • Heritage • Stories"],["💻","Banjara Tech","1.1K members","Technology • Learning"],["🎓","Banjara Students","3.7K members","Education • Campus"]
-];
+const people=[];
+const communities=[];
 function avatar(x){return '<div class="bc-avatar">'+x+'</div>'}
 function build(){
  const oldMain=$("main"); if(oldMain) oldMain.style.display="none";
@@ -27,6 +23,7 @@ function build(){
  '<div id="bcModal" class="bc-modal"><div class="bc-sheet" id="bcSheet"></div></div><div id="bcToast" class="bc-toast"></div>';
  document.body.appendChild(root);
  renderAll(); bind();
+ if(window.supabaseClient){ setTimeout(()=>void bcRestoreSession(),0); } else { showScreen("auth"); }
 }
 function navBtns(id,label,icon){return '<button data-screen="'+id+'"><i class="fas '+icon+'"></i><span>'+label+'</span></button>'}
 function renderAll(){
@@ -62,6 +59,94 @@ function showScreen(screen){
  window.scrollTo({top:0,behavior:"smooth"});
 }
 function toast(msg){const t=$("#bcToast");if(!t)return;t.textContent=msg;t.classList.add("show");clearTimeout(window.__bcToast);window.__bcToast=setTimeout(()=>t.classList.remove("show"),1800)}
+
+const BC_SUPABASE = () => window.supabaseClient;
+function bcNormalizePhone(value){
+  let d=String(value||"").replace(/\\D/g,"");
+  if(d.startsWith("91")&&d.length===12)d=d.slice(2);
+  return /^\\d{10}$/.test(d) ? "+91"+d : null;
+}
+function bcInternalEmail(phone){return "account+"+String(phone).replace(/\\D/g,"")+"@banjaraconnect.app";}
+function bcSessionId(){return crypto.randomUUID ? crypto.randomUUID() : (Date.now()+"-"+Math.random().toString(36).slice(2));}
+async function bcEnsureProfile(user, phone, sessionId){
+  const sb=BC_SUPABASE(); if(!sb||!user?.id)return null;
+  const {data:existing}=await sb.from("profiles").select("id,name,bio,college,state,city,area,avatar_url,active_session_id").eq("id",user.id).maybeSingle();
+  const payload={id:user.id,phone:phone||existing?.phone||user.user_metadata?.phone||"",active_session_id:sessionId,updated_at:new Date().toISOString()};
+  if(!existing){payload.name="Banjara Member";}
+  const {data,error}=await sb.from("profiles").upsert(payload,{onConflict:"id"}).select("id,name,bio,college,state,city,area,avatar_url,active_session_id").single();
+  if(error) throw error;
+  return data;
+}
+let bcSessionTimer=null, bcSessionIdValue=null;
+async function bcStartSessionGuard(user,sessionId){
+  bcSessionIdValue=sessionId;
+  clearInterval(bcSessionTimer);
+  bcSessionTimer=setInterval(async()=>{
+    if(!user?.id||!bcSessionIdValue)return;
+    try{
+      const sb=BC_SUPABASE();
+      const {data,error}=await sb.from("profiles").select("active_session_id").eq("id",user.id).maybeSingle();
+      if(error||!data)return;
+      if(data.active_session_id && data.active_session_id!==bcSessionIdValue){
+        clearInterval(bcSessionTimer); bcSessionTimer=null;
+        await sb.auth.signOut({scope:"local"});
+        state.auth="login"; state.screen="auth"; renderAll(); showScreen("auth");
+        toast("This account was logged in on another device. You have been logged out.");
+      }
+    }catch(e){console.warn("Session guard:",e);}
+  },5000);
+}
+async function bcAfterLogin(user,phone){
+  const sid=bcSessionId();
+  try{
+    const profile=await bcEnsureProfile(user,phone,sid);
+    window.__bcProfile=profile; window.__bcSessionId=sid;
+    await bcStartSessionGuard(user,sid);
+    state.auth="welcome"; renderAll(); showScreen("home"); toast("Welcome to Banjara Connect");
+    return true;
+  }catch(e){
+    console.error("Profile setup:",e);
+    await BC_SUPABASE().auth.signOut({scope:"local"});
+    toast("Could not prepare account");
+    return false;
+  }
+}
+async function bcHandleAuth(form){
+  const mode=form.dataset.authForm;
+  const inputs=[...form.querySelectorAll("input")];
+  const phone=bcNormalizePhone(inputs[0]?.value);
+  const password=String(inputs[1]?.value||"");
+  if(!phone){toast("Enter a valid 10-digit mobile number");return;}
+  if(!/^\\d{6}$/.test(password)){toast("Password must be exactly 6 digits");return;}
+  const sb=BC_SUPABASE(); if(!sb){toast("Authentication is not ready");return;}
+  const submit=form.querySelector("button[type=submit]"); if(submit){submit.disabled=true;submit.textContent=mode==="signup"?"Creating...":"Logging in...";}
+  try{
+    if(mode==="signup"){
+      const confirm=String(inputs[2]?.value||"");
+      if(confirm!==password){toast("Passwords do not match");return;}
+      const {data,error}=await sb.functions.invoke("prepare-account",{body:{phone,password}});
+      if(error) throw error;
+      if(!data?.success) throw new Error(data?.error||"Could not create account");
+    }
+    const {data,error}=await sb.auth.signInWithPassword({email:bcInternalEmail(phone),password});
+    if(error) throw error;
+    await bcAfterLogin(data.user,phone);
+  }catch(e){
+    console.error("Auth error:",e);
+    const msg=String(e?.message||"");
+    toast(msg.includes("Invalid login")?"Mobile number or password is incorrect":msg||"Could not complete login");
+  }finally{if(submit){submit.disabled=false;submit.textContent=mode==="signup"?"Create account":"Log in";}}
+}
+async function bcRestoreSession(){
+  const sb=BC_SUPABASE(); if(!sb)return;
+  try{
+    const {data}=await sb.auth.getSession();
+    if(data?.session?.user){
+      const phone=data.session.user.user_metadata?.phone||data.session.user.phone||"";
+      await bcAfterLogin(data.session.user,phone);
+    }else{showScreen("auth");}
+  }catch(e){console.warn("Restore session:",e);showScreen("auth");}
+}
 function modal(title,html){$("#bcSheet").innerHTML='<div class="bc-sheet-head"><h2>'+title+'</h2><button class="bc-close" data-close-modal>&times;</button></div>'+html;$("#bcModal").classList.add("open")}
 function closeModal(){$("#bcModal").classList.remove("open")}
 function create(){modal("Create",'<div class="bc-create-grid">'+[['fa-pen','Post','Share an update'],['fa-image','Photo / Video','Share a moment'],['fa-square-poll-vertical','Poll','Ask your community'],['fa-calendar-days','Event','Create an event'],['fa-user-group','Group','Start a group'],['fa-people-group','Community','Build a community']].map(x=>'<button class="bc-create" data-demo="'+x[1]+' opened"><i class="fas '+x[0]+'"></i><strong>'+x[1]+'</strong><small>'+x[2]+'</small></button>').join("")+'</div>')}
@@ -76,9 +161,10 @@ function bind(){
   if(e.target.closest("[data-do-search]")){state.query=$("[data-search]")?.value||"";toast(state.query?"Searching "+state.query+"…":"Type something to search");return}
   const refresh=e.target.closest(".bc-section-head button");if(refresh && refresh.textContent.trim()==="Refresh"){toast("Suggestions refreshed");return}
   const setting=e.target.closest("[data-setting]");if(setting){const labels=["Profile","Notifications","Appearance","Language","Privacy","Security","Blocked accounts","Sessions","Help & About","Account"];modal(labels[+setting.dataset.setting]||"Settings",'<div class="bc-card"><p>This frontend section is ready. Backend controls will be connected in the backend phase.</p><button class="bc-action primary" data-close-modal>Done</button></div>');return}
+  if(e.target.closest("[data-logout]")){void (async()=>{try{clearInterval(bcSessionTimer);bcSessionTimer=null;await BC_SUPABASE()?.auth.signOut({scope:"local"});}catch(err){console.warn(err);}state.auth="welcome";renderAll();showScreen("auth");toast("Logged out");})();return}
   if(e.target.closest("[data-edit-profile]")){modal("Edit Profile",'<form class="bc-form"><div class="bc-field"><label>Name</label><input value="Harish Rathod"></div><div class="bc-field"><label>Bio</label><textarea>Community builder • Student • Technology enthusiast</textarea></div><button type="button" class="bc-action primary" data-demo="Profile changes saved locally">Save changes</button></form>');return}
  });
- document.addEventListener("submit",e=>{const f=e.target.closest("[data-auth-form]");if(!f)return;e.preventDefault();toast(f.dataset.auth==="signup"?"Account setup UI complete":"Login UI complete");});
+ document.addEventListener("submit",e=>{const f=e.target.closest("[data-auth-form]");if(!f)return;e.preventDefault();void bcHandleAuth(f);});
  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",build,{once:true});else build();
