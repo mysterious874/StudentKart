@@ -36,17 +36,6 @@
         }
         return;
       }
-
-      if (id === "bottomCampusButton") {
-        if (typeof window.renderCampusPicker === "function") {
-          window.renderCampusPicker();
-        }
-        if (typeof window.openModal === "function" && document.getElementById("campusModal")) {
-          window.openModal("campusModal");
-        }
-        return;
-      }
-
       if (id === "bottomProfileButton") {
         if (typeof window.openProfile === "function") {
           window.openProfile();
