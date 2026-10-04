@@ -87,7 +87,6 @@
                 count("profiles"),
                 count("products"),
                 count("reports", q => q.eq("status","pending")),
-                count("campus_verifications", q => q.eq("status","pending"))
             ]);
             modal.querySelector("#adminStatUsers").textContent = users;
             modal.querySelector("#adminStatListings").textContent = listings;
