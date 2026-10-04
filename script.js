@@ -6047,6 +6047,16 @@ async function fetchInternetPanelData(mode, query){
     return [];
 }
 
+function getNewsThumbnail(image){
+    const src=String(image||"").trim();
+    if(!src) return "";
+    return "https://images.weserv.nl/?url="+encodeURIComponent(src)+"&w=440&h=312&fit=cover&output=webp";
+}
+function newsFallbackDataUri(){
+    const svg="<svg xmlns='http://www.w3.org/2000/svg' width='440' height='312'><rect width='440' height='312' fill='#eaf7f7'/><circle cx='70' cy='72' r='34' fill='#0f8b8d' opacity='.15'/><rect x='46' y='55' width='48' height='36' rx='6' fill='#0f8b8d' opacity='.35'/><text x='110' y='78' font-family='Arial' font-size='24' font-weight='700' fill='#102a43'>NEWS</text><text x='46' y='155' font-family='Arial' font-size='18' font-weight='600' fill='#102a43'>GlobeDisc News</text><text x='46' y='188' font-family='Arial' font-size='13' fill='#668'>Thumbnail unavailable</text></svg>";
+    return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
+}
+
 function renderInternetSearchResults(query, results){
     const container=$("searchResultsWebContainer");
     if(!container) return;
@@ -6151,7 +6161,7 @@ function renderInternetSearchResults(query, results){
                 : `<div class="internet-panel-card"><strong>No photos found.</strong><p>Try another search term.</p></div>`;
         }else{
             panel.innerHTML=data.length
-                ? `<div class="internet-panel-card"><div class="internet-subsection-heading"><span>NEWS</span><small>News data copied into StudentKart</small></div><div class="internet-news-grid">${data.map(item=>`<article class="internet-news-card">${item.image?`<img src="${escapeHTML(item.image)}" alt="" loading="lazy">`:""}<div><small>${escapeHTML(item.source)} ${item.date?"• "+escapeHTML(item.date):""}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.description||"News result from the web.")}</p></div></article>`).join("")}</div></div>`
+                ? `<div class="internet-panel-card"><div class="internet-subsection-heading"><span>NEWS</span><small>News data copied into StudentKart</small></div><div class="internet-news-grid">${data.map(item=>{const thumb=getNewsThumbnail(item.image);return `<article class="internet-news-card"><img src="${thumb||newsFallbackDataUri()}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src=newsFallbackDataUri()"><div><small>${escapeHTML(item.source)} ${item.date?"• "+escapeHTML(item.date):""}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.description||"News result from the web.")}</p></div></article>`;}).join("")}</div></div>`
                 : `<div class="internet-panel-card"><strong>No news data found.</strong><p>The news provider did not return results for this search.</p></div>`;
         }
     };
