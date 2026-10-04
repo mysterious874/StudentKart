@@ -61,19 +61,41 @@ async function openChat(chatId,name){
  box.dataset.channel="bc-chat-"+chatId;
 }
 async function newChat(){
- const sb=SB();if(!sb)return;const {data:{user}}=await sb.auth.getUser();if(!user)return;
- const term=prompt("Search member by mobile number or name");if(!term?.trim())return;
- const digits=term.replace(/\D/g,""); let data=null,error=null;
- if(digits.length>=10){const r=await sb.functions.invoke("search-profile-by-phone",{body:{phone:term}});data=r.data?.profile?[r.data.profile]:[];error=r.error;}
- else{const r=await sb.from("profiles").select("id,name,city,state").neq("id",user.id).ilike("name","%"+term.trim()+"%").limit(10);data=r.data;error=r.error;}
- if(error||!data?.length){alert("Member not found.");return;}
- const p=data[0];
- const {data:mine}=await sb.from("chat_members").select("chat_id").eq("user_id",user.id);
- const mineIds=(mine||[]).map(x=>x.chat_id);
- let chat=null;
- if(mineIds.length){const {data:other}=await sb.from("chat_members").select("chat_id").eq("user_id",p.id).in("chat_id",mineIds).limit(1);if(other?.length)chat=other[0].chat_id;}
- if(!chat){const c=await sb.from("chats").insert({kind:"direct",created_by:user.id}).select("id").single();if(c.error){alert("Could not start chat.");return;}chat=c.data.id;const ins=await sb.from("chat_members").insert([{chat_id:chat,user_id:user.id},{chat_id:chat,user_id:p.id}]);if(ins.error){alert("Could not add member.");return;}}
- openChat(chat,p.name||"Banjara Member");
+ const sb=SB();if(!sb)return;
+ const {data:{user}}=await sb.auth.getUser();if(!user)return;
+ const old=document.getElementById("bcUserSearchOverlay");if(old)old.remove();
+ const box=document.createElement("section");box.id="bcUserSearchOverlay";box.className="bc-user-search-overlay";
+ box.innerHTML='<div class="bc-user-search-card"><div class="bc-user-search-head"><button type="button" data-user-search-close><i class="fas fa-arrow-left"></i></button><div><strong>New conversation</strong><small>Find a Banjara Connect member</small></div></div><div class="bc-user-search-input"><i class="fas fa-magnifying-glass"></i><input id="bcMemberSearchInput" inputmode="numeric" autocomplete="off" placeholder="Enter mobile number"></div><div id="bcMemberSearchResults" class="bc-user-search-results"><div class="bc-user-search-empty"><i class="fas fa-user-plus"></i><strong>Search by mobile number</strong><span>Enter a 10-digit mobile number to find a member.</span></div></div></div>';
+ document.body.appendChild(box);
+ const input=box.querySelector("#bcMemberSearchInput"),results=box.querySelector("#bcMemberSearchResults");
+ box.querySelector("[data-user-search-close]").onclick=()=>box.remove();
+ let timer=null;
+ const render=profile=>{
+   if(!profile){results.innerHTML='<div class="bc-user-search-empty"><i class="fas fa-user-slash"></i><strong>Member not found</strong><span>No Banjara Connect account matches this mobile number.</span></div>';return;}
+   const name=escLive(profile.name||"Banjara Member");
+   results.innerHTML='<button type="button" class="bc-user-result" data-member-id="'+profile.id+'"><div class="bc-avatar">'+initials(profile.name||"Member")+'</div><div><strong>'+name+'</strong><small>'+escLive([profile.city,profile.state].filter(Boolean).join(" • ")||"Banjara Connect member")+'</small></div><i class="fas fa-chevron-right"></i></button>';
+ };
+ input.oninput=()=>{
+   clearTimeout(timer);
+   const digits=input.value.replace(/\D/g,"").slice(0,10);input.value=digits;
+   if(digits.length<10){results.innerHTML='<div class="bc-user-search-empty"><i class="fas fa-mobile-screen-button"></i><strong>Enter 10 digits</strong><span>We only use the number to find the member.</span></div>';return;}
+   results.innerHTML='<div class="bc-user-search-loading"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
+   timer=setTimeout(async()=>{
+     const r=await sb.functions.invoke("search-profile-by-phone",{body:{phone:digits}});
+     if(r.error){render(null);return;} render(r.data?.profile||null);
+   },250);
+ };
+ results.onclick=async e=>{
+   const result=e.target.closest("[data-member-id]");if(!result)return;
+   const p={id:result.dataset.memberId,name:result.querySelector("strong")?.textContent||"Banjara Member"};
+   if(p.id===user.id){results.innerHTML='<div class="bc-user-search-empty"><i class="fas fa-user"></i><strong>This is your account</strong><span>Search another member to start a conversation.</span></div>';return;}
+   const {data:mine}=await sb.from("chat_members").select("chat_id").eq("user_id",user.id);
+   const mineIds=(mine||[]).map(x=>x.chat_id);let chat=null;
+   if(mineIds.length){const {data:other}=await sb.from("chat_members").select("chat_id").eq("user_id",p.id).in("chat_id",mineIds).limit(1);if(other?.length)chat=other[0].chat_id;}
+   if(!chat){const cr=await sb.from("chats").insert({kind:"direct",created_by:user.id}).select("id").single();if(cr.error){alert("Could not start chat.");return;}chat=cr.data.id;const ins=await sb.from("chat_members").insert([{chat_id:chat,user_id:user.id},{chat_id:chat,user_id:p.id}]);if(ins.error){alert("Could not add member.");return;}}
+   box.remove();openChat(chat,p.name);
+ };
+ input.focus();
 }
 async function createPost(){const sb=SB();const {data:{user}}=await sb.auth.getUser();if(!user)return;const body=prompt("Write your post");if(!body?.trim())return;const r=await sb.from("posts").insert({author_id:user.id,body:body.trim(),visibility:"public"});if(r.error){alert("Could not publish post.");return;}await loadLive();}
 async function postAction(action,id){const sb=SB();const {data:{user}}=await sb.auth.getUser();if(!user)return;if(action==="like"){const ex=await sb.from("post_likes").select("post_id").eq("post_id",id).eq("user_id",user.id).maybeSingle();if(ex.data)await sb.from("post_likes").delete().eq("post_id",id).eq("user_id",user.id);else await sb.from("post_likes").insert({post_id:id,user_id:user.id});await loadLive();return;}if(action==="comment"){const body=prompt("Comment");if(!body?.trim())return;await sb.from("comments").insert({post_id:id,user_id:user.id,body:body.trim()});await loadLive();return;}if(action==="delete"){if(confirm("Delete this post?")){await sb.from("posts").delete().eq("id",id).eq("author_id",user.id);await loadLive();}}if(action==="share"){await navigator.clipboard?.writeText(location.href);alert("Post link copied.");}}
