@@ -23,7 +23,7 @@ function build(){
  '<nav class="bc-bottom">'+navBtns("home","Home","fa-house")+navBtns("chats","Chats","fa-comments")+navBtns("connect","Connect","fa-user-plus")+'<button class="create-btn" data-create aria-label="Create"><i class="fas fa-plus"></i></button>'+navBtns("community","Community","fa-users")+'<button data-ai-open aria-label="Ask with AI"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>'+navBtns("notifications","Alerts","fa-bell")+'<button data-more aria-label="More"><i class="fas fa-ellipsis"></i><span>More</span></button>'+'</nav>'+
  '<div id="bcModal" class="bc-modal"><div class="bc-sheet" id="bcSheet"></div></div><div id="bcToast" class="bc-toast"></div>';
  document.body.appendChild(root);
- renderAll(); bind(); bcInitHistory();
+ renderAll(); bind();
  if(window.supabaseClient){ setTimeout(()=>void bcRestoreSession(),0); } else { showScreen("auth"); }
 }
 function navBtns(id,label,icon){return '<button data-screen="'+id+'"><i class="fas '+icon+'"></i><span>'+label+'</span></button>'}
@@ -51,35 +51,6 @@ function loginHTML(){return '<img class="bc-auth-logo" src="/icons/banjara-conne
 function signupHTML(){return '<img class="bc-auth-logo" src="/icons/banjara-connect-icon.svg"><h1>Create your account</h1><p>Mobile-only account setup. No email field.</p><form class="bc-form" data-auth-form="signup"><div class="bc-field"><label>Mobile number</label><input required inputmode="numeric" placeholder="10-digit mobile number"></div><div class="bc-field"><label>Password</label><input required type="password" placeholder="Create password"></div><div class="bc-field"><label>Confirm password</label><input required type="password" placeholder="Confirm password"></div><button class="bc-action primary" style="height:42px">Create account</button></form><div class="bc-switch"><span>Already have an account?</span><button data-auth="login">Log in</button></div>'}
 function empty(icon,title,text){return '<div class="bc-empty"><i class="fas '+icon+'"></i><strong>'+title+'</strong><span>'+text+'</span></div>'}
 function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-let bcHistoryReady=false;
-let bcHistoryHandling=false;
-function bcSetHistory(screen,replace){
- const url=window.location.pathname+window.location.search+(screen==="home"?"":"#"+screen);
- const method=replace?"replaceState":"pushState";
- try{window.history[method]({bcScreen:screen},"",url);}catch(e){console.warn("Banjara history:",e);}
-}
-function showScreen(screen,options){
- options=options||{};
- if(!options.fromHistory && bcHistoryReady && state.screen!==screen) bcSetHistory(screen,false);
- state.screen=screen;
- document.body.classList.toggle("bc-auth-mode",screen==="auth");
- $(".bc-screen").forEach(x=>x.classList.remove("active"));
- const el=$("#bc-"+screen);if(el)el.classList.add("active");
- $("[data-screen]").forEach(b=>b.classList.toggle("active",b.dataset.screen===screen));
- window.scrollTo({top:0,behavior:"smooth"});
-}
-function bcInitHistory(){
- const initial=(location.hash||"").replace("#","");
- const valid=["home","chats","connect","community","feed","notifications","profile","settings","auth"];
- const screen=valid.includes(initial)?initial:"home";
- state.screen=screen;
- bcSetHistory(screen,true);
- bcHistoryReady=true;
- window.addEventListener("popstate",function(e){
-  const target=(e.state&&e.state.bcScreen)||((location.hash||"").replace("#",""))||"home";
-  showScreen(valid.includes(target)?target:"home",{fromHistory:true});
- });
-}
 function toast(msg){const t=$("#bcToast");if(!t)return;t.textContent=msg;t.classList.add("show");clearTimeout(window.__bcToast);window.__bcToast=setTimeout(()=>t.classList.remove("show"),1800)}
 
 const BC_SUPABASE = () => window.supabaseClient;
