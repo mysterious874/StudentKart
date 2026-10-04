@@ -48,6 +48,7 @@ function renderSavedAIHistory(){
 function openAI(){
  const p=$("aiAssistantPage"); if(!p)return;
  p.classList.remove("hidden"); document.body.classList.add("ai-assistant-open");
+ history.replaceState({globediscAIBase:true},""); history.pushState({globediscAI:true},"");
  renderSavedAIHistory(); const globalNav=document.querySelector(".mobile-bottom-nav"); if(globalNav){globalNav.style.setProperty("display","none","important");globalNav.style.setProperty("visibility","hidden","important");globalNav.style.setProperty("pointer-events","none","important");}
  window.scrollTo({top:0,behavior:"auto"});
  const input=$("aiAssistantInput");
@@ -83,6 +84,10 @@ async function ask(question){
   const data=await response.json().catch(()=>({})); clearTimeout(timeout);
   if(!response.ok||!data.answer)throw new Error(data.error||"AI service is temporarily unavailable.");
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=data.answer;
+  if (String(data.answer).length > 700 && document.activeElement === input) {
+   input.blur();
+   window.scrollTo({top:0,behavior:"auto"});
+  }
   history.push({role:"user",content:q},{role:"assistant",content:data.answer});history=history.slice(-20);saveAIHistory();
  }catch(error){
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=error?.name==="AbortError"?"AI is taking too long. Please try again.":(error?.message||"Could not get an AI answer.");
