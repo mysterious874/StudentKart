@@ -93,7 +93,7 @@ body.bc-app-ready>main,body.bc-app-ready>#navbarSearchPanel,body.bc-app-ready>#c
 .bc-create-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.bc-create{padding:13px;border:1px solid var(--bc-line);border-radius:15px;background:#fffdf9;text-align:left;cursor:pointer}.bc-create i{color:var(--bc-maroon);font-size:18px}.bc-create strong{display:block;margin-top:9px;font-size:12px}.bc-create small{display:block;margin-top:3px;color:var(--bc-muted);font-size:9px}
 .bc-toast{position:fixed;left:50%;bottom:100px;transform:translate(-50%,20px);z-index:140000;max-width:calc(100vw - 30px);padding:11px 15px;border-radius:13px;background:var(--bc-maroon);color:#fff;font-size:11px;font-weight:800;box-shadow:0 12px 30px rgba(84,18,28,.25);opacity:0;pointer-events:none;transition:.2s}.bc-toast.show{opacity:1;transform:translate(-50%,0)}
 .bc-bottom{position:fixed;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:125000;width:min(calc(100vw - 14px),680px);height:68px;padding:6px;border:1px solid var(--bc-line);border-radius:23px;background:rgba(255,250,242,.96);backdrop-filter:blur(18px);box-shadow:0 16px 42px rgba(84,18,28,.18);display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-.bc-bottom button{border:0;background:transparent;pointer-events:auto;touch-action:manipulation;border-radius:15px;color:var(--bc-muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:8px;font-weight:900;cursor:pointer}.bc-bottom button i{font-size:16px}.bc-bottom button.active{background:rgba(123,30,43,.09);color:var(--bc-maroon)}
+.bc-bottom button{border:0;background:transparent;border-radius:15px;color:var(--bc-muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:8px;font-weight:900;cursor:pointer}.bc-bottom button i{font-size:16px}.bc-bottom button.active{background:rgba(123,30,43,.09);color:var(--bc-maroon)}
 .bc-bottom .create-btn{width:46px;height:46px;align-self:center;justify-self:center;border-radius:16px;background:linear-gradient(145deg,var(--bc-maroon),var(--bc-orange));color:#fff;font-size:20px;box-shadow:0 8px 20px rgba(123,30,43,.28)}
 .bc-desktop-nav{display:none}
 @keyframes bcFade{from{opacity:.3;transform:translateY(4px)}to{opacity:1;transform:none}}@keyframes bcUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
@@ -137,4 +137,3 @@ body.bc-auth-mode .bc-app{padding-bottom:24px}
   .bc-app{padding-bottom:calc(118px + env(safe-area-inset-bottom))}
   .bc-topbar{position:sticky;top:0;z-index:70}
 }
-
