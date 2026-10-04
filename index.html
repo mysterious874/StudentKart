@@ -104,23 +104,23 @@
         <a href="#home" class="bottom-nav-item">
             <i class="fas fa-house"></i><span>Home</span>
         </a>
-        <button type="button" class="bottom-nav-item" id="bottomMarketplaceButton" onclick="window.location.href='marketplace.html'" aria-label="Marketplace" title="Marketplace">
+        <button type="button" class="bottom-nav-item" id="bottomMarketplaceButton" aria-label="Marketplace" title="Marketplace">
             <i class="fas fa-store"></i><span>Marketplace</span>
         </button>
-        <button type="button" class="bottom-nav-item bottom-chat-nav-item" onclick="document.getElementById('chatButton')?.click()">
+        <button type="button" class="bottom-nav-item bottom-chat-nav-item">
             <span class="bottom-nav-icon-wrap">
                 <i class="fas fa-message"></i>
                 <span class="chat-unread-count bottom-chat-unread-count hidden" id="chatBottomUnreadCount">0</span>
             </span>
             <span>Chat</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomWishlistButton" onclick="window.openWishlist?.()" aria-label="Wishlist">
+        <button type="button" class="bottom-nav-item" id="bottomWishlistButton" aria-label="Wishlist">
             <i class="fa-solid fa-heart"></i><span>Wishlist</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomCampusButton" onclick="if(typeof renderCampusPicker==='function')renderCampusPicker(); window.openModal?.('campusModal')" aria-label="Campus">
+        <button type="button" class="bottom-nav-item" id="bottomCampusButton" aria-label="Campus">
             <i class="fas fa-building-columns"></i><span id="bottomCampusLabel">Campus</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomProfileButton" onclick="window.openProfile?.()" aria-label="Profile">
+        <button type="button" class="bottom-nav-item" id="bottomProfileButton" aria-label="Profile">
             <i class="fas fa-user"></i><span>Profile</span>
         </button>
         <button type="button" class="bottom-nav-item" id="bottomMoreButton" aria-label="More" title="More">
@@ -991,5 +991,5 @@ if ("serviceWorker" in navigator) {
 <script src="/admin-listings.js?v=20261003-listings-1"></script>
 <script src="/ai-assistant.js?v=20261004-11" defer></script>
     <script src="/globedisc-final-hardening.js?v=20261004-final-1" defer></script>
-    <script src="/globedisc-bottom-nav-fix.js?v=20261004-nav-1" defer></script>
+    <script src="/globedisc-bottom-nav-fix.js?v=20261004-nav-2" defer></script>
 <script src="/globedisc-discovery-controls.js?v=20261004-discovery-1" defer></script>
