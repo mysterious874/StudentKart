@@ -14059,7 +14059,7 @@ async function loadGlobalDiscoveryHomepage(){
 
     const scopeBackgroundLoads=new Map();
 
-    const runNewsQueries=async(queries,timeout=4500)=>{
+    const runNewsQueries=async(queries,timeout=9000)=>{
         const results=await Promise.allSettled(
             queries.map(async query=>{
                 const newsFunctionUrl=SUPABASE_URL+"/functions/v1/global-news?q="+encodeURIComponent(query);
@@ -14110,11 +14110,11 @@ async function loadGlobalDiscoveryHomepage(){
         const initialQueries=queries.slice(0,2);
         const remainingQueries=queries.slice(2);
 
-        const initialItems=await runNewsQueries(initialQueries,4500);
+        const initialItems=await runNewsQueries(initialQueries,9000);
         scopeQueues.set(scope.key,initialItems);
 
         if(remainingQueries.length){
-            const backgroundPromise=runNewsQueries(remainingQueries,9000)
+            const backgroundPromise=runNewsQueries(remainingQueries,15000)
                 .then(items=>{
                     const current=scopeQueues.get(scope.key)||[];
                     const merged=[...current,...items].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
