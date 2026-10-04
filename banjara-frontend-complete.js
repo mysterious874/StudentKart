@@ -9,6 +9,7 @@ const state={screen:"home",auth:"welcome",query:"",theme:"light",notifications:3
 let people=[];
 let communities=[];
 function avatar(x){return '<div class="bc-avatar">'+x+'</div>'}
+function getInitials(x){var s=String(x||"Member").trim();return s?s.split(" ").filter(Boolean).slice(0,2).map(function(v){return v.charAt(0)}).join("").toUpperCase():"M"}
 function build(){
  const oldMain=$("main"); if(oldMain) oldMain.style.display="none";
  const oldSplash=$("#banjaraSplash"); if(oldSplash){oldSplash.classList.add("is-hidden");oldSplash.remove();}
