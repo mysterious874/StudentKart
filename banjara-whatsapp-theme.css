@@ -1,18 +1,18 @@
 /* Banjara Connect — WhatsApp-inspired community theme
    Additive visual layer. Keeps existing GlobeDisc functionality intact. */
 :root{
-  --bc-maroon:#7b1e2b;
-  --bc-maroon-dark:#54121c;
-  --bc-red:#a52a3a;
-  --bc-orange:#d8782f;
-  --bc-indigo:#284a78;
-  --bc-teal:#177d73;
-  --bc-cream:#fbf4e8;
-  --bc-paper:#fffaf2;
-  --bc-line:#eadbc8;
-  --bc-text:#241c19;
-  --bc-muted:#766a62;
-  --bc-shadow:0 8px 24px rgba(84,18,28,.10);
+  --bc-maroon:#0f8b8d;
+  --bc-maroon-dark:#0b6f71;
+  --bc-red:#0f8b8d;
+  --bc-orange:#8de3df;
+  --bc-indigo:#102a43;
+  --bc-teal:#0f8b8d;
+  --bc-cream:#f4fafb;
+  --bc-paper:#ffffff;
+  --bc-line:#dcebed;
+  --bc-text:#102a43;
+  --bc-muted:#627d98;
+  --bc-shadow:0 8px 24px rgba(16,42,67,.08);
 }
 
 html,body{
@@ -39,20 +39,24 @@ body:before{
 
 /* Splash */
 .globedisc-splash{
-  background:linear-gradient(145deg,var(--bc-maroon-dark),var(--bc-maroon) 58%,var(--bc-orange))!important;
+  background:
+    radial-gradient(circle at 15% 20%,rgba(141,227,223,.28),transparent 30%),
+    radial-gradient(circle at 86% 65%,rgba(15,139,141,.10),transparent 34%),
+    linear-gradient(180deg,#eefafa 0%,#f7fcfc 58%,#ffffff 100%)!important;
 }
-.globedisc-splash-name span,
-.globedisc-splash-name b{color:#fff!important}
-.globedisc-splash-tagline{color:#ffe9d4!important}
+.globedisc-splash::after{content:"";position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(15,139,141,.075) 1px,transparent 1px),linear-gradient(0deg,rgba(15,139,141,.075) 1px,transparent 1px);background-size:64px 64px;opacity:.7;pointer-events:none}
+.globedisc-splash-name span,.globedisc-splash-name b{color:#102a43!important}
+.globedisc-splash-tagline{color:#627d98!important}
 
 /* Main discovery/header becomes community-app header */
 .hero.studentkart-top{
   background:
-    radial-gradient(circle at 88% 12%,rgba(255,220,166,.20),transparent 28%),
-    linear-gradient(145deg,var(--bc-maroon-dark),var(--bc-maroon) 62%,#963143)!important;
-  border-radius:0 0 26px 26px!important;
-  box-shadow:0 8px 28px rgba(84,18,28,.18)!important;
-  color:#fff!important;
+    radial-gradient(circle at 15% 20%,rgba(141,227,223,.28),transparent 30%),
+    radial-gradient(circle at 86% 65%,rgba(15,139,141,.10),transparent 34%),
+    linear-gradient(180deg,#eefafa 0%,#f7fcfc 58%,#ffffff 100%)!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  color:#102a43!important;
 }
 .studentkart-top-content{max-width:980px!important}
 .home-discovery-heading .section-label{
@@ -525,4 +529,147 @@ html body #home.banjara-home-top > *{
   .settings-modal-content{width:calc(100vw - 16px)!important;max-height:calc(100vh - 16px)!important}
   .settings-clean-title{padding:15px 15px 10px!important}
   .settings-sections{padding:7px 9px 11px!important}
+}
+
+
+/* =========================================================
+   BANJARA CONNECT — HOME-MATCHED DESIGN SYSTEM
+   One visual language across every page. No legacy GlobeDisc
+   dark/navy/gradient presentation is allowed to override this.
+   ========================================================= */
+
+:root{
+  --bc-home-bg:#f4fafb;
+  --bc-home-surface:#ffffff;
+  --bc-home-soft:#eefafa;
+  --bc-home-primary:#0f8b8d;
+  --bc-home-primary-dark:#0b6f71;
+  --bc-home-accent:#8de3df;
+  --bc-home-ink:#102a43;
+  --bc-home-muted:#627d98;
+  --bc-home-border:#dcebed;
+  --bc-home-shadow:0 8px 24px rgba(16,42,67,.08);
+}
+
+html,body{background:var(--bc-home-bg)!important;color:var(--bc-home-ink)!important}
+body:before{opacity:.34!important;background-image:linear-gradient(90deg,rgba(15,139,141,.055) 1px,transparent 1px),linear-gradient(0deg,rgba(15,139,141,.055) 1px,transparent 1px)!important;background-size:64px 64px!important}
+
+/* Shared page surfaces */
+main>section:not(#home),
+.search-results-page,
+.category-page,
+.marketplace-page,
+.profile-page,
+.features-page,
+.settings-page{
+  color:var(--bc-home-ink);
+}
+.modal-content,.popup-content,.settings-modal-content,.category-picker-modal,
+.search-results-heading,.search-results-card,.product-card,.new-product-card,
+.chat-user-search-results,.settings-section-button{
+  background:#fff!important;
+  border-color:var(--bc-home-border)!important;
+  color:var(--bc-home-ink)!important;
+  box-shadow:var(--bc-home-shadow)!important;
+}
+
+/* Headers and navigation: light, compact, Home-matched */
+.navbar,.search-results-navbar,.category-page-navbar,
+.marketplace-navbar,.profile-navbar,.features-navbar{
+  background:rgba(255,255,255,.96)!important;
+  color:var(--bc-home-ink)!important;
+  border-bottom:1px solid var(--bc-home-border)!important;
+  box-shadow:0 4px 18px rgba(16,42,67,.06)!important;
+}
+.nav-links a{color:var(--bc-home-muted)!important}
+.nav-links a:hover{background:var(--bc-home-soft)!important;color:var(--bc-home-primary)!important}
+.logo,.logo-text{color:var(--bc-home-ink)!important}
+.logo-mark{background:var(--bc-home-primary)!important}
+.search-results-navbar-title span{color:var(--bc-home-primary)!important}
+.search-results-navbar-title small{color:var(--bc-home-muted)!important}
+.search-results-back{background:var(--bc-home-soft)!important;border-color:var(--bc-home-border)!important;color:var(--bc-home-primary)!important}
+.search-results-navbar-inner{min-height:60px!important}
+
+/* Search / inputs */
+input,textarea,select{
+  background:#fff!important;
+  color:var(--bc-home-ink)!important;
+  border-color:var(--bc-home-border)!important;
+}
+input::placeholder,textarea::placeholder{color:#9fb3c4!important}
+input:focus,textarea:focus,select:focus{
+  border-color:#8acfd0!important;
+  box-shadow:0 0 0 3px rgba(15,139,141,.10)!important;
+}
+.hero-search-suggestion,.chat-user-search-card{background:#fff!important;color:var(--bc-home-ink)!important}
+.hero-search-suggestion:hover,.chat-user-search-card:hover{background:#f3fafb!important}
+.hero-search-suggestion-icon{background:#e5f7f7!important;color:var(--bc-home-primary)!important}
+
+/* Buttons */
+.btn-primary,.primary,.button-primary{
+  background:var(--bc-home-primary)!important;
+  border-color:var(--bc-home-primary)!important;
+  color:#fff!important;
+}
+.btn-primary:hover,.primary:hover,.button-primary:hover{background:var(--bc-home-primary-dark)!important}
+.btn-outline,.secondary,.button-secondary{
+  background:#fff!important;
+  color:var(--bc-home-primary)!important;
+  border-color:#b8dfe0!important;
+}
+.btn-outline:hover,.secondary:hover,.button-secondary:hover{background:var(--bc-home-soft)!important}
+
+/* Cards */
+.card,.panel,.settings-group,.product-card,.new-product-card,
+.news-card,.world-news-card,.feature-card,.developer-card{
+  border-color:var(--bc-home-border)!important;
+  background:#fff!important;
+  box-shadow:0 6px 20px rgba(16,42,67,.055)!important;
+}
+.card:hover,.product-card:hover,.new-product-card:hover{border-color:#b8dfe0!important}
+
+/* Topic / intent chips */
+.globedisc-news-topic-strip{background:transparent!important}
+.globedisc-news-topic{background:#fff!important;color:var(--bc-home-primary)!important;border:1px solid var(--bc-home-border)!important}
+.globedisc-news-topic.active{background:#e5f7f7!important;color:var(--bc-home-primary-dark)!important;border-color:#b8dfe0!important}
+.search-results-intent{background:#fff!important;color:var(--bc-home-muted)!important;border-color:var(--bc-home-border)!important}
+.search-results-intent.active{background:#e5f7f7!important;color:var(--bc-home-primary-dark)!important;border-color:#b8dfe0!important}
+
+/* Chat */
+.chat-header,.chat-modal-header,.whatsapp-chat-header{
+  background:#fff!important;color:var(--bc-home-ink)!important;border-bottom:1px solid var(--bc-home-border)!important;
+}
+.chat-send-button,#chatModal .chat-send-button{background:var(--bc-home-primary)!important}
+.chat-message.user,.message.user{background:#e5f7f7!important;color:var(--bc-home-ink)!important}
+.chat-message.ai,.message.ai{background:#fff!important;border:1px solid var(--bc-home-border)!important;color:var(--bc-home-ink)!important}
+
+/* Marketplace */
+.marketplace-page-active .new-product-image-wrap,
+.product-image-wrap{background:linear-gradient(145deg,#f7fcfc,#eef8f8)!important}
+.product-price,.new-product-price{color:var(--bc-home-ink)!important}
+.product-location,.new-product-location{color:var(--bc-home-muted)!important}
+
+/* Home remains the source of truth */
+html body #home.banjara-home-top{
+  position:relative!important;isolation:isolate!important;overflow:hidden!important;
+  background:
+    radial-gradient(circle at 15% 20%,rgba(141,227,223,.28),transparent 30%),
+    radial-gradient(circle at 86% 65%,rgba(15,139,141,.10),transparent 34%),
+    linear-gradient(180deg,#eefafa 0%,#f7fcfc 58%,#ffffff 100%)!important;
+}
+html body #home.banjara-home-top::before{
+  content:""!important;position:absolute!important;inset:0!important;z-index:0!important;pointer-events:none!important;opacity:.95!important;
+  background-image:linear-gradient(90deg,rgba(15,139,141,.075) 1px,transparent 1px),linear-gradient(0deg,rgba(15,139,141,.075) 1px,transparent 1px)!important;
+  background-size:64px 64px!important;
+}
+html body #home.banjara-home-top::after{
+  content:""!important;position:absolute!important;width:360px!important;height:360px!important;right:-170px!important;top:-150px!important;z-index:0!important;pointer-events:none!important;
+  border:2px solid rgba(15,139,141,.10)!important;border-radius:50%!important;box-shadow:0 0 0 42px rgba(15,139,141,.035),0 0 0 84px rgba(15,139,141,.022)!important;
+}
+html body #home.banjara-home-top>*{position:relative!important;z-index:1!important}
+
+/* Remove old dark visual treatment from common legacy selectors */
+.studentkart-dark .navbar,.studentkart-dark .chat-header,
+.studentkart-dark .modal-content,.studentkart-dark .profile-card{
+  background:#fff!important;color:var(--bc-home-ink)!important;
 }
