@@ -128,9 +128,12 @@ async function bcHandleAuth(form){
       if(error) throw error;
       if(!data?.success) throw new Error(data?.error||"Could not create account");
     }
-    const {data,error}=await sb.auth.signInWithPassword({email:bcInternalEmail(phone),password});
+    const {data,error}=await sb.functions.invoke("mobile-login",{body:{phone,password}});
     if(error) throw error;
-    await bcAfterLogin(data.user,phone);
+    if(!data?.success||!data?.session?.access_token||!data?.session?.refresh_token) throw new Error(data?.error||"Could not complete login");
+    const {data:sessionData,error:sessionError}=await sb.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});
+    if(sessionError) throw sessionError;
+    await bcAfterLogin(sessionData.user,phone);
   }catch(e){
     console.error("Auth error:",e);
     const msg=String(e?.message||"");
