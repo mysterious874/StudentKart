@@ -3766,61 +3766,41 @@ async function searchNewChatUsersByPhone(query) {
     const digits = String(query || "").replace(/\D/g, "");
     const results = $("newChatSearchResults");
     const requestId = ++newChatSearchRequest;
-
     if (!results) return;
-
-    if (digits.length < 2) {
-        results.innerHTML = "";
-        results.classList.add("hidden");
-        return;
-    }
 
     results.innerHTML = '<div class="chat-search-state"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
     results.classList.remove("hidden");
 
     try {
-        const { data: profiles, error } = await supabaseClient
-            .from("profiles")
-            .select("id,name,username,phone,avatar_url,city,area")
-            .limit(500);
+        let users = [];
+        const rpc = await supabaseClient.rpc("search_chat_users_by_phone", {
+            search_query: digits
+        });
+
+        if (!rpc.error && Array.isArray(rpc.data)) {
+            users = rpc.data;
+        } else {
+            const fallback = await supabaseClient
+                .from("profiles")
+                .select("id,name,username,phone,avatar_url,city,area")
+                .limit(200);
+            if (fallback.error) throw fallback.error;
+
+            const normalize = value => String(value || "").replace(/\D/g, "");
+            users = (fallback.data || [])
+                .filter(p => String(p.id) !== String(currentUser?.id))
+                .filter(p => !digits ||
+                    normalize(p.phone).includes(digits) ||
+                    normalize(p.username).includes(digits))
+                .slice(0, 10);
+        }
 
         if (requestId !== newChatSearchRequest) return;
-        if (error) throw error;
-
-        const normalize = value => String(value || "").replace(/\D/g, "");
-
-        const users = (profiles || [])
-            .filter(profile => String(profile.id) !== String(currentUser?.id))
-            .filter(profile => {
-                const phone = normalize(profile.phone);
-                const username = normalize(profile.username);
-                return phone.includes(digits) || username.includes(digits);
-            })
-            .sort((x, y) => {
-                const xPhone = normalize(x.phone);
-                const xUser = normalize(x.username);
-                const yPhone = normalize(y.phone);
-                const yUser = normalize(y.username);
-
-                const xExact = xPhone === digits || xUser === digits;
-                const yExact = yPhone === digits || yUser === digits;
-                if (xExact !== yExact) return xExact ? -1 : 1;
-
-                const xPrefix = xPhone.startsWith(digits) || xUser.startsWith(digits);
-                const yPrefix = yPhone.startsWith(digits) || yUser.startsWith(digits);
-                if (xPrefix !== yPrefix) return xPrefix ? -1 : 1;
-
-                return String(x.username || x.phone || "").localeCompare(
-                    String(y.username || y.phone || "")
-                );
-            })
-            .slice(0, 10);
-
-        renderNewChatUserSearchResults(users);
+        renderNewChatUserSearchResults(users.slice(0, 10));
     } catch (error) {
         if (requestId !== newChatSearchRequest) return;
         console.error("New chat phone search error:", error);
-        results.innerHTML = '<div class="chat-search-state">Could not search users. Please try again.</div>';
+        results.innerHTML = '<div class="chat-search-state">Could not search registered numbers. Please try again.</div>';
         results.classList.remove("hidden");
     }
 }
