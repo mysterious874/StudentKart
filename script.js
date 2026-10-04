@@ -6330,15 +6330,13 @@ function handleGlobeDiscSearchIntent(intent, query) {
         window.open("https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(q), "_blank", "noopener");
         return;
     }
-    const suffix = {
-        News: " latest news",
-        Reviews: " reviews",
-        Price: " price",
-        Specs: " specifications",
-        "How to": " how to"
-    }[mode] || "";
+    const suffix = {News:" latest news",Reviews:" reviews",Price:" price",Specs:" specifications","How to":" how to"}[mode] || "";
     showSearchResultsPage(q + suffix);
 }
+function resetGlobeDiscSearchIntent(mode="All") {
+    document.querySelectorAll("[data-search-intent]").forEach(x=>x.classList.toggle("active", x.dataset.searchIntent===mode));
+}
+
 
 function setupGlobeDiscSearchIntents() {
     document.querySelectorAll("[data-search-intent]").forEach(button => {
