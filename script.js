@@ -3708,6 +3708,139 @@ function applyChatListFilter() {
     }
 }
 
+let newChatSearchTimer = null;
+let newChatSearchRequest = 0;
+
+function clearNewChatUserSearch() {
+    const input = $("newChatSearchInput");
+    const results = $("newChatSearchResults");
+    const clear = $("newChatSearchClear");
+
+    if (input) input.value = "";
+    if (clear) clear.classList.add("hidden");
+    if (results) {
+        results.innerHTML = "";
+        results.classList.add("hidden");
+    }
+}
+
+function renderNewChatUserSearchResults(users) {
+    const results = $("newChatSearchResults");
+    if (!results) return;
+
+    if (!users?.length) {
+        results.innerHTML = '<div class="chat-search-state">No registered user found for this number.</div>';
+        results.classList.remove("hidden");
+        return;
+    }
+
+    results.innerHTML = users.map(user => {
+        const name = escapeHTML(user.name || "Student");
+        const username = escapeHTML(user.username || "");
+        const location = escapeHTML([user.area, user.city].filter(Boolean).join(", "));
+        const initials = escapeHTML(getInitials(user.name || user.username || "Student"));
+        const avatar = user.avatar_url
+            ? '<img src="' + escapeHTML(user.avatar_url) + '" alt="">'
+            : initials;
+
+        return `
+            <button type="button"
+                class="chat-search-result"
+                data-chat-search-user-id="${escapeHTML(user.id)}"
+                role="option">
+                <span class="chat-search-result-avatar">${avatar}</span>
+                <span class="chat-search-result-info">
+                    <span class="chat-search-result-name">${name}</span>
+                    <span class="chat-search-result-number">${username}</span>
+                    ${location ? '<span class="chat-search-result-location">' + location + '</span>' : ''}
+                </span>
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </button>
+        `;
+    }).join("");
+
+    results.classList.remove("hidden");
+}
+
+async function searchNewChatUsersByPhone(query) {
+    const digits = String(query || "").replace(/\D/g, "");
+    const results = $("newChatSearchResults");
+    const requestId = ++newChatSearchRequest;
+
+    if (!results) return;
+
+    if (digits.length < 2) {
+        results.innerHTML = "";
+        results.classList.add("hidden");
+        return;
+    }
+
+    results.innerHTML = '<div class="chat-search-state"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
+    results.classList.remove("hidden");
+
+    try {
+        const { data, error } = await supabaseClient.rpc(
+            "search_chat_users_by_phone",
+            { search_query: digits }
+        );
+
+        if (requestId !== newChatSearchRequest) return;
+        if (error) throw error;
+
+        renderNewChatUserSearchResults(data || []);
+    } catch (error) {
+        if (requestId !== newChatSearchRequest) return;
+        console.error("New chat phone search error:", error);
+        results.innerHTML = '<div class="chat-search-state">Could not search users. Please try again.</div>';
+        results.classList.remove("hidden");
+    }
+}
+
+function setupNewChatPhoneSearch() {
+    const input = $("newChatSearchInput");
+    const clear = $("newChatSearchClear");
+    const results = $("newChatSearchResults");
+
+    if (!input || input.dataset.bound === "true") return;
+    input.dataset.bound = "true";
+
+    input.addEventListener("input", () => {
+        const value = input.value.trim();
+        clear?.classList.toggle("hidden", !value);
+
+        clearTimeout(newChatSearchTimer);
+        newChatSearchTimer = setTimeout(() => {
+            void searchNewChatUsersByPhone(value);
+        }, 180);
+    });
+
+    input.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            clearNewChatUserSearch();
+            input.blur();
+        }
+    });
+
+    clear?.addEventListener("click", () => {
+        clearTimeout(newChatSearchTimer);
+        ++newChatSearchRequest;
+        clearNewChatUserSearch();
+        input.focus();
+    });
+
+    results?.addEventListener("click", async event => {
+        const button = event.target.closest("[data-chat-search-user-id]");
+        if (!button || !currentUser) return;
+
+        const userId = button.dataset.chatSearchUserId;
+        clearTimeout(newChatSearchTimer);
+        ++newChatSearchRequest;
+        results.classList.add("hidden");
+
+        await openStudentKartUserChat(userId);
+    });
+}
+
 function setupChatListControls() {
     document.querySelectorAll(".chat-list-tab").forEach(tab => {
         if (tab.dataset.bound) return;
@@ -3755,6 +3888,7 @@ function setupChatListControls() {
     }
 
     applyChatListFilter();
+    setupNewChatPhoneSearch();
 }
 
 async function getInquiryForChat(inquiryId) {
