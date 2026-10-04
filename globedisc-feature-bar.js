@@ -32,7 +32,7 @@ function init(){
     ['fa-store','Marketplace','marketplace.html'],
     ['fa-message','Chat','#chat'],
     ['fa-gear','Settings','#settings']
-  
+  ];
 
   const menu=document.createElement('div');
   menu.id='globediscMoreMenu';
