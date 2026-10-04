@@ -140,13 +140,14 @@ async function openChat(chatId,name){
        const ext=(blob.type.includes("ogg")?"ogg":blob.type.includes("mp4")?"m4a":"webm"),path=user.id+"/"+chatId+"/"+crypto.randomUUID()+"."+ext;
        const up=await sb.storage.from("banjara-media").upload(path,blob,{contentType:blob.type||"audio/webm",upsert:false});
        if(up.error){alert("Could not upload voice message.");return;}
-       const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body:"",message_type:"voice",attachment_url:path}).select("id,body,sender_id,created_at,message_type,attachment_url").single();
+       const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body:"",message_type:"voice",attachment_url:path,reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url,reply_to_id,delivered_at,read_at").single();
        if(ins.error){await sb.storage.from("banjara-media").remove([path]);alert("Could not send voice message.");return;}
-       await render([...currentMessages,ins.data]);
+       await render([...currentMessages,ins.data]);replyTo=null;replyBar.hidden=true;
      };
      recordStartedAt=Date.now();updateRecordTimer();recordTimer=setInterval(updateRecordTimer,1000);recorder.start();
    }catch(e){alert("Microphone permission is required for voice messages.");}
  };
+ document.addEventListener("keydown",ev=>{if(ev.key==="Escape"&&recorder&&recorder.state==="recording"){cancelRecording=true;recorder.stop();}});
  box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text",reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url,delivered_at,read_at").single();if(ins.error){input.value=body;return;}replyTo=null;replyBar.hidden=true;await render([...currentMessages,ins.data]);input.focus();};
  const channel=sb.channel("bc-chat-"+chatId)
  .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){currentMessages=[...currentMessages,payload.new];await sb.from("messages").update({delivered_at:new Date().toISOString(),read_at:new Date().toISOString()}).eq("id",payload.new.id);const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}})
