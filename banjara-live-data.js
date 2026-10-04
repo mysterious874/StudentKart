@@ -237,6 +237,8 @@ async function newChat(){
    const result=e.target.closest("[data-member-id]");if(!result)return;
    const p={id:result.dataset.memberId,name:result.querySelector("strong")?.textContent||"Banjara Member"};
    if(p.id===user.id){results.innerHTML='<div class="bc-user-search-empty"><i class="fas fa-user"></i><strong>This is your account</strong><span>Search another member to start a conversation.</span></div>';return;}
+   const {data:blockPair}=await sb.from("user_blocks").select("blocker_id,blocked_id").or("blocker_id.eq."+user.id+",blocked_id.eq."+user.id);
+   if((blockPair||[]).some(x=>(x.blocker_id===user.id&&x.blocked_id===p.id)||(x.blocked_id===user.id&&x.blocker_id===p.id))){results.innerHTML='<div class="bc-user-search-empty"><i class="fas fa-user-slash"></i><strong>Chat unavailable</strong><span>You or this member has blocked the other.</span></div>';return;}
    const {data:mine}=await sb.from("chat_members").select("chat_id").eq("user_id",user.id);
    const mineIds=(mine||[]).map(x=>x.chat_id);let chat=null;
    if(mineIds.length){const {data:other}=await sb.from("chat_members").select("chat_id").eq("user_id",p.id).in("chat_id",mineIds).limit(1);if(other?.length)chat=other[0].chat_id;}
