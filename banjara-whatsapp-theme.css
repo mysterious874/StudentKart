@@ -584,3 +584,11 @@ html body .home-discovery-heading h1{
   color:var(--bc-maroon)!important;
   -webkit-text-fill-color:var(--bc-maroon)!important;
 }
+
+
+/* FINAL — community heading must match Ask with AI label */
+html body #home .home-discovery-heading h1,
+html body #home .home-discovery-heading h1 *{
+  color:var(--bc-maroon)!important;
+  -webkit-text-fill-color:var(--bc-maroon)!important;
+}
