@@ -44,7 +44,7 @@ function refreshUI(){
  if(ns)ns.innerHTML=d.notifications.length?d.notifications.map(n=>'<div class="bc-row" data-notification-id="'+n.id+'"><div class="bc-avatar">'+initials(n.title)+'</div><div class="bc-row-main"><strong>'+escLive(n.title)+'</strong><small>'+escLive(n.message)+' • '+ago(n.created_at)+'</small></div>'+(n.is_read?'':'<span class="bc-badge">•</span>')+'</div>').join(""):'<div class="bc-empty"><i class="fas fa-bell"></i><strong>All caught up</strong><span>You have no new notifications.</span></div>';
 }
 async function openChat(chatId,name){
- const existing=document.getElementById("bcChatOverlay"); if(existing)existing.remove();
+ const existing=document.getElementById("bcChatOverlay"); if(existing){const oldChannel=existing.dataset.channel;if(oldChannel){try{await SB().removeChannel(SB().getChannels().find(x=>x.topic===oldChannel)||oldChannel);}catch(e){}}existing.remove();}
  const box=document.createElement("section");box.id="bcChatOverlay";box.className="bc-chat-overlay";
  box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small>Message</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><form class="bc-chat-composer" id="bcChatForm"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button><i class="fas fa-paper-plane"></i></button></form>';
  document.body.appendChild(box);
@@ -53,7 +53,9 @@ async function openChat(chatId,name){
  const {data,error}=await q;if(error){box.querySelector("#bcChatMessages").innerHTML='<div class="bc-empty"><strong>Could not load messages</strong><span>Please try again.</span></div>';return;}
  const render=rows=>{const el=box.querySelector("#bcChatMessages");el.innerHTML=(rows||[]).map(m=>'<div class="bc-msg '+(m.sender_id===user.id?'mine':'theirs')+'"><div>'+escLive(m.body)+'</div><small>'+ago(m.created_at)+'</small></div>').join("");el.scrollTop=el.scrollHeight;};
  render(data);
- box.querySelector("[data-chat-close]").onclick=()=>box.remove();
+ await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);
+ if(window.__bcLive?.chats){const current=window.__bcLive.chats.find(x=>x.id===chatId);if(current)current.unread=false;}
+ box.querySelector("[data-chat-close]").onclick=async()=>{const topic=box.dataset.channel;const ch=topic?sb.getChannels().find(x=>x.topic===topic):null;if(ch)await sb.removeChannel(ch);box.remove();};
  box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const input=box.querySelector("#bcChatInput"),body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text"});if(ins.error){input.value=body;return;}const latest=await sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);render(latest.data||[]);input.focus();};
  const channel=sb.channel("bc-chat-"+chatId).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},payload=>{if(payload.new.sender_id!==user.id){const el=box.querySelector("#bcChatMessages");const m=payload.new;el.insertAdjacentHTML("beforeend",'<div class="bc-msg theirs"><div>'+escLive(m.body)+'</div><small>'+ago(m.created_at)+'</small></div>');el.scrollTop=el.scrollHeight;}}).subscribe();
  box.dataset.channel="bc-chat-"+chatId;
