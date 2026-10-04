@@ -19,6 +19,8 @@
 
       const id = item.id;
 
+      if (id === "bottomMoreButton") { if (typeof window.openGlobeDiscMore === "function") window.openGlobeDiscMore(); return; }
+
       if (id === "bottomMarketplaceButton") {
         window.location.href = "/marketplace.html";
         return;
