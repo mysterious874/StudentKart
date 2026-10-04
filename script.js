@@ -4819,6 +4819,7 @@ async function ensureProfileAfterPasswordSignup(user) {
         const profile = {
             id: user.id,
             name: metadata.name || user.phone || "Student",
+            username: user.phone || metadata.phone || "",
             college: metadata.college || "",
             state: metadata.state || "",
             city: metadata.city || "",
@@ -4989,7 +4990,9 @@ function openEditProfile() {
     }
 
     if ($("editProfileUsername")) {
-        $("editProfileUsername").value = profile?.username || currentUser.user_metadata?.username || "";
+        $("editProfileUsername").value = getAuthPhoneFromUser(currentUser) || profile?.username || "";
+        $("editProfileUsername").readOnly = true;
+        $("editProfileUsername").setAttribute("aria-readonly", "true");
     }
     if ($("editProfilePhone")) {
         $("editProfilePhone").value = profile?.phone || currentUser.phone || currentUser.user_metadata?.phone || "";
@@ -5062,8 +5065,8 @@ async function saveEditedProfile(
     }
 
     const name = $("editProfileName")?.value?.trim();
-    const username = $("editProfileUsername")?.value?.trim()?.toLowerCase() || "";
     const phone = getAuthPhoneFromUser(currentUser) || "";
+    const username = phone;
     const newPassword = $("editProfileNewPassword")?.value || "";
     const confirmPassword = $("editProfileConfirmPassword")?.value || "";
     const college = $("editProfileCollege")?.value?.trim();
