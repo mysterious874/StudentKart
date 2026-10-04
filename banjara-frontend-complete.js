@@ -29,7 +29,7 @@ function navBtns(id,label,icon){return '<button data-screen="'+id+'"><i class="f
 function renderAll(){
  $("#bc-home").innerHTML=homeHTML();$("#bc-chats").innerHTML=chatsHTML();$("#bc-connect").innerHTML=connectHTML();$("#bc-community").innerHTML=communityHTML();$("#bc-feed").innerHTML=feedHTML();$("#bc-notifications").innerHTML=notificationsHTML();$("#bc-profile").innerHTML=profileHTML();$("#bc-settings").innerHTML=settingsHTML();$("#bc-auth").innerHTML=authHTML();
 }
-function homeHTML(){return '<div class="bc-hero"><h1>Welcome to Banjara Connect</h1><p>Connect with people, communities and culture.</p><div class="bc-search"><i class="fas fa-search"></i><input data-search placeholder="Search people, communities or posts..." value="'+esc(state.query)+'"><button type="button" data-do-search><i class="fas fa-arrow-right"></i></button></div><div class="bc-chips"><button class="bc-chip active" data-feed-tab="all">For You</button><button class="bc-chip" data-feed-tab="people">People</button><button class="bc-chip" data-feed-tab="communities">Communities</button><button class="bc-chip" data-feed-tab="events">Events</button></div></div>'+
+function homeHTML(){return '<div class="bc-hero"><h1>Welcome to Banjara Connect</h1><p>Connect with people, communities and culture.</p><div class="bc-search"><i class="fas fa-search"></i><input data-search placeholder="Search people, communities or posts..." value="'+esc(state.query)+'"><button type="button" data-voice-search aria-label="Voice search"><i class="fas fa-microphone"></i></button><button type="button" data-do-search><i class="fas fa-arrow-right"></i></button></div><div class="bc-chips"><button class="bc-chip active" data-feed-tab="all">For You</button><button class="bc-chip" data-feed-tab="people">People</button><button class="bc-chip" data-feed-tab="communities">Communities</button><button class="bc-chip" data-feed-tab="events">Events</button></div></div>'+
 '<div class="bc-section"><div class="bc-section-head"><h2>People you may know</h2><button data-screen="connect">See all</button></div><div class="bc-grid">'+(people.length?people.slice(0,3).map(personCard).join(""):empty("fa-user-plus","No members yet","Real Banjara Connect members will appear here."))+'</div></div>'+
 '<div class="bc-section"><div class="bc-section-head"><h2>Communities</h2><button data-screen="community">Explore</button></div><div class="bc-grid">'+(communities.length?communities.slice(0,3).map(communityCard).join(""):empty("fa-users","No communities yet","Communities created by real members will appear here."))+'</div></div>'+
 '<div class="bc-section"><div class="bc-section-head"><h2>Community feed</h2><button data-screen="feed">View all</button></div>'+empty("fa-newspaper","No posts yet","Real member posts will appear here.")+'</div>'+
@@ -181,7 +181,7 @@ function closeModal(){$("#bcModal").classList.remove("open")}
 function create(){modal("Create",'<div class="bc-create-grid">'+[['fa-pen','Post','Share an update'],['fa-image','Photo / Video','Share a moment'],['fa-square-poll-vertical','Poll','Ask your community'],['fa-calendar-days','Event','Create an event'],['fa-user-group','Group','Start a group'],['fa-people-group','Community','Build a community']].map(x=>'<button class="bc-create" data-create-kind="'+x[1]+'"><i class="fas '+x[0]+'"></i><strong>'+x[1]+'</strong><small>'+x[2]+'</small></button>').join("")+'</div>')}
 function bind(){
  document.addEventListener("click",e=>{
-  const ai=e.target.closest("[data-ai-open]");if(ai){e.preventDefault();if(window.openBanjaraConnectAI)window.openBanjaraConnectAI();return;}
+  const voiceSearch=e.target.closest("[data-voice-search]");if(voiceSearch){e.preventDefault();bcStartVoiceSearch();return;}\n const ai=e.target.closest("[data-ai-open]");if(ai){e.preventDefault();if(window.openBanjaraConnectAI)window.openBanjaraConnectAI();return;}
   const more=e.target.closest("[data-more]");if(more){e.preventDefault();e.stopPropagation();showScreen("settings");return}
   const nav=e.target.closest("[data-screen]");if(nav){e.preventDefault();showScreen(nav.dataset.screen);return}
   if(e.target.closest("[data-create]")){create();return}
@@ -250,6 +250,20 @@ function bcSettingsPanel(index){
  modal(title,body);
  if(index===6) void bcLoadBlockedAccounts();
 
+}
+let bcVoiceRecognition=null;
+function bcStartVoiceSearch(){
+ const input=document.querySelector("[data-search]");
+ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Recognition){toast("Voice search is not supported in this browser.");return;}
+ if(bcVoiceRecognition){try{bcVoiceRecognition.stop();}catch(_){}bcVoiceRecognition=null;toast("Voice search stopped");return;}
+ const button=document.querySelector("[data-voice-search]");
+ const rec=new Recognition();bcVoiceRecognition=rec;rec.lang=state.language==="Hindi"?"hi-IN":"en-IN";rec.interimResults=true;rec.continuous=false;
+ if(button){button.classList.add("is-listening");button.innerHTML='<i class="fas fa-stop"></i>';button.setAttribute("aria-label","Stop voice search");}
+ rec.onresult=e=>{let text="";for(let i=e.resultIndex;i<e.results.length;i++)text+=e.results[i][0].transcript; if(input)input.value=text.trim();state.query=text.trim();};
+ rec.onerror=e=>{toast(e.error==="not-allowed"?"Microphone permission was denied.":"Voice search could not start.");};
+ rec.onend=()=>{if(button){button.classList.remove("is-listening");button.innerHTML='<i class="fas fa-microphone"></i>';button.setAttribute("aria-label","Voice search");}bcVoiceRecognition=null;if(input&&input.value.trim())input.dispatchEvent(new Event("input",{bubbles:true}));};
+ try{rec.start();toast("Listening…");}catch(_){bcVoiceRecognition=null;toast("Voice search could not start.");}
 }
 function bcSavePref(key,value){try{localStorage.setItem("bc_pref_"+key,String(value));}catch(e){}}
 function bcLoadPref(key,fallback){try{const v=localStorage.getItem("bc_pref_"+key);return v===null?fallback:v==="true"?true:v==="false"?false:v;}catch(e){return fallback;}}
