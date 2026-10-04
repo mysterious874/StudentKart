@@ -418,3 +418,7 @@ alter function private.notify_connection() set search_path = public;
 -- 2026-10-04 prepare-account abuse hardening
 -- Public signup remains intentionally unauthenticated, so the Edge Function enforces IP + mobile rate limits.
 -- Keep this operational note synchronized with the deployed prepare-account function.
+
+
+-- 2026-10-04 chat member-search abuse hardening
+-- search-profile-by-phone requires JWT and rate-limits member-number enumeration to 15 requests per user/IP per minute.
