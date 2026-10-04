@@ -7701,40 +7701,6 @@ function openSignupFromNewUserGate() {
 }
 
 /* =========================================================
-   FLOATING NAVIGATION — isolated initializer
-   ========================================================= */
-function setupFloatingNavigation() {
-    const nav = document.querySelector(".mobile-bottom-nav");
-    if (!nav || nav.dataset.bound === "1") return;
-    nav.dataset.bound = "1";
-
-    const bind = (selector, handler) => {
-        const button = nav.querySelector(selector);
-        if (!button) return;
-        button.addEventListener("click", event => {
-            event.preventDefault();
-            event.stopPropagation();
-            try { handler(event); } catch (error) { console.error("Floating nav action failed:", error); }
-        });
-    };
-
-    bind('a[href="#home"]', () => window.scrollTo({ top: 0, behavior: "smooth" }));
-    bind("#bottomMarketplaceButton", () => { window.location.href = "marketplace.html"; });
-    bind(".bottom-chat-nav-item", () => {
-        if (!currentUser) {
-            openModal("loginModal");
-            showToast("Please login to chat", "warning");
-        } else {
-            openModal("inquiriesModal");
-        }
-    });
-    bind("#bottomWishlistButton", () => { void openWishlist(); });
-    bind("#bottomCampusButton", () => {
-        if (typeof renderCampusPicker === "function") renderCampusPicker();
-        openModal("campusModal");
-    });}
-
-/* =========================================================
    INITIALIZE
    ========================================================= */
 
@@ -7744,7 +7710,6 @@ async function initializeStudentKart() {
     try {
 
         // Keep floating navigation independent from the large UI initializer.
-        setupFloatingNavigation();
 
         // Bind UI controls immediately. Never make button interactivity
         // wait for Supabase auth/network requests.
