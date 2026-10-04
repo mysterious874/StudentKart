@@ -55,6 +55,7 @@ function empty(icon,title,text){return '<div class="bc-empty"><i class="fas '+ic
 function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function showScreen(screen){
  state.screen=screen;
+ document.body.classList.toggle("bc-auth-mode",screen==="auth");
  $$(".bc-screen").forEach(x=>x.classList.remove("active"));
  const el=$("#bc-"+screen);if(el)el.classList.add("active");
  $$("[data-screen]").forEach(b=>b.classList.toggle("active",b.dataset.screen===screen));
@@ -70,8 +71,11 @@ function bind(){
   if(e.target.closest("[data-create]")){create();return}
   if(e.target.closest("[data-close-modal]")||e.target.id==="bcModal"){closeModal();return}
   const demo=e.target.closest("[data-demo]");if(demo){toast(demo.dataset.demo);return}
+  const tab=e.target.closest(".bc-tab,.bc-chip");if(tab){const group=tab.parentElement;$(".bc-tab,.bc-chip",group).forEach(x=>x.classList.remove("active"));tab.classList.add("active");toast(tab.textContent.trim()+" selected");return}
+  if(e.target.closest(".bc-setting-list .bc-setting"))return;
   const auth=e.target.closest("[data-auth]");if(auth){state.auth=auth.dataset.auth;renderAll();showScreen("auth");return}
   if(e.target.closest("[data-do-search]")){state.query=$("[data-search]")?.value||"";toast(state.query?"Searching "+state.query+"…":"Type something to search");return}
+  const refresh=e.target.closest(".bc-section-head button");if(refresh && refresh.textContent.trim()==="Refresh"){toast("Suggestions refreshed");return}
   const setting=e.target.closest("[data-setting]");if(setting){const labels=["Profile","Notifications","Appearance","Language","Privacy","Security","Blocked accounts","Sessions","Help & About","Account"];modal(labels[+setting.dataset.setting]||"Settings",'<div class="bc-card"><p>This frontend section is ready. Backend controls will be connected in the backend phase.</p><button class="bc-action primary" data-close-modal>Done</button></div>');return}
   if(e.target.closest("[data-edit-profile]")){modal("Edit Profile",'<form class="bc-form"><div class="bc-field"><label>Name</label><input value="Harish Rathod"></div><div class="bc-field"><label>Bio</label><textarea>Community builder • Student • Technology enthusiast</textarea></div><button type="button" class="bc-action primary" data-demo="Profile changes saved locally">Save changes</button></form>');return}
  });
