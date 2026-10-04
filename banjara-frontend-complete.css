@@ -171,3 +171,17 @@ body.bc-auth-mode .bc-app{padding-bottom:24px}
 .bc-dark .bc-field input,.bc-dark .bc-field textarea,.bc-dark .bc-field select{background:#302622;color:var(--bc-text);border-color:var(--bc-line)}
 .bc-dark .bc-tab,.bc-dark .bc-action,.bc-dark .bc-post-actions button{background:#382a24;color:var(--bc-text)}
 .bc-dark .bc-chat-messages{background:#2a211d}
+
+/* Frontend QA polish */
+.bc-chat-tools{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--bc-line);border-bottom:1px solid var(--bc-line)}
+.bc-chat-tools button{border:1px solid var(--bc-line);background:var(--bc-paper);color:var(--bc-text);border-radius:999px;padding:7px 10px;font-size:11px}
+.bc-chat-tools button.is-recording{background:var(--bc-maroon);color:#fff}
+.bc-media-preview{display:block;width:100%;max-height:240px;object-fit:contain;border-radius:12px;margin-top:10px;background:#000}
+.bc-comments{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow:auto}
+.bc-comment{padding:10px 12px;border:1px solid var(--bc-line);border-radius:12px;background:var(--bc-soft)}
+.bc-comment strong{font-size:12px}
+.bc-comment p{margin:4px 0 6px;font-size:12px}
+.bc-comment button{border:0;background:none;color:var(--bc-maroon);font-weight:700;font-size:11px;padding:0}
+.bc-community-banner{height:90px;border-radius:14px;background:linear-gradient(135deg,var(--bc-maroon),var(--bc-orange));display:grid;place-items:center;color:#fff;font-size:30px;margin-bottom:10px}
+.bc-community-detail .bc-stat-row{margin:10px 0}
+@media(max-width:560px){.bc-chat-tools{overflow-x:auto}.bc-chat-tools button{white-space:nowrap}.bc-community-banner{height:78px}}
