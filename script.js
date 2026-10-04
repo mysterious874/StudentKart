@@ -1,4 +1,3 @@
-let globediscNewsAutoRefreshTimer = null;
 /* =========================================================
    STUDENTKART - COMPLETE SCRIPT
    Notifications + Wishlist + Seller Profile + Inquiries
@@ -6006,7 +6005,7 @@ async function enrichWikiFacts(items){
     }
 }
 
-async function fetchInternetPanelData(mode, query, newsTimespan="24h"){
+async function fetchInternetPanelData(mode, query){
     const q=String(query||"").trim();
     if(!q) return [];
     try{
@@ -6029,7 +6028,7 @@ async function fetchInternetPanelData(mode, query, newsTimespan="24h"){
         }
 
         if(mode==="news"){
-            const url="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=30&timespan="+encodeURIComponent(newsTimespan)+"&format=json";
+            const url="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=30&timespan=24h&format=json";
             const response=await fetchWithTimeout(url,{headers:{"Accept":"application/json"}},9000);
             if(!response.ok) return [];
             const data=await response.json();
@@ -6046,37 +6045,6 @@ async function fetchInternetPanelData(mode, query, newsTimespan="24h"){
         console.debug("Internet panel unavailable:",mode,error);
     }
     return [];
-}
-
-function getNewsThumbnail(image){
-    const src=String(image||"").trim();
-    if(!src) return "";
-    return "https://images.weserv.nl/?url="+encodeURIComponent(src)+"&w=900&h=600&fit=cover&output=webp";
-}
-function newsImageMarkup(item){
-    const title=String(item?.title||"GlobeDisc News").trim();
-    const source=String(item?.source||"NEWS").trim();
-    const original=String(item?.image||"").trim();
-    const proxy=getNewsThumbnail(original);
-    const fallback=newsFallbackDataUri(title,source);
-    const safeTitle=escapeHTML(title);
-    const safeSource=escapeHTML(source);
-    if(!original){
-        return '<img src="'+fallback+'" alt="" loading="lazy" data-news-title="'+safeTitle+'" data-news-source="'+safeSource+'">';
-    }
-    return '<img src="'+escapeHTML(original)+'" alt="" loading="lazy" referrerpolicy="no-referrer" data-news-proxy="'+escapeHTML(proxy)+'" data-news-title="'+safeTitle+'" data-news-source="'+safeSource+'" onerror=\'if(this.dataset.newsProxyUsed!=="1"&&this.dataset.newsProxy){this.dataset.newsProxyUsed="1";this.src=this.dataset.newsProxy;}else{this.onerror=null;this.src=newsFallbackDataUri(this.dataset.newsTitle,this.dataset.newsSource);}\'>';
-}
-function newsFallbackDataUri(title="",source=""){
-    const safeTitle=String(title||"GlobeDisc News").replace(/<[^>]+>/g,"").trim().slice(0,58)||"GlobeDisc News";
-    const safeSource=String(source||"NEWS").replace(/<[^>]+>/g,"").trim().slice(0,28)||"NEWS";
-    const clean=value=>String(value||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    const svg="<svg xmlns='http://www.w3.org/2000/svg' width='900' height='600' viewBox='0 0 900 600'>"+
-        "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#dff5ff'/><stop offset='1' stop-color='#eef3ff'/></linearGradient></defs>"+
-        "<rect width='900' height='600' fill='url(#g)'/><circle cx='760' cy='105' r='145' fill='#2d7ff9' opacity='.10'/><circle cx='800' cy='480' r='210' fill='#0f8b8d' opacity='.08'/>"+
-        "<rect x='54' y='54' width='150' height='42' rx='21' fill='#173b68'/><text x='129' y='82' text-anchor='middle' font-family='Arial' font-size='18' font-weight='700' fill='#fff'>"+clean(safeSource)+"</text>"+
-        "<text x='54' y='205' font-family='Arial' font-size='42' font-weight='700' fill='#102a43'>"+clean(safeTitle)+"</text>"+
-        "<text x='54' y='540' font-family='Arial' font-size='20' font-weight='600' fill='#49657f'>GlobeDisc • AI-style generated preview</text></svg>";
-    return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
 }
 
 function renderInternetSearchResults(query, results){
@@ -6183,7 +6151,7 @@ function renderInternetSearchResults(query, results){
                 : `<div class="internet-panel-card"><strong>No photos found.</strong><p>Try another search term.</p></div>`;
         }else{
             panel.innerHTML=data.length
-                ? `<div class="internet-panel-card"><div class="internet-subsection-heading"><span>NEWS</span><small>News data copied into StudentKart</small></div><div class="internet-news-grid">${data.map(item=>{const thumb=getNewsThumbnail(item.image);return `<article class="internet-news-card"><img src="${thumb||newsFallbackDataUri()}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src=newsFallbackDataUri()"><div><small>${escapeHTML(item.source)} ${item.date?"• "+escapeHTML(item.date):""}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.description||"News result from the web.")}</p></div></article>`;}).join("")}</div></div>`
+                ? `<div class="internet-panel-card"><div class="internet-subsection-heading"><span>NEWS</span><small>News data copied into StudentKart</small></div><div class="internet-news-grid">${data.map(item=>`<article class="internet-news-card">${item.image?`<img src="${escapeHTML(item.image)}" alt="" loading="lazy">`:""}<div><small>${escapeHTML(item.source)} ${item.date?"• "+escapeHTML(item.date):""}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.description||"News result from the web.")}</p></div></article>`).join("")}</div></div>`
                 : `<div class="internet-panel-card"><strong>No news data found.</strong><p>The news provider did not return results for this search.</p></div>`;
         }
     };
@@ -6261,12 +6229,10 @@ function renderInternetSearchResults(query, results){
 
 async function showSearchResultsPage(query, options = {}) {
     const selected=String(query||"").trim();
-    const searchIntent=String(options.intent||"Overview").trim()||"Overview";
-    const focusedQuery=(searchIntent==="Overview"||searchIntent==="All") ? selected : selected+" "+searchIntent;
     if(!selected) return;
     if(!options.fromPopState && !studentKartHandlingPopState){
         ensureStudentKartHistory();
-        const state={studentKart:true,modalId:null,modalStack:[],page:"search",searchQuery:selected,searchIntent};
+        const state={studentKart:true,modalId:null,modalStack:[],page:"search",searchQuery:selected};
         const hash="#search-"+encodeURIComponent(selected);
         if(window.history.state?.page==="search") window.history.replaceState(state,"",window.location.pathname+window.location.search+hash);
         else window.history.pushState(state,"",window.location.pathname+window.location.search+hash);
@@ -6278,9 +6244,6 @@ async function showSearchResultsPage(query, options = {}) {
     document.body.classList.add("studentkart-search-results-active");
     document.querySelector(".mobile-bottom-nav")?.classList.add("hidden");
     $("searchResultsPage")?.classList.remove("hidden");
-    document.querySelectorAll(".search-results-intent").forEach(button=>{
-        button.classList.toggle("active",(button.dataset.searchIntent||"Overview")===searchIntent);
-    });
     const resultInput=$("searchResultsInput");
     if(resultInput) resultInput.value=selected;
     const title=$("searchResultsQuery"), subtitle=$("searchResultsNavbarSubtitle");
@@ -6299,10 +6262,10 @@ async function showSearchResultsPage(query, options = {}) {
     const marketplaceLabel=$("searchResultsMarketplaceLabel");
     if(marketplaceLabel) marketplaceLabel.classList.toggle("hidden",matches.length===0);
 
-    const webResults=await fetchInternetSearchResults(focusedQuery);
+    const webResults=await fetchInternetSearchResults(selected);
     const enriched=await enrichWikiFacts(webResults.wiki);
     if(document.getElementById("searchResultsPage")?.classList.contains("hidden")) return;
-    renderInternetSearchResults(selected,{...webResults,wiki:enriched,searchIntent});
+    renderInternetSearchResults(selected,{...webResults,wiki:enriched});
     window.scrollTo({top:0,behavior:"auto"});
 }
 
@@ -8897,52 +8860,59 @@ function setupFloatingNavigation() {
 
 
 async function initializeStudentKart() {
-    // IMPORTANT: each startup subsystem is isolated. One optional feature
-    // must never stop the rest of the website from becoming interactive.
-    const safeInit = async (label, fn) => {
-        try { return await fn(); }
-        catch (error) {
-            console.error("Startup error [" + label + "]:", error);
-            return null;
-        }
-    };
 
-    // Navigation and core controls are deliberately first.
-    await safeInit("floating navigation", () => setupFloatingNavigation());
-    await safeInit("core event listeners", () => setupEventListeners());
-    await safeInit("auth listener", () => setupAuthListener());
+    try {
 
-    // News is independent of authentication and marketplace data.
-    void safeInit("home news", () => loadGlobalDiscoveryHomepage());
+        // Keep floating navigation independent from the large UI initializer.
+        setupFloatingNavigation();
 
-    await safeInit("auth hydration", async () => {
+        // Bind UI controls immediately. Never make button interactivity
+        // wait for Supabase auth/network requests.
+        ensureSellerProfileUI();
+        ensureNotificationsUI();
+        setupEventListeners();
+        setupAuthListener();
+
+        // Auth/data hydration happens after the UI is already interactive.
         await getCurrentUser();
+
         if (currentUser) {
             localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
             applyStudentKartSettings();
         }
-        updateNavbar();
-        if (!currentUser && !isStudentKartGuestMode()) showNewUserGate();
-    });
 
-    await safeInit("marketplace data", async () => {
+        updateNavbar();
+
+        if (!currentUser && !isStudentKartGuestMode()) {
+            showNewUserGate();
+        }
+
         await loadProducts();
         startProductsRealtime();
-    });
 
-    if (currentUser) {
-        await safeInit("wishlist", async () => {
+        if (currentUser) {
             await getWishlist();
             updateWishlistButtons();
-        });
-        await safeInit("notifications", async () => {
+
             await loadNotifications();
+
             startNotificationRefresh();
-        });
-        await safeInit("chat unread state", async () => {
+
+            // Restore chat unread state on page refresh.
             await updateChatUnreadCount();
             await startChatUnreadRealtime();
-        });
+        }
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+        showToast(
+            "StudentKart could not initialize",
+            "error"
+        );
     }
 }
 
@@ -13886,14 +13856,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const runResultSearch=()=>{ const q=resultInput?.value?.trim(); if(q) showSearchResultsPage(q); };
     $("searchResultsSearchButton")?.addEventListener("click",runResultSearch);
     resultInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();runResultSearch();}});
-    document.querySelectorAll(".search-results-intent").forEach(button=>{
-        button.addEventListener("click",()=>{
-            const q=resultInput?.value?.trim();
-            if(!q) return;
-            document.querySelectorAll(".search-results-intent").forEach(item=>item.classList.toggle("active",item===button));
-            showSearchResultsPage(q,{intent:button.dataset.searchIntent||"Overview"});
-        });
-    });
     const resultFilterPanel=$("searchResultsFilterPanel");
     $("searchResultsFilterButton")?.addEventListener("click",()=>resultFilterPanel?.classList.toggle("hidden"));
     $("searchResultsFilterClose")?.addEventListener("click",()=>resultFilterPanel?.classList.add("hidden"));
@@ -14091,7 +14053,8 @@ async function loadGlobalDiscoveryHomepage(){
     };
 
     const renderUnavailable=()=>{
-        grid.innerHTML='<div class="world-news-empty"><i class="fas fa-cloud-arrow-down"></i><h3>Latest updates are temporarily unavailable</h3><p>Live news sources could not be reached. News will retry automatically.</p></div>';
+        grid.innerHTML='<div class="world-news-empty"><i class="fas fa-cloud-arrow-down"></i><h3>Latest updates are temporarily unavailable</h3><p>Live news sources could not be reached. Try again in a moment.</p><button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Try again</button></div>';
+        $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
     };
 
     const scopeBackgroundLoads=new Map();
@@ -14099,25 +14062,16 @@ async function loadGlobalDiscoveryHomepage(){
     const runNewsQueries=async(queries,timeout=4500)=>{
         const results=await Promise.allSettled(
             queries.map(async query=>{
-                const q=String(query||"").trim();
-                const edgeUrl=SUPABASE_URL+"/functions/v1/global-news?q="+encodeURIComponent(q);
-                const gdeltUrl="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=30&timespan=24h&format=json";
-                const request=(url,headers={})=>fetchWithTimeout(url,{headers},Math.min(timeout,3000)).then(async response=>{
-                    if(!response.ok) throw new Error("News request failed");
-                    return response.json();
-                });
-
-                // Fast path: whichever source answers first wins the first paint.
-                // The slower source is still used later through the normal background
-                // scope loading, so freshness is not sacrificed for speed.
-                return await Promise.any([
-                    request(edgeUrl,{
+                const newsFunctionUrl=SUPABASE_URL+"/functions/v1/global-news?q="+encodeURIComponent(query);
+                const response=await fetchWithTimeout(newsFunctionUrl,{
+                    headers:{
                         "apikey":SUPABASE_KEY,
                         "Authorization":"Bearer "+SUPABASE_KEY,
                         "Accept":"application/json"
-                    }),
-                    request(gdeltUrl,{"Accept":"application/json"})
-                ]);
+                    }
+                },timeout);
+                if(!response.ok) throw new Error("News function returned HTTP "+response.status);
+                return response.json();
             })
         );
 
@@ -14126,17 +14080,10 @@ async function loadGlobalDiscoveryHomepage(){
             if(result.status!=="fulfilled") return;
             const articles=Array.isArray(result.value?.articles) ? result.value.articles : [];
             articles.forEach(article=>{
-                const normalized={
-                    ...article,
-                    source:String(article?.source||article?.domain||article?.sourcecountry||"News").trim(),
-                    description:String(article?.description||article?.snippet||"").trim(),
-                    date:String(article?.date||article?.seendate||"").trim(),
-                    image:String(article?.image||article?.socialimage||"").trim()
-                };
-                const key=String(normalized?.url||"").trim().replace(/[?#].*$/,"");
+                const key=String(article?.url||"").trim().replace(/[?#].*$/,"");
                 if(!key || seenUrls.has(key)) return;
                 seenUrls.add(key);
-                if(normalized?.title && normalized?.url) items.push(classify(normalized));
+                if(article?.title && article?.url) items.push(classify(article));
             });
         });
 
@@ -14163,7 +14110,7 @@ async function loadGlobalDiscoveryHomepage(){
         const initialQueries=queries.slice(0,2);
         const remainingQueries=queries.slice(2);
 
-        const initialItems=await runNewsQueries(initialQueries,2400);
+        const initialItems=await runNewsQueries(initialQueries,4500);
         scopeQueues.set(scope.key,initialItems);
 
         if(remainingQueries.length){
@@ -14183,7 +14130,9 @@ async function loadGlobalDiscoveryHomepage(){
     };
 
     const articleHtml=(item,featured=false)=>{
-        const image=newsImageMarkup(item);
+        const image=item.image
+            ? '<img src="'+escapeHTML(item.image)+'" alt="" loading="lazy">'
+            : '<div class="'+(featured?"world-news-image-placeholder":"world-news-card-placeholder")+'"><i class="fas '+escapeHTML(item.topicIcon)+'"></i></div>';
         return featured
             ? '<article class="world-news-featured">'+image+'<div class="world-news-featured-body"><div class="world-news-meta"><span><i class="fas '+escapeHTML(item.topicIcon)+'"></i>'+escapeHTML(item.topic)+'</span><span>'+escapeHTML(item.source)+'</span></div><h3>'+escapeHTML(item.title)+'</h3><p>'+escapeHTML(item.description||"Latest details from the reported story.")+'</p><a href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer">Read full story <i class="fas fa-arrow-up-right-from-square"></i></a></div></article>'
             : '<article class="world-news-card">'+image+'<div class="world-news-card-body"><div class="world-news-meta"><span>'+escapeHTML(item.topic)+'</span><small>'+escapeHTML(item.source)+'</small></div><h3>'+escapeHTML(item.title)+'</h3>'+(item.description?'<p>'+escapeHTML(item.description)+'</p>':'')+'<a href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer">Details <i class="fas fa-arrow-right"></i></a></div></article>';
@@ -14271,7 +14220,11 @@ async function loadGlobalDiscoveryHomepage(){
 
             loader.remove();
 
-            // News refreshes automatically in the background; no manual refresh button.
+            const endNote=document.createElement("div");
+            endNote.className="world-news-refresh";
+            endNote.innerHTML='<button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Refresh live news</button>';
+            grid.appendChild(endNote);
+            $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
         }catch(error){
             console.error("News scope failed:",error);
             loader.remove();
@@ -14302,14 +14255,13 @@ async function loadGlobalDiscoveryHomepage(){
         // Resolve location with a short race, then paint immediately.
         // If permission/reverse-geocoding is slow, the saved profile location
         // remains the fallback rather than blocking the news UI.
-        const locationPromise=resolveNewsLocation();
         const resolvedLocation=await Promise.race([
             locationPromise,
             new Promise(resolve=>setTimeout(()=>resolve({
                 area:String(getSavedProfile?.()?.area||"").trim(),
                 city:String(getSavedProfile?.()?.city||"").trim(),
                 state:String(getSavedProfile?.()?.state||"").trim()
-            }),1200))
+            }),1800))
         ]);
 
         const resolvedArea=String(resolvedLocation?.area||"").trim();
@@ -14375,133 +14327,8 @@ async function loadGlobalDiscoveryHomepage(){
         console.error("Global discovery feed failed:",error);
         renderUnavailable();
     }
-
-    // Keep live news fresh automatically every 5 minutes.
-    if(!globediscNewsAutoRefreshTimer){
-        globediscNewsAutoRefreshTimer=setInterval(()=>{
-            if(document.hidden) return;
-            loadGlobalDiscoveryHomepage().catch(error=>console.error("Automatic news refresh error:",error));
-        },5*60*1000);
-    }
 }
-async function loadGlobeDiscNewsTopic(topic){
-    const grid=$("worldNewsGrid");
-    const selected=String(topic||"All").trim();
-    if(!grid) return;
-    if(selected==="All"){
-        loadGlobalDiscoveryHomepage();
-        return;
-    }
-
-    const topicQueries={
-        India:["India latest news","India news today","India breaking news","Indian news"],
-        World:["world latest news","international news today","global news","world news"],
-        Politics:["politics news today","political news latest","government news today","election news"],
-        Business:["business news today","economy news latest","stock market business news","finance companies news"],
-        Technology:["technology news today","tech news latest","AI technology news","cybersecurity news"],
-        Science:["science news today","scientific discoveries news","research news latest","science technology news"],
-        Health:["health news today","medical news latest","healthcare news","medicine health news"],
-        Sports:["sports news today","sports latest news","cricket football sports news","sports breaking news"],
-        Entertainment:["entertainment news today","movies music celebrity news","film news latest","celebrity entertainment"],
-        Gaming:["gaming news today","video game news latest","gaming industry news","games esports news"],
-        Environment:["environment news today","climate news latest","environmental news","nature climate news"],
-        Education:["education news today","education latest news","school university news","student education news","education policy news","higher education India news","universities colleges latest news"],
-        Religion:["Hindu news today","Sanatan Dharma latest news","Hindu temple news latest","Hindu festivals news","Hindu culture heritage news","Hinduism Today news","Sanatan news India"],
-        Auto:["auto news today","automobile news latest","cars bikes news","electric vehicle news"],
-        Travel:["travel news today","tourism news latest","aviation travel news","travel destinations news"],
-        Lifestyle:["lifestyle news today","fashion food lifestyle news","wellness lifestyle news","culture lifestyle news"],
-        Space:["space news today","space latest news","NASA space news","ISRO space news","astronomy news latest","space exploration news","space science discoveries"],
-        Trending:["trending news today","top news today","latest trending stories","viral news today"]
-    };
-    const queries=topicQueries[selected]||[selected+" news today",selected+" latest news",selected+" news"];
-    grid.innerHTML='<div class="world-news-loading"><i class="fas fa-spinner fa-spin"></i><h3>Loading '+escapeHTML(selected)+' news…</h3><p>Fetching the latest stories.</p></div>';
-
-    try{
-        const results=await Promise.allSettled(queries.map(async query=>{
-            const q=String(query||"").trim();
-            const edgeUrl=SUPABASE_URL+"/functions/v1/global-news?q="+encodeURIComponent(q);
-            const gdeltUrl="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=30&timespan=24h&format=json";
-            const request=(url,headers={})=>fetchWithTimeout(url,{headers},3200).then(async response=>{
-                if(!response.ok) throw new Error("News request failed");
-                return response.json();
-            });
-            return await Promise.any([
-                request(edgeUrl,{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Accept":"application/json"}),
-                request(gdeltUrl,{"Accept":"application/json"})
-            ]);
-        }));
-        const seen=new Set();
-        const articles=[];
-
-        const addArticles=(items)=>{
-            (Array.isArray(items)?items:[]).forEach(article=>{
-                const url=String(article?.url||"").trim();
-                const title=String(article?.title||"").trim();
-                if(!url||!title||seen.has(url)) return;
-                seen.add(url);
-                articles.push({
-                    ...article,
-                    title,
-                    url,
-                    source:String(article?.source||article?.domain||article?.sourcecountry||"News").trim(),
-                    description:String(article?.description||article?.snippet||"").trim(),
-                    date:String(article?.date||article?.seendate||"").trim(),
-                    image:String(article?.image||article?.socialimage||"").trim()
-                });
-            });
-        };
-
-        results.forEach(result=>{
-            if(result.status==="fulfilled") addArticles(result.value?.articles);
-        });
-
-        // Some topics can legitimately return an empty Edge Function result.
-        // Fall back to the existing GDELT news path instead of showing a false
-        // "No news" state. Run the fallback with broader topic wording.
-        if(!articles.length){
-            const fallbackQueries=selected==="Religion"
-                ? ["Hindu news","Sanatan Dharma news","Hindu temple news","Hindu festivals news"]
-                : [selected+" news",selected+" latest news",selected];
-            const fallbackResults=await Promise.allSettled(
-                fallbackQueries.map(query=>fetchInternetPanelData("news",query))
-            );
-            fallbackResults.forEach(result=>{
-                if(result.status!=="fulfilled") return;
-                addArticles(result.value);
-            });
-        }
-
-        articles.sort((a,b)=>{
-            const da=new Date(a.date||0).getTime();
-            const db=new Date(b.date||0).getTime();
-            return (Number.isFinite(db)?db:0)-(Number.isFinite(da)?da:0);
-        });
-
-        if(!articles.length){
-            grid.innerHTML='<div class="world-news-empty"><i class="fas fa-newspaper"></i><h3>No '+escapeHTML(selected)+' news found</h3><p>Try another topic in a moment.</p></div>';
-            return;
-        }
-
-        grid.innerHTML='<div class="world-news-scope topic-filter-results"><div class="world-news-scope-heading"><div><span class="world-news-scope-icon"><i class="fas fa-newspaper"></i></span><div><strong>'+escapeHTML(selected)+' News</strong><small>Latest stories for this topic</small></div></div><span class="world-news-scope-count">'+articles.slice(0,24).length+' stories</span></div><div class="world-news-card-grid">'+articles.slice(0,24).map(article=>{
-            const image=newsImageMarkup(article);
-            return '<article class="world-news-card">'+image+'<div class="world-news-card-body"><div class="world-news-meta"><span>'+escapeHTML(selected)+'</span><small>'+escapeHTML(article.source)+'</small></div><h3>'+escapeHTML(article.title)+'</h3>'+(article.description?'<p>'+escapeHTML(article.description)+'</p>':'')+'<a href="'+escapeHTML(article.url)+'" target="_blank" rel="noopener noreferrer">Details <i class="fas fa-arrow-right"></i></a></div></article>';
-        }).join("")+'</div></div>';
-    }catch(error){
-        console.error("News topic filter failed:",error);
-        grid.innerHTML='<div class="world-news-empty"><i class="fas fa-cloud-arrow-down"></i><h3>News could not be loaded</h3><p>Please try this topic again.</p></div>';
-    }
-}
-
-document.addEventListener("DOMContentLoaded",()=>{
-    loadGlobalDiscoveryHomepage();
-    document.querySelectorAll(".globedisc-news-topic").forEach(button=>{
-        button.addEventListener("click",()=>{
-            document.querySelectorAll(".globedisc-news-topic").forEach(item=>item.classList.remove("active"));
-            button.classList.add("active");
-            loadGlobeDiscNewsTopic(button.dataset.newsTopic||"All");
-        });
-    });
-});
+document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();});
 
 
 /* =========================================================
@@ -14715,85 +14542,3 @@ document.addEventListener("DOMContentLoaded",()=>{
         });
     });
 })();
-
-
-function setAiAssistantFloatingBarHidden(hidden){
-    const nav=document.querySelector(".mobile-bottom-nav");
-    if(!nav)return;
-    nav.classList.toggle("hidden",!!hidden);
-    nav.style.setProperty("display",hidden?"none":"", "important");
-    nav.style.setProperty("visibility",hidden?"hidden":"", "important");
-    nav.style.setProperty("pointer-events",hidden?"none":"", "important");
-}
-function showAiAssistantPage(){
-    const home=document.getElementById("home");
-    const news=document.getElementById("worldNewsSection");
-    const ai=document.getElementById("aiAssistantPage");
-    if(!ai)return;
-    home?.classList.add("hidden"); news?.classList.add("hidden");
-    setAiAssistantFloatingBarHidden(true);
-    ai.classList.remove("hidden");
-    document.body.classList.add("ai-assistant-page-active");
-    history.pushState({page:"ai-assistant"},"","#ask-with-ai");
-    requestAnimationFrame(()=>document.getElementById("aiAssistantInput")?.focus());
-}
-function hideAiAssistantPage(){
-    document.getElementById("aiAssistantPage")?.classList.add("hidden");
-    document.getElementById("home")?.classList.remove("hidden");
-    document.getElementById("worldNewsSection")?.classList.remove("hidden");
-    document.body.classList.remove("ai-assistant-page-active");
-    setAiAssistantFloatingBarHidden(false);
-}
-function appendAiMessage(role,text){
-    const box=document.getElementById("aiAssistantMessages"); if(!box)return;
-    document.getElementById("aiAssistantWelcome")?.remove();
-    const el=document.createElement("div");
-    el.className="ai-chat-message "+(role==="user"?"ai-chat-user":"ai-chat-assistant");
-    if(role==="user") el.textContent=String(text||"");
-    else el.innerHTML=String(text||"");
-    box.appendChild(el); box.scrollTop=box.scrollHeight; return el;
-}
-function aiRichLink(url,label,icon="fa-arrow-up-right-from-square"){
-    return '<a class="ai-rich-link" href="'+escapeHTML(url||"#")+'" target="_blank" rel="noopener noreferrer"><i class="fas '+icon+'"></i><span>'+escapeHTML(label||"Open")+'</span></a>';
-}
-function aiNeedsResearch(q){const s=String(q||"").toLowerCase().trim();if(/^(hi|hello|hey|hii|heyy|yo|sup|namaste|thanks|thank you|ok|okay|cool|nice|great|haan|ha|yes|no|bye|goodbye)\b/.test(s))return false;if(/\b(how are you|how r u|kaisa hai|kaisi ho|kya haal|kya kar rahe|what are you doing|who are you|tell me about yourself|nice to meet)\b/.test(s))return false;return /\b(latest|today|news|current|recent|price|weather|score|match|stock|who is|what is|what’s|where is|when is|why is|how to|how does|explain|compare|vs|research|search|find|photos?|images?|videos?|youtube|wikipedia|map|maps)\b/.test(s)||s.endsWith("?");}\nfunction getAiConversation(){return [...document.querySelectorAll("#aiAssistantMessages .ai-chat-message")].slice(-10).map(el=>({role:el.classList.contains("ai-chat-user")?"user":"assistant",content:el.textContent.trim()})).filter(x=>x.content);}\nfunction renderAiRichAnswer(answer,question,found,photos,news){
-    const web=Array.isArray(found?.web)?found.web.slice(0,5):[];
-    const wiki=Array.isArray(found?.wiki)?found.wiki.slice(0,3):[];
-    const photoItems=Array.isArray(photos)?photos.slice(0,6):[];
-    const newsItems=Array.isArray(news)?news.slice(0,4):[];
-    const safeAnswer=escapeHTML(String(answer||"I couldn't generate an answer.")).replace(/\n/g,"<br>");
-    const webCards=web.map(item=>'<a class="ai-source-card" href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer"><div class="ai-source-icon"><i class="fas fa-globe"></i></div><div><strong>'+escapeHTML(item.title)+'</strong><small>'+escapeHTML(item.source||"Web")+'</small><p>'+escapeHTML(item.snippet||"")+'</p></div></a>').join("");
-    const wikiCards=wiki.map(item=>'<a class="ai-source-card" href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer">'+(item.image?'<img src="'+escapeHTML(item.image)+'" alt="" loading="lazy">':'<div class="ai-source-icon"><i class="fab fa-wikipedia-w"></i></div>')+'<div><strong>'+escapeHTML(item.title)+'</strong><small>Wikipedia</small><p>'+escapeHTML(item.snippet||"")+'</p></div></a>').join("");
-    const photoCards=photoItems.map(item=>'<a class="ai-photo-card" href="'+escapeHTML(item.image||"#")+'" target="_blank" rel="noopener noreferrer"><img src="'+escapeHTML(item.image)+'" alt="'+escapeHTML(item.title||"Photo")+'" loading="lazy"><span>'+escapeHTML(item.title||"Photo")+'</span></a>').join("");
-    const newsCards=newsItems.map(item=>'<a class="ai-news-card" href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer">'+(item.image?'<img src="'+escapeHTML(item.image)+'" alt="" loading="lazy">':'')+'<div><strong>'+escapeHTML(item.title)+'</strong><small>'+escapeHTML(item.source||"News")+'</small></div></a>').join("");
-    const yt="https://www.youtube.com/results?search_query="+encodeURIComponent(question);
-    return '<div class="ai-rich-answer"><div class="ai-answer-text">'+safeAnswer+'</div>'+
-      '<div class="ai-rich-actions">'+aiRichLink(yt,"YouTube","fa-youtube")+' '+aiRichLink("https://www.google.com/search?q="+encodeURIComponent(question),"More web results","fa-globe")+'</div>'+
-      (webCards?'<section class="ai-rich-section"><h4><i class="fas fa-globe"></i> Web sources</h4><div class="ai-source-grid">'+webCards+'</div></section>':"")+
-      (wikiCards?'<section class="ai-rich-section"><h4><i class="fab fa-wikipedia-w"></i> Related information</h4><div class="ai-source-grid">'+wikiCards+'</div></section>':"")+
-      (photoCards?'<section class="ai-rich-section"><h4><i class="fas fa-image"></i> Photos</h4><div class="ai-photo-row">'+photoCards+'</div></section>':"")+
-      (newsCards?'<section class="ai-rich-section"><h4><i class="fas fa-newspaper"></i> Latest news</h4><div class="ai-news-grid">'+newsCards+'</div></section>':"")+
-      '</div>';
-}
-async function submitAiQuestion(question){
-    const q=String(question||"").trim(); if(!q)return;
-    const input=document.getElementById("aiAssistantInput"); if(input)input.value="";
-    appendAiMessage("user",q);
-    const thinking=appendAiMessage("assistant","<span class=\"ai-thinking\">Thinking and gathering sources…</span>");
-    const thinkingMessage=thinking?.parentElement||thinking;
-    try{
-        const research=aiNeedsResearch(q);
-        const [found,photos,news]=research?await Promise.all([Promise.resolve(fetchInternetSearchResults(q)),fetchInternetPanelData("photos",q),fetchInternetPanelData("news",q,"24h")]):[{web:[],wiki:[]},[],[]];
-        const sources=[...(found?.web||[]),...(found?.wiki||[])].slice(0,8);
-        const res=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({question:q,sources,research,history:getAiConversation()})});
-        const data=await res.json();
-        if(!res.ok)throw new Error(data?.error||"AI request failed");
-        thinkingMessage.innerHTML=research?renderAiRichAnswer(data.answer,q,found,photos,news):'<div class="ai-answer-text">'+escapeHTML(String(data.answer||"")).replace(/\n/g,"<br>")+'</div>';
-        if(research)thinkingMessage.classList.add("ai-chat-rich");
-        const box=document.getElementById("aiAssistantMessages"); if(box)box.scrollTop=box.scrollHeight;
-    }catch(err){console.error("GlobeDisc AI:",err);thinking.textContent="AI is temporarily unavailable. Please try again.";}
-}
-document.getElementById("askWithAiButton")?.addEventListener("click",showAiAssistantPage);
-document.getElementById("aiAssistantBack")?.addEventListener("click",()=>{if(history.state?.page==="ai-assistant")history.back();else hideAiAssistantPage();});
-document.getElementById("aiAssistantForm")?.addEventListener("submit",e=>{e.preventDefault();submitAiQuestion(document.getElementById("aiAssistantInput")?.value);});
-window.addEventListener("popstate",()=>{if(location.hash!=="#ask-with-ai")hideAiAssistantPage();});
