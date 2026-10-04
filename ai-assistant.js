@@ -1,12 +1,12 @@
-/* GlobeDisc AI assistant */
+/* Banjara Connect AI assistant */
 (function(){
 "use strict";
 const SUPABASE_URL="https://yymzfjfkmsrymqhpnfqz.supabase.co";
 const SUPABASE_KEY="sb_publishable_tEePI-aSGDkt_2S6oiEfPw_Hy_mEXkw";
 const $=id=>document.getElementById(id);
-const AI_HISTORY_KEY="globedisc_ai_chat_history_v1";
-const AI_HISTORY_BACKUP_KEY="globedisc_ai_chat_history_backup_v1";
-const AI_HISTORY_ARCHIVE_KEY="globedisc_ai_chat_history_archive_v1";
+const AI_HISTORY_KEY="banjara_ai_chat_history_v1";
+const AI_HISTORY_BACKUP_KEY="banjara_ai_chat_history_backup_v1";
+const AI_HISTORY_ARCHIVE_KEY="banjara_ai_chat_history_archive_v1";
 const AI_HISTORY_MAX=200;
 const aiSupabase=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY)||null;
 let history=loadAIHistory();
@@ -20,9 +20,9 @@ const AI_REOPEN_MESSAGES=[
  "Missed our little chats already? 😌 Come here, ask me something."
 ];
 function loadAITheme(){
- if(document.getElementById("globediscAITheme"))return;
+ if(document.getElementById("banjaraAITheme"))return;
  const link=document.createElement("link");
- link.id="globediscAITheme";link.rel="stylesheet";link.href="/globedisc-ai-theme.css?v=20261004-1";
+ link.id="banjaraAITheme";link.rel="stylesheet";link.href="/banjara-ai-theme.css?v=20261004-1";
  document.head.appendChild(link);
 }
 function loadAIHistory(){
@@ -79,19 +79,19 @@ function addMessage(role,text){
  const box=$("aiAssistantMessages");if(!box)return null;
  $("aiAssistantWelcome")?.classList.add("hidden");
  const item=document.createElement("div");item.className="ai-assistant-message "+(role==="user"?"is-user":"is-ai");
- if(role!=="user"){const avatar=document.createElement("span");avatar.className="ai-assistant-message-avatar";avatar.innerHTML='<img src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc AI">';item.appendChild(avatar);}
+ if(role!=="user"){const avatar=document.createElement("span");avatar.className="ai-assistant-message-avatar";avatar.innerHTML='<img src="/icons/banjara-icon-v2.svg" alt="Banjara Connect AI">';item.appendChild(avatar);}
  const bubble=document.createElement("div");bubble.className="ai-assistant-message-bubble";bubble.textContent=String(text||"");item.appendChild(bubble);box.appendChild(item);
  requestAnimationFrame(()=>scrollAIToBottom("auto"));return item;
 }
 function renderSavedAIHistory(){
  const box=$("aiAssistantMessages");if(!box)return;box.innerHTML="";
- if(!history.length){box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc"></div><h1>What can I help you with?</h1><p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p></div>';return;}
+ if(!history.length){box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/banjara-icon-v2.svg" alt="Banjara Connect"></div><h1>What can I help you with?</h1><p>Ask anything. Banjara Connect AI will bring together answers and useful sources.</p></div>';return;}
  history.forEach(m=>addMessage(m.role==="assistant"?"assistant":"user",m.content));requestAnimationFrame(()=>scrollAIToBottom("auto"));
 }
 function openAI(){
  const p=$("aiAssistantPage");if(!p)return;
  loadAITheme();p.classList.remove("hidden");document.body.classList.add("ai-assistant-open","ai-assistant-page-active");
- history.replaceState({globediscAIBase:true},"");history.pushState({globediscAI:true},"");renderSavedAIHistory();
+ history.replaceState({banjaraAIBase:true},"");history.pushState({banjaraAI:true},"");renderSavedAIHistory();
  if(aiHasOpenedOnce)addMessage("assistant",AI_REOPEN_MESSAGES[Math.floor(Math.random()*AI_REOPEN_MESSAGES.length)]);
  aiHasOpenedOnce=true;forceHideGlobalBottomNav();window.scrollTo({top:0,behavior:"auto"});
  const input=$("aiAssistantInput");if(input)setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},80);
@@ -107,7 +107,7 @@ async function ask(question){
  addMessage("user",q);history.push({role:"user",content:q});history=history.slice(-20);saveAIHistory();const pending=addMessage("assistant","Thinking…");
  try{
   const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),30000);
-  const response=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",signal:controller.signal,headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json",Accept:"application/json","X-GlobeDisc-Client":"web"},body:JSON.stringify({question:q,history,research:false})});
+  const response=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",signal:controller.signal,headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json",Accept:"application/json","X-Banjara Connect-Client":"web"},body:JSON.stringify({question:q,history,research:false})});
   const data=await response.json().catch(()=>({}));clearTimeout(timeout);
   if(!response.ok||!data.answer)throw new Error(data.error||"AI service is temporarily unavailable.");
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=data.answer;
@@ -125,11 +125,11 @@ function forceHideGlobalBottomNav(){
   if(aiPage&&(nav===aiPage||aiPage.contains(nav)))return;
   nav.setAttribute("data-ai-hidden","1");nav.style.setProperty("display","none","important");nav.style.setProperty("visibility","hidden","important");nav.style.setProperty("opacity","0","important");nav.style.setProperty("pointer-events","none","important");nav.style.setProperty("z-index","-1","important");
  });
- document.body.classList.add("globedisc-ai-hide-global-nav");document.documentElement.classList.add("globedisc-ai-hide-global-nav");
+ document.body.classList.add("banjara-ai-hide-global-nav");document.documentElement.classList.add("banjara-ai-hide-global-nav");
 }
 function restoreGlobalBottomNav(){
  document.querySelectorAll('[data-ai-hidden="1"]').forEach(nav=>{nav.removeAttribute("data-ai-hidden");nav.style.removeProperty("display");nav.style.removeProperty("visibility");nav.style.removeProperty("opacity");nav.style.removeProperty("pointer-events");nav.style.removeProperty("z-index");});
- document.body.classList.remove("globedisc-ai-hide-global-nav");document.documentElement.classList.remove("globedisc-ai-hide-global-nav");
+ document.body.classList.remove("banjara-ai-hide-global-nav");document.documentElement.classList.remove("banjara-ai-hide-global-nav");
 }
 function bindAIControls(){
  const button=$("askWithAiButton");if(button&&button.dataset.aiBound!=="1"){button.dataset.aiBound="1";button.addEventListener("click",function(event){event.preventDefault();event.stopPropagation();openAI();});}
@@ -144,11 +144,11 @@ document.addEventListener("DOMContentLoaded",()=>{
  $("aiAssistantBack")?.addEventListener("click",closeAI);
  $("aiAssistantNewChat")?.addEventListener("click",()=>{
   history=[];try{localStorage.removeItem(AI_HISTORY_KEY);}catch(_){}try{localStorage.removeItem(AI_HISTORY_ARCHIVE_KEY);}catch(_){}try{sessionStorage.removeItem(AI_HISTORY_BACKUP_KEY);}catch(_){}saveCloudAIHistoryDelete();
-  const box=$("aiAssistantMessages");if(box)box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc"></div><h1>What can I help you with?</h1><p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p></div>';
+  const box=$("aiAssistantMessages");if(box)box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/banjara-icon-v2.svg" alt="Banjara Connect"></div><h1>What can I help you with?</h1><p>Ask anything. Banjara Connect AI will bring together answers and useful sources.</p></div>';
   const input=$("aiAssistantInput");if(input)setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},50);
  });
  $("aiAssistantSend")?.addEventListener("pointerdown",e=>{e.preventDefault();const input=$("aiAssistantInput");if(input)input.focus({preventScroll:true});});
  $("aiAssistantForm")?.addEventListener("submit",e=>{e.preventDefault();ask($("aiAssistantInput")?.value);});
 });
 })();
-window.openGlobeDiscAI=openAI;window.closeGlobeDiscAI=closeAI;window.addEventListener("load",bindAIControls,{once:true});
+window.openBanjara ConnectAI=openAI;window.closeBanjara ConnectAI=closeAI;window.addEventListener("load",bindAIControls,{once:true});
