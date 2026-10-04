@@ -140,3 +140,16 @@ body.bc-auth-mode .bc-app{padding-bottom:24px}
 
 /* Step 1-12 interaction polish */
 .bc-chat-window{display:grid;gap:10px}.bc-chat-messages{display:grid;gap:8px;min-height:260px;max-height:55vh;overflow:auto;padding:8px;background:#f7ecdf;border-radius:16px}.bc-chat-bubble{max-width:78%;padding:9px 11px;border-radius:14px;font-size:11px;line-height:1.4}.bc-chat-bubble.incoming{justify-self:start;background:#fff;border:1px solid var(--bc-line)}.bc-chat-bubble.outgoing{justify-self:end;background:var(--bc-maroon);color:#fff}.bc-chat-composer{display:flex;gap:7px}.bc-chat-composer input{flex:1;min-width:0;border:1px solid var(--bc-line);border-radius:12px;padding:11px;background:#fff}.bc-chat-composer button{width:42px;border:0;border-radius:12px;background:var(--bc-maroon);color:#fff}.bc-setting-detail p{font-size:12px;color:var(--bc-muted);line-height:1.6}.bc-setting-controls{display:flex;gap:8px}.bc-setting-controls .bc-action{margin-top:8px}.bc-row{cursor:pointer;text-align:left;width:100%}.bc-stat{border:1px solid var(--bc-line);background:var(--bc-paper);cursor:pointer}.bc-create{cursor:pointer}.bc-action:disabled{opacity:.55;cursor:wait}.bc-bottom,.bc-bottom button{pointer-events:auto;touch-action:manipulation}
+
+/* Frontend completion polish */
+.banjara-splash,#banjaraSplash{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;z-index:200000!important;display:grid!important;place-items:center!important;overflow:hidden!important}
+.banjara-splash.is-hidden{display:none!important}
+.bc-profile-cover{height:92px;border-radius:20px;background:linear-gradient(135deg,var(--bc-maroon),var(--bc-orange));margin-top:18px;opacity:.95}
+.bc-event-card{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;width:100%;box-sizing:border-box;text-align:left;cursor:pointer;margin-bottom:8px}
+.bc-event-icon{width:40px;height:40px;border-radius:13px;background:#f5dfcf;color:var(--bc-maroon);display:grid;place-items:center}
+.bc-event-card strong{display:block;font-size:12px}.bc-event-card small{display:block;color:var(--bc-muted);font-size:9px;line-height:1.5;margin-top:3px}.bc-event-card>b{font-size:9px;color:var(--bc-maroon)}
+.bc-chat-tools{display:flex;gap:6px;flex-wrap:wrap}.bc-chat-tools button{border:1px solid var(--bc-line);background:#fff8f1;color:var(--bc-maroon);border-radius:10px;padding:8px 10px;font-size:10px;font-weight:800}
+.bc-post-head{position:relative}.post-menu{margin-left:auto;border:0;background:transparent;color:var(--bc-muted);font-weight:900;cursor:pointer}.bc-post-actions button.is-active{background:#f2d9ca;color:var(--bc-maroon)}
+.bc-helper{font-size:11px!important;text-align:left!important;margin:0!important}.bc-setting-detail{line-height:1.6}.bc-setting-controls{display:flex;gap:8px}.bc-setting-controls .bc-action{flex:1}
+.bc-profile-hero{position:relative;z-index:1;margin-top:-42px;padding:0 8px 16px}.bc-profile-avatar{border:4px solid var(--bc-cream);box-sizing:border-box}
+@media(max-width:560px){.bc-profile-cover{height:78px}.bc-profile-hero{margin-top:-34px}.bc-profile-avatar{width:70px;height:70px}.bc-event-card{grid-template-columns:38px 1fr auto}}
