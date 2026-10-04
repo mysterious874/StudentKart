@@ -3621,7 +3621,7 @@ async function searchStudentKartUsers(query) {
     studentKartUserSearchTimer = window.setTimeout(async () => {
         box.classList.remove("hidden");
         box.innerHTML =
-            '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding mobile users...</span></div>';
+            '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding users...</span></div>';
 
         try {
             const { data: profiles, error } = await supabaseClient
@@ -3647,7 +3647,7 @@ async function searchStudentKartUsers(query) {
             if (!matches.length) {
                 box.classList.remove("has-more-results");
                 box.innerHTML =
-                    '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No mobile user found</strong><span>Enter a full or partial mobile number.</span></div>';
+                    '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No username found</strong><span>Enter a username to find users.</span></div>';
                 return;
             }
 
@@ -3658,7 +3658,7 @@ async function searchStudentKartUsers(query) {
 
             box.classList.toggle("has-more-results", matches.length > 10);
             box.innerHTML =
-                '<div class="chat-user-search-title"><span>MOBILE USERS</span><small>' +
+                '<div class="chat-user-search-title"><span>USERS</span><small>' +
                 matches.length + (matches.length === 1 ? " user" : " users") +
                 '</small></div>' +
                 '<div class="chat-user-search-list">' +
@@ -3675,8 +3675,7 @@ async function searchStudentKartUsers(query) {
                         '<span class="chat-user-search-avatar">' + avatar + '</span>' +
                         '<span class="chat-user-search-main">' +
                         '<strong>' + escapeHTML(isMe ? "You" : displayName) + '</strong>' +
-                        '<small>' + escapeHTML(numberText(user)) +
-                        (isMe ? " • Your number" : "") + '</small>' +
+                        '<small>@' + escapeHTML(user.username || '') + (isMe ? " • You" : "") + '</small>' +
                         '</span>' +
                         '<i class="fas fa-comment-dots"></i>' +
                         '</button>'
