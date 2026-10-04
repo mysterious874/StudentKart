@@ -5,6 +5,20 @@ const SUPABASE_URL="https://yymzfjfkmsrymqhpnfqz.supabase.co";
 const SUPABASE_KEY="sb_publishable_tEePI-aSGDkt_2S6oiEfPw_Hy_mEXkw";
 const $=id=>document.getElementById(id);
 let history=[];
+let aiUserNearBottom=true;
+function scrollAIToBottom(behavior="auto"){
+ const box=$("aiAssistantMessages"); if(!box)return;
+ box.scrollTo({top:box.scrollHeight,behavior});
+}
+function updateAIViewport(){
+ const page=$("aiAssistantPage");
+ const vv=window.visualViewport;
+ if(!page||!vv)return;
+ const keyboardOffset=Math.max(0,window.innerHeight-vv.height-vv.offsetTop);
+ page.style.setProperty("--ai-keyboard-offset",keyboardOffset+"px");
+ page.style.setProperty("--ai-visual-height",vv.height+"px");
+ if(aiUserNearBottom) requestAnimationFrame(()=>scrollAIToBottom("auto"));
+}
 function addMessage(role,text){
  const box=$("aiAssistantMessages"); if(!box)return null;
  $("aiAssistantWelcome")?.classList.add("hidden");
@@ -17,12 +31,17 @@ function addMessage(role,text){
   item.appendChild(avatar);
  }
  const bubble=document.createElement("div"); bubble.className="ai-assistant-message-bubble"; bubble.textContent=String(text||"");
- item.appendChild(bubble); box.appendChild(item); box.scrollTop=box.scrollHeight; return item;
+ item.appendChild(bubble); box.appendChild(item);
+ requestAnimationFrame(()=>scrollAIToBottom("auto"));
+ return item;
 }
 function openAI(){
  const p=$("aiAssistantPage"); if(!p)return;
  p.classList.remove("hidden"); document.body.classList.add("ai-assistant-open"); const globalNav=document.querySelector(".mobile-bottom-nav"); if(globalNav){globalNav.style.setProperty("display","none","important");globalNav.style.setProperty("visibility","hidden","important");globalNav.style.setProperty("pointer-events","none","important");}
- window.scrollTo({top:0,behavior:"auto"}); $("aiAssistantInput")?.focus();
+ window.scrollTo({top:0,behavior:"auto"});
+ const input=$("aiAssistantInput");
+ if(input){setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},80);}
+
 }
 function closeAI(){
  const page=$("aiAssistantPage");
@@ -57,7 +76,11 @@ async function ask(question){
  }catch(error){
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=error?.name==="AbortError"?"AI is taking too long. Please try again.":(error?.message||"Could not get an AI answer.");
  }finally{
-  if(send)send.disabled=false;if(input){input.disabled=false;input.value="";input.focus();}
+  if(send)send.disabled=false;if(input){
+   input.disabled=false;
+   input.value="";
+   setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();scrollAIToBottom("smooth");},40);
+  }
  }
 }
 function bindAIControls(){
@@ -73,11 +96,22 @@ function bindAIControls(){
 }
 document.addEventListener("DOMContentLoaded",()=>{
  bindAIControls();
+ const box=$("aiAssistantMessages");
+ box?.addEventListener("scroll",()=>{
+  aiUserNearBottom=(box.scrollHeight-box.scrollTop-box.clientHeight)<100;
+ });
+ if(window.visualViewport){
+  window.visualViewport.addEventListener("resize",updateAIViewport);
+  window.visualViewport.addEventListener("scroll",updateAIViewport);
+ }
+ window.addEventListener("resize",updateAIViewport);
+ updateAIViewport();
  $("aiAssistantBack")?.addEventListener("click",closeAI);
  $("aiAssistantNewChat")?.addEventListener("click",()=>{
   history=[];const box=$("aiAssistantMessages");
   if(box)box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc"></div><h1>What can I help you with?</h1><p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p></div>';
-  $("aiAssistantInput")?.focus();
+  const input=$("aiAssistantInput");
+  if(input){setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},50);}
  });
  $("aiAssistantForm")?.addEventListener("submit",e=>{e.preventDefault();ask($("aiAssistantInput")?.value);});
 });
