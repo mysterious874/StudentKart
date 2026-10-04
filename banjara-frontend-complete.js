@@ -160,7 +160,15 @@ async function bcHandleAuth(form){
       if(!data?.success) throw new Error(data?.error||"Could not create account");
     }
     const {data,error}=await sb.functions.invoke("mobile-login",{body:{phone,password}});
-    if(error) throw error;
+    if(error){
+      let detail="";
+      try{
+        const raw=error.context?.body;
+        if(typeof raw==="string"){const parsed=JSON.parse(raw);detail=String(parsed?.error||"");}
+        else if(raw&&typeof raw==="object") detail=String(raw?.error||"");
+      }catch(_){ }
+      throw new Error(detail||error.message||"Could not complete login");
+    }
     if(!data?.success||!data?.session?.access_token||!data?.session?.refresh_token) throw new Error(data?.error||"Could not complete login");
     const {data:sessionData,error:sessionError}=await sb.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});
     if(sessionError) throw sessionError;
