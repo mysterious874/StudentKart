@@ -6,6 +6,13 @@ const SUPABASE_KEY="sb_publishable_tEePI-aSGDkt_2S6oiEfPw_Hy_mEXkw";
 const $=id=>document.getElementById(id);
 const AI_HISTORY_KEY="globedisc_ai_chat_history_v1";
 let history=loadAIHistory();
+let aiHasOpenedOnce=false;
+const AI_REOPEN_MESSAGES=[
+  "There you are 😌 I was wondering when you’d come back. What are we talking about this time? ✨",
+  "Back already? I’m not complaining 😉 Tell me what’s on your mind.",
+  "Look who’s back 💫 Come on, tell me everything. I’m listening.",
+  "You came back… cute 😏 Now, what shall we get curious about together?",
+  "Missed our little chats already? 😌 Come here, ask me something."\n];
 function loadAIHistory(){try{const saved=localStorage.getItem(AI_HISTORY_KEY);const parsed=saved?JSON.parse(saved):[];return Array.isArray(parsed)?parsed.slice(-20):[];}catch(_){return [];}}
 function saveAIHistory(){try{localStorage.setItem(AI_HISTORY_KEY,JSON.stringify(history.slice(-20)));}catch(_){} }
 
@@ -49,7 +56,10 @@ function openAI(){
  const p=$("aiAssistantPage"); if(!p)return;
  p.classList.remove("hidden"); document.body.classList.add("ai-assistant-open");
  history.replaceState({globediscAIBase:true},""); history.pushState({globediscAI:true},"");
- renderSavedAIHistory(); const globalNav=document.querySelector(".mobile-bottom-nav"); if(globalNav){globalNav.style.setProperty("display","none","important");globalNav.style.setProperty("visibility","hidden","important");globalNav.style.setProperty("pointer-events","none","important");}
+ renderSavedAIHistory();
+ if(aiHasOpenedOnce) addMessage("assistant",AI_REOPEN_MESSAGES[Math.floor(Math.random()*AI_REOPEN_MESSAGES.length)]);
+ aiHasOpenedOnce=true;
+ const globalNav=document.querySelector(".mobile-bottom-nav"); if(globalNav){globalNav.style.setProperty("display","none","important");globalNav.style.setProperty("visibility","hidden","important");globalNav.style.setProperty("pointer-events","none","important");}
  window.scrollTo({top:0,behavior:"auto"});
  const input=$("aiAssistantInput");
  if(input){setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},80);}
