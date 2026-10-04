@@ -32,7 +32,9 @@ function internalEmail(phone: string) {
 }
 
 function allowed(req: Request, scope: string, identity?: string) {
-  const ip = (req.headers.get("x-forwarded-for") || "anonymous").split(",")[0].trim();
+  const ip = req.headers.get("cf-connecting-ip") ||
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown";
   const key = scope === "phone" ? "phone|" + String(identity || "") : "ip|" + ip;
   const now = Date.now();
   const current = attempts.get(key);
