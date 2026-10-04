@@ -35,6 +35,6 @@ function aiPolish(){
  const obs=new MutationObserver(()=>{if(!page.classList.contains("hidden")){document.body.classList.add("ai-assistant-open");document.querySelectorAll(".mobile-bottom-nav,.floating-bar,.floating-nav,.bottom-floating-nav").forEach(x=>{if(!page.contains(x))x.style.setProperty("display","none","important")})}});
  obs.observe(page,{attributes:true,childList:true,subtree:true});
 }
-document.addEventListener("DOMContentLoaded",()=>{brand();installTabs();newsFallback();authPolish();aiPolish();setTimeout(hideSplash,2850)});
-window.addEventListener("pageshow",()=>setTimeout(hideSplash,50));
+document.addEventListener("DOMContentLoaded",()=>{brand();installTabs();newsFallback();authPolish();aiPolish();setTimeout(hideSplash,5000)});
+
 })();
