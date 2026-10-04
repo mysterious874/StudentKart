@@ -8897,59 +8897,52 @@ function setupFloatingNavigation() {
 
 
 async function initializeStudentKart() {
+    // IMPORTANT: each startup subsystem is isolated. One optional feature
+    // must never stop the rest of the website from becoming interactive.
+    const safeInit = async (label, fn) => {
+        try { return await fn(); }
+        catch (error) {
+            console.error("Startup error [" + label + "]:", error);
+            return null;
+        }
+    };
 
-    try {
+    // Navigation and core controls are deliberately first.
+    await safeInit("floating navigation", () => setupFloatingNavigation());
+    await safeInit("core event listeners", () => setupEventListeners());
+    await safeInit("auth listener", () => setupAuthListener());
 
-        // Keep floating navigation independent from the large UI initializer.
-        setupFloatingNavigation();
+    // News is independent of authentication and marketplace data.
+    void safeInit("home news", () => loadGlobalDiscoveryHomepage());
 
-        // Bind UI controls immediately. Never make button interactivity
-        // wait for Supabase auth/network requests.
-        ensureSellerProfileUI();
-        ensureNotificationsUI();
-        setupEventListeners();
-        setupAuthListener();
-
-        // Auth/data hydration happens after the UI is already interactive.
+    await safeInit("auth hydration", async () => {
         await getCurrentUser();
-
         if (currentUser) {
             localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
             applyStudentKartSettings();
         }
-
         updateNavbar();
+        if (!currentUser && !isStudentKartGuestMode()) showNewUserGate();
+    });
 
-        if (!currentUser && !isStudentKartGuestMode()) {
-            showNewUserGate();
-        }
-
+    await safeInit("marketplace data", async () => {
         await loadProducts();
         startProductsRealtime();
+    });
 
-        if (currentUser) {
+    if (currentUser) {
+        await safeInit("wishlist", async () => {
             await getWishlist();
             updateWishlistButtons();
-
+        });
+        await safeInit("notifications", async () => {
             await loadNotifications();
-
             startNotificationRefresh();
-
-            // Restore chat unread state on page refresh.
+        });
+        await safeInit("chat unread state", async () => {
             await updateChatUnreadCount();
             await startChatUnreadRealtime();
-        }
-
-    } catch (error) {
-
-        console.error(
-            error
-        );
-
-        showToast(
-            "StudentKart could not initialize",
-            "error"
-        );
+        });
     }
 }
 
