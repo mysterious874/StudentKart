@@ -45,7 +45,7 @@ let toastTimer = null;
 // SINGLE ACTIVE SESSION PER MOBILE NUMBER
 // =========================================================
 // Supabase allows multiple active sessions for the same account.
-// GlobeDisc uses a realtime channel so a newer login can immediately
+// banjara uses a realtime channel so a newer login can immediately
 // ask any older active app session to sign out.
 let singleSessionChannel = null;
 let singleSessionUserId = null;
@@ -92,7 +92,7 @@ async function startSingleSessionListener(user, notifyOlderSessions = false) {
 
     await stopSingleSessionListener();
 
-    const channelName = "globedisc-single-session-" + user.id;
+    const channelName = "banjara-single-session-" + user.id;
 
     singleSessionChannel =
         supabaseClient.channel(channelName, {
@@ -4769,7 +4769,7 @@ function getAuthPhoneFromUser(user = currentUser) {
 }
 
 // Supabase's hosted Phone provider can require an SMS provider in the dashboard.
-// GlobeDisc does not use OTP: the user enters only a mobile number + 6-digit PIN.
+// banjara does not use OTP: the user enters only a mobile number + 6-digit PIN.
 // We therefore use a private deterministic email-shaped Auth identifier behind
 // the scenes while keeping the real mobile number in profile metadata/database.
 // The user never sees or enters this internal identifier.
@@ -4777,7 +4777,7 @@ function getInternalAuthEmail(phone) {
     const normalized = normalizeAuthPhone(phone);
     if (!normalized) return null;
     const digits = normalized.replace(/\D/g, "");
-    return `account+${digits}@globedisc.app`;
+    return `account+${digits}@banjara.app`;
 }
 
 function isSixDigitPassword(value) { return /^\d{6}$/.test(String(value || "")); }
@@ -4799,7 +4799,7 @@ function isSixDigitPassword(value) { return /^\d{6}$/.test(String(value || ""));
         apply();
     }
 })();
-(function consumeGlobeDiscSearchQuery(){
+(function consumebanjaraSearchQuery(){
     try{
         const params=new URLSearchParams(window.location.search);
         const query=String(params.get("search")||"").trim();
@@ -5024,9 +5024,9 @@ async function logoutUser() {
         await supabaseClient.auth.signOut();
 
         localStorage.removeItem(STUDENTKART_GUEST_MODE_KEY);
-        localStorage.removeItem("globedisc_ai_chat_history_v1");
-        localStorage.removeItem("globedisc_ai_chat_history_backup_v1");
-        sessionStorage.removeItem("globedisc_ai_chat_history_v1");
+        localStorage.removeItem("banjara_ai_chat_history_v1");
+        localStorage.removeItem("banjara_ai_chat_history_backup_v1");
+        sessionStorage.removeItem("banjara_ai_chat_history_v1");
         currentUser = null;
         currentNotifications = [];
 
@@ -5265,7 +5265,7 @@ async function loadMyListings() {
    SEARCH
    ========================================================= */
 
-function globeDiscRouteSearch(query) {
+function banjaraRouteSearch(query) {
     const q = String(query || "").trim();
     const l = q.toLowerCase();
     if (!q) return false;
@@ -5292,7 +5292,7 @@ function globeDiscRouteSearch(query) {
         {keys:["pdf","summarize pdf","pdf summary"], url:"pdf-summarizer.html"},
         {keys:["image to text","ocr","extract text from image"], url:"image-to-text.html"},
         {keys:["voice search","search by voice"], url:"voice-search.html"},
-        {keys:["lens","search with image","visual search"], url:"globedisc-lens.html"},
+        {keys:["lens","search with image","visual search"], url:"banjara-lens.html"},
         {keys:["ai chat","ask ai","ai assistant"], url:"index.html#aiAssistantPage"}
     ];
     for (const route of routes) {
@@ -5304,7 +5304,7 @@ function globeDiscRouteSearch(query) {
     return false;
 }
 
-document.addEventListener("DOMContentLoaded", setupGlobeDiscSearchIntents);
+document.addEventListener("DOMContentLoaded", setupbanjaraSearchIntents);
 
 function showHomePageFromSearch(options={}) {
     $("searchResultsPage")?.classList.add("hidden");
@@ -11339,7 +11339,7 @@ function mergeSettings(base, extra) {
     return base;
 }
 
-function getGlobeDiscSettings() {
+function getbanjaraSettings() {
     const metadata = currentUser?.user_metadata?.studentkart_settings;
     let local = null;
     try {
@@ -11353,7 +11353,7 @@ function getGlobeDiscSettings() {
     );
 }
 
-async function saveGlobeDiscSettings(nextSettings, silent = false) {
+async function savebanjaraSettings(nextSettings, silent = false) {
     if (!currentUser) return false;
 
     const settings = mergeSettings(
@@ -11383,13 +11383,13 @@ async function saveGlobeDiscSettings(nextSettings, silent = false) {
 
     if (data?.user) currentUser = data.user;
     if (!silent) showToast("Setting saved", "success");
-    applyGlobeDiscSettings();
+    applybanjaraSettings();
     return true;
 }
 
-function applyGlobeDiscSettings() {
+function applybanjaraSettings() {
     if (!currentUser) return;
-    const settings = getGlobeDiscSettings();
+    const settings = getbanjaraSettings();
     const theme = settings.preferences.theme === "dark";
     document.body.classList.toggle("studentkart-dark", theme);
     document.documentElement.lang = settings.preferences.language === "hi" ? "hi" : "en";
@@ -11419,7 +11419,7 @@ function applyGlobeDiscSettings() {
     const profileVisibilityRow = document.querySelector('[data-setting-action="profile-visibility"]');
     const profileVisibilitySmall = profileVisibilityRow?.querySelector("small");
     if (profileVisibilitySmall) {
-        const labels = { public: "Anyone can see your profile", students: "Visible to GlobeDisc users", private: "Profile visibility is limited" };
+        const labels = { public: "Anyone can see your profile", students: "Visible to banjara users", private: "Profile visibility is limited" };
         profileVisibilitySmall.textContent = labels[settings.privacy.profileVisibility] || "Control profile visibility";
     }
     const blockedRow = document.querySelector('[data-setting-action="blocked-users"]');
@@ -11435,13 +11435,13 @@ function applyGlobeDiscSettings() {
 }
 
 async function settingsToggle(path) {
-    const settings = getGlobeDiscSettings();
+    const settings = getbanjaraSettings();
     const parts = path.split(".");
     let obj = settings;
     for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
     const key = parts[parts.length - 1];
     obj[key] = !Boolean(obj[key]);
-    return saveGlobeDiscSettings(settings);
+    return savebanjaraSettings(settings);
 }
 
 function openSettingsActionModal({title, description="", fields=[], options=[], danger=false, confirmText="Save", onConfirm}) {
@@ -11514,7 +11514,7 @@ async function settingsEmail() {
     if (!currentUser) return;
     openSettingsActionModal({
         title: "Change Email",
-        description: "Update the email connected to your GlobeDisc account.",
+        description: "Update the email connected to your banjara account.",
         fields: [{id:"email", label:"New Email Address", type:"email", value:currentUser.email || "", placeholder:"you@example.com"}],
         confirmText: "Update Email",
         onConfirm: async values => {
@@ -11556,10 +11556,10 @@ async function settingsLocationCurrent() {
     if (!navigator.geolocation) { showToast("Location is not supported by this browser","warning"); return; }
     showToast("Requesting your current location...","info");
     navigator.geolocation.getCurrentPosition(async position => {
-        const settings=getGlobeDiscSettings();
+        const settings=getbanjaraSettings();
         settings.location.latitude=Number(position.coords.latitude.toFixed(6));
         settings.location.longitude=Number(position.coords.longitude.toFixed(6));
-        await saveGlobeDiscSettings(settings,true);
+        await savebanjaraSettings(settings,true);
         showToast("Current location saved","success");
     }, error => {
         console.warn("Geolocation error",error);
@@ -11568,10 +11568,10 @@ async function settingsLocationCurrent() {
 }
 
 async function settingsLocationDetails() {
-    const settings=getGlobeDiscSettings();
+    const settings=getbanjaraSettings();
     openSettingsActionModal({
         title:"Change Location",
-        description:"Set the area you want GlobeDisc to use for local listings.",
+        description:"Set the area you want banjara to use for local listings.",
         fields:[
             {id:"state",label:"State",value:settings.location.state},
             {id:"city",label:"City",value:settings.location.city},
@@ -11582,20 +11582,20 @@ async function settingsLocationDetails() {
             settings.location.state=values.state;
             settings.location.city=values.city;
             settings.location.area=values.area;
-            await saveGlobeDiscSettings(settings);
+            await savebanjaraSettings(settings);
         }
     });
 }
 
 async function settingsDistance() {
-    const settings=getGlobeDiscSettings();
+    const settings=getbanjaraSettings();
     openSettingsActionModal({
         title:"Nearby Listings Distance",
-        description:"Choose how far GlobeDisc should search around your preferred location.",
+        description:"Choose how far banjara should search around your preferred location.",
         options:[5,10,25,50,100].map(km=>({value:String(km),label:km+" km",description:"Show listings within "+km+" km",icon:"fa-route"})),
         onConfirm:async value=>{
             settings.location.distanceKm=Number(value);
-            await saveGlobeDiscSettings(settings);
+            await savebanjaraSettings(settings);
         }
     });
 }
@@ -11603,7 +11603,7 @@ async function settingsDistance() {
 async function settingsLocationPermission() {
     openSettingsActionModal({
         title:"Location Permission",
-        description:"GlobeDisc uses browser location access only when you request your current location.",
+        description:"banjara uses browser location access only when you request your current location.",
         options:[
             {value:"request",label:"Request Location Access",description:"Ask the browser for location permission",icon:"fa-location-crosshairs"},
             {value:"status",label:"Check Permission Status",description:"See whether location access is allowed",icon:"fa-circle-info"}
@@ -11619,20 +11619,20 @@ async function settingsLocationPermission() {
 }
 
 async function settingsTheme() {
-    const settings=getGlobeDiscSettings();
+    const settings=getbanjaraSettings();
     openSettingsActionModal({
         title:"Appearance",
-        description:"Choose how GlobeDisc should look on your device.",
+        description:"Choose how banjara should look on your device.",
         options:[
-            {value:"light",label:"Light Mode",description:"Clean light GlobeDisc interface",icon:"fa-sun"},
+            {value:"light",label:"Light Mode",description:"Clean light banjara interface",icon:"fa-sun"},
             {value:"dark",label:"Dark Mode",description:"Dark interface for low-light use",icon:"fa-moon"}
         ],
-        onConfirm:async value=>{settings.preferences.theme=value;await saveGlobeDiscSettings(settings);}
+        onConfirm:async value=>{settings.preferences.theme=value;await savebanjaraSettings(settings);}
     });
 }
 
 async function settingsLanguage() {
-    const settings=getGlobeDiscSettings();
+    const settings=getbanjaraSettings();
     openSettingsActionModal({
         title:"Language",
         description:"Choose your preferred app language.",
@@ -11640,26 +11640,26 @@ async function settingsLanguage() {
             {value:"en",label:"English",description:"Use English throughout the interface",icon:"fa-language"},
             {value:"hi",label:"Hindi",description:"Hindi preference (interface translation can be expanded)",icon:"fa-language"}
         ],
-        onConfirm:async value=>{settings.preferences.language=value;await saveGlobeDiscSettings(settings);}
+        onConfirm:async value=>{settings.preferences.language=value;await savebanjaraSettings(settings);}
     });
 }
 
 async function settingsProfileVisibility() {
-    const settings=getGlobeDiscSettings();
+    const settings=getbanjaraSettings();
     openSettingsActionModal({
         title:"Profile Visibility",
-        description:"Choose who can discover your GlobeDisc profile.",
+        description:"Choose who can discover your banjara profile.",
         options:[
-            {value:"public",label:"Public",description:"Anyone using GlobeDisc can see your profile",icon:"fa-earth-asia"},
-            {value:"students",label:"Students",description:"Keep your profile visible to the GlobeDisc community",icon:"fa-user-group"},
+            {value:"public",label:"Public",description:"Anyone using banjara can see your profile",icon:"fa-earth-asia"},
+            {value:"students",label:"Students",description:"Keep your profile visible to the banjara community",icon:"fa-user-group"},
             {value:"private",label:"Private",description:"Limit profile visibility",icon:"fa-lock"}
         ],
-        onConfirm:async value=>{settings.privacy.profileVisibility=value;await saveGlobeDiscSettings(settings);}
+        onConfirm:async value=>{settings.privacy.profileVisibility=value;await savebanjaraSettings(settings);}
     });
 }
 
 async function settingsBlockedUsers() {
-    const settings = getGlobeDiscSettings();
+    const settings = getbanjaraSettings();
     const blocked = Array.isArray(settings.privacy?.blockedUsers)
         ? settings.privacy.blockedUsers.map(String).filter(Boolean)
         : [];
@@ -11728,7 +11728,7 @@ async function settingsBlockedUsers() {
                         : []
                     ).filter(x => x !== id);
 
-                const saved = await saveGlobeDiscSettings(settings, true);
+                const saved = await savebanjaraSettings(settings, true);
 
                 if (!saved) {
                     showToast("Could not unblock this user", "error");
@@ -11759,7 +11759,7 @@ async function settingsBlockedUsers() {
 
                 settings.privacy.blockedUsers = [...currentBlocked, id];
 
-                const saved = await saveGlobeDiscSettings(settings, true);
+                const saved = await savebanjaraSettings(settings, true);
 
                 if (!saved) {
                     showToast("Could not block this user", "error");
@@ -11776,12 +11776,12 @@ async function settingsReportProblem() {
         title:"Report a Problem",
         description:"Tell us what went wrong. Your email app will open with the report ready to send.",
         fields:[
-            {id:"subject",label:"Subject",value:"GlobeDisc Problem Report"},
+            {id:"subject",label:"Subject",value:"banjara Problem Report"},
             {id:"message",label:"What happened?",type:"textarea",placeholder:"Describe the problem..."}
         ],
         confirmText:"Prepare Report",
         onConfirm:async values=>{
-            const subject=encodeURIComponent(values.subject||"GlobeDisc Problem Report");
+            const subject=encodeURIComponent(values.subject||"banjara Problem Report");
             const body=encodeURIComponent(values.message||"");
             window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
         }
@@ -11793,7 +11793,7 @@ async function settingsLoginSessions() {
     const expires=data?.session?.expires_at?new Date(data.session.expires_at*1000).toLocaleString("en-IN"):"Unknown";
     openSettingsActionModal({
         title:"Login Session",
-        description:error?"Could not read your current session.":"This browser currently has an active GlobeDisc session.",
+        description:error?"Could not read your current session.":"This browser currently has an active banjara session.",
         options:error?[]:[{value:"current",label:"Current Session Active",description:"Session expiry: "+expires,icon:"fa-circle-check"}],
         onConfirm:async()=>{}
     });
@@ -11802,7 +11802,7 @@ async function settingsLoginSessions() {
 async function settingsLogoutAll() {
     openSettingsActionModal({
         title:"Logout From All Devices",
-        description:"This will sign out the current account. Continue only if you want to end your GlobeDisc session.",
+        description:"This will sign out the current account. Continue only if you want to end your banjara session.",
         options:[
             {value:"logout",label:"Logout From All Devices",description:"End the current Supabase session",icon:"fa-right-from-bracket"}
         ],
@@ -11819,7 +11819,7 @@ function settingsAccountSecurity() {
     if (!currentUser) return;
     openSettingsActionModal({
         title:"Account Security",
-        description:"Review the security state of your GlobeDisc account.",
+        description:"Review the security state of your banjara account.",
         options:[
             {value:"email",label:"Email",description:(currentUser.email||"Not added")+" · "+(currentUser.email_confirmed_at?"Verified":"Verification may be required"),icon:"fa-envelope"},
             {value:"phone",label:"Mobile",description:(currentUser.phone||"Not added")+" · "+(currentUser.phone_confirmed_at?"Verified":"Verification may be required"),icon:"fa-mobile-screen"},
@@ -11838,8 +11838,8 @@ function settingsDeleteAccount() {
         danger:true,
         onConfirm:async values=>{
             if(values.confirm!=="DELETE"){showToast("Type DELETE exactly to continue","warning");return false;}
-            const subject=encodeURIComponent("GlobeDisc account deletion request");
-            const body=encodeURIComponent("Please delete my GlobeDisc account. Account ID: "+(currentUser?.id||"unknown"));
+            const subject=encodeURIComponent("banjara account deletion request");
+            const body=encodeURIComponent("Please delete my banjara account. Account ID: "+(currentUser?.id||"unknown"));
             window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
             showToast("Deletion request prepared","warning");
         }
@@ -11873,7 +11873,7 @@ async function handleSettingAction(action) {
     }
 
     if (action === "push-notifications") {
-        const settings = getGlobeDiscSettings();
+        const settings = getbanjaraSettings();
         if (!settings.notifications.push && "Notification" in window) {
             const permission = await Notification.requestPermission();
             if (permission !== "granted") {
@@ -11890,8 +11890,8 @@ async function handleSettingAction(action) {
     if (action === "blocked-users") return settingsBlockedUsers();
 
     if (action === "report-problem") {
-        const body = encodeURIComponent("GlobeDisc problem report:\n\n");
-        window.location.href = `mailto:rathodharish004@gmail.com?subject=GlobeDisc%20Problem%20Report&body=${body}`;
+        const body = encodeURIComponent("banjara problem report:\n\n");
+        window.location.href = `mailto:rathodharish004@gmail.com?subject=banjara%20Problem%20Report&body=${body}`;
         return;
     }
 
@@ -11903,8 +11903,8 @@ async function handleSettingAction(action) {
             <div class="developer-page">
                 <div class="developer-hero">
                     <div class="developer-hero-photo">
-                        <img src="assets/developer-photo.jpg" alt="Harish Rathod — GlobeDisc Developer">
-                        <span class="developer-status"><i class="fas fa-circle"></i> Building GlobeDisc</span>
+                        <img src="assets/developer-photo.jpg" alt="Harish Rathod — banjara Developer">
+                        <span class="developer-status"><i class="fas fa-circle"></i> Building banjara</span>
                     </div>
                     <div class="developer-hero-copy">
                         <span class="developer-eyebrow"><i class="fas fa-code"></i> STUDENTKART DEVELOPER</span>
@@ -11924,7 +11924,7 @@ async function handleSettingAction(action) {
                         <span class="section-label">ABOUT THE DEVELOPER</span>
                         <h3>From learning to building</h3>
                     </div>
-                    <p>Harish Rathod is the founder and developer behind GlobeDisc. The project combines a student-focused marketplace with authentication, listings, wishlist, search, notifications and chat features.</p>
+                    <p>Harish Rathod is the founder and developer behind banjara. The project combines a student-focused marketplace with authentication, listings, wishlist, search, notifications and chat features.</p>
                     <p>The goal is to keep learning practical: understand a problem, build a feature, test it, fix what breaks and keep improving the product.</p>
                 </div>
 
@@ -11934,7 +11934,7 @@ async function handleSettingAction(action) {
                         <h3>Current focus</h3>
                     </div>
                     <div class="developer-feature-grid">
-                        <div class="developer-feature-card"><i class="fas fa-store"></i><div><strong>GlobeDisc</strong><span>Marketplace, listings and student-first UX</span></div></div>
+                        <div class="developer-feature-card"><i class="fas fa-store"></i><div><strong>banjara</strong><span>Marketplace, listings and student-first UX</span></div></div>
                         <div class="developer-feature-card"><i class="fas fa-comments"></i><div><strong>Real-time Features</strong><span>Chat, inquiries and notifications</span></div></div>
                         <div class="developer-feature-card"><i class="fas fa-mobile-screen"></i><div><strong>Responsive UI</strong><span>Mobile-friendly and desktop-ready interfaces</span></div></div>
                         <div class="developer-feature-card"><i class="fas fa-shield-halved"></i><div><strong>Cybersecurity</strong><span>Learning networking, Linux and web security fundamentals</span></div></div>
@@ -11944,7 +11944,7 @@ async function handleSettingAction(action) {
                 <div class="developer-section">
                     <div class="developer-section-heading">
                         <span class="section-label">TECH STACK</span>
-                        <h3>What powers GlobeDisc</h3>
+                        <h3>What powers banjara</h3>
                     </div>
                     <div class="developer-stack">
                         <span><i class="fab fa-html5"></i> HTML5</span>
@@ -11962,14 +11962,14 @@ async function handleSettingAction(action) {
                     <i class="fas fa-lightbulb"></i>
                     <div>
                         <span class="section-label">VISION</span>
-                        <p>“GlobeDisc is being built to make campus life more connected, convenient and student-friendly.”</p>
+                        <p>“banjara is being built to make campus life more connected, convenient and student-friendly.”</p>
                     </div>
                 </div>
 
                 <div class="developer-footer-card">
                     <div>
                         <strong>Harish Rathod</strong>
-                        <span>Founder & Developer · GlobeDisc</span>
+                        <span>Founder & Developer · banjara</span>
                     </div>
                     <a href="mailto:rathodharish004@gmail.com" class="btn btn-primary"><i class="fas fa-envelope"></i> Contact</a>
                 </div>
@@ -12028,10 +12028,10 @@ const SETTINGS_SECTION_TEMPLATES = {
     html:`
       <button class="settings-row settings-toggle-row" data-new-toggle="notifications"><span><i class="fas fa-bell"></i><b>Notifications</b><small>Enable app notifications</small></span><span class="settings-switch"><span></span></span></button>
       <button class="settings-row settings-toggle-row" data-new-toggle="messageNotifications"><span><i class="fas fa-message"></i><b>Messages</b><small>Notifications for new messages</small></span><span class="settings-switch"><span></span></span></button>
-      <button class="settings-row settings-toggle-row" data-new-toggle="newsNotifications"><span><i class="fas fa-newspaper"></i><b>News & Updates</b><small>Important GlobeDisc updates</small></span><span class="settings-switch"><span></span></span></button>`
+      <button class="settings-row settings-toggle-row" data-new-toggle="newsNotifications"><span><i class="fas fa-newspaper"></i><b>News & Updates</b><small>Important banjara updates</small></span><span class="settings-switch"><span></span></span></button>`
   },
   appearance: {
-    title:"Appearance", icon:"fa-palette", subtitle:"Make GlobeDisc look the way you prefer.",
+    title:"Appearance", icon:"fa-palette", subtitle:"Make banjara look the way you prefer.",
     html:`
       <button class="settings-row" data-new-setting="theme"><span><i class="fas fa-circle-half-stroke"></i><b>Theme</b><small>Light, dark or system appearance</small></span><i class="fas fa-chevron-right"></i></button>
       <button class="settings-row" data-new-setting="accent"><span><i class="fas fa-droplet"></i><b>Accent</b><small>Choose your app accent style</small></span><i class="fas fa-chevron-right"></i></button>`
@@ -12055,14 +12055,14 @@ const SETTINGS_SECTION_TEMPLATES = {
       <button class="settings-row" data-new-setting="password"><span><i class="fas fa-key"></i><b>Password</b><small>Change your account password</small></span><i class="fas fa-chevron-right"></i></button>`
   },
   help: {
-    title:"Help & About", icon:"fa-circle-info", subtitle:"Get help and learn about GlobeDisc.",
+    title:"Help & About", icon:"fa-circle-info", subtitle:"Get help and learn about banjara.",
     html:`
       <button class="settings-row" data-new-setting="help"><span><i class="fas fa-circle-question"></i><b>Help Center</b><small>Find answers and guidance</small></span><i class="fas fa-chevron-right"></i></button>
       <button class="settings-row" data-new-setting="feedback"><span><i class="fas fa-comment-dots"></i><b>Send Feedback</b><small>Tell us what we can improve</small></span><i class="fas fa-chevron-right"></i></button>
-      <button class="settings-row" data-new-setting="about"><span><i class="fas fa-globe"></i><b>About GlobeDisc</b><small>Version and app information</small></span><i class="fas fa-chevron-right"></i></button>`
+      <button class="settings-row" data-new-setting="about"><span><i class="fas fa-globe"></i><b>About banjara</b><small>Version and app information</small></span><i class="fas fa-chevron-right"></i></button>`
   },
   account: {
-    title:"Account", icon:"fa-user-gear", subtitle:"Manage your GlobeDisc account.",
+    title:"Account", icon:"fa-user-gear", subtitle:"Manage your banjara account.",
     html:`
       <button class="settings-row" data-new-setting="logout"><span><i class="fas fa-right-from-bracket"></i><b>Log Out</b><small>Sign out of this device</small></span><i class="fas fa-chevron-right"></i></button>
       <button class="settings-row danger-row" data-new-setting="delete"><span><i class="fas fa-trash-can"></i><b>Delete Account</b><small>Permanently remove your account</small></span><i class="fas fa-chevron-right"></i></button>`
@@ -12625,7 +12625,7 @@ async function loadGlobalDiscoveryHomepage(){
     // It is raced with a short fallback so news never blocks the page.
     const locationPromise=resolveNewsLocation();
     void locationPromise.then(loc=>{
-        try{ localStorage.setItem("globedisc_last_news_location",JSON.stringify(loc||{})); }catch(_){}
+        try{ localStorage.setItem("banjara_last_news_location",JSON.stringify(loc||{})); }catch(_){}
     }).catch(()=>{});
 
     // Hyperlocal-first: the most specific saved place is always searched first.
@@ -12987,7 +12987,7 @@ async function loadGlobalDiscoveryHomepage(){
             '"'+cleanPart(resolvedState)+'" regional news'
         ] : ["Maharashtra latest news","Maharashtra regional news"];
 
-        const cacheKey="globedisc_news_cache_v2_"+[resolvedArea,resolvedCity,resolvedState].join("|").toLowerCase();
+        const cacheKey="banjara_news_cache_v2_"+[resolvedArea,resolvedCity,resolvedState].join("|").toLowerCase();
         let cached=[];
         try{
             cached=JSON.parse(localStorage.getItem(cacheKey)||"[]");
@@ -13171,7 +13171,7 @@ document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        const newsTopicButtons = [...document.querySelectorAll(".globedisc-news-topic")];
+        const newsTopicButtons = [...document.querySelectorAll(".banjara-news-topic")];
         newsTopicButtons.forEach(button => {
             button.addEventListener("click", async () => {
                 newsTopicButtons.forEach(x => x.classList.remove("active"));
