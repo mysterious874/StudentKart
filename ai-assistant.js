@@ -36,8 +36,19 @@ async function ask(question){
   if(send)send.disabled=false;if(input){input.disabled=false;input.value="";input.focus();}
  }
 }
+function bindAIControls(){
+ const button=$("askWithAiButton");
+ if(button && button.dataset.aiBound!=="1"){
+  button.dataset.aiBound="1";
+  button.addEventListener("click",function(event){
+   event.preventDefault();
+   event.stopPropagation();
+   openAI();
+  });
+ }
+}
 document.addEventListener("DOMContentLoaded",()=>{
- $("askWithAiButton")?.addEventListener("click",openAI);
+ bindAIControls();
  $("aiAssistantBack")?.addEventListener("click",closeAI);
  $("aiAssistantNewChat")?.addEventListener("click",()=>{
   history=[];const box=$("aiAssistantMessages");
@@ -47,3 +58,6 @@ document.addEventListener("DOMContentLoaded",()=>{
  $("aiAssistantForm")?.addEventListener("submit",e=>{e.preventDefault();ask($("aiAssistantInput")?.value);});
 });
 })();
+window.openGlobeDiscAI=openAI;
+window.closeGlobeDiscAI=closeAI;
+window.addEventListener("load",bindAIControls,{once:true});
