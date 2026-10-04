@@ -242,3 +242,86 @@ html body .banjara-bottom-nav{
   .banjara-bottom-nav .bottom-nav-item span{font-size:8px!important}
   .banjara-bottom-nav .bottom-nav-create{width:44px!important;height:44px!important;border-radius:15px!important}
 }
+
+
+/* Banjara Connect — centered home header */
+html body #home.banjara-home-top{
+  min-height:0!important;
+  height:auto!important;
+  padding:28px 18px 20px!important;
+  background:var(--bc-cream)!important;
+  display:block!important;
+  overflow:visible!important;
+}
+html body #home .banjara-home-brand{
+  width:min(680px,100%);
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+html body #home .banjara-home-logo{
+  width:82px!important;
+  height:82px!important;
+  object-fit:contain!important;
+  display:block!important;
+  margin:0 auto 9px!important;
+}
+html body #home .banjara-home-name{
+  color:var(--bc-maroon)!important;
+  font-size:28px!important;
+  line-height:1.15!important;
+  font-weight:800!important;
+  letter-spacing:-.5px!important;
+  margin:0 0 18px!important;
+}
+html body #home .banjara-home-search{
+  width:min(620px,100%);
+  height:52px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 8px 0 17px;
+  background:#fff!important;
+  border:1px solid var(--bc-line)!important;
+  border-radius:28px!important;
+  box-shadow:0 5px 18px rgba(84,18,28,.09);
+}
+html body #home .banjara-home-search > i{
+  color:var(--bc-maroon)!important;
+  flex:0 0 auto;
+}
+html body #home .banjara-home-search input{
+  flex:1 1 auto;
+  min-width:0;
+  height:100%;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  color:var(--bc-text)!important;
+  -webkit-text-fill-color:var(--bc-text)!important;
+  font-size:15px!important;
+}
+html body #home .banjara-home-search input::placeholder{
+  color:var(--bc-muted)!important;
+  opacity:.9!important;
+}
+html body #home .banjara-home-search button{
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  border:0!important;
+  border-radius:50%!important;
+  background:var(--bc-maroon)!important;
+  color:#fff!important;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+@media(max-width:600px){
+  html body #home.banjara-home-top{padding:22px 14px 16px!important}
+  html body #home .banjara-home-logo{width:70px!important;height:70px!important}
+  html body #home .banjara-home-name{font-size:24px!important;margin-bottom:15px!important}
+  html body #home .banjara-home-search{height:48px}
+}
