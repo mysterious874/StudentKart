@@ -14072,16 +14072,25 @@ async function loadGlobalDiscoveryHomepage(){
     const runNewsQueries=async(queries,timeout=4500)=>{
         const results=await Promise.allSettled(
             queries.map(async query=>{
-                const newsFunctionUrl=SUPABASE_URL+"/functions/v1/global-news?q="+encodeURIComponent(query);
-                const response=await fetchWithTimeout(newsFunctionUrl,{
-                    headers:{
+                const q=String(query||"").trim();
+                const edgeUrl=SUPABASE_URL+"/functions/v1/global-news?q="+encodeURIComponent(q);
+                const gdeltUrl="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=30&timespan=24h&format=json";
+                const request=(url,headers={})=>fetchWithTimeout(url,{headers},Math.min(timeout,3000)).then(async response=>{
+                    if(!response.ok) throw new Error("News request failed");
+                    return response.json();
+                });
+
+                // Fast path: whichever source answers first wins the first paint.
+                // The slower source is still used later through the normal background
+                // scope loading, so freshness is not sacrificed for speed.
+                return await Promise.any([
+                    request(edgeUrl,{
                         "apikey":SUPABASE_KEY,
                         "Authorization":"Bearer "+SUPABASE_KEY,
                         "Accept":"application/json"
-                    }
-                },timeout);
-                if(!response.ok) throw new Error("News function returned HTTP "+response.status);
-                return response.json();
+                    }),
+                    request(gdeltUrl,{"Accept":"application/json"})
+                ]);
             })
         );
 
@@ -14090,10 +14099,17 @@ async function loadGlobalDiscoveryHomepage(){
             if(result.status!=="fulfilled") return;
             const articles=Array.isArray(result.value?.articles) ? result.value.articles : [];
             articles.forEach(article=>{
-                const key=String(article?.url||"").trim().replace(/[?#].*$/,"");
+                const normalized={
+                    ...article,
+                    source:String(article?.source||article?.domain||article?.sourcecountry||"News").trim(),
+                    description:String(article?.description||article?.snippet||"").trim(),
+                    date:String(article?.date||article?.seendate||"").trim(),
+                    image:String(article?.image||article?.socialimage||"").trim()
+                };
+                const key=String(normalized?.url||"").trim().replace(/[?#].*$/,"");
                 if(!key || seenUrls.has(key)) return;
                 seenUrls.add(key);
-                if(article?.title && article?.url) items.push(classify(article));
+                if(normalized?.title && normalized?.url) items.push(classify(normalized));
             });
         });
 
@@ -14120,7 +14136,7 @@ async function loadGlobalDiscoveryHomepage(){
         const initialQueries=queries.slice(0,2);
         const remainingQueries=queries.slice(2);
 
-        const initialItems=await runNewsQueries(initialQueries,4500);
+        const initialItems=await runNewsQueries(initialQueries,2400);
         scopeQueues.set(scope.key,initialItems);
 
         if(remainingQueries.length){
