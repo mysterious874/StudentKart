@@ -15,7 +15,7 @@
                 </div>
                 <div id="adminUsersStats" class="sk-admin-user-stats"></div>
                 <div class="sk-admin-listings-toolbar">
-                  <input id="adminUsersSearch" placeholder="Search name, email, username, phone or campus..." autocomplete="off">
+                  <input id="adminUsersSearch" placeholder="Search name, email, username, phone or college..." autocomplete="off">
                   <button type="button" class="btn btn-outline" id="adminUsersRefresh"><i class="fas fa-rotate"></i> Refresh</button>
                 </div>
                 <div id="adminUsersList" class="sk-admin-list"><div class="sk-admin-empty">Loading...</div></div>
