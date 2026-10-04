@@ -168,7 +168,10 @@ async function bcRestoreSession(){
   try{
     const {data}=await sb.auth.getSession();
     if(data?.session?.user){
-      const phone=data.session.user.user_metadata?.phone||data.session.user.phone||"";
+      const email=String(data.session.user.email||"");
+      const match=email.match(/^account\+(\d{10})@banjaraconnect\.app$/i);
+      const phone=match?"+91"+match[1]:"";
+      if(!phone){await sb.auth.signOut({scope:"local"});state.auth="login";renderAll();showScreen("auth");toast("Please log in again to restore this session.");return;}
       await bcAfterLogin(data.session.user,phone);
     }else{showScreen("auth");}
   }catch(e){console.warn("Restore session:",e);showScreen("auth");}
