@@ -273,3 +273,48 @@ body:before{
   }
   .chat-head{min-height:64px!important}
 }
+
+/* Exact chat list/message classes used by the current app */
+.whatsapp-inquiry-card{background:#fffaf2!important;border-bottom:1px solid var(--bc-line)!important}
+.whatsapp-inquiry-card:hover{background:#fff4e6!important}
+.whatsapp-inquiry-avatar{border-color:#e2c9b2!important}
+.whatsapp-inquiry-top strong{color:var(--bc-text)!important}
+.whatsapp-product-name{color:var(--bc-maroon)!important}
+.whatsapp-unread{background:var(--bc-maroon)!important}
+.whatsapp-chat-button{background:#fff0df!important;border-color:#e5c9ae!important;color:var(--bc-maroon)!important}
+#chatModal .chat-head{background:linear-gradient(135deg,var(--bc-maroon-dark),var(--bc-maroon))!important;border-bottom:0!important}
+#chatModal .chat-person h2{color:#fff!important}
+#chatModal .chat-messages{
+  background:
+    radial-gradient(circle at 12% 8%,rgba(216,120,47,.08),transparent 24%),
+    #f5eadb!important;
+}
+#chatModal .chat-form{background:#fffaf2!important;border-top-color:var(--bc-line)!important}
+#chatModal .chat-input-pill{background:#fff!important;border-color:#e2d2c2!important}
+#chatModal .chat-input-pill:focus-within{border-color:rgba(123,30,43,.35)!important;box-shadow:0 0 0 3px rgba(123,30,43,.07)!important}
+#chatModal .chat-send-button{background:var(--bc-maroon)!important;box-shadow:0 5px 13px rgba(123,30,43,.20)!important}
+#chatModal .chat-send-button:hover{background:var(--bc-maroon-dark)!important}
+.chat-message-own .chat-message-bubble{background:#f6d7ad!important;color:var(--bc-text)!important;border-radius:16px 6px 16px 16px!important}
+.chat-message-other .chat-message-bubble{background:#fff!important;color:var(--bc-text)!important;border-radius:6px 16px 16px 16px!important}
+.chat-message-time{color:#8b7769!important}
+.chat-message-own .chat-message-time{color:#82624d!important}
+.chat-message-selection-header{background:var(--bc-maroon)!important;color:#fff!important}
+.chat-quoted-message{border-left-color:var(--bc-orange)!important;background:#fff4e8!important}
+.chat-profile-intro{color:var(--bc-text)!important}
+.chat-profile-avatar-large{background:linear-gradient(135deg,var(--bc-maroon),var(--bc-orange))!important;color:#fff!important}
+.chat-view-profile-button{color:var(--bc-maroon)!important;border-color:#e2c9b2!important;background:#fffaf2!important}
+
+/* AI keeps its own page, but inherits the community identity */
+#aiAssistantPage .ai-assistant-navbar{
+  background:linear-gradient(135deg,var(--bc-maroon-dark),var(--bc-maroon))!important;
+  border-bottom:0!important;
+}
+#aiAssistantPage .ai-assistant-brand strong,
+#aiAssistantPage .ai-assistant-brand small,
+#aiAssistantPage .ai-assistant-back,
+#aiAssistantPage .ai-assistant-new-chat{color:#fff!important}
+#aiAssistantPage .ai-assistant-composer{background:#efe6d8!important}
+#aiAssistantPage .ai-assistant-composer textarea{border-color:#e0cbb8!important;background:#fffaf2!important}
+#aiAssistantPage .ai-assistant-composer button{background:var(--bc-maroon)!important}
+#aiAssistantPage .ai-chat-user{background:var(--bc-maroon)!important}
+#aiAssistantPage .ai-chat-assistant{background:#fffaf2!important;border-color:#e6d7c8!important}
