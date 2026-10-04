@@ -1,0 +1,14 @@
+name: Syntax check
+on:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --check banjara-frontend-complete.js
+      - run: node --check banjara-live-data.js
