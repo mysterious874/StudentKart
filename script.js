@@ -1617,7 +1617,6 @@ function updateNavbar() {
 
         footerLoginButton?.classList.remove("hidden");
         footerSignupButton?.classList.remove("hidden");
-        footerProfileButton?.classList.add("hidden");
         footerLogoutButton?.classList.add("hidden");
 
         sellButton?.classList.remove(
@@ -13193,13 +13192,6 @@ document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();
                     grid.innerHTML = '<div class="world-news-empty"><i class="fas fa-triangle-exclamation"></i><h3>News is temporarily unavailable</h3><p>Try this topic again in a moment.</p></div>';
                 }
             });
-        });
-
-        // Keep the main search bar at the top when the user opens it.
-        const homeSearch = document.getElementById("heroSearchInput");
-        homeSearch?.addEventListener("click", () => scrollSearchToTop(homeSearch));
-        homeSearch?.addEventListener("focus", () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
         // The bottom marketplace button opens the separate marketplace page.
