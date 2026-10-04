@@ -1,5 +1,5 @@
 /* =========================================================
-   STUDENTKART — ADMIN TOOL
+   GLOBEDISC — ADMIN TOOL
    Adds a secure admin-only entry inside Settings.
    ========================================================= */
 (function () {
@@ -7,9 +7,9 @@
     let booted = false;
 
     function addStyles() {
-        if (document.getElementById("studentkartAdminToolStyles")) return;
+        if (document.getElementById("globediscAdminToolStyles")) return;
         const style = document.createElement("style");
-        style.id = "studentkartAdminToolStyles";
+        style.id = "globediscAdminToolStyles";
         style.textContent = `
             .sk-admin-settings-card{border:1px solid #cfe9e7!important;background:linear-gradient(135deg,#f0fbfa,#f8fbff)!important}
             .sk-admin-settings-card b{color:#0f7779}
@@ -120,7 +120,7 @@
                             <div>
                                 <span class="section-label">NEW PRODUCTS</span>
                                 <h2>Add New Product</h2>
-                                <p>Add a new, non-used product to the StudentKart marketplace.</p>
+                                <p>Add a new, non-used product to the GlobeDisc marketplace.</p>
                             </div>
                         </div>
                         <button type="button" class="modal-close" data-close-add-product aria-label="Close">&times;</button>
@@ -200,7 +200,7 @@
                         <div class="settings-title-wrap">
                             <div class="settings-icon"><i class="fas fa-shield-halved"></i></div>
                             <div>
-                                <span class="section-label">STUDENTKART ADMIN</span>
+                                <span class="section-label">GLOBEDISC ADMIN</span>
                                 <h2>Admin Tool</h2>
                                 <p>Manage trusted campus operations.</p>
                             </div>
@@ -224,10 +224,10 @@
                                 <i class="fas fa-user-check"></i><strong>Campus Verification</strong>
                                 <span>Review student ID verification requests.</span>
                             </button>
-                            <button type="button" class="sk-admin-dashboard-card" id="adminUsersTool"><i class="fas fa-users"></i><strong>Users</strong><span>View registered StudentKart profiles.</span></button>
+                            <button type="button" class="sk-admin-dashboard-card" id="adminUsersTool"><i class="fas fa-users"></i><strong>Users</strong><span>View registered GlobeDisc profiles.</span></button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminListingsTool"><i class="fas fa-box-open"></i><strong>Listings</strong><span>Review marketplace listings.</span></button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminAddProductTool">
-                                <i class="fas fa-circle-plus"></i><strong>Add New Product</strong><span>Add a new product to the StudentKart New Products marketplace.</span>
+                                <i class="fas fa-circle-plus"></i><strong>Add New Product</strong><span>Add a new product to the GlobeDisc New Products marketplace.</span>
                             </button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminReportsTool"><i class="fas fa-flag"></i><strong>Reports</strong><span>Review and moderate reports.</span></button>
                         </div>
@@ -248,9 +248,9 @@
             });
             modal.querySelector("#adminReportsTool")?.addEventListener("click", async () => {
                 const open = async () => {
-                    if (window.StudentKartAdminReports?.openReports) await window.StudentKartAdminReports.openReports();
+                    if (window.GlobeDiscAdminReports?.openReports) await window.GlobeDiscAdminReports.openReports();
                 };
-                if (window.StudentKartAdminReports?.openReports) return open();
+                if (window.GlobeDiscAdminReports?.openReports) return open();
                 const existing = document.querySelector('script[data-globedisc-admin-reports="1"]');
                 if (existing) { existing.addEventListener("load", open, { once: true }); return; }
                 const script = document.createElement("script");
@@ -264,8 +264,8 @@
                 close();
                 const campusModal = document.getElementById("campusModal");
                 if (campusModal) campusModal.classList.remove("hidden");
-                if (window.StudentKartAdminVerification?.openAdminPanel) {
-                    await window.StudentKartAdminVerification.openAdminPanel();
+                if (window.GlobeDiscAdminVerification?.openAdminPanel) {
+                    await window.GlobeDiscAdminVerification.openAdminPanel();
                 }
             });
         }
@@ -292,7 +292,7 @@
     }
 
     async function boot() { addStyles(); await ensureButton(); }
-    window.StudentKartAdminTool = { boot, checkAdmin, openDashboard };
+    window.GlobeDiscAdminTool = { boot, checkAdmin, openDashboard };
 
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, {once:true});
     else boot();
