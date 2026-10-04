@@ -296,7 +296,7 @@ async function bcLoadBlockedAccounts(){
  if(error){panel.innerHTML='<div class="bc-empty"><strong>Could not load blocked accounts</strong><span>Please try again.</span></div>';return;}
  const ids=(data||[]).map(x=>x.blocked_id);
  if(!ids.length){panel.innerHTML='<div class="bc-empty"><i class="fas fa-user-check"></i><strong>No blocked accounts</strong><span>People you block will appear here.</span></div>';return;}
- const {data:profiles}=await sb.from("public_profiles").select("id,name,city,state,avatar_url").in("id",ids);
+ const {data:profiles}=await sb.from("profiles").select("id,name,city,state,avatar_url").in("id",ids);
  const map=new Map((profiles||[]).map(x=>[x.id,x]));
  panel.innerHTML=(data||[]).map(x=>{const p=map.get(x.blocked_id)||{};return '<div class="bc-blocked-row"><div class="bc-avatar">'+esc((p.name||"Member").split(" ").map(v=>v[0]).join("").slice(0,2).toUpperCase())+'</div><div class="bc-blocked-main"><strong>'+esc(p.name||"Banjara Member")+'</strong><small>'+esc([p.city,p.state].filter(Boolean).join(" • ")||"Banjara Connect member")+'</small></div><button class="bc-action" data-unblock-user="'+x.blocked_id+'">Unblock</button></div>';}).join("");
 }
