@@ -422,3 +422,9 @@ alter function private.notify_connection() set search_path = public;
 
 -- 2026-10-04 chat member-search abuse hardening
 -- search-profile-by-phone requires JWT and rate-limits member-number enumeration to 15 requests per user/IP per minute.
+
+
+-- community_members authenticated update hardening
+-- Only the community creator may change member roles; identity/community/joined_at columns are not UPDATE-granted.
+revoke update(user_id, community_id, joined_at) on table public.community_members from authenticated;
+grant update(role) on table public.community_members to authenticated;
