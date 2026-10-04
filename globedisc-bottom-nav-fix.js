@@ -6,6 +6,8 @@
     const nav = document.querySelector(".mobile-bottom-nav");
     if (!nav || nav.dataset.bound === "1") return;
     nav.dataset.bound = "1";
+    nav.style.pointerEvents = "auto";
+    nav.style.zIndex = "120000";
 
     nav.addEventListener("click", function (event) {
       const item = event.target.closest(".bottom-nav-item");
