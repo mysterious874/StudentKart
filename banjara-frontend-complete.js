@@ -24,6 +24,7 @@ function build(){
  '<div id="bcModal" class="bc-modal"><div class="bc-sheet" id="bcSheet"></div></div><div id="bcToast" class="bc-toast"></div>';
  document.body.appendChild(root);
  renderAll(); bind();
+ bcInitSafeHistory();
  if(window.supabaseClient){ setTimeout(()=>void bcRestoreSession(),0); } else { showScreen("auth"); }
 }
 function navBtns(id,label,icon){return '<button data-screen="'+id+'"><i class="fas '+icon+'"></i><span>'+label+'</span></button>'}
@@ -60,6 +61,31 @@ function showScreen(screen){
  window.scrollTo({top:0,behavior:"smooth"});
 }
 function toast(msg){const t=$("#bcToast");if(!t)return;t.textContent=msg;t.classList.add("show");clearTimeout(window.__bcToast);window.__bcToast=setTimeout(()=>t.classList.remove("show"),1800)}
+
+/* Safe browser back navigation: isolated from showScreen/rendering logic. */
+let bcSafeHistoryReady=false;
+const BC_HISTORY_SCREENS=["home","chats","connect","community","feed","notifications","profile","settings","auth"];
+function bcHistoryScreen(){const h=String(window.location.hash||"").replace(/^#/,"");return BC_HISTORY_SCREENS.includes(h)?h:"home";}
+function bcPushHistory(screen){
+ if(!bcSafeHistoryReady||!BC_HISTORY_SCREENS.includes(screen)||screen===state.screen)return;
+ try{window.history.pushState({bcScreen:screen},"",window.location.pathname+window.location.search+(screen==="home"?"":"#"+screen));}catch(e){console.warn("Banjara history:",e);}
+}
+function bcInitSafeHistory(){
+ if(bcSafeHistoryReady)return;
+ const initial=bcHistoryScreen();
+ try{window.history.replaceState({bcScreen:initial},"",window.location.pathname+window.location.search+(initial==="home"?"":"#"+initial));}catch(e){console.warn("Banjara history init:",e);}
+ bcSafeHistoryReady=true;
+ window.addEventListener("popstate",function(e){
+  const target=(e.state&&e.state.bcScreen)||bcHistoryScreen();
+  if(BC_HISTORY_SCREENS.includes(target))showScreen(target);
+ });
+ document.addEventListener("click",function(e){
+  const nav=e.target.closest("[data-screen]");
+  if(nav)bcPushHistory(nav.dataset.screen);
+  else if(e.target.closest("[data-more]"))bcPushHistory("settings");
+ },true);
+}
+
 
 const BC_SUPABASE = () => window.supabaseClient;
 function bcNormalizePhone(value){
