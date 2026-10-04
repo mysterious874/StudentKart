@@ -5649,6 +5649,8 @@ function globeDiscRouteSearch(query) {
         {keys:["emi","loan emi","interest rate","gst","sip","percentage","currency converter","money hub","budget planner"], url:"money-hub.html"},
         {keys:["calculate","calculator","math","solve equation"], url:"ai-calculator.html"},
         {keys:["daily tools","todo","to do","pomodoro","dictionary","json formatter","base64","text tools","image compressor","random picker","world clock","timezone"], url:"daily-tools.html"},
+        {keys:["budget planner","expense tracker","track expenses","budget"], url:"budget-planner.html"},
+        {keys:["savings goal","savings goals","save money","saving target"], url:"savings-goal.html"},
         {keys:["study planner","study schedule","study plan"], url:"study-planner.html"},
         {keys:["travel checklist","packing list","trip checklist"], url:"travel-checklist.html"},
         {keys:["security dev tools","jwt decoder","regex tester","hash generator","uuid generator"], url:"security-dev-tools.html"},
