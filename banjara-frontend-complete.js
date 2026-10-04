@@ -51,6 +51,14 @@ function loginHTML(){return '<img class="bc-auth-logo" src="/icons/banjara-conne
 function signupHTML(){return '<img class="bc-auth-logo" src="/icons/banjara-connect-icon.svg"><h1>Create your account</h1><p>Mobile-only account setup. No email field.</p><form class="bc-form" data-auth-form="signup"><div class="bc-field"><label>Mobile number</label><input required inputmode="numeric" placeholder="10-digit mobile number"></div><div class="bc-field"><label>Password</label><input required type="password" placeholder="Create password"></div><div class="bc-field"><label>Confirm password</label><input required type="password" placeholder="Confirm password"></div><button class="bc-action primary" style="height:42px">Create account</button></form><div class="bc-switch"><span>Already have an account?</span><button data-auth="login">Log in</button></div>'}
 function empty(icon,title,text){return '<div class="bc-empty"><i class="fas '+icon+'"></i><strong>'+title+'</strong><span>'+text+'</span></div>'}
 function esc(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function showScreen(screen){
+ state.screen=screen;
+ document.body.classList.toggle("bc-auth-mode",screen==="auth");
+ $(".bc-screen").forEach(x=>x.classList.remove("active"));
+ const el=$("#bc-"+screen);if(el)el.classList.add("active");
+ $("[data-screen]").forEach(b=>b.classList.toggle("active",b.dataset.screen===screen));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
 function toast(msg){const t=$("#bcToast");if(!t)return;t.textContent=msg;t.classList.add("show");clearTimeout(window.__bcToast);window.__bcToast=setTimeout(()=>t.classList.remove("show"),1800)}
 
 const BC_SUPABASE = () => window.supabaseClient;
