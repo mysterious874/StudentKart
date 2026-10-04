@@ -8814,7 +8814,7 @@ function openSignupFromNewUserGate() {
    INITIALIZE
    ========================================================= */
 
-async function initializeStudentKart() {
+async async function initializeStudentKart() {
 
     try {
 
