@@ -10326,10 +10326,9 @@ async function sendChatMessage(event) {
 
         if (input) {
             input.value = "";
-            // ChatGPT/WhatsApp-style behavior: sending a message releases
-            // the input focus so the mobile keyboard closes immediately.
-            // The keyboard will only return after the user taps the input again.
-            input.blur();
+            // Lock the composer after sending. It can only become focusable
+            // again after the user explicitly taps the input.
+            lockChatInputKeyboard();
         }
         if (document.activeElement && typeof document.activeElement.blur === "function") {
             document.activeElement.blur();
@@ -10768,6 +10767,40 @@ function escapeHtml(value) {
     return div.innerHTML;
 }
 
+
+// ChatGPT-style mobile composer keyboard lock.
+// After sending, keep the input unfocusable until the user explicitly taps it again.
+let chatInputKeyboardLocked = false;
+
+function lockChatInputKeyboard() {
+    const input = $("chatInput");
+    if (!input) return;
+    chatInputKeyboardLocked = true;
+    input.readOnly = true;
+    input.blur();
+}
+
+function unlockChatInputKeyboard() {
+    const input = $("chatInput");
+    if (!input) return;
+    chatInputKeyboardLocked = false;
+    input.readOnly = false;
+}
+
+$("chatInput")?.addEventListener("pointerdown", () => {
+    if (chatInputKeyboardLocked) {
+        unlockChatInputKeyboard();
+    }
+});
+
+$("chatInput")?.addEventListener("focus", event => {
+    // A programmatic focus after send must not reopen the mobile keyboard.
+    // Manual pointer interaction clears the lock first.
+    if (chatInputKeyboardLocked) {
+        event.preventDefault();
+        event.target.blur();
+    }
+});
 
 // Chat form
 $("chatForm")?.addEventListener(
