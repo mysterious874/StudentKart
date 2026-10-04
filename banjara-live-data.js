@@ -49,7 +49,7 @@ function refreshUI(){
 async function openChat(chatId,name){
  const existing=document.getElementById("bcChatOverlay");if(existing){const topic=existing.dataset.channel;const old=topic?SB().getChannels().find(x=>x.topic===topic):null;if(old)await SB().removeChannel(old);existing.remove();}
  const box=document.createElement("section");box.id="bcChatOverlay";box.className="bc-chat-overlay";
- box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small id="bcChatPresence">Offline</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><div id="bcReplyBar" class="bc-reply-bar" hidden><button type="button" data-reply-cancel><i class="fas fa-xmark"></i></button><div><small>Replying to</small><strong id="bcReplyText"></strong></div></div><div class="bc-record-bar" id="bcRecordBar" hidden><button type="button" data-record-cancel><i class="fas fa-trash"></i></button><span><i class="fas fa-microphone"></i> Recording <b id="bcRecordTime">00:00</b></span><button type="button" data-record-send><i class="fas fa-paper-plane"></i> Send</button></div><form class="bc-chat-composer" id="bcChatForm"><button type="button" class="bc-chat-tool" id="bcAttachBtn" title="Photo, video or file"><i class="fas fa-paperclip"></i></button><input type="file" id="bcAttachInput" hidden accept="image/*,video/*,.pdf"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button type="button" class="bc-chat-tool" id="bcVoiceBtn" title="Voice message"><i class="fas fa-microphone"></i></button><button type="submit" class="bc-send-btn"><i class="fas fa-paper-plane"></i></button></form>';
+ box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small id="bcChatPresence">Offline</small></div><button type="button" class="bc-chat-search-btn" id="bcChatSearchBtn" title="Search messages"><i class="fas fa-search"></i></button></div><div class="bc-chat-messages" id="bcChatMessages"></div><div id="bcReplyBar" class="bc-reply-bar" hidden><button type="button" data-reply-cancel><i class="fas fa-xmark"></i></button><div><small>Replying to</small><strong id="bcReplyText"></strong></div></div><div class="bc-record-bar" id="bcRecordBar" hidden><button type="button" data-record-cancel><i class="fas fa-trash"></i></button><span><i class="fas fa-microphone"></i> Recording <b id="bcRecordTime">00:00</b></span><button type="button" data-record-send><i class="fas fa-paper-plane"></i> Send</button></div><form class="bc-chat-composer" id="bcChatForm"><button type="button" class="bc-chat-tool" id="bcAttachBtn" title="Photo, video or file"><i class="fas fa-paperclip"></i></button><input type="file" id="bcAttachInput" hidden accept="image/*,video/*,.pdf"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button type="button" class="bc-chat-tool" id="bcVoiceBtn" title="Voice message"><i class="fas fa-microphone"></i></button><button type="submit" class="bc-send-btn"><i class="fas fa-paper-plane"></i></button></form>';
  document.body.appendChild(box);
  const sb=SB(),{data:{user}}=await sb.auth.getUser();if(!user)return;
  const {data:blockRows}=await sb.from("user_blocks").select("blocker_id,blocked_id").or("blocker_id.eq."+user.id+",blocked_id.eq."+user.id);
@@ -67,7 +67,7 @@ async function openChat(chatId,name){
    const reply=m.reply_to_id?currentMessages.find(x=>x.id===m.reply_to_id):null;
    const quoted=reply?'<div class="bc-msg-quote">'+escLive(reply.body||("["+reply.message_type+"]"))+'</div>':"";
    const rs=reactions.get(m.id)||[], counts={};rs.forEach(r=>counts[r.reaction]=(counts[r.reaction]||0)+1);const reactionHtml=Object.entries(counts).map(([emoji,count])=>'<span class="bc-msg-reaction">'+emoji+(count>1?'<b>'+count+'</b>':'')+'</span>').join("");
- return '<button type="button" class="bc-msg '+(mine?"mine":"theirs")+'" data-message-id="'+m.id+'">'+quoted+content+'<small>'+ago(m.created_at)+receipt+'</small>'+(reactionHtml?'<div class="bc-msg-reactions">'+reactionHtml+'</div>':"")+'</button>';
+ return '<button type="button" data-message-id="\`m.id\`" class="bc-msg '+(mine?"mine":"theirs")+'" data-message-id="'+m.id+'">'+quoted+content+'<small>'+ago(m.created_at)+receipt+'</small>'+(reactionHtml?'<div class="bc-msg-reactions">'+reactionHtml+'</div>':"")+'</button>';
  };
  let currentMessages=[];
  const reactionMap=()=>{const map=new Map();(reactionRows||[]).forEach(r=>{if(!map.has(r.message_id))map.set(r.message_id,[]);map.get(r.message_id).push(r);});return map;}; let reactions=reactionMap();
@@ -86,6 +86,19 @@ async function openChat(chatId,name){
  await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);
  const now=new Date().toISOString(); await sb.from("messages").update({delivered_at:now,read_at:now}).eq("chat_id",chatId).neq("sender_id",user.id).is("read_at",null);
  if(window.__bcLive?.chats){const current=window.__bcLive.chats.find(x=>x.id===chatId);if(current)current.unread=false;}
+ const chatSearchBtn=box.querySelector("#bcChatSearchBtn");
+ chatSearchBtn.onclick=()=>{
+   const overlay=document.createElement("div");overlay.className="bc-chat-search-overlay";
+   overlay.innerHTML='<div class="bc-chat-search-card"><div class="bc-chat-search-head"><strong>Search messages</strong><button type="button" data-close>×</button></div><input class="bc-chat-search-input" placeholder="Search in this chat..." autocomplete="off"><div class="bc-chat-search-results"></div></div>';
+   document.body.appendChild(overlay);const si=overlay.querySelector("input"),out=overlay.querySelector(".bc-chat-search-results");
+   const close=()=>overlay.remove();overlay.querySelector("[data-close]").onclick=close;si.focus();
+   si.oninput=()=>{
+     const term=si.value.trim().toLowerCase();if(!term){out.innerHTML='<div class="bc-empty"><span>Type to search messages</span></div>';return;}
+     const hits=currentMessages.filter(m=>(m.body||"").toLowerCase().includes(term)).slice(-30).reverse();
+     out.innerHTML=hits.length?hits.map(m=>'<button type="button" class="bc-chat-search-result" data-mid="'+m.id+'"><strong>'+escLive((m.body||"Voice/attachment").slice(0,120))+'</strong><small>'+new Date(m.created_at).toLocaleString()+'</small></button>').join(""):'<div class="bc-empty"><span>No matching messages</span></div>';
+   };
+   out.onclick=ev=>{const b=ev.target.closest("[data-mid]");if(!b)return;close();const target=box.querySelector('[data-message-id="'+b.dataset.mid+'"]');if(target){target.scrollIntoView({behavior:"smooth",block:"center"});target.classList.add("bc-search-hit");setTimeout(()=>target.classList.remove("bc-search-hit"),1600);}};
+ };
  const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn"); let pressTimer=null;
  const presenceEl=box.querySelector("#bcChatPresence"); let typingTimer=null;
  const {data:members}=await sb.from("chat_members").select("user_id").eq("chat_id",chatId);
