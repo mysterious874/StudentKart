@@ -19035,3 +19035,7 @@ body.marketplace-page-active .new-product-card img{
  .world-news-location-note{padding:14px}
 }
 
+
+
+/* GlobeDisc intro: floating navigation stays hidden until the intro ends. */
+body.globedisc-splash-active .mobile-bottom-nav{display:none!important;visibility:hidden!important;pointer-events:none!important;}
