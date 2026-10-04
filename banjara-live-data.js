@@ -16,7 +16,7 @@ async function loadLive(){
    sb.from("chat_members").select("chat_id,last_read_at").eq("user_id",user.id)
   ]);
   if(people.error||communities.error)throw people.error||communities.error;
-  const {data:sent}=await sb.from("connections").select("id,addressee_id,status").eq("requester_id",user.id); const {data:received}=await sb.from("connections").select("id,requester_id,status").eq("addressee_id",user.id); const conMap=new Map(); (sent||[]).forEach(x=>conMap.set(x.addressee_id,{...x,direction:"sent"})); (received||[]).forEach(x=>conMap.set(x.requester_id,{...x,direction:"received"})); window.__bcLive={people:people.data||[],communities:communities.data||[],posts:posts.data||[],notifications:notifications.data||[],chats:[],connections:conMap};
+  const {data:cmembers}=await sb.from("community_members").select("community_id,user_id,role").eq("user_id",user.id); const myCommunityIds=new Set((cmembers||[]).map(x=>x.community_id)); const {data:sent}=await sb.from("connections").select("id,addressee_id,status").eq("requester_id",user.id); const {data:received}=await sb.from("connections").select("id,requester_id,status").eq("addressee_id",user.id); const conMap=new Map(); (sent||[]).forEach(x=>conMap.set(x.addressee_id,{...x,direction:"sent"})); (received||[]).forEach(x=>conMap.set(x.requester_id,{...x,direction:"received"})); window.__bcLive={people:people.data||[],communities:communities.data||[],posts:posts.data||[],notifications:notifications.data||[],chats:[],connections:conMap,myCommunityIds};
   const pmap=new Map((people.data||[]).map(p=>[p.id,p])), cmap=new Map((communities.data||[]).map(c=>[c.id,c]));
   for(const m of (members.data||[])){
    const {data:others}=await sb.from("chat_members").select("user_id").eq("chat_id",m.chat_id).neq("user_id",user.id);
@@ -79,11 +79,25 @@ async function connectAction(id){
  if(current?.status==="pending")return;
  const r=await sb.from("connections").insert({requester_id:user.id,addressee_id:id,status:"pending"}); if(!r.error)await loadLive();
 }
-window.bcReloadLive=loadLive;window.bcConnect=connectAction;window.bcOpenChat=openChat;window.bcNewChat=newChat;
+async function communityAction(id){
+ const sb=SB();const {data:{user}}=await sb.auth.getUser();if(!user)return;
+ if(window.__bcLive?.myCommunityIds?.has(id)){const r=await sb.from("community_members").delete().eq("community_id",id).eq("user_id",user.id);if(r.error){alert("Could not leave community.");return;}}
+ else{const r=await sb.from("community_members").insert({community_id:id,user_id:user.id,role:"member"});if(r.error){alert("Could not join community.");return;}}
+ await loadLive();
+}
+async function createCommunity(){
+ const sb=SB();const {data:{user}}=await sb.auth.getUser();if(!user)return;
+ const name=prompt("Community name");if(!name?.trim())return;const description=prompt("Short description")||"";
+ const r=await sb.from("communities").insert({name:name.trim(),description:description.trim(),created_by:user.id,is_public:true}).select("id").single();
+ if(r.error){alert("Could not create community.");return;}
+ const m=await sb.from("community_members").insert({community_id:r.data.id,user_id:user.id,role:"admin"});if(m.error){alert("Community created, but owner membership could not be added.");}
+ await loadLive();
+}
+window.bcReloadLive=loadLive;window.bcConnect=connectAction;window.bcCommunityAction=communityAction;window.bcCreateCommunity=createCommunity;window.bcOpenChat=openChat;window.bcNewChat=newChat;
 
 
 <style id="bc-live-chat-style">#bcChatOverlay{position:fixed;inset:0;z-index:190000;background:var(--bc-cream,#fbf4e8);display:flex;flex-direction:column}.bc-chat-head{height:64px;display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bc-maroon,#7b1e2b);color:#fff}.bc-chat-head button{border:0;background:transparent;color:#fff;font-size:18px}.bc-chat-head small{display:block;opacity:.75}.bc-chat-messages{flex:1;overflow:auto;padding:18px 14px;display:flex;flex-direction:column;gap:8px}.bc-msg{max-width:78%;padding:9px 12px;border-radius:16px;font-size:14px;line-height:1.35}.bc-msg.mine{align-self:flex-end;background:var(--bc-orange,#d97706);color:#fff;border-bottom-right-radius:5px}.bc-msg.theirs{align-self:flex-start;background:#fff;color:#3b2930;border-bottom-left-radius:5px}.bc-msg small{display:block;font-size:10px;opacity:.6;margin-top:3px}.bc-chat-composer{display:flex;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid rgba(0,0,0,.08);padding-bottom:max(10px,env(safe-area-inset-bottom))}.bc-chat-composer input{flex:1;border:1px solid #ddd;border-radius:22px;padding:11px 14px;outline:0}.bc-chat-composer button{width:44px;border:0;border-radius:50%;background:var(--bc-maroon,#7b1e2b);color:#fff}@media(min-width:800px){#bcChatOverlay{left:50%;top:8%;right:8%;bottom:8%;border-radius:18px;overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.25)}} </style>\ndocument.addEventListener("click",async e=>{
- const conn=e.target.closest("[data-connect-user]");if(conn){connectAction(conn.dataset.connectUser);return;}const chat=e.target.closest("[data-chat-id]");if(chat){openChat(chat.dataset.chatId,chat.dataset.chatName||"Banjara Member");return;}const newChatBtn=e.target.closest("[data-new-chat]");if(newChatBtn){newChat();return;}const n=e.target.closest("[data-notification-id]"); if(n){await SB().from("notifications").update({is_read:true}).eq("id",n.dataset.notificationId);n.querySelector(".bc-badge")?.remove();return;}
+ const ca=e.target.closest("[data-community-action]");if(ca){communityAction(ca.dataset.communityAction);return;}const cc=e.target.closest("[data-community-create]");if(cc){createCommunity();return;}const conn=e.target.closest("[data-connect-user]");if(conn){connectAction(conn.dataset.connectUser);return;}const chat=e.target.closest("[data-chat-id]");if(chat){openChat(chat.dataset.chatId,chat.dataset.chatName||"Banjara Member");return;}const newChatBtn=e.target.closest("[data-new-chat]");if(newChatBtn){newChat();return;}const n=e.target.closest("[data-notification-id]"); if(n){await SB().from("notifications").update({is_read:true}).eq("id",n.dataset.notificationId);n.querySelector(".bc-badge")?.remove();return;}
 });
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(loadLive,1200));else setTimeout(loadLive,1200);
 })();
