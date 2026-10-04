@@ -31,8 +31,9 @@ function internalEmail(phone: string) {
   return "account+" + phone.replace(/\D/g, "") + "@banjaraconnect.app";
 }
 
-function allowed(req: Request) {
-  const key = (req.headers.get("x-forwarded-for") || "anonymous").split(",")[0].trim();
+function allowed(req: Request, scope: string) {
+  const ip = (req.headers.get("x-forwarded-for") || "anonymous").split(",")[0].trim();
+  const key = scope + "|" + ip;
   const now = Date.now();
   const current = attempts.get(key);
 
@@ -49,7 +50,7 @@ function allowed(req: Request) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
-  if (!allowed(req)) return json({ error: "Too many attempts. Try again in a minute." }, 429);
+  if (!allowed(req, "ip")) return json({ error: "Too many attempts. Try again in a minute." }, 429);
 
   try {
     const body = await req.json();
@@ -59,6 +60,8 @@ Deno.serve(async (req) => {
     if (!phone || !/^\d{6}$/.test(password)) {
       return json({ error: "Invalid mobile number or password." }, 400);
     }
+
+    if (!allowed(req, phone)) return json({ error: "Too many login attempts for this mobile number. Try again in a minute." }, 429);
 
     const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
