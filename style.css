@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
 /* =========================================================
-   GLOBEDISC / STUDENTKART STYLES
+   BANJARA CONNECT — SHARED APP STYLES
    Read this file from top to bottom:
    1. Search page
    2. Main design variables
@@ -80,8 +80,8 @@
 /* 2. Main design settings */
 
 :root {
-    --bg: #f3f7f8;
-    --bg2: #e7f0f2;
+    --bg: #f4fafb;
+    --bg2: #eefafa;
 
     --card: #ffffff;
     --card-solid: #ffffff;
@@ -90,15 +90,15 @@
     --primary2: #0b6f71;
     --primary-light: #e5f7f7;
 
-    --nav: #102a43;
-    --nav-soft: #143b4a;
+    --nav: #ffffff;
+    --nav-soft: #eefafa;
 
     --text: #102a43;
-    --text-soft: #486581;
-    --muted: #829ab1;
+    --text-soft: #627d98;
+    --muted: #9fb3c4;
 
-    --border: #d9e2ec;
-    --border-dark: #bcccdc;
+    --border: #dcebed;
+    --border-dark: #b8dfe0;
 
     --blue: #2563eb;
     --cyan: #12a5a5;
@@ -107,7 +107,7 @@
     --green: #0f8b8d;
     --red: #dc3545;
 
-    --shadow-sm: 0 2px 8px rgba(16, 42, 67, 0.05);
+    --shadow-sm: 0 2px 8px rgba(16, 42, 67, 0.04);
     --shadow: 0 8px 24px rgba(16, 42, 67, 0.08);
     --shadow-lg: 0 18px 45px rgba(16, 42, 67, 0.13);
 
