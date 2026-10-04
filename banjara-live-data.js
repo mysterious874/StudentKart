@@ -60,8 +60,8 @@ async function newChat(){
  const sb=SB();if(!sb)return;const {data:{user}}=await sb.auth.getUser();if(!user)return;
  const term=prompt("Search member by mobile number or name");if(!term?.trim())return;
  const digits=term.replace(/\D/g,"");
- let query=sb.from("profiles").select("id,name,mobile,city,state").neq("id",user.id).limit(10);
- if(digits.length>=10)query=query.eq("mobile","+91"+digits.slice(-10));else query=query.ilike("name","%"+term.trim()+"%");
+ let query=sb.from("profiles").select("id,name,phone,city,state").neq("id",user.id).limit(10);
+ if(digits.length>=10)query=query.eq("phone","+91"+digits.slice(-10));else query=query.ilike("name","%"+term.trim()+"%");
  const {data,error}=await query;if(error||!data?.length){alert("Member not found.");return;}
  const p=data[0];
  const {data:mine}=await sb.from("chat_members").select("chat_id").eq("user_id",user.id);
