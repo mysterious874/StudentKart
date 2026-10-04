@@ -13859,40 +13859,104 @@ async function loadGlobalDiscoveryHomepage(){
     const city=String(profile?.city||"").trim();
     const state=String(profile?.state||"").trim();
 
-    const locationParts=[area,city,state].filter(Boolean);
+    // Hyperlocal-first: the most specific saved place is always searched first.
+    // We do not pretend to know exact GPS distance; this is based on the user's
+    // saved area/city/state hierarchy.
     const localLabel=area || city || state || "your area";
+    const locationTerms=[area,city,state].filter(Boolean);
+
+    const cleanPart=value=>String(value||"").replace(/["\\]/g,"").trim();
+    const localQueries=locationTerms.length
+        ? [
+            '"' + cleanPart(area||city) + '"',
+            area && city ? '"' + cleanPart(area) + '" "' + cleanPart(city) + '"' : '',
+            area && state ? '"' + cleanPart(area) + '" "' + cleanPart(state) + '"' : '',
+            city ? '"' + cleanPart(city) + '" local news' : '',
+            city ? '"' + cleanPart(city) + '" latest news' : '',
+            area ? '"' + cleanPart(area) + '" latest news' : ''
+          ].filter(Boolean)
+        : [];
+
+    // Titwala sits in the Kalyan-Titwala/Thane news belt. When the user's
+    // saved area is Titwala, add the immediate local corridor without allowing
+    // it to outrank Titwala itself.
+    const localName=(area+" "+city).toLowerCase();
+    if(localName.includes("titwala")){
+        localQueries.push(
+            '"Titwala" "Kalyan"',
+            '"Titwala" "Thane"',
+            '"Titwala" "Kalyan-Dombivli"',
+            '"Titwala" railway',
+            '"Titwala" civic',
+            '"Titwala" Maharashtra'
+        );
+    }
+
     const scopes=[
         {
             key:"local",
-            label:"Near You",
+            label:localLabel + " • Nearby",
             icon:"fa-location-dot",
-            query: locationParts.length
-                ? "(" + locationParts.map(value => '"' + value.replace(/"/g,"") + '"').join(" OR ") + ")"
-                : "",
+            queries:localQueries,
             emptyText:"Add your city or area in Profile to see nearby news first."
         },
         {
-            key:"state",
-            label:state ? state + " & Nearby" : "India",
+            key:"nearby",
+            label:city ? city + " & Nearby" : "Nearby",
             icon:"fa-map-location-dot",
-            query:state ? '("' + state.replace(/"/g,"") + '" OR India)' : "(India OR Indian)",
+            queries:city
+                ? [
+                    '"' + cleanPart(city) + '" local news',
+                    '"' + cleanPart(city) + '" latest news',
+                    '"' + cleanPart(city) + '" civic',
+                    '"' + cleanPart(city) + '" traffic',
+                    '"' + cleanPart(city) + '" railway',
+                    '"' + cleanPart(city) + '" Maharashtra'
+                  ]
+                : [],
+            emptyText:""
+        },
+        {
+            key:"state",
+            label:state ? state + " Regional",
+            icon:"fa-map",
+            queries:state
+                ? [
+                    '"' + cleanPart(state) + '" latest news',
+                    '"' + cleanPart(state) + '" local news',
+                    '"' + cleanPart(state) + '" regional news'
+                  ]
+                : ["Maharashtra latest news","Maharashtra regional news"],
             emptyText:""
         },
         {
             key:"india",
             label:"India",
             icon:"fa-flag",
-            query:"(India OR Indian OR Maharashtra OR Mumbai OR Delhi OR Bengaluru OR Pune OR Hyderabad OR Chennai OR Kolkata)",
+            queries:["India latest news","India local news","India breaking news"],
             emptyText:""
         },
         {
             key:"world",
             label:"World",
             icon:"fa-earth-americas",
-            query:"(world OR international OR global OR diplomacy OR technology OR science OR AI OR space OR business OR economy OR markets OR sports OR entertainment OR culture)",
+            queries:[
+                "world latest news",
+                "international latest news",
+                "technology science AI space",
+                "business economy markets",
+                "sports entertainment culture"
+            ],
             emptyText:""
         }
     ];
+
+    let seenUrls=new Set();
+    let activeScopeIndex=0;
+    let loadingScope=false;
+    let allLoadedItems=[];
+    const scopeQueues=new Map();
+    const scopeFetched=new Set();
 
     const topicRules=[
         {title:"Technology & Science",query:["technology","science","ai","artificial intelligence","space","nasa","chip","software"],icon:"fa-microchip"},
@@ -13900,13 +13964,6 @@ async function loadGlobalDiscoveryHomepage(){
         {title:"Sports & Culture",query:["sports","football","cricket","tennis","culture","entertainment","music","film"],icon:"fa-futbol"},
         {title:"General",query:["government","politics","education","health","weather","city","india"],icon:"fa-newspaper"}
     ];
-
-    let seenUrls=new Set();
-    let activeScopeIndex=0;
-    let loadingScope=false;
-    let allLoadedItems=[];
-
-    const escapeQueryPart=value=>String(value||"").replace(/[\\"]/g,"").trim();
 
     const classify=item=>{
         const hay=(String(item?.title||"")+" "+String(item?.description||"")).toLowerCase();
@@ -13924,27 +13981,45 @@ async function loadGlobalDiscoveryHomepage(){
     };
 
     const fetchScope=async(scope)=>{
-        const query=scope.query || "(India OR Indian)";
-        const newsFunctionUrl=SUPABASE_URL+"/functions/v1/global-news?q="+encodeURIComponent(query);
-        const response=await fetchWithTimeout(newsFunctionUrl,{
-            headers:{
-                "apikey":SUPABASE_KEY,
-                "Authorization":"Bearer "+SUPABASE_KEY,
-                "Accept":"application/json"
-            }
-        },12000);
-        if(!response.ok) throw new Error("News function returned HTTP "+response.status);
-        const data=await response.json();
-        return (Array.isArray(data?.articles)?data.articles:[])
-            .map(classify)
-            .filter(item=>item.title&&item.url)
-            .filter(item=>{
-                const key=String(item.url).trim();
-                if(!key||seenUrls.has(key)) return false;
-                seenUrls.add(key);
-                return true;
+        if(scopeFetched.has(scope.key) && scopeQueues.has(scope.key)){
+            return scopeQueues.get(scope.key);
+        }
+
+        const queries=Array.isArray(scope.queries) ? scope.queries.filter(Boolean) : [];
+        if(!queries.length) return [];
+
+        scopeFetched.add(scope.key);
+
+        const results=await Promise.allSettled(
+            queries.map(async query=>{
+                const newsFunctionUrl=SUPABASE_URL+"/functions/v1/global-news?q="+encodeURIComponent(query);
+                const response=await fetchWithTimeout(newsFunctionUrl,{
+                    headers:{
+                        "apikey":SUPABASE_KEY,
+                        "Authorization":"Bearer "+SUPABASE_KEY,
+                        "Accept":"application/json"
+                    }
+                },12000);
+                if(!response.ok) throw new Error("News function returned HTTP "+response.status);
+                return response.json();
             })
-            .sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+        );
+
+        const items=[];
+        results.forEach(result=>{
+            if(result.status!=="fulfilled") return;
+            const articles=Array.isArray(result.value?.articles) ? result.value.articles : [];
+            articles.forEach(article=>{
+                const key=String(article?.url||"").trim().replace(/[?#].*$/,"");
+                if(!key || seenUrls.has(key)) return;
+                seenUrls.add(key);
+                if(article?.title && article?.url) items.push(classify(article));
+            });
+        });
+
+        items.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+        scopeQueues.set(scope.key,items);
+        return items;
     };
 
     const articleHtml=(item,featured=false)=>{
@@ -13965,26 +14040,27 @@ async function loadGlobalDiscoveryHomepage(){
 
         const heading=document.createElement("div");
         heading.className="world-news-scope-heading";
-        heading.innerHTML='<div><span class="world-news-scope-icon"><i class="fas '+escapeHTML(scope.icon)+'"></i></span><div><strong>'+escapeHTML(scope.label)+'</strong><small>'+ (scope.key==="local" ? "Closest stories based on your saved location" : "Wider coverage as you explore") +'</small></div></div><span class="world-news-scope-count">'+items.length+' stories</span>';
+        const subtitle=scope.key==="local"
+            ? "Hyperlocal stories from your saved area"
+            : scope.key==="nearby"
+                ? "Local coverage around your city"
+                : "Wider coverage as you explore";
+        heading.innerHTML='<div><span class="world-news-scope-icon"><i class="fas '+escapeHTML(scope.icon)+'"></i></span><div><strong>'+escapeHTML(scope.label)+'</strong><small>'+subtitle+'</small></div></div><span class="world-news-scope-count">'+items.length+' stories</span>';
         section.appendChild(heading);
 
         if(scope.key==="local" && allLoadedItems.length===0 && items[0]){
-            const featured=items[0];
             const featuredWrap=document.createElement("div");
-            featuredWrap.innerHTML=articleHtml(featured,true);
+            featuredWrap.innerHTML=articleHtml(items[0],true);
             section.appendChild(featuredWrap.firstElementChild);
 
-            const rest=items.slice(1,9);
-            if(rest.length){
-                const cards=document.createElement("div");
-                cards.className="world-news-card-grid";
-                cards.innerHTML=rest.map(item=>articleHtml(item,false)).join("");
-                section.appendChild(cards);
-            }
+            const cards=document.createElement("div");
+            cards.className="world-news-card-grid";
+            cards.innerHTML=items.slice(1).map(item=>articleHtml(item,false)).join("");
+            section.appendChild(cards);
         }else{
             const cards=document.createElement("div");
             cards.className="world-news-card-grid";
-            cards.innerHTML=items.slice(0,12).map(item=>articleHtml(item,false)).join("");
+            cards.innerHTML=items.map(item=>articleHtml(item,false)).join("");
             section.appendChild(cards);
         }
 
@@ -13996,52 +14072,61 @@ async function loadGlobalDiscoveryHomepage(){
         const loader=document.createElement("div");
         loader.id="worldNewsMoreLoader";
         loader.className="world-news-more-loader";
-        loader.innerHTML='<i class="fas fa-spinner fa-spin"></i><span>Loading wider news…</span>';
+        loader.innerHTML='<i class="fas fa-spinner fa-spin"></i><span>Loading more nearby news…</span>';
         grid.appendChild(loader);
         return loader;
     };
 
     const loadNextScope=async()=>{
-        if(loadingScope || activeScopeIndex>=scopes.length) return;
+        if(loadingScope) return;
         loadingScope=true;
 
-        const scope=scopes[activeScopeIndex++];
         const loader=appendLoader();
 
         try{
-            const items=await fetchScope(scope);
+            // Consume a large batch from the current scope first. This keeps
+            // Titwala news on screen for much longer before widening outward.
+            while(activeScopeIndex<scopes.length){
+                const scope=scopes[activeScopeIndex];
+                const queue=await fetchScope(scope);
+
+                if(queue.length){
+                    const batch=queue.splice(0,24);
+                    scopeQueues.set(scope.key,queue);
+                    appendScope(scope,batch);
+
+                    // If the same scope still has stories, keep loading that
+                    // scope on the next scroll instead of jumping to India.
+                    if(queue.length){
+                        loader.remove();
+                        const sentinel=document.createElement("div");
+                        sentinel.id="worldNewsLoadMoreSentinel";
+                        sentinel.className="world-news-load-more-sentinel";
+                        grid.appendChild(sentinel);
+                        newsObserver.observe(sentinel);
+                        return;
+                    }
+                }
+
+                activeScopeIndex++;
+            }
+
             loader.remove();
 
-            if(items.length){
-                appendScope(scope,items.slice(0,16));
-            }else if(scope.key==="local" && !locationParts.length){
-                const note=document.createElement("div");
-                note.className="world-news-location-note";
-                note.innerHTML='<i class="fas fa-location-dot"></i><div><strong>Want news from around you?</strong><span>Set your city and area in Profile, and GlobeDisc will put nearby stories at the top.</span></div>';
-                grid.appendChild(note);
-            }
-
-            if(activeScopeIndex<scopes.length){
-                const sentinel=document.createElement("div");
-                sentinel.id="worldNewsLoadMoreSentinel";
-                sentinel.className="world-news-load-more-sentinel";
-                grid.appendChild(sentinel);
-                newsObserver.observe(sentinel);
-            }else{
-                const endNote=document.createElement("div");
-                endNote.className="world-news-refresh";
-                endNote.innerHTML='<button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Refresh news</button>';
-                grid.appendChild(endNote);
-                $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
-            }
+            const endNote=document.createElement("div");
+            endNote.className="world-news-refresh";
+            endNote.innerHTML='<button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Refresh live news</button>';
+            grid.appendChild(endNote);
+            $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
         }catch(error){
-            console.error("News scope failed:",scope.key,error);
+            console.error("News scope failed:",error);
             loader.remove();
-            if(scope.key==="local" && !locationParts.length){
-                const note=document.createElement("div");
-                note.className="world-news-location-note";
-                note.innerHTML='<i class="fas fa-location-dot"></i><div><strong>Nearby news needs your saved location.</strong><span>Set your city/area in Profile to personalize this feed.</span></div>';
-                grid.appendChild(note);
+
+            if(!allLoadedItems.length){
+                renderUnavailable();
+            }else{
+                activeScopeIndex++;
+                setTimeout(loadNextScope,50);
             }
         }finally{
             loadingScope=false;
@@ -14057,14 +14142,14 @@ async function loadGlobalDiscoveryHomepage(){
                 loadNextScope();
             }
         });
-    },{root:null,rootMargin:"900px 0px",threshold:0});
+    },{root:null,rootMargin:"1200px 0px",threshold:0});
 
     try{
-        grid.innerHTML='<div class="world-news-loading"><i class="fas fa-spinner fa-spin"></i><h3>Finding news around you…</h3><p>Starting with '+escapeHTML(localLabel)+', then expanding as you scroll.</p></div>';
+        const startText=locationParts.length
+            ? "Starting with "+localLabel+" and loading more nearby stories as you scroll."
+            : "Set your area/city in Profile to get hyperlocal news first.";
+        grid.innerHTML='<div class="world-news-loading"><i class="fas fa-spinner fa-spin"></i><h3>Finding news around you…</h3><p>'+escapeHTML(startText)+'</p></div>';
 
-        // Local scope is only meaningful when the user has saved a city/area.
-        // If not, skip directly to the India layer and avoid pretending we know
-        // the user's precise location.
         if(!locationParts.length){
             activeScopeIndex=1;
         }
