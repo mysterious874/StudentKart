@@ -577,7 +577,14 @@
                         </button>
                     </div>
                 </div>
-                <div class="chat-list-tabs" role="tablist" aria-label="Chat filters">
+                <div class="chat-list-search" id="newChatSearchBar">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="search" id="newChatSearchInput" placeholder="Search username" autocomplete="off" aria-label="Search username">
+        <button type="button" id="newChatSearchClear" class="hidden" aria-label="Clear search">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+      <div class="chat-list-tabs" role="tablist" aria-label="Chat filters">
                     <button type="button" class="chat-list-tab active" data-chat-filter="all" role="tab" aria-selected="true">All</button>
                     <button type="button" class="chat-list-tab" data-chat-filter="unread" role="tab" aria-selected="false">Unread</button>
                 </div>
