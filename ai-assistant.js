@@ -28,9 +28,13 @@ function closeAI(){
   globalNav.style.removeProperty("visibility");
   globalNav.style.removeProperty("pointer-events");
  }
- const home=document.querySelector('.mobile-bottom-nav a[href="#home"], a[href="#home"]');
- if(home) home.click();
- else window.location.hash="home";
+ const homeSection=document.getElementById("home");
+ if(homeSection){
+  homeSection.classList.remove("hidden");
+  homeSection.style.removeProperty("display");
+ }
+ document.documentElement.classList.remove("ai-assistant-open");
+ document.body.classList.remove("ai-assistant-page-active");
  window.scrollTo({top:0,behavior:"auto"});
 }
 async function ask(question){
