@@ -18,15 +18,17 @@
       const id = item.id;
 
       if (id === "bottomMarketplaceButton") {
-        window.location.assign("/marketplace.html");
+        window.location.href = "/marketplace.html";
         return;
       }
 
       if (id === "bottomWishlistButton") {
         if (typeof window.openWishlist === "function") {
           window.openWishlist();
-        } else if (typeof window.openModal === "function") {
+        } else if (typeof window.openModal === "function" && document.getElementById("wishlistModal")) {
           window.openModal("wishlistModal");
+        } else {
+          window.location.hash = "wishlist";
         }
         return;
       }
@@ -35,7 +37,7 @@
         if (typeof window.renderCampusPicker === "function") {
           window.renderCampusPicker();
         }
-        if (typeof window.openModal === "function") {
+        if (typeof window.openModal === "function" && document.getElementById("campusModal")) {
           window.openModal("campusModal");
         }
         return;
@@ -44,7 +46,7 @@
       if (id === "bottomProfileButton") {
         if (typeof window.openProfile === "function") {
           window.openProfile();
-        } else if (typeof window.openModal === "function") {
+        } else if (typeof window.openModal === "function" && document.getElementById("profileModal")) {
           window.openModal("profileModal");
         }
         return;
@@ -53,6 +55,12 @@
       if (id === "bottomMoreButton") {
         if (typeof window.openGlobeDiscMore === "function") {
           window.openGlobeDiscMore();
+        } else {
+          const more = document.getElementById("globediscMoreMenu");
+          if (more) {
+            more.classList.remove("hidden");
+            more.setAttribute("aria-hidden","false");
+          }
         }
         return;
       }
