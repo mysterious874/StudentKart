@@ -19039,3 +19039,21 @@ body.marketplace-page-active .new-product-card img{
 
 /* GlobeDisc intro: floating navigation stays hidden until the intro ends. */
 body.globedisc-splash-active .mobile-bottom-nav{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+
+
+/* GlobeDisc floating navigation final state */
+html body .mobile-bottom-nav{
+    pointer-events:auto !important;
+    touch-action:manipulation !important;
+    z-index:120000 !important;
+}
+html body.globedisc-splash-active .mobile-bottom-nav,
+html body:has(.modal:not(.hidden)) .mobile-bottom-nav,
+html body.studentkart-product-details-open .mobile-bottom-nav,
+html body.studentkart-chat-open .mobile-bottom-nav,
+html body.category-page-active .mobile-bottom-nav,
+html body.marketplace-page-active .mobile-bottom-nav,
+html body.studentkart-search-results-active .mobile-bottom-nav{
+    display:none !important;
+    pointer-events:none !important;
+}
