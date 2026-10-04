@@ -84,7 +84,7 @@ async function openChat(chatId,name){
  const {data,error}=await q;if(error){box.querySelector("#bcChatMessages").innerHTML='<div class="bc-empty"><strong>Could not load messages</strong><span>Please try again.</span></div>';return;}
  await render((data||[]).filter(m=>!hiddenIds.has(m.id)));
  await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);
- for(const unread of (data||[]).filter(x=>x.sender_id!==user.id&& !x.read_at)) await sb.rpc("mark_message_read",{p_message_id:unread.id});
+ const now=new Date().toISOString(); for(const unread of (data||[]).filter(x=>x.sender_id!==user.id&& !x.read_at)) await sb.from("messages").update({delivered_at:now,read_at:now}).eq("id",unread.id);
  if(window.__bcLive?.chats){const current=window.__bcLive.chats.find(x=>x.id===chatId);if(current)current.unread=false;}
  const chatSearchBtn=box.querySelector("#bcChatSearchBtn");
  chatSearchBtn.onclick=()=>{
