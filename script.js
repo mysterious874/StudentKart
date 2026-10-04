@@ -4899,22 +4899,47 @@ async function signupUser(event) {
     if (button) button.disabled = true;
 
     try {
-        const { data, error } = await supabaseClient.auth.signUp({
-            email: internalEmail,
-            password,
-            options: {
-                data: {
+        // Create the internal Auth account server-side with email confirmation
+        // already completed. The real mobile number never becomes a visible email.
+        const response = await fetch(
+            SUPABASE_URL + "/functions/v1/prepare-account",
+            {
+                method: "POST",
+                headers: {
+                    apikey: SUPABASE_KEY,
+                    Authorization: "Bearer " + SUPABASE_KEY,
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                },
+                body: JSON.stringify({
                     phone,
-                    auth_phone: phone
-                }
+                    password
+                })
             }
-        });
+        );
+
+        let payload = {};
+        try {
+            payload = await response.json();
+        } catch (_) {}
+
+        if (!response.ok) {
+            throw new Error(
+                payload?.error ||
+                "Could not create account"
+            );
+        }
+
+        // Sign in immediately so the normal session/profile flow is reused.
+        const { data, error } =
+            await supabaseClient.auth.signInWithPassword({
+                email: internalEmail,
+                password
+            });
 
         if (error) throw error;
 
-        // Email confirmation must be disabled in Supabase Auth settings for
-        // this no-OTP/no-email flow. If a session is returned, finish setup.
-        if (data?.user && data?.session) {
+        if (data?.user) {
             await ensureProfileAfterPasswordSignup(data.user);
         }
 
@@ -4923,14 +4948,15 @@ async function signupUser(event) {
         updateNavbar();
 
         showToast(
-            data?.session
-                ? "Account created successfully"
-                : "Account created. Disable email confirmation in Supabase, then login.",
-            data?.session ? "success" : "warning"
+            "Account created successfully",
+            "success"
         );
     } catch (error) {
         console.error("Signup error:", error);
-        showToast(error?.message || "Could not create account", "error");
+        showToast(
+            error?.message || "Could not create account",
+            "error"
+        );
     } finally {
         if (button) button.disabled = false;
     }
