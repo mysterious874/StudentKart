@@ -56,7 +56,9 @@ Deno.serve(async (req) => {
     const contentLength = Number(req.headers.get("content-length") || 0);
     if (contentLength > 16_000) return json({ error: "Request too large" }, 413);
 
-    const body = await req.json();
+    const rawBody = await req.text();
+    if (new TextEncoder().encode(rawBody).byteLength > 16_000) return json({ error: "Request too large" }, 413);
+    const body = JSON.parse(rawBody);
     const phone = normalizePhone(body?.phone);
     const password = String(body?.password ?? "");
 
