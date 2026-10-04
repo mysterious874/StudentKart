@@ -138,11 +138,10 @@ function forceHideGlobalBottomNav(){
  const selectors=[
   ".mobile-bottom-nav",".bottom-floating-nav",".floating-bottom-nav",".floating-bar",".floating-nav",
   ".bottom-nav",".bottom-navigation",".mobile-navigation",".fixed-bottom-nav",
-  "[class*="bottom"][class*="nav"]","[class*="floating"][class*="bar"]","[class*="floating"][class*="nav"]"
+  '[class*="bottom"][class*="nav"]','[class*="floating"][class*="bar"]','[class*="floating"][class*="nav"]'
  ];
  const aiPage=document.getElementById("aiAssistantPage");
  document.querySelectorAll(selectors.join(",")).forEach(nav=>{
-  // Never hide controls that are actually part of the AI page.
   if(aiPage && (nav===aiPage || aiPage.contains(nav)))return;
   nav.setAttribute("data-ai-hidden","1");
   nav.style.setProperty("display","none","important");
@@ -151,25 +150,20 @@ function forceHideGlobalBottomNav(){
   nav.style.setProperty("pointer-events","none","important");
   nav.style.setProperty("z-index","-1","important");
  });
- // Also prevent the document's global bottom padding from reserving/showing the old bar.
  document.body.classList.add("globedisc-ai-hide-global-nav");
  document.documentElement.classList.add("globedisc-ai-hide-global-nav");
 }
 function restoreGlobalBottomNav(){
  document.querySelectorAll('[data-ai-hidden="1"]').forEach(nav=>{
   nav.removeAttribute("data-ai-hidden");
-  nav.style.removeProperty("display");nav.style.removeProperty("visibility");
-  nav.style.removeProperty("opacity");nav.style.removeProperty("pointer-events");
+  nav.style.removeProperty("display");
+  nav.style.removeProperty("visibility");
+  nav.style.removeProperty("opacity");
+  nav.style.removeProperty("pointer-events");
   nav.style.removeProperty("z-index");
  });
  document.body.classList.remove("globedisc-ai-hide-global-nav");
  document.documentElement.classList.remove("globedisc-ai-hide-global-nav");
-}
-function restoreGlobalBottomNav(){
- document.querySelectorAll('[data-ai-hidden="1"]').forEach(nav=>{
-  nav.removeAttribute("data-ai-hidden");
-  nav.style.removeProperty("display");nav.style.removeProperty("visibility");nav.style.removeProperty("pointer-events");
- });
 }
 function bindAIControls(){
  const button=$("askWithAiButton");
