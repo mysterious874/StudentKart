@@ -77,7 +77,7 @@ async function openChat(chatId,name){
  await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);
  const now=new Date().toISOString(); await sb.from("messages").update({delivered_at:now,read_at:now}).eq("chat_id",chatId).neq("sender_id",user.id).is("read_at",null);
  if(window.__bcLive?.chats){const current=window.__bcLive.chats.find(x=>x.id===chatId);if(current)current.unread=false;}
- const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn");
+ const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn"); let pressTimer=null;
  const presenceEl=box.querySelector("#bcChatPresence"); let typingTimer=null;
  const {data:members}=await sb.from("chat_members").select("user_id").eq("chat_id",chatId);
  const otherId=(members||[]).map(x=>x.user_id).find(id=>id!==user.id);
@@ -91,6 +91,9 @@ async function openChat(chatId,name){
  const replyBar=box.querySelector("#bcReplyBar"),replyText=box.querySelector("#bcReplyText"); let replyTo=null;
  const setReply=m=>{replyTo=m;replyText.textContent=(m.body||("["+m.message_type+"]")).slice(0,90);replyBar.hidden=false;input.focus();};
  box.querySelector("[data-reply-cancel]").onclick=()=>{replyTo=null;replyBar.hidden=true;};
+ box.querySelector("#bcChatMessages").addEventListener("pointerdown",ev=>{const item=ev.target.closest("[data-message-id]");if(!item)return;clearTimeout(pressTimer);pressTimer=setTimeout(()=>item.click(),550);});
+ box.querySelector("#bcChatMessages").addEventListener("pointerup",()=>clearTimeout(pressTimer));
+ box.querySelector("#bcChatMessages").addEventListener("pointercancel",()=>clearTimeout(pressTimer));
  box.querySelector("#bcChatMessages").onclick=async ev=>{
    const item=ev.target.closest("[data-message-id]");if(!item)return;
    const m=currentMessages.find(x=>x.id===item.dataset.messageId);if(!m)return;
@@ -120,8 +123,10 @@ async function openChat(chatId,name){
    attachBtn.disabled=false;attachBtn.innerHTML='<i class="fas fa-paperclip"></i>';attachInput.value="";input.focus();
  };
  attachBtn.onclick=()=>attachInput.click();attachInput.onchange=()=>sendAttachment(attachInput.files?.[0]);
- let recorder=null,chunks=[];
+ let recorder=null,chunks=[],recordStartedAt=0,recordTimer=null;
+ const updateRecordTimer=()=>{const s=Math.floor((Date.now()-recordStartedAt)/1000);voiceBtn.setAttribute("data-recording-time",String(s).padStart(2,"0")+"s");};
  voiceBtn.onclick=async()=>{
+
    if(recorder&&recorder.state==="recording"){recorder.stop();return;}
    if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){alert("Voice recording is not supported in this browser.");return;}
    try{
@@ -129,7 +134,7 @@ async function openChat(chatId,name){
      recorder=new MediaRecorder(stream);voiceBtn.classList.add("recording");voiceBtn.innerHTML='<i class="fas fa-stop"></i>';
      recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
      recorder.onstop=async()=>{
-       stream.getTracks().forEach(t=>t.stop());voiceBtn.classList.remove("recording");voiceBtn.innerHTML='<i class="fas fa-microphone"></i>';
+       stream.getTracks().forEach(t=>t.stop());clearInterval(recordTimer);voiceBtn.classList.remove("recording");voiceBtn.innerHTML='<i class="fas fa-microphone"></i>';voiceBtn.removeAttribute("data-recording-time");
        const blob=new Blob(chunks,{type:recorder.mimeType||"audio/webm"});if(blob.size>25*1024*1024)return;
        const ext=(blob.type.includes("ogg")?"ogg":blob.type.includes("mp4")?"m4a":"webm"),path=user.id+"/"+chatId+"/"+crypto.randomUUID()+"."+ext;
        const up=await sb.storage.from("banjara-media").upload(path,blob,{contentType:blob.type||"audio/webm",upsert:false});
@@ -138,7 +143,7 @@ async function openChat(chatId,name){
        if(ins.error){await sb.storage.from("banjara-media").remove([path]);alert("Could not send voice message.");return;}
        await render([...currentMessages,ins.data]);
      };
-     recorder.start();
+     recordStartedAt=Date.now();updateRecordTimer();recordTimer=setInterval(updateRecordTimer,1000);recorder.start();
    }catch(e){alert("Microphone permission is required for voice messages.");}
  };
  box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text",reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url,delivered_at,read_at").single();if(ins.error){input.value=body;return;}replyTo=null;replyBar.hidden=true;await render([...currentMessages,ins.data]);input.focus();};
