@@ -413,3 +413,8 @@ using (
 -- 2026-10-04 security follow-up: remove pg_temp from SECURITY DEFINER search paths.
 alter function private.is_chat_member(uuid) set search_path = public;
 alter function private.notify_connection() set search_path = public;
+
+
+-- 2026-10-04 prepare-account abuse hardening
+-- Public signup remains intentionally unauthenticated, so the Edge Function enforces IP + mobile rate limits.
+-- Keep this operational note synchronized with the deployed prepare-account function.
