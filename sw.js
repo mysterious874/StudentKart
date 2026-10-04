@@ -63,8 +63,8 @@ self.addEventListener("push", event => {
   const title = data.title || "Banjara Connect • New message";
   const options = {
     body: data.body || "You have received a new message.",
-    icon: data.icon || "/icons/banjara-icon-v2.svg",
-    badge: data.badge || "/icons/banjara-icon-v2.svg",
+    icon: data.icon || "/icons/banjara-connect-icon.svg",
+    badge: data.badge || "/icons/banjara-connect-icon.svg",
     tag: data.tag || "banjara-chat",
     renotify: true,
     data: {
