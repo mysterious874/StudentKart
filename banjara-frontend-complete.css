@@ -337,3 +337,11 @@ body.bc-auth-mode .bc-app{padding-bottom:24px}
     border-radius:10px;
   }
 }
+
+@media(max-width:560px){
+  #bc-home .bc-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  #bc-home .bc-card{min-width:0;}
+  #bc-home .bc-person{align-items:flex-start;}
+  #bc-home .bc-person .bc-avatar{width:36px;height:36px;}
+  #bc-home .bc-action{font-size:8.5px;}
+}
