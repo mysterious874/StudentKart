@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#102a43">
+<title>GlobeDisc Travel — Plan Your Trip</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+:root{--nav:#102a43;--primary:#0f8b8d;--soft:#e8f7f6;--bg:#f4f8f9;--text:#102a43;--muted:#627d98;--border:#d9e2ec;--card:#fff;--shadow:0 10px 30px rgba(16,42,67,.09)}
+*{box-sizing:border-box}body{margin:0;font-family:DM Sans,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}button,input,select{font:inherit}button{cursor:pointer}.travel-nav{height:68px;background:var(--nav);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 max(18px,calc((100% - 1180px)/2));position:sticky;top:0;z-index:20}.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}.brand img{width:38px;height:38px}.back{border:1px solid #ffffff33;background:#ffffff12;color:#fff;border-radius:10px;padding:9px 13px}.page{max-width:1180px;margin:auto;padding:28px 18px 90px}.hero{background:linear-gradient(135deg,#102a43,#0f8b8d);color:#fff;border-radius:22px;padding:32px;box-shadow:var(--shadow)}.eyebrow{font-size:12px;font-weight:800;letter-spacing:1px;opacity:.8}.hero h1{font-size:clamp(30px,5vw,48px);margin:8px 0}.hero p{max-width:700px;color:#e6f5f5;margin:0 0 22px}.planner{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:10px}.planner input,.planner select{width:100%;border:0;border-radius:11px;padding:13px 14px;outline:0}.btn{border:0;border-radius:11px;padding:13px 17px;font-weight:800}.btn-primary{background:#fff;color:var(--nav)}.btn-teal{background:var(--primary);color:#fff}.section{margin-top:24px}.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.section-head h2{margin:0;font-size:20px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow)}.icon{width:44px;height:44px;border-radius:12px;background:var(--soft);color:var(--primary);display:grid;place-items:center;font-size:20px;margin-bottom:12px}.card h3{margin:0 0 5px}.muted{color:var(--muted);font-size:13px}.weather{display:flex;align-items:center;gap:15px}.temp{font-size:34px;font-weight:800}.trip{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}.itinerary .day{border-left:3px solid var(--primary);padding:8px 0 8px 14px;margin:12px 0}.place-list{display:grid;gap:10px}.place{display:flex;justify-content:space-between;align-items:center;padding:13px;border:1px solid var(--border);border-radius:12px;background:#fff}.place a{color:var(--primary);font-weight:700;text-decoration:none}.status{margin-top:10px;font-size:12px;color:#dff7f5}.error{color:#b42318}.loading{opacity:.65}.hidden{display:none}@media(max-width:850px){.planner{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr 1fr}.trip{grid-template-columns:1fr}}@media(max-width:520px){.travel-nav{padding:0 12px}.brand{font-size:17px}.brand img{width:32px;height:32px}.page{padding:14px 12px 70px}.hero{padding:22px 17px;border-radius:17px}.planner,.grid{grid-template-columns:1fr}.planner .btn{width:100%}.card{padding:15px}}
+</style>
+</head>
+<body>
+<nav class="travel-nav"><a class="back" href="index.html"><i class="fas fa-arrow-left"></i> Back</a><div class="brand"><img src="/icons/globedisc-icon-v2.svg" alt=""> GlobeDisc Travel</div><span></span></nav>
+<main class="page">
+<section class="hero">
+<div class="eyebrow"><i class="fas fa-plane-departure"></i> TRAVEL HUB</div>
+<h1>Plan your next trip.</h1>
+<p>Search a destination, check weather, convert currency and build a simple day-by-day plan — all from GlobeDisc.</p>
+<form id="planner" class="planner">
+<input id="destination" required placeholder="Where do you want to go?" autocomplete="off">
+<select id="days"><option value="2">2 days</option><option value="3" selected>3 days</option><option value="4">4 days</option><option value="5">5 days</option><option value="7">7 days</option></select>
+<input id="budget" type="number" min="0" placeholder="Budget (₹)">
+<button class="btn btn-primary" type="submit"><i class="fas fa-magnifying-glass"></i> Plan</button>
+</form>
+<div id="status" class="status"></div>
+</section>
+
+<section id="overview" class="section hidden">
+<div class="section-head"><h2 id="destinationTitle">Destination</h2><span class="muted" id="coords"></span></div>
+<div class="grid">
+<div class="card"><div class="icon"><i class="fas fa-cloud-sun"></i></div><h3>Weather</h3><div id="weather" class="muted">Loading…</div></div>
+<div class="card"><div class="icon"><i class="fas fa-money-bill-transfer"></i></div><h3>Currency</h3><div id="currency" class="muted">Loading…</div></div>
+<div class="card"><div class="icon"><i class="fas fa-map-location-dot"></i></div><h3>Explore</h3><div class="muted">Find places, hotels and restaurants on Maps.</div><p><a id="mapsLink" href="#" target="_blank" rel="noopener">Open Maps →</a></p></div>
+<div class="card"><div class="icon"><i class="fas fa-hotel"></i></div><h3>Stay</h3><div class="muted">Search accommodation for this destination.</div><p><a id="hotelLink" href="#" target="_blank" rel="noopener">Find hotels →</a></p></div>
+</div>
+</section>
+
+<section id="tripSection" class="section hidden">
+<div class="trip">
+<div class="card itinerary"><div class="section-head"><h2>AI-style itinerary</h2><span class="muted" id="budgetText"></span></div><div id="itinerary"></div></div>
+<div class="card"><h2>Quick actions</h2><div class="place-list" style="margin-top:12px">
+<div class="place"><span><i class="fas fa-utensils"></i> Food & restaurants</span><a id="foodLink" href="#" target="_blank" rel="noopener">Explore</a></div>
+<div class="place"><span><i class="fas fa-camera"></i> Tourist places</span><a id="placesLink" href="#" target="_blank" rel="noopener">Explore</a></div>
+<div class="place"><span><i class="fas fa-train-subway"></i> Transport</span><a id="transportLink" href="#" target="_blank" rel="noopener">Search</a></div>
+</div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-head"><h2>Travel tools</h2></div>
+<div class="grid">
+<div class="card"><div class="icon"><i class="fas fa-language"></i></div><h3>Translator</h3><p class="muted">Use GlobeDisc AI to translate phrases for your destination.</p></div>
+<div class="card"><div class="icon"><i class="fas fa-list-check"></i></div><h3>Checklist</h3><p class="muted">ID, tickets, charger, medicines, clothes and emergency contacts.</p></div>
+<div class="card"><div class="icon"><i class="fas fa-shield-heart"></i></div><h3>Safety</h3><p class="muted">Keep copies of important documents and local emergency numbers.</p></div>
+<div class="card"><div class="icon"><i class="fas fa-bookmark"></i></div><h3>Save trip</h3><p class="muted">Your current plan is kept on this page until you leave or refresh it.</p></div>
+</div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+async function geocode(q){const u='https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=1&language=en&format=json';const r=await fetch(u);if(!r.ok)throw Error('Destination search failed');const j=await r.json();if(!j.results?.length)throw Error('Destination not found');return j.results[0]}
+async function weather(lat,lon){const u='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto';const r=await fetch(u);if(!r.ok)throw Error('Weather unavailable');return r.json()}
+async function rates(){const r=await fetch('https://open.er-api.com/v6/latest/USD');if(!r.ok)throw Error('Currency unavailable');return r.json()}
+function code(c){if(c===0)return 'Clear';if(c<=3)return 'Partly cloudy';if(c<=48)return 'Foggy';if(c<=67)return 'Rain';if(c<=77)return 'Snow';if(c<=82)return 'Showers';return 'Stormy'}
+function makeItinerary(name,n,budget){const ideas=['Explore the main city/old town and local food','Visit the most popular landmark and nearby attractions','Keep a relaxed day for shopping, cafés and hidden spots','Take a day trip to a nearby attraction or nature spot','Explore museums, culture and local markets','Keep a flexible day for anything you missed','Slow travel day: sunrise/sunset, food and photos'];let html='';for(let i=0;i<n;i++)html+='<div class="day"><strong>Day '+(i+1)+'</strong><div>'+esc(ideas[i])+' in '+esc(name)+'.</div></div>';return html}
+$('planner').addEventListener('submit',async e=>{e.preventDefault();const q=$('destination').value.trim(),n=+$('days').value,b=+$('budget').value||0;const st=$('status');st.className='status loading';st.textContent='Finding destination, weather and travel details…';try{const [d,w,fx]=await Promise.all([geocode(q),weather(...[0,1].map((_,i)=>i?d.longitude:d.latitude)),rates()]);const place=d.name+(d.country?', '+d.country:'');$('overview').classList.remove('hidden');$('tripSection').classList.remove('hidden');$('destinationTitle').textContent=place;$('coords').textContent=d.latitude.toFixed(2)+', '+d.longitude.toFixed(2);$('weather').innerHTML='<div class="weather"><div class="temp">'+Math.round(w.current.temperature_2m)+'°C</div><div>'+code(w.current.weather_code)+'<br><span class="muted">Feels '+Math.round(w.current.apparent_temperature)+'°C · Wind '+Math.round(w.current.wind_speed_10m)+' km/h</span></div></div>';$('currency').textContent='Local currency: '+(d.currency||'Check destination currency')+' · USD base rates available';$('mapsLink').href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(place);$('hotelLink').href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('hotels in '+place);$('foodLink').href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('restaurants in '+place);$('placesLink').href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('tourist attractions in '+place);$('transportLink').href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('transport in '+place);$('budgetText').textContent=b?'Budget ₹'+b.toLocaleString('en-IN'):'';$('itinerary').innerHTML=makeItinerary(place,n,b);st.className='status';st.textContent='Plan ready.';window.scrollTo({top:$('overview').offsetTop-80,behavior:'smooth'})}catch(err){console.error(err);st.className='status error';st.textContent=err.message||'Could not load travel details.'}});
+</script>
+</body></html>
