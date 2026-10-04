@@ -18,7 +18,21 @@ function openAI(){
  p.classList.remove("hidden"); document.body.classList.add("ai-assistant-open"); const globalNav=document.querySelector(".mobile-bottom-nav"); if(globalNav){globalNav.style.setProperty("display","none","important");globalNav.style.setProperty("visibility","hidden","important");globalNav.style.setProperty("pointer-events","none","important");}
  window.scrollTo({top:0,behavior:"auto"}); $("aiAssistantInput")?.focus();
 }
-function closeAI(){ $("aiAssistantPage")?.classList.add("hidden"); document.body.classList.remove("ai-assistant-open"); const globalNav=document.querySelector(".mobile-bottom-nav"); if(globalNav){globalNav.style.removeProperty("display");globalNav.style.removeProperty("visibility");globalNav.style.removeProperty("pointer-events");} }
+function closeAI(){
+ const page=$("aiAssistantPage");
+ if(page)page.classList.add("hidden");
+ document.body.classList.remove("ai-assistant-open");
+ const globalNav=document.querySelector(".mobile-bottom-nav");
+ if(globalNav){
+  globalNav.style.removeProperty("display");
+  globalNav.style.removeProperty("visibility");
+  globalNav.style.removeProperty("pointer-events");
+ }
+ const home=document.querySelector('.mobile-bottom-nav a[href="#home"], a[href="#home"]');
+ if(home) home.click();
+ else window.location.hash="home";
+ window.scrollTo({top:0,behavior:"auto"});
+}
 async function ask(question){
  const q=String(question||"").trim(); if(!q)return;
  const send=$("aiAssistantSend"),input=$("aiAssistantInput");
