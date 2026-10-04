@@ -6245,9 +6245,21 @@ function renderInternetSearchResults(query, results){
     }
 }
 
-async function showSearchResultsPage(query, options = {}) {
+async function recordGlobeDiscSearch(query) {
+    const q = String(query || "").trim();
+    if (!q) return;
+    try {
+        const current = JSON.parse(localStorage.getItem("globedisc_search_history") || "[]");
+        const cleaned = current.filter(x => String(x).trim().toLowerCase() !== q.toLowerCase());
+        cleaned.push(q);
+        localStorage.setItem("globedisc_search_history", JSON.stringify(cleaned.slice(-50)));
+    } catch {}
+}
+
+function showSearchResultsPage(query, options = {}) {
     const selected=String(query||"").trim();
     if(!selected) return;
+    recordGlobeDiscSearch(selected);
     if(!options.fromPopState && !studentKartHandlingPopState){
         ensureStudentKartHistory();
         const state={studentKart:true,modalId:null,modalStack:[],page:"search",searchQuery:selected};
