@@ -12,7 +12,7 @@
     <title>Banjara Connect — Community</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=20261004-banjara-1">
-    <link rel="stylesheet" href="/banjara-whatsapp-theme.css?v=20261004-home-theme-1">
+    <link rel="stylesheet" href="/banjara-whatsapp-theme.css?v=20261004-home-theme-1">\n    <link rel="stylesheet" href="/banjara-frontend-foundation.css?v=20261004-1">
 </head>
 
 <body class="banjara-splash-active">
@@ -106,14 +106,28 @@
         </div>
     </div>
 
-    <nav class="mobile-bottom-nav banjara-bottom-nav" aria-label="Community navigation">
-        <button type="button" class="bottom-nav-item" data-bottom-action="home" aria-label="Home"><i class="fas fa-house"></i><span>Home</span></button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="chat" aria-label="Chat"><i class="fas fa-comments"></i><span>Chat</span></button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="video" aria-label="Video"><i class="fas fa-circle-play"></i><span>Video</span></button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="ai" aria-label="AI Assistant"><i class="fas fa-robot"></i><span>AI</span></button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="status" aria-label="Status"><i class="fas fa-circle-notch"></i><span>Status</span></button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="profile" aria-label="Profile"><i class="fas fa-user"></i><span>Profile</span></button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="settings" aria-label="Settings"><i class="fas fa-gear"></i><span>Settings</span></button>
+    <nav class="mobile-bottom-nav banjara-bottom-nav" aria-label="Banjara Connect navigation">
+        <button type="button" class="bottom-nav-item is-active" data-bottom-action="home" aria-label="Home">
+            <i class="fas fa-house"></i><span>Home</span>
+        </button>
+        <button type="button" class="bottom-nav-item" data-bottom-action="chats" aria-label="Chats">
+            <i class="fas fa-comments"></i><span>Chats</span>
+        </button>
+        <button type="button" class="bottom-nav-item" data-bottom-action="connect" aria-label="Connect">
+            <i class="fas fa-user-plus"></i><span>Connect</span>
+        </button>
+        <button type="button" class="bottom-nav-create" id="bottomCreateButton" aria-label="Create">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button type="button" class="bottom-nav-item" data-bottom-action="community" aria-label="Community">
+            <i class="fas fa-users"></i><span>Community</span>
+        </button>
+        <button type="button" class="bottom-nav-item" data-bottom-action="notifications" aria-label="Notifications">
+            <i class="fas fa-bell"></i><span>Alerts</span>
+        </button>
+        <button type="button" class="bottom-nav-item" data-bottom-action="more" aria-label="More">
+            <i class="fas fa-ellipsis"></i><span>More</span>
+        </button>
     </nav>
     <div id="bottomCreateMenu" class="bottom-create-menu hidden" aria-hidden="true">
         <div class="bottom-create-backdrop" data-close-create></div>
@@ -436,7 +450,7 @@ if ("serviceWorker" in navigator) {
     });
 }
 </script>
-<script src="/banjara-navigation.js?v=20261004-1" defer></script>
+<script src="/banjara-navigation.js?v=20261004-1" defer></script>\n<script src="/banjara-frontend-foundation.js?v=20261004-1" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js?v=20261004-ai-chat-10"></script>
     
