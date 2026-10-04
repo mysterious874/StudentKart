@@ -5309,7 +5309,6 @@ document.addEventListener("DOMContentLoaded", setupGlobeDiscSearchIntents);
 function showHomePageFromSearch(options={}) {
     $("searchResultsPage")?.classList.add("hidden");
     document.body.classList.remove("studentkart-search-results-active");
-    document.querySelector(".mobile-bottom-nav")?.classList.remove("hidden");
     $("categoryPage")?.classList.add("hidden");
     $("home")?.classList.remove("hidden");
     $("marketplace")?.classList.remove("hidden");
@@ -5318,7 +5317,6 @@ function showHomePageFromSearch(options={}) {
     document.querySelector("main")?.classList.remove("category-page-active");
     $("navbarSearchInput")&&( $("navbarSearchInput").value="" );
     $("navbarSearchSuggestions")?.classList.add("hidden");
-    $("heroSearchSuggestions")?.classList.add("hidden");
     window.scrollTo({top:0,behavior:options.fromPopState?"smooth":"auto"});
 }
 
