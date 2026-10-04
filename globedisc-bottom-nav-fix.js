@@ -13,6 +13,7 @@
 
       event.preventDefault();
       event.stopPropagation();
+      event.stopImmediatePropagation();
 
       const id = item.id;
 
