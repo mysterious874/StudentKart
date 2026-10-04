@@ -9,7 +9,6 @@ body.globedisc-splash-active>#globediscSplash{visibility:visible!important}
 .globedisc-result-tab{flex:0 0 auto;border:0;background:transparent;color:#64748b;padding:10px 13px;font:600 12px/1 inherit;cursor:pointer;border-bottom:2px solid transparent}
 .globedisc-result-tab.active{color:#0f8b8d;border-bottom-color:#0f8b8d}
 .globedisc-news-fallback{margin:12px auto;padding:18px;border:1px solid #d9e2ec;border-radius:14px;background:#fff;color:#486581;text-align:center;max-width:720px}
-body.globedisc-final-marketplace .mobile-bottom-nav{display:none!important}
 @media(max-width:600px){.globedisc-result-tabs{width:calc(100% - 16px)}.globedisc-result-tab{padding:9px 11px;font-size:11px}}
 
 
