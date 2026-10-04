@@ -5,15 +5,13 @@
   "use strict";
 
   function polishChatSuggestions() {
-    const box = document.getElementById("chatUserSearchResults");
+    const box = document.getElementById("newChatSearchResults");
     if (!box) return;
-    const list = box.querySelector(".chat-user-search-list");
-    if (!list) return;
-
-    const cards = Array.from(list.querySelectorAll(".chat-user-search-card"));
+    const list = box.querySelector(".chat-search-result-list") || box;
+    const cards = Array.from(list.querySelectorAll(".chat-search-result"));
     cards.forEach(card => { card.hidden = false; });
 
-    const title = box.querySelector(".chat-user-search-title");
+    const title = box.querySelector(".chat-search-title");
     const small = title?.querySelector("small");
     if (small) {
       small.textContent = cards.length > 10
@@ -24,7 +22,7 @@
 
   function setupChatSuggestions() {
     const box = document.getElementById("chatUserSearchResults");
-    const input = document.getElementById("chatListSearchInput");
+    const input = document.getElementById("newChatSearchInput");
     if (!box || !input || box.dataset.uxReady === "1") return;
 
     box.dataset.uxReady = "1";
