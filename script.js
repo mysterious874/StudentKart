@@ -1,3 +1,4 @@
+let globediscNewsAutoRefreshTimer = null;
 /* =========================================================
    STUDENTKART - COMPLETE SCRIPT
    Notifications + Wishlist + Seller Profile + Inquiries
@@ -14097,8 +14098,7 @@ async function loadGlobalDiscoveryHomepage(){
     };
 
     const renderUnavailable=()=>{
-        grid.innerHTML='<div class="world-news-empty"><i class="fas fa-cloud-arrow-down"></i><h3>Latest updates are temporarily unavailable</h3><p>Live news sources could not be reached. Try again in a moment.</p><button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Try again</button></div>';
-        $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
+        grid.innerHTML='<div class="world-news-empty"><i class="fas fa-cloud-arrow-down"></i><h3>Latest updates are temporarily unavailable</h3><p>Live news sources could not be reached. News will retry automatically.</p></div>';
     };
 
     const scopeBackgroundLoads=new Map();
@@ -14278,11 +14278,7 @@ async function loadGlobalDiscoveryHomepage(){
 
             loader.remove();
 
-            const endNote=document.createElement("div");
-            endNote.className="world-news-refresh";
-            endNote.innerHTML='<button type="button" class="btn btn-outline" id="refreshWorldNews"><i class="fas fa-rotate"></i> Refresh live news</button>';
-            grid.appendChild(endNote);
-            $("refreshWorldNews")?.addEventListener("click",loadGlobalDiscoveryHomepage);
+            // News refreshes automatically in the background; no manual refresh button.
         }catch(error){
             console.error("News scope failed:",error);
             loader.remove();
@@ -14385,6 +14381,14 @@ async function loadGlobalDiscoveryHomepage(){
     }catch(error){
         console.error("Global discovery feed failed:",error);
         renderUnavailable();
+    }
+
+    // Keep live news fresh automatically every 5 minutes.
+    if(!globediscNewsAutoRefreshTimer){
+        globediscNewsAutoRefreshTimer=setInterval(()=>{
+            if(document.hidden) return;
+            loadGlobalDiscoveryHomepage().catch(error=>console.error("Automatic news refresh error:",error));
+        },5*60*1000);
     }
 }
 async function loadGlobeDiscNewsTopic(topic){
