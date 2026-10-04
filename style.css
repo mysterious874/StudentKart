@@ -19309,3 +19309,38 @@ html body.ai-assistant-page-active .mobile-bottom-nav{
   .ai-source-grid,.ai-news-grid{grid-template-columns:1fr}
   .ai-source-card p{-webkit-line-clamp:2}
 }
+
+/* GlobeDisc AI — independent cool chat aesthetic */
+#aiAssistantPage{background:#080b14 !important;color:#eef2ff !important}
+#aiAssistantPage .ai-assistant-navbar{background:rgba(10,13,24,.88) !important;border-bottom:1px solid rgba(139,92,246,.22) !important;backdrop-filter:blur(16px)}
+#aiAssistantPage .ai-assistant-navbar-inner{max-width:980px}
+#aiAssistantPage .ai-assistant-back,#aiAssistantPage .ai-assistant-new-chat{color:#aeb8d0 !important;background:transparent !important}
+#aiAssistantPage .ai-assistant-back:hover,#aiAssistantPage .ai-assistant-new-chat:hover{background:rgba(139,92,246,.13) !important;color:#fff !important}
+#aiAssistantPage .ai-assistant-brand-icon{color:#a78bfa !important;text-shadow:0 0 18px rgba(139,92,246,.65)}
+#aiAssistantPage .ai-assistant-brand strong{color:#f5f3ff}
+#aiAssistantPage .ai-assistant-brand small{color:#7d89a8}
+#aiAssistantPage .ai-assistant-shell{max-width:980px}
+#aiAssistantPage .ai-assistant-messages{padding:26px 16px 110px;scroll-behavior:smooth}
+#aiAssistantPage .ai-assistant-welcome-icon{color:#a78bfa;text-shadow:0 0 28px rgba(139,92,246,.65)}
+#aiAssistantPage .ai-assistant-welcome h1{color:#f8fafc;font-size:28px;letter-spacing:-.03em}
+#aiAssistantPage .ai-assistant-welcome p{color:#8995b2}
+#aiAssistantPage .ai-chat-message{border-radius:18px;font-size:13px;line-height:1.6;box-shadow:0 5px 22px rgba(0,0,0,.16)}
+#aiAssistantPage .ai-chat-user{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:0}
+#aiAssistantPage .ai-chat-assistant{background:#111625;border:1px solid #242c42;color:#e5e7eb}
+#aiAssistantPage .ai-assistant-composer{background:linear-gradient(180deg,rgba(8,11,20,0),#080b14 28%) !important;border-top:0 !important;box-shadow:none !important;padding:16px 14px 18px !important}
+#aiAssistantPage .ai-assistant-composer textarea{background:#111625 !important;color:#f8fafc !important;border:1px solid #303951 !important;border-radius:18px !important;box-shadow:0 8px 28px rgba(0,0,0,.25) !important}
+#aiAssistantPage .ai-assistant-composer textarea:focus{border-color:#8b5cf6 !important;box-shadow:0 0 0 3px rgba(139,92,246,.14),0 8px 28px rgba(0,0,0,.28) !important}
+#aiAssistantPage .ai-assistant-composer textarea::placeholder{color:#68748f !important}
+#aiAssistantPage .ai-assistant-composer button{background:linear-gradient(135deg,#8b5cf6,#4f46e5) !important;box-shadow:0 5px 18px rgba(99,102,241,.35)}
+#aiAssistantPage .ai-chat-rich{max-width:94%}
+#aiAssistantPage .ai-answer-text{color:#e5e7eb}
+#aiAssistantPage .ai-rich-link{background:#151b2c;border-color:#303951;color:#c4b5fd}
+#aiAssistantPage .ai-rich-section h4{color:#8793ad}
+#aiAssistantPage .ai-source-card,#aiAssistantPage .ai-news-card{background:#111625;border-color:#242c42;color:#e5e7eb}
+#aiAssistantPage .ai-source-card small,#aiAssistantPage .ai-news-card small{color:#71809f}
+#aiAssistantPage .ai-source-card p{color:#9aa6bf}
+#aiAssistantPage .ai-source-icon{background:#1b1730;color:#a78bfa}
+#aiAssistantPage .ai-photo-card{color:#dce2f0}
+#aiAssistantPage .ai-photo-card img,#aiAssistantPage .ai-news-card img{border-color:#242c42}
+#aiAssistantPage .ai-thinking{color:#8f9ab3}
+@media(max-width:700px){#aiAssistantPage .ai-assistant-messages{padding:20px 12px 105px}#aiAssistantPage .ai-assistant-welcome h1{font-size:23px}}
