@@ -22,6 +22,26 @@
     }
   }
 
+  function setupChatSuggestions() {
+    const box = document.getElementById("chatUserSearchResults");
+    const input = document.getElementById("chatListSearchInput");
+    if (!box || !input || box.dataset.uxReady === "1") return;
+
+    box.dataset.uxReady = "1";
+
+    const observer = new MutationObserver(() => {
+      polishChatSuggestions();
+    });
+    observer.observe(box, { childList: true, subtree: true });
+
+    input.addEventListener("input", () => {
+      window.setTimeout(polishChatSuggestions, 180);
+      window.setTimeout(polishChatSuggestions, 360);
+    });
+
+    window.setTimeout(polishChatSuggestions, 250);
+  }
+
   function setupProductCardPolish() {
     const containers = [
       document.getElementById("productContainer"),
