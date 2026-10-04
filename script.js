@@ -13242,6 +13242,15 @@ document.addEventListener("DOMContentLoaded", () => {
             window.showToast?.("Chat is coming to Banjara Connect.", "info");
         } else if (action === "video") {
             window.showToast?.("Video centre is coming soon.", "info");
+        } else if (action === "ai") {
+            const aiPage = document.getElementById("aiAssistantPage");
+            if (aiPage) {
+                document.querySelectorAll("main > section, main > div").forEach(el => el.classList.add("hidden"));
+                aiPage.classList.remove("hidden");
+                window.scrollTo({top:0, behavior:"instant"});
+            } else {
+                window.showToast?.("AI Assistant is unavailable.", "error");
+            }
         } else if (action === "status") {
             window.showToast?.("Status is coming soon.", "info");
         } else if (action === "profile") {
