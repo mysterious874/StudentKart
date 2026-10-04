@@ -14756,21 +14756,50 @@ function appendAiMessage(role,text){
     document.getElementById("aiAssistantWelcome")?.remove();
     const el=document.createElement("div");
     el.className="ai-chat-message "+(role==="user"?"ai-chat-user":"ai-chat-assistant");
-    el.textContent=String(text||"");
+    if(role==="user") el.textContent=String(text||"");
+    else el.innerHTML=String(text||"");
     box.appendChild(el); box.scrollTop=box.scrollHeight; return el;
+}
+function aiRichLink(url,label,icon="fa-arrow-up-right-from-square"){
+    return '<a class="ai-rich-link" href="'+escapeHTML(url||"#")+'" target="_blank" rel="noopener noreferrer"><i class="fas '+icon+'"></i><span>'+escapeHTML(label||"Open")+'</span></a>';
+}
+function renderAiRichAnswer(answer,question,found,photos,news){
+    const web=Array.isArray(found?.web)?found.web.slice(0,5):[];
+    const wiki=Array.isArray(found?.wiki)?found.wiki.slice(0,3):[];
+    const photoItems=Array.isArray(photos)?photos.slice(0,6):[];
+    const newsItems=Array.isArray(news)?news.slice(0,4):[];
+    const safeAnswer=escapeHTML(String(answer||"I couldn't generate an answer.")).replace(/\n/g,"<br>");
+    const webCards=web.map(item=>'<a class="ai-source-card" href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer"><div class="ai-source-icon"><i class="fas fa-globe"></i></div><div><strong>'+escapeHTML(item.title)+'</strong><small>'+escapeHTML(item.source||"Web")+'</small><p>'+escapeHTML(item.snippet||"")+'</p></div></a>').join("");
+    const wikiCards=wiki.map(item=>'<a class="ai-source-card" href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer">'+(item.image?'<img src="'+escapeHTML(item.image)+'" alt="" loading="lazy">':'<div class="ai-source-icon"><i class="fab fa-wikipedia-w"></i></div>')+'<div><strong>'+escapeHTML(item.title)+'</strong><small>Wikipedia</small><p>'+escapeHTML(item.snippet||"")+'</p></div></a>').join("");
+    const photoCards=photoItems.map(item=>'<a class="ai-photo-card" href="'+escapeHTML(item.image||"#")+'" target="_blank" rel="noopener noreferrer"><img src="'+escapeHTML(item.image)+'" alt="'+escapeHTML(item.title||"Photo")+'" loading="lazy"><span>'+escapeHTML(item.title||"Photo")+'</span></a>').join("");
+    const newsCards=newsItems.map(item=>'<a class="ai-news-card" href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer">'+(item.image?'<img src="'+escapeHTML(item.image)+'" alt="" loading="lazy">':'')+'<div><strong>'+escapeHTML(item.title)+'</strong><small>'+escapeHTML(item.source||"News")+'</small></div></a>').join("");
+    const yt="https://www.youtube.com/results?search_query="+encodeURIComponent(question);
+    return '<div class="ai-rich-answer"><div class="ai-answer-text">'+safeAnswer+'</div>'+
+      '<div class="ai-rich-actions">'+aiRichLink(yt,"YouTube","fa-youtube")+' '+aiRichLink("https://www.google.com/search?q="+encodeURIComponent(question),"More web results","fa-globe")+'</div>'+
+      (webCards?'<section class="ai-rich-section"><h4><i class="fas fa-globe"></i> Web sources</h4><div class="ai-source-grid">'+webCards+'</div></section>':"")+
+      (wikiCards?'<section class="ai-rich-section"><h4><i class="fab fa-wikipedia-w"></i> Related information</h4><div class="ai-source-grid">'+wikiCards+'</div></section>':"")+
+      (photoCards?'<section class="ai-rich-section"><h4><i class="fas fa-image"></i> Photos</h4><div class="ai-photo-row">'+photoCards+'</div></section>':"")+
+      (newsCards?'<section class="ai-rich-section"><h4><i class="fas fa-newspaper"></i> Latest news</h4><div class="ai-news-grid">'+newsCards+'</div></section>':"")+
+      '</div>';
 }
 async function submitAiQuestion(question){
     const q=String(question||"").trim(); if(!q)return;
     const input=document.getElementById("aiAssistantInput"); if(input)input.value="";
     appendAiMessage("user",q);
-    const thinking=appendAiMessage("assistant","Thinking…");
+    const thinking=appendAiMessage("assistant","<span class=\"ai-thinking\">Thinking and gathering sources…</span>");
     try{
-        const found=await Promise.resolve(fetchInternetSearchResults(q));
+        const [found,photos,news]=await Promise.all([
+            Promise.resolve(fetchInternetSearchResults(q)),
+            fetchInternetPanelData("photos",q),
+            fetchInternetPanelData("news",q,"24h")
+        ]);
         const sources=[...(found?.web||[]),...(found?.wiki||[])].slice(0,8);
         const res=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({question:q,sources})});
         const data=await res.json();
         if(!res.ok)throw new Error(data?.error||"AI request failed");
-        thinking.textContent=data.answer||"I couldn't generate an answer.";
+        thinking.parentElement ? thinking.parentElement.innerHTML=renderAiRichAnswer(data.answer,q,found,photos,news) : thinking.innerHTML=renderAiRichAnswer(data.answer,q,found,photos,news);
+        thinking.closest(".ai-chat-message")?.classList.add("ai-chat-rich");
+        const box=document.getElementById("aiAssistantMessages"); if(box)box.scrollTop=box.scrollHeight;
     }catch(err){console.error("GlobeDisc AI:",err);thinking.textContent="AI is temporarily unavailable. Please try again.";}
 }
 document.getElementById("askWithAiButton")?.addEventListener("click",showAiAssistantPage);
