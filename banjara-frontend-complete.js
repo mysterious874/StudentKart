@@ -149,35 +149,59 @@ async function bcHandleAuth(form){
   const password=String(inputs[1]?.value||"");
   if(!phone){toast("Enter a valid 10-digit mobile number");return;}
   if(!/^\d{6}$/.test(password)){toast("Password must be exactly 6 digits");return;}
-  const sb=BC_SUPABASE(); if(!sb){toast("Authentication is not ready");return;}
-  const submit=form.querySelector("button[type=submit]"); if(submit){submit.disabled=true;submit.textContent=mode==="signup"?"Creating...":"Logging in...";}
+  const sb=BC_SUPABASE();
+  if(!sb){toast("Authentication is not ready");return;}
+  const submit=form.querySelector("button[type=submit]");
+  if(submit){submit.disabled=true;submit.textContent=mode==="signup"?"Creating...":"Logging in...";}
+  toast(mode==="signup"?"Creating account...":"Logging in...");
+  const invoke=async(name,body)=>{
+    const result=await Promise.race([
+      sb.functions.invoke(name,{body}),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error("Request timed out. Please try again.")),15000))
+    ]);
+    const data=result?.data,error=result?.error;
+    if(error){
+      let detail="";
+      try{
+        const ctx=error.context;
+        if(ctx&&typeof ctx.json==="function"){
+          const parsed=await ctx.clone().json();
+          detail=String(parsed?.error||parsed?.message||"");
+        }else if(typeof ctx?.body==="string"){
+          const parsed=JSON.parse(ctx.body);
+          detail=String(parsed?.error||parsed?.message||"");
+        }else if(ctx?.body&&typeof ctx.body==="object"){
+          detail=String(ctx.body?.error||ctx.body?.message||"");
+        }
+      }catch(_){}
+      throw new Error(detail||error.message||"Could not complete request");
+    }
+    return data;
+  };
   try{
     if(mode==="signup"){
       const confirm=String(inputs[2]?.value||"");
       if(confirm!==password){toast("Passwords do not match");return;}
-      const {data,error}=await sb.functions.invoke("prepare-account",{body:{phone,password}});
-      if(error) throw error;
+      const data=await invoke("prepare-account",{phone,password});
       if(!data?.success) throw new Error(data?.error||"Could not create account");
     }
-    const {data,error}=await sb.functions.invoke("mobile-login",{body:{phone,password}});
-    if(error){
-      let detail="";
-      try{
-        const raw=error.context?.body;
-        if(typeof raw==="string"){const parsed=JSON.parse(raw);detail=String(parsed?.error||"");}
-        else if(raw&&typeof raw==="object") detail=String(raw?.error||"");
-      }catch(_){ }
-      throw new Error(detail||error.message||"Could not complete login");
-    }
-    if(!data?.success||!data?.session?.access_token||!data?.session?.refresh_token) throw new Error(data?.error||"Could not complete login");
-    const {data:sessionData,error:sessionError}=await sb.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});
+    const data=await invoke("mobile-login",{phone,password});
+    if(!data?.success||!data?.session?.access_token||!data?.session?.refresh_token)
+      throw new Error(data?.error||"Could not complete login");
+    const {data:sessionData,error:sessionError}=await sb.auth.setSession({
+      access_token:data.session.access_token,
+      refresh_token:data.session.refresh_token
+    });
     if(sessionError) throw sessionError;
-    await bcAfterLogin(sessionData.user,phone);
+    const prepared=await bcAfterLogin(sessionData.user,phone);
+    if(!prepared) throw new Error("Could not prepare account");
   }catch(e){
     console.error("Auth error:",e);
     const msg=String(e?.message||"");
     toast(msg.includes("Invalid login")?"Mobile number or password is incorrect":msg||"Could not complete login");
-  }finally{if(submit){submit.disabled=false;submit.textContent=mode==="signup"?"Create account":"Log in";}}
+  }finally{
+    if(submit){submit.disabled=false;submit.textContent=mode==="signup"?"Create account":"Log in";}
+  }
 }
 async function bcLoadSocialData(){
  const sb=BC_SUPABASE(); if(!sb)return;
