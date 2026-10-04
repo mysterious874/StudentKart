@@ -5,6 +5,7 @@ const SUPABASE_URL="https://yymzfjfkmsrymqhpnfqz.supabase.co";
 const SUPABASE_KEY="sb_publishable_tEePI-aSGDkt_2S6oiEfPw_Hy_mEXkw";
 const $=id=>document.getElementById(id);
 const AI_HISTORY_KEY="globedisc_ai_chat_history_v1";
+const AI_HISTORY_BACKUP_KEY="globedisc_ai_chat_history_backup_v1";
 let history=loadAIHistory();
 let aiHasOpenedOnce=false;
 const AI_REOPEN_MESSAGES=[
@@ -15,7 +16,7 @@ const AI_REOPEN_MESSAGES=[
   "Missed our little chats already? 😌 Come here, ask me something."
 ];
 function loadAIHistory(){try{const saved=localStorage.getItem(AI_HISTORY_KEY);const parsed=saved?JSON.parse(saved):[];return Array.isArray(parsed)?parsed.slice(-20):[];}catch(_){return [];}}
-function saveAIHistory(){try{localStorage.setItem(AI_HISTORY_KEY,JSON.stringify(history.slice(-20)));}catch(_){} }
+function saveAIHistory(){const value=JSON.stringify(history.slice(-20));try{localStorage.setItem(AI_HISTORY_KEY,value);}catch(_){} try{sessionStorage.setItem(AI_HISTORY_BACKUP_KEY,value);}catch(_){} }
 
 let aiUserNearBottom=true;
 function scrollAIToBottom(behavior="auto"){
@@ -48,19 +49,23 @@ function addMessage(role,text){
  return item;
 }
 function renderSavedAIHistory(){
- const box=$("aiAssistantMessages"); if(!box||!history.length)return;
+ const box=$("aiAssistantMessages"); if(!box)return;
  box.innerHTML="";
+ if(!history.length){
+  box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc"></div><h1>What can I help you with?</h1><p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p></div>';
+  return;
+ }
  history.forEach(m=>addMessage(m.role==="assistant"?"assistant":"user",m.content));
  requestAnimationFrame(()=>scrollAIToBottom("auto"));
 }
 function openAI(){
  const p=$("aiAssistantPage"); if(!p)return;
- p.classList.remove("hidden"); document.body.classList.add("ai-assistant-open");
+ p.classList.remove("hidden"); document.body.classList.add("ai-assistant-open","ai-assistant-page-active");
  history.replaceState({globediscAIBase:true},""); history.pushState({globediscAI:true},"");
  renderSavedAIHistory();
  if(aiHasOpenedOnce) addMessage("assistant",AI_REOPEN_MESSAGES[Math.floor(Math.random()*AI_REOPEN_MESSAGES.length)]);
  aiHasOpenedOnce=true;
- const globalNav=document.querySelector(".mobile-bottom-nav"); if(globalNav){globalNav.style.setProperty("display","none","important");globalNav.style.setProperty("visibility","hidden","important");globalNav.style.setProperty("pointer-events","none","important");}
+ document.querySelectorAll(".mobile-bottom-nav,.bottom-floating-nav,.floating-bottom-nav,.floating-bar,.floating-nav").forEach(nav=>{nav.style.setProperty("display","none","important");nav.style.setProperty("visibility","hidden","important");nav.style.setProperty("pointer-events","none","important");});
  window.scrollTo({top:0,behavior:"auto"});
  const input=$("aiAssistantInput");
  if(input){setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},80);}
@@ -69,13 +74,8 @@ function openAI(){
 function closeAI(){
  const page=$("aiAssistantPage");
  if(page)page.classList.add("hidden");
- document.body.classList.remove("ai-assistant-open");
- const globalNav=document.querySelector(".mobile-bottom-nav");
- if(globalNav){
-  globalNav.style.removeProperty("display");
-  globalNav.style.removeProperty("visibility");
-  globalNav.style.removeProperty("pointer-events");
- }
+ document.body.classList.remove("ai-assistant-open","ai-assistant-page-active");
+ document.querySelectorAll(".mobile-bottom-nav,.bottom-floating-nav,.floating-bottom-nav,.floating-bar,.floating-nav").forEach(nav=>{nav.style.removeProperty("display");nav.style.removeProperty("visibility");nav.style.removeProperty("pointer-events");});
  const homeSection=document.getElementById("home");
  if(homeSection){
   homeSection.classList.remove("hidden");
@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  updateAIViewport();
  $("aiAssistantBack")?.addEventListener("click",closeAI);
  $("aiAssistantNewChat")?.addEventListener("click",()=>{
-  history=[];try{localStorage.removeItem(AI_HISTORY_KEY);}catch(_){} const box=$("aiAssistantMessages");
+  history=[];try{localStorage.removeItem(AI_HISTORY_KEY);}catch(_){} try{sessionStorage.removeItem(AI_HISTORY_BACKUP_KEY);}catch(_){} const box=$("aiAssistantMessages");
   if(box)box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc"></div><h1>What can I help you with?</h1><p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p></div>';
   const input=$("aiAssistantInput");
   if(input){setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},50);}
