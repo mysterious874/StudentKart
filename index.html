@@ -108,6 +108,24 @@
         </div>
     </div>
 
+    <nav class="mobile-bottom-nav banjara-bottom-nav" aria-label="Community navigation">
+        <button type="button" class="bottom-nav-item" data-bottom-action="home" aria-label="Home"><i class="fas fa-house"></i><span>Home</span></button>
+        <button type="button" class="bottom-nav-item" data-bottom-action="chat" aria-label="Chat"><i class="fas fa-comments"></i><span>Chat</span></button>
+        <button type="button" class="bottom-nav-create" id="bottomCreateButton" aria-label="Create post"><i class="fas fa-plus"></i></button>
+        <button type="button" class="bottom-nav-item" data-bottom-action="video" aria-label="Video"><i class="fas fa-circle-play"></i><span>Video</span></button>
+        <button type="button" class="bottom-nav-item" data-bottom-action="status" aria-label="Status"><i class="fas fa-circle-notch"></i><span>Status</span></button>
+        <button type="button" class="bottom-nav-item" data-bottom-action="profile" aria-label="Profile"><i class="fas fa-user"></i><span>Profile</span></button>
+        <button type="button" class="bottom-nav-item" data-bottom-action="settings" aria-label="Settings"><i class="fas fa-gear"></i><span>Settings</span></button>
+    </nav>
+    <div id="bottomCreateMenu" class="bottom-create-menu hidden" aria-hidden="true">
+        <div class="bottom-create-backdrop" data-close-create></div>
+        <div class="bottom-create-sheet">
+            <div class="bottom-create-title"><strong>Create</strong><button type="button" data-close-create aria-label="Close">&times;</button></div>
+            <button type="button" class="bottom-create-option" data-create-action="photo"><i class="fas fa-image"></i><span><b>Photo</b><small>Share a photo with the community</small></span></button>
+            <button type="button" class="bottom-create-option" data-create-action="video"><i class="fas fa-video"></i><span><b>Video</b><small>Share a community video</small></span></button>
+            <button type="button" class="bottom-create-option" data-create-action="post"><i class="fas fa-pen"></i><span><b>Post</b><small>Write an update or thought</small></span></button>
+        </div>
+    </div>
     <div id="categoryPickerModal" class="modal hidden">
         <div class="modal-overlay" data-close-modal></div>
         <div class="modal-content category-picker-modal">
