@@ -49,7 +49,7 @@ function refreshUI(){
 async function openChat(chatId,name){
  const existing=document.getElementById("bcChatOverlay");if(existing){const topic=existing.dataset.channel;const old=topic?SB().getChannels().find(x=>x.topic===topic):null;if(old)await SB().removeChannel(old);existing.remove();}
  const box=document.createElement("section");box.id="bcChatOverlay";box.className="bc-chat-overlay";
- box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small id="bcChatPresence">Offline</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><div id="bcReplyBar" class="bc-reply-bar" hidden><button type="button" data-reply-cancel><i class="fas fa-xmark"></i></button><div><small>Replying to</small><strong id="bcReplyText"></strong></div></div><form class="bc-chat-composer" id="bcChatForm"><button type="button" class="bc-chat-tool" id="bcAttachBtn" title="Photo, video or file"><i class="fas fa-paperclip"></i></button><input type="file" id="bcAttachInput" hidden accept="image/*,video/*,.pdf"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button type="button" class="bc-chat-tool" id="bcVoiceBtn" title="Voice message"><i class="fas fa-microphone"></i></button><button type="submit" class="bc-send-btn"><i class="fas fa-paper-plane"></i></button></form>';
+ box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small id="bcChatPresence">Offline</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><div id="bcReplyBar" class="bc-reply-bar" hidden><button type="button" data-reply-cancel><i class="fas fa-xmark"></i></button><div><small>Replying to</small><strong id="bcReplyText"></strong></div></div><div class="bc-record-bar" id="bcRecordBar" hidden><button type="button" data-record-cancel><i class="fas fa-trash"></i></button><span><i class="fas fa-microphone"></i> Recording <b id="bcRecordTime">00:00</b></span><button type="button" data-record-send><i class="fas fa-paper-plane"></i> Send</button></div><form class="bc-chat-composer" id="bcChatForm"><button type="button" class="bc-chat-tool" id="bcAttachBtn" title="Photo, video or file"><i class="fas fa-paperclip"></i></button><input type="file" id="bcAttachInput" hidden accept="image/*,video/*,.pdf"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button type="button" class="bc-chat-tool" id="bcVoiceBtn" title="Voice message"><i class="fas fa-microphone"></i></button><button type="submit" class="bc-send-btn"><i class="fas fa-paper-plane"></i></button></form>';
  document.body.appendChild(box);
  const sb=SB(),{data:{user}}=await sb.auth.getUser();if(!user)return;
  const {data:blockRows}=await sb.from("user_blocks").select("blocker_id,blocked_id").or("blocker_id.eq."+user.id+",blocked_id.eq."+user.id);
@@ -160,19 +160,23 @@ async function openChat(chatId,name){
    attachBtn.disabled=false;attachBtn.innerHTML='<i class="fas fa-paperclip"></i>';attachInput.value="";input.focus();
  };
  attachBtn.onclick=()=>attachInput.click();attachInput.onchange=()=>sendAttachment(attachInput.files?.[0]);
- let recorder=null,chunks=[],recordStartedAt=0,recordTimer=null,cancelRecording=false;
- const updateRecordTimer=()=>{const s=Math.floor((Date.now()-recordStartedAt)/1000);voiceBtn.setAttribute("data-recording-time",String(s).padStart(2,"0")+"s");};
+ let recorder=null,chunks=[],recordStartedAt=0,recordTimer=null,cancelRecording=false,sendRecording=false;
+ const recordBar=box.querySelector("#bcRecordBar"),recordTime=box.querySelector("#bcRecordTime");
+ const updateRecordTimer=()=>{const s=Math.floor((Date.now()-recordStartedAt)/1000),mm=String(Math.floor(s/60)).padStart(2,"0"),ss=String(s%60).padStart(2,"0");recordTime.textContent=mm+":"+ss;};
+ const stopRecording=send=>{if(!recorder||recorder.state!=="recording")return;sendRecording=!!send;cancelRecording=!send;recorder.stop();};
+ recordBar.querySelector("[data-record-cancel]").onclick=()=>stopRecording(false);
+ recordBar.querySelector("[data-record-send]").onclick=()=>stopRecording(true);
  voiceBtn.onclick=async()=>{
-
-   if(recorder&&recorder.state==="recording"){cancelRecording=true;recorder.stop();return;}
+   if(recorder&&recorder.state==="recording"){stopRecording(true);return;}
    if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){alert("Voice recording is not supported in this browser.");return;}
    try{
-     const stream=await navigator.mediaDevices.getUserMedia({audio:true});chunks=[];cancelRecording=false;
-     recorder=new MediaRecorder(stream);voiceBtn.classList.add("recording");voiceBtn.innerHTML='<i class="fas fa-stop"></i>';
+     const stream=await navigator.mediaDevices.getUserMedia({audio:true});chunks=[];cancelRecording=false;sendRecording=false;
+     recorder=new MediaRecorder(stream);voiceBtn.classList.add("recording");voiceBtn.innerHTML='<i class="fas fa-stop"></i>';voiceBtn.disabled=false;recordBar.hidden=false;
      recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
      recorder.onstop=async()=>{
-       stream.getTracks().forEach(t=>t.stop());clearInterval(recordTimer);voiceBtn.classList.remove("recording");voiceBtn.innerHTML='<i class="fas fa-microphone"></i>';voiceBtn.removeAttribute("data-recording-time");if(cancelRecording){chunks=[];return;}
-       const blob=new Blob(chunks,{type:recorder.mimeType||"audio/webm"});if(blob.size>25*1024*1024)return;
+       stream.getTracks().forEach(t=>t.stop());clearInterval(recordTimer);recordBar.hidden=true;voiceBtn.classList.remove("recording");voiceBtn.innerHTML='<i class="fas fa-microphone"></i>';voiceBtn.removeAttribute("data-recording-time");
+       if(cancelRecording||!sendRecording){chunks=[];return;}
+       const blob=new Blob(chunks,{type:recorder.mimeType||"audio/webm"});chunks=[];if(blob.size>25*1024*1024)return;
        const ext=(blob.type.includes("ogg")?"ogg":blob.type.includes("mp4")?"m4a":"webm"),path=user.id+"/"+chatId+"/"+crypto.randomUUID()+"."+ext;
        const up=await sb.storage.from("banjara-media").upload(path,blob,{contentType:blob.type||"audio/webm",upsert:false});
        if(up.error){alert("Could not upload voice message.");return;}
@@ -183,7 +187,7 @@ async function openChat(chatId,name){
      recordStartedAt=Date.now();updateRecordTimer();recordTimer=setInterval(updateRecordTimer,1000);recorder.start();
    }catch(e){alert("Microphone permission is required for voice messages.");}
  };
- document.addEventListener("keydown",ev=>{if(ev.key==="Escape"&&recorder&&recorder.state==="recording"){cancelRecording=true;recorder.stop();}});
+ document.addEventListener("keydown",ev=>{if(ev.key==="Escape"&&recorder&&recorder.state==="recording")stopRecording(false);});
  box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text",reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url,delivered_at,read_at").single();if(ins.error){input.value=body;return;}replyTo=null;replyBar.hidden=true;await render([...currentMessages,ins.data]);input.focus();};
  const channel=sb.channel("bc-chat-"+chatId)
  .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){currentMessages=[...currentMessages,payload.new];await sb.from("messages").update({delivered_at:new Date().toISOString(),read_at:new Date().toISOString()}).eq("id",payload.new.id);const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}})
