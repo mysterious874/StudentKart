@@ -152,30 +152,6 @@ async function bcRestoreSession(){
 }
 function modal(title,html){$("#bcSheet").innerHTML='<div class="bc-sheet-head"><h2>'+title+'</h2><button class="bc-close" data-close-modal>&times;</button></div>'+html;$("#bcModal").classList.add("open")}
 function closeModal(){$("#bcModal").classList.remove("open")}
-function create(){modal("Create",'<div class="bc-create-grid">'+[['fa-pen','Post','Share an update'],['fa-image','Photo / Video','Share a moment'],['fa-square-poll-vertical','Poll','Ask your community'],['fa-calendar-days','Event','Create an event'],['fa-user-group','Group','Start a group'],['fa-people-group','Community','Build a community']].map(x=>'<button class="bc-create" data-demo="'+x[1]+' opened"><i class="fas '+x[0]+'"></i><strong>'+x[1]+'</strong><small>'+x[2]+'</small></button>').join("")+'</div>')}
-function bind(){
- document.addEventListener("click",e=>{
-  const more=e.target.closest("[data-more]");if(more){e.preventDefault();e.stopPropagation();showScreen("settings");return}
-  const nav=e.target.closest("[data-screen]");if(nav){e.preventDefault();showScreen(nav.dataset.screen);return}
-  if(e.target.closest("[data-create]")){create();return}
-  const ct=e.target.closest("[data-create-type]");if(ct){openComposer(ct.dataset.createType);return}
-  const chat=e.target.closest(".bc-row[data-demo=\"Chat opened\"]");if(chat){bcOpenChat(chat.querySelector("strong")?.textContent||"Chat");return}
-  if(e.target.closest("[data-close-modal]")||e.target.id==="bcModal"){closeModal();return}
-  const connect=e.target.closest("[data-connect-user]");if(connect){void bcSendConnection(connect.dataset.connectUser,connect);return}
-  if(e.target.closest("[data-community-id]")){toast("Community selected");return}
-  const setting=e.target.closest("[data-setting]");if(setting){bcOpenSetting(setting.dataset.setting);return}
-  const demo=e.target.closest("[data-demo]");if(demo){toast(demo.dataset.demo);return}
-  const tab=e.target.closest(".bc-tab,.bc-chip");if(tab){const group=tab.parentElement;$(".bc-tab,.bc-chip",group).forEach(x=>x.classList.remove("active"));tab.classList.add("active");toast(tab.textContent.trim()+" selected");return}
-  const auth=e.target.closest("[data-auth]");if(auth){state.auth=auth.dataset.auth;renderAll();showScreen("auth");return}
-  if(e.target.closest("[data-do-search]")){state.query=$("[data-search]")?.value||"";toast(state.query?"Searching "+state.query+"…":"Type something to search");return}
-  const refresh=e.target.closest(".bc-section-head button");if(refresh && refresh.textContent.trim()==="Refresh"){toast("Suggestions refreshed");return}
-  const setting=e.target.closest("[data-setting]");if(setting){const labels=["Profile","Notifications","Appearance","Language","Privacy","Security","Blocked accounts","Sessions","Help & About","Account"];modal(labels[+setting.dataset.setting]||"Settings",'<div class="bc-card"><p>This frontend section is ready. Backend controls will be connected in the backend phase.</p><button class="bc-action primary" data-close-modal>Done</button></div>');return}
-  if(e.target.closest("[data-refresh-social]")){void bcLoadSocialData();return}
-  if(e.target.closest("[data-logout]")){void (async()=>{try{clearInterval(bcSessionTimer);bcSessionTimer=null;await BC_SUPABASE()?.auth.signOut({scope:"local"});}catch(err){console.warn(err);}state.auth="welcome";renderAll();showScreen("auth");toast("Logged out");})();return}
-  if(e.target.closest("[data-edit-profile]")){modal("Edit Profile",'<form class="bc-form"><div class="bc-field"><label>Name</label><input value="Harish Rathod"></div><div class="bc-field"><label>Bio</label><textarea>Community builder • Student • Technology enthusiast</textarea></div><button type="button" class="bc-action primary" data-demo="Profile changes saved locally">Save changes</button></form>');return}
- });
- document.addEventListener("submit",e=>{const f=e.target.closest("[data-auth-form]");if(!f)return;e.preventDefault();void bcHandleAuth(f);});
- document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
-}
+function create(){modal("Create",'<div class="bc-create-grid">'+[['fa-pen','Post','Share an update','post'],['fa-image','Photo / Video','Share a moment','media'],['fa-square-poll-vertical','Poll','Ask your community','poll'],['fa-calendar-days','Event','Create an event','event'],['fa-user-group','Group','Start a group','group'],['fa-people-group','Community','Build a community','community']].map(x=>'<button class="bc-create" data-create-type="'+x[3]+'"><i class="fas '+x[0]+'"></i><strong>'+x[1]+'</strong><small>'+x[2]+'</small></button>').join("")+'</div>')}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",build,{once:true});else build();
 })();
