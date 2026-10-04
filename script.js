@@ -10324,7 +10324,17 @@ async function sendChatMessage(event) {
 
         if (error) throw error;
 
-        if (input) input.value = "";
+        if (input) {
+            input.value = "";
+            // ChatGPT/WhatsApp-style behavior: sending a message releases
+            // the input focus so the mobile keyboard closes immediately.
+            // The keyboard will only return after the user taps the input again.
+            input.blur();
+        }
+        if (document.activeElement && typeof document.activeElement.blur === "function") {
+            document.activeElement.blur();
+        }
+
         clearChatImageSelection();
         clearChatReplyPreview();
         removeChatUploadStatus();
