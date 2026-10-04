@@ -4990,8 +4990,8 @@ async function ensureProfileAfterPasswordSignup(user) {
             state: metadata.state || "",
             city: metadata.city || "",
             area: metadata.area || "",
-            email: user.email || "",
-            phone: user.phone || metadata.phone || "",
+            email: "",
+            phone: metadata.phone || user.phone || "",
             avatar_url: ""
         };
 
