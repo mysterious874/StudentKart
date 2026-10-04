@@ -4798,7 +4798,13 @@ function isSixDigitPassword(value) { return /^\d{6}$/.test(String(value || ""));
             });
         });
     };
-    if (document.readyState === "loading") (function consumeGlobeDiscSearchQuery(){
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", apply, { once: true });
+    } else {
+        apply();
+    }
+})();
+(function consumeGlobeDiscSearchQuery(){
     try{
         const params=new URLSearchParams(window.location.search);
         const query=String(params.get("search")||"").trim();
@@ -4807,14 +4813,11 @@ function isSixDigitPassword(value) { return /^\d{6}$/.test(String(value || ""));
             if(typeof showSearchResultsPage==="function"){
                 showSearchResultsPage(query);
             }
-        },180);
+        },320);
     }catch(error){
         console.warn("Search query startup failed:",error);
     }
 })();
-
-document.addEventListener("DOMContentLoaded", apply, { once: true });
-    else apply();
 })();
 
 async function loginUser(event) {
