@@ -9,10 +9,11 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
+  const url = new URL(req.url);
+  const query = url.searchParams.get("q") ||
+    "(world OR international OR global OR technology OR science OR AI OR space OR business OR economy OR markets OR sports OR entertainment OR culture)";
+
   try {
-    const url = new URL(req.url);
-    const query = url.searchParams.get("q") ||
-      "(world OR international OR global OR technology OR science OR AI OR space OR business OR economy OR markets OR sports OR entertainment OR culture)";
 
     const gdeltUrl =
       "https://api.gdeltproject.org/api/v2/doc/doc?query=" +
