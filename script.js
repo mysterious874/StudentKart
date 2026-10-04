@@ -14722,3 +14722,47 @@ document.addEventListener("DOMContentLoaded",()=>{
         });
     });
 })();
+
+
+function showAiAssistantPage(){
+    const home=document.getElementById("home");
+    const news=document.getElementById("worldNewsSection");
+    const ai=document.getElementById("aiAssistantPage");
+    if(!ai)return;
+    home?.classList.add("hidden"); news?.classList.add("hidden");
+    document.querySelectorAll("main > section").forEach(s=>{if(s!==ai)s.dataset.aiHidden=s.classList.contains("hidden")?"1":"0";});
+    ai.classList.remove("hidden");
+    history.pushState({page:"ai-assistant"},"","#ask-with-ai");
+    document.getElementById("aiAssistantInput")?.focus();
+}
+function hideAiAssistantPage(){
+    document.getElementById("aiAssistantPage")?.classList.add("hidden");
+    document.getElementById("home")?.classList.remove("hidden");
+    document.getElementById("worldNewsSection")?.classList.remove("hidden");
+}
+function appendAiMessage(role,text){
+    const box=document.getElementById("aiAssistantMessages"); if(!box)return;
+    document.getElementById("aiAssistantWelcome")?.remove();
+    const el=document.createElement("div");
+    el.className="ai-chat-message "+(role==="user"?"ai-chat-user":"ai-chat-assistant");
+    el.textContent=String(text||"");
+    box.appendChild(el); box.scrollTop=box.scrollHeight; return el;
+}
+async function submitAiQuestion(question){
+    const q=String(question||"").trim(); if(!q)return;
+    const input=document.getElementById("aiAssistantInput"); if(input)input.value="";
+    appendAiMessage("user",q);
+    const thinking=appendAiMessage("assistant","Thinking…");
+    try{
+        const found=await Promise.resolve(fetchInternetSearchResults(q));
+        const sources=[...(found?.web||[]),...(found?.wiki||[])].slice(0,8);
+        const res=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({question:q,sources})});
+        const data=await res.json();
+        if(!res.ok)throw new Error(data?.error||"AI request failed");
+        thinking.textContent=data.answer||"I couldn't generate an answer.";
+    }catch(err){console.error("GlobeDisc AI:",err);thinking.textContent="AI is temporarily unavailable. Please try again.";}
+}
+document.getElementById("askWithAiButton")?.addEventListener("click",showAiAssistantPage);
+document.getElementById("aiAssistantBack")?.addEventListener("click",()=>{if(history.state?.page==="ai-assistant")history.back();else hideAiAssistantPage();});
+document.getElementById("aiAssistantForm")?.addEventListener("submit",e=>{e.preventDefault();submitAiQuestion(document.getElementById("aiAssistantInput")?.value);});
+window.addEventListener("popstate",()=>{if(location.hash!=="#ask-with-ai")hideAiAssistantPage();});
