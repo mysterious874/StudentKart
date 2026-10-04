@@ -129,24 +129,6 @@ body:before{
   border-color:var(--bc-line)!important;
 }
 
-/* Bottom navigation */
-.mobile-bottom-nav{
-  background:rgba(255,250,242,.96)!important;
-  border-top:1px solid var(--bc-line)!important;
-  box-shadow:0 -8px 28px rgba(84,18,28,.10)!important;
-  backdrop-filter:blur(14px)!important;
-}
-.mobile-bottom-nav .bottom-nav-item{
-  color:#796b63!important;
-}
-.mobile-bottom-nav .bottom-nav-item.active,
-.mobile-bottom-nav .bottom-nav-item:hover{
-  color:var(--bc-maroon)!important;
-}
-.mobile-bottom-nav .bottom-nav-item i{
-  font-size:1.05rem!important;
-}
-
 /* Auth/profile */
 .auth-modal .auth-icon{
   background:linear-gradient(135deg,var(--bc-maroon),var(--bc-orange))!important;
