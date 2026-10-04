@@ -229,3 +229,53 @@ for each row execute function private.notify_post_interaction();
 drop trigger if exists trg_post_comment_notifications on public.comments;
 create trigger trg_post_comment_notifications after insert on public.comments
 for each row execute function private.notify_post_interaction();
+
+
+-- API surface hardening and RLS performance cleanup.
+-- Banjara Connect is authenticated-first; anonymous table access is not required.
+revoke all privileges on all tables in schema public from anon;
+revoke all privileges on all sequences in schema public from anon;
+revoke all privileges on all functions in schema public from anon;
+
+-- Security-definer helpers are never direct client APIs.
+do $$
+declare r record;
+begin
+  for r in
+    select n.nspname schema_name, p.proname, pg_get_function_identity_arguments(p.oid) args
+    from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname in ('public','private') and p.prosecdef
+  loop
+    execute format('revoke all on function %I.%I(%s) from public, anon, authenticated',
+      r.schema_name,r.proname,r.args);
+  end loop;
+end $$;
+
+grant execute on function private.is_chat_member(uuid) to authenticated;
+grant execute on function private.user_blocked_in_chat(uuid) to authenticated;
+grant execute on function private.can_view_post(uuid) to authenticated;
+grant select on public.profiles to authenticated;
+
+-- Policies using auth.uid() directly are evaluated per row. Wrap the auth call
+-- in a SELECT so PostgreSQL can initialize it once per statement.
+do $$
+declare r record;
+begin
+  for r in
+    select schemaname, tablename, policyname, roles, cmd, qual, with_check
+    from pg_policies
+    where schemaname='public'
+      and (coalesce(qual,'') like '%auth.uid()%' or coalesce(with_check,'') like '%auth.uid()%')
+  loop
+    execute format('drop policy if exists %I on %I.%I', r.policyname, r.schemaname, r.tablename);
+    execute format(
+      'create policy %I on %I.%I as permissive for %s to %s %s %s',
+      r.policyname, r.schemaname, r.tablename, lower(r.cmd),
+      array_to_string(r.roles, ', '),
+      case when r.qual is not null then 'using (' ||
+        replace(replace(r.qual, 'auth.uid()', '(select auth.uid())'), '(select (select auth.uid()))','(select auth.uid())') || ')' else '' end,
+      case when r.with_check is not null then 'with check (' ||
+        replace(replace(r.with_check, 'auth.uid()', '(select auth.uid())'), '(select (select auth.uid()))','(select auth.uid())') || ')' else '' end
+    );
+  end loop;
+end $$;
