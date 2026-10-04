@@ -46,7 +46,7 @@ function refreshUI(){
 async function openChat(chatId,name){
  const existing=document.getElementById("bcChatOverlay");if(existing){const topic=existing.dataset.channel;const old=topic?SB().getChannels().find(x=>x.topic===topic):null;if(old)await SB().removeChannel(old);existing.remove();}
  const box=document.createElement("section");box.id="bcChatOverlay";box.className="bc-chat-overlay";
- box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small>Message</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><div id="bcReplyBar" class="bc-reply-bar" hidden><button type="button" data-reply-cancel><i class="fas fa-xmark"></i></button><div><small>Replying to</small><strong id="bcReplyText"></strong></div></div><form class="bc-chat-composer" id="bcChatForm"><button type="button" class="bc-chat-tool" id="bcAttachBtn" title="Photo, video or file"><i class="fas fa-paperclip"></i></button><input type="file" id="bcAttachInput" hidden accept="image/*,video/*,.pdf"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button type="button" class="bc-chat-tool" id="bcVoiceBtn" title="Voice message"><i class="fas fa-microphone"></i></button><button type="submit" class="bc-send-btn"><i class="fas fa-paper-plane"></i></button></form>';
+ box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small id="bcChatPresence">Offline</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><div id="bcReplyBar" class="bc-reply-bar" hidden><button type="button" data-reply-cancel><i class="fas fa-xmark"></i></button><div><small>Replying to</small><strong id="bcReplyText"></strong></div></div><form class="bc-chat-composer" id="bcChatForm"><button type="button" class="bc-chat-tool" id="bcAttachBtn" title="Photo, video or file"><i class="fas fa-paperclip"></i></button><input type="file" id="bcAttachInput" hidden accept="image/*,video/*,.pdf"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button type="button" class="bc-chat-tool" id="bcVoiceBtn" title="Voice message"><i class="fas fa-microphone"></i></button><button type="submit" class="bc-send-btn"><i class="fas fa-paper-plane"></i></button></form>';
  document.body.appendChild(box);
  const sb=SB(),{data:{user}}=await sb.auth.getUser();if(!user)return;
  const mediaUrl=async path=>{if(!path)return null;const r=await sb.storage.from("banjara-media").createSignedUrl(path,3600);return r.data?.signedUrl||null;};
@@ -76,7 +76,16 @@ async function openChat(chatId,name){
  await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);
  if(window.__bcLive?.chats){const current=window.__bcLive.chats.find(x=>x.id===chatId);if(current)current.unread=false;}
  const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn");
- box.querySelector("[data-chat-close]").onclick=async()=>{const topic=box.dataset.channel;const ch=topic?sb.getChannels().find(x=>x.topic===topic):null;if(ch)await sb.removeChannel(ch);box.remove();};
+ const presenceEl=box.querySelector("#bcChatPresence"); let typingTimer=null;
+ const {data:members}=await sb.from("chat_members").select("user_id").eq("chat_id",chatId);
+ const otherId=(members||[]).map(x=>x.user_id).find(id=>id!==user.id);
+ const chatChannel=sb.channel("bc-chat-presence-"+chatId,{config:{presence:{key:user.id}}});
+ chatChannel.on("presence",{event:"sync"},()=>{const state=chatChannel.presenceState();const online=otherId&&!!state[otherId];if(presenceEl)presenceEl.textContent=online?"Online":"Offline";})
+ .on("broadcast",{event:"typing"},({payload})=>{if(payload?.user_id!==user.id&&payload?.typing){presenceEl.textContent="typing...";clearTimeout(typingTimer);typingTimer=setTimeout(()=>{if(presenceEl)presenceEl.textContent="Online";},1800);}})
+ .subscribe(async status=>{if(status==="SUBSCRIBED")await chatChannel.track({online_at:new Date().toISOString()});});
+ const emitTyping=()=>{chatChannel.send({type:"broadcast",event:"typing",payload:{user_id:user.id,typing:true}});};
+ input?.addEventListener("input",emitTyping);
+ box.querySelector("[data-chat-close]").onclick=async()=>{const topic=box.dataset.channel;const ch=topic?sb.getChannels().find(x=>x.topic===topic):null;if(ch)await sb.removeChannel(ch);try{await sb.removeChannel(chatChannel);}catch(e){}box.remove();};
  const replyBar=box.querySelector("#bcReplyBar"),replyText=box.querySelector("#bcReplyText"); let replyTo=null;
  const setReply=m=>{replyTo=m;replyText.textContent=(m.body||("["+m.message_type+"]")).slice(0,90);replyBar.hidden=false;input.focus();};
  box.querySelector("[data-reply-cancel]").onclick=()=>{replyTo=null;replyBar.hidden=true;};
