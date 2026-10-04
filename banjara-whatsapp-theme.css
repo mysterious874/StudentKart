@@ -630,3 +630,21 @@ html body #home .top-search-strip #heroSearchButton{
   -webkit-text-fill-color:#fff!important;
   background:var(--bc-maroon)!important;
 }
+
+
+/* Final darker search controls */
+html body #home .top-search-strip .top-filter-button{
+  color:#54121c!important;
+  -webkit-text-fill-color:#54121c!important;
+  background:#e7cdbb!important;
+  border-color:#b88f79!important;
+}
+html body #home .top-search-strip>i{
+  color:#54121c!important;
+  -webkit-text-fill-color:#54121c!important;
+}
+html body #home .top-search-strip #heroSearchButton{
+  background:#54121c!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
