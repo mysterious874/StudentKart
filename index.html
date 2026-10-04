@@ -16,7 +16,7 @@
 </head>
 
 <body>
-    <div id="globediscSplash" class="globedisc-splash" aria-label="GlobeDisc loading" role="status">
+    <div id="globediscSplash" class="globedisc-splash" aria-label="GlobeDisc loading" role="status" style="pointer-events:none!important;">
         <div class="globedisc-splash-orbit globedisc-orbit-one"></div><div class="globedisc-splash-orbit globedisc-orbit-two"></div>
         <div class="globedisc-splash-logo" aria-hidden="true"><span class="globedisc-globe"></span><span class="globedisc-ring"></span></div>
         <div class="globedisc-splash-name"><span>Globe</span><b>Disc</b></div>
@@ -29,6 +29,7 @@
         if (!splash) return;
         window.setTimeout(function () {
             splash.classList.add("is-hidden");
+            splash.style.pointerEvents = "none";
             window.setTimeout(function () {
                 if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
             }, 550);
