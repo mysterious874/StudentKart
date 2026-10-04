@@ -6,6 +6,7 @@ const SUPABASE_KEY="sb_publishable_tEePI-aSGDkt_2S6oiEfPw_Hy_mEXkw";
 const $=id=>document.getElementById(id);
 const AI_HISTORY_KEY="globedisc_ai_chat_history_v1";
 const AI_HISTORY_BACKUP_KEY="globedisc_ai_chat_history_backup_v1";
+const AI_HISTORY_ARCHIVE_KEY="globedisc_ai_chat_history_archive_v1";
 let history=loadAIHistory();
 let aiHasOpenedOnce=false;
 const AI_REOPEN_MESSAGES=[
@@ -15,8 +16,23 @@ const AI_REOPEN_MESSAGES=[
   "You came back… cute 😏 Now, what shall we get curious about together?",
   "Missed our little chats already? 😌 Come here, ask me something."
 ];
-function loadAIHistory(){try{const saved=localStorage.getItem(AI_HISTORY_KEY)||sessionStorage.getItem(AI_HISTORY_BACKUP_KEY);const parsed=saved?JSON.parse(saved):[];return Array.isArray(parsed)?parsed.slice(-20):[];}catch(_){return [];}}
-function saveAIHistory(){const value=JSON.stringify(history.slice(-20));try{localStorage.setItem(AI_HISTORY_KEY,value);}catch(_){} try{sessionStorage.setItem(AI_HISTORY_BACKUP_KEY,value);}catch(_){} }
+function loadAIHistory(){
+ try{
+  const candidates=[];
+  for(const key of [AI_HISTORY_KEY,AI_HISTORY_ARCHIVE_KEY]){
+   try{const value=localStorage.getItem(key);if(value){const parsed=JSON.parse(value);if(Array.isArray(parsed))candidates.push(parsed);}}catch(_){}
+  }
+  try{const value=sessionStorage.getItem(AI_HISTORY_BACKUP_KEY);if(value){const parsed=JSON.parse(value);if(Array.isArray(parsed))candidates.push(parsed);}}catch(_){}
+  const best=candidates.sort((a,b)=>b.length-a.length)[0]||[];
+  return best.slice(-20);
+ }catch(_){return [];
+}}
+function saveAIHistory(){
+ const value=JSON.stringify(history.slice(-20));
+ try{localStorage.setItem(AI_HISTORY_KEY,value);}catch(_){}
+ try{localStorage.setItem(AI_HISTORY_ARCHIVE_KEY,value);}catch(_){}
+ try{sessionStorage.setItem(AI_HISTORY_BACKUP_KEY,value);}catch(_){}
+}
 
 let aiUserNearBottom=true;
 function scrollAIToBottom(behavior="auto"){
@@ -89,7 +105,11 @@ async function ask(question){
  const q=String(question||"").trim(); if(!q)return;
  const send=$("aiAssistantSend"),input=$("aiAssistantInput");
  if(send)send.disabled=true;if(input)input.readOnly=true;
- addMessage("user",q);const pending=addMessage("assistant","Thinking…");
+ addMessage("user",q);
+ history.push({role:"user",content:q});
+ history=history.slice(-20);
+ saveAIHistory();
+ const pending=addMessage("assistant","Thinking…");
  try{
   const controller=new AbortController(); const timeout=setTimeout(()=>controller.abort(),30000); const response=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",signal:controller.signal,headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({question:q,history,research:false})});
   const data=await response.json().catch(()=>({})); clearTimeout(timeout);
@@ -99,14 +119,18 @@ async function ask(question){
    input.blur();
    window.scrollTo({top:0,behavior:"auto"});
   }
-  history.push({role:"user",content:q},{role:"assistant",content:data.answer});history=history.slice(-20);saveAIHistory();
+  history.push({role:"assistant",content:data.answer});history=history.slice(-20);saveAIHistory();
  }catch(error){
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=error?.name==="AbortError"?"AI is taking too long. Please try again.":(error?.message||"Could not get an AI answer.");
  }finally{
-  if(send)send.disabled=false;if(input){
+  if(send)send.disabled=false;
+  if(input){
    input.readOnly=false;
    input.value="";
-   setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();scrollAIToBottom("smooth");},40);
+   // Never refocus after sending. The user must tap the composer to reopen the keyboard.
+   input.blur();
+   updateAIViewport();
+   scrollAIToBottom("smooth");
   }
  }
 }
@@ -153,7 +177,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  updateAIViewport();
  $("aiAssistantBack")?.addEventListener("click",closeAI);
  $("aiAssistantNewChat")?.addEventListener("click",()=>{
-  history=[];try{localStorage.removeItem(AI_HISTORY_KEY);}catch(_){} try{sessionStorage.removeItem(AI_HISTORY_BACKUP_KEY);}catch(_){} const box=$("aiAssistantMessages");
+  history=[];try{localStorage.removeItem(AI_HISTORY_KEY);}catch(_){} try{localStorage.removeItem(AI_HISTORY_ARCHIVE_KEY);}catch(_){} try{sessionStorage.removeItem(AI_HISTORY_BACKUP_KEY);}catch(_){} const box=$("aiAssistantMessages");
   if(box)box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc"></div><h1>What can I help you with?</h1><p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p></div>';
   const input=$("aiAssistantInput");
   if(input){setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},50);}
