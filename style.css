@@ -13568,7 +13568,6 @@ body.studentkart-dark .chat-upload-info span {
     .chat-upload-status { max-width:90%; }
     .chat-upload-bubble { min-width:220px; }
 }
-.chat-user-search-results{margin:10px 0 2px;padding:10px;border:1px solid #dfeaea;border-radius:14px;background:#f8fbfb;max-height:none;overflow:visible} .chat-user-search-list{max-height:560px;overflow-y:auto;padding-right:2px}.chat-user-search-list::-webkit-scrollbar{width:6px}.chat-user-search-list::-webkit-scrollbar-thumb{background:#c9dddd;border-radius:8px}.chat-user-search-list .chat-user-search-card:first-child{border-top:0}.chat-user-search-results.hidden{display:none!important}.chat-user-search-title{display:flex;justify-content:space-between;padding:2px 4px 8px;color:#087577;font-size:9px;font-weight:800;letter-spacing:.1em}.chat-user-search-title small{color:#829398;font-size:9px}.chat-user-search-card{width:100%;display:flex;align-items:center;gap:10px;padding:9px 7px;border:0;border-top:1px solid #e6eeee;background:transparent;text-align:left;cursor:pointer}.chat-user-search-card:hover{background:#eef7f6;border-radius:10px}.chat-user-search-avatar{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;overflow:hidden;border-radius:50%;background:#dcefee;color:#087577;font-weight:800}.chat-user-search-avatar img{width:100%;height:100%;object-fit:cover}.chat-user-search-main{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}.chat-user-search-main strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#20373d;font-size:13px}.chat-user-search-main small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#788c91;font-size:10px}.chat-user-search-card>i{color:#8aa0a4;font-size:11px}.chat-user-search-loading,.chat-user-search-empty{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;padding:18px 10px;color:#7a8f94;text-align:center;font-size:11px}.chat-user-search-empty i,.chat-user-search-loading i{color:#0f8b8d;font-size:18px}.chat-user-search-empty strong{color:#40575c;font-size:12px}.chat-user-search-empty span{font-size:10px}.student-search-profile-modal{width:min(430px,calc(100vw - 24px));max-width:430px;padding:0;overflow:hidden}.student-search-profile-head{padding:28px 22px 22px;text-align:center;background:linear-gradient(135deg,#102a43,#0f8b8d);color:#fff}.student-search-profile-avatar{width:78px;height:78px;margin:0 auto 12px;display:grid;place-items:center;overflow:hidden;border-radius:50%;background:#dff3f1;color:#087577;font-size:22px;font-weight:800;border:3px solid rgba(255,255,255,.85)}.student-search-profile-avatar img{width:100%;height:100%;object-fit:cover}.student-search-profile-head h2{margin:5px 0 2px;color:#fff;font-size:21px}.student-search-profile-head p{margin:0;color:#d6f4f2;font-size:12px}.student-search-profile-info{display:grid;gap:10px;padding:18px 20px}.student-search-profile-info div{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:#f5f9f9;color:#40575c;font-size:12px}.student-search-profile-info i{width:18px;color:#0f8b8d;text-align:center}@media(max-width:600px){.student-search-profile-modal{width:100vw;max-width:none;min-height:100dvh;border-radius:0}}
 /* Edit Profile: keep the form clean; hide the floating/quick action bar if present. */
 body #editProfileModal .profile-floating-bar,
 body #editProfileModal .floating-bar,
@@ -15960,9 +15959,6 @@ input:focus, select:focus, textarea:focus { border-color: rgba(15,139,141,.52) !
 .chat-list-header-actions{gap:7px}
 .chat-list-icon-button{width:36px;height:36px;background:#f4f8f8;border:1px solid #e5eeee;transition:transform .16s ease,background .16s ease,color .16s ease,border-color .16s ease}
 .chat-list-icon-button:hover{transform:translateY(-1px);background:#e7f5f4;border-color:#cfe8e6}
-.chat-list-search{height:46px;padding:0 14px;border:1px solid #e2ebeb;border-radius:14px;background:#f6f9f9;transition:border-color .16s ease,box-shadow .16s ease,background .16s ease}
-.chat-list-search:focus-within{border-color:rgba(15,139,141,.45);background:#fff;box-shadow:0 0 0 4px rgba(15,139,141,.08)}
-.chat-list-search>i{color:#0f8b8d}
 .chat-list-tabs{padding-top:13px;gap:5px}
 .chat-list-tab{min-width:62px;padding:7px 14px;border:1px solid transparent;transition:.15s ease}
 .chat-list-tab:hover:not(.active){background:#f2f7f7;color:#314e55}
@@ -18877,35 +18873,8 @@ body.marketplace-page-active .new-product-card img{
 /* =========================================================
    GLOBEDISC CHAT SUGGESTIONS — 10 VISIBLE + SCROLL
    ========================================================= */
-#chatUserSearchResults{
-  max-height:min(520px,58vh);
-  overflow-y:auto;
-  overflow-x:hidden;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:thin;
-}
-#chatUserSearchResults .chat-user-search-list{
-  max-height:none!important;
-}
-#chatUserSearchResults .chat-user-search-title{
-  position:sticky;
-  top:0;
-  z-index:3;
-  background:#fff;
-}
-#chatUserSearchResults .chat-user-search-card{
-  min-height:58px;
-}
-#chatUserSearchResults .chat-user-search-list .chat-user-search-card:nth-child(n+11){
-  display:none;
-}
-#chatUserSearchResults.has-more-results .chat-user-search-list .chat-user-search-card:nth-child(n+11){
-  display:flex;
-}
 @media(max-width:600px){
-  #chatUserSearchResults{max-height:min(430px,55vh)}
-}
+  }
 
 /* =========================================================
    MARKETPLACE — POLISHED PRODUCT LISTINGS
@@ -18970,27 +18939,13 @@ body.marketplace-page-active .new-product-card img{
   .product-card .product-body{padding:9px!important}
 }
 
-/* Chat number suggestions: keep the popup above the chat list and visible while searching. */
-#inquiriesModal #chatUserSearchResults[data-search-open="true"]{
-  display:block!important;
-  position:relative;
-  z-index:50;
-  width:100%;
-  box-sizing:border-box;
-  background:#f8fbfb;
-}
-#inquiriesModal #chatUserSearchResults[data-search-open="true"].hidden{
-  display:block!important;
-}
-
-
 /* Small reusable modal size. Keep sizing in CSS instead of inline HTML. */
 .modal-content-narrow {
     max-width: 520px;
 }
 
 
-/* CHAT SEARCH VISIBILITY FIX — keep the Chats search bar rendered on desktop and mobile */
+
 #inquiriesModal:not(.hidden) .chat-list-header .chat-list-search{
     display:flex !important;
     visibility:visible !important;
@@ -19005,18 +18960,7 @@ body.marketplace-page-active .new-product-card img{
     flex:none !important;
     overflow:visible !important;
 }
-#inquiriesModal:not(.hidden) .chat-list-header .chat-list-search input{
-    display:block !important;
-    visibility:visible !important;
-    opacity:1 !important;
-    min-width:0 !important;
-    width:100% !important;
-    height:100% !important;
-    flex:1 1 auto !important;
-    color:#20373d !important;
-    -webkit-text-fill-color:#20373d !important;
-}
-#inquiriesModal:not(.hidden) .chat-list-header .chat-list-search > i{
+#inquiriesModal:not(.hidden) .chat-list-header #inquiriesModal:not(.hidden) .chat-list-header .chat-list-search > i{
     display:block !important;
     visibility:visible !important;
     opacity:1 !important;
