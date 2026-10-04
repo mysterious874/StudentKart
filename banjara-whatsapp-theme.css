@@ -449,3 +449,13 @@ html body #home.banjara-home-top > *{
   html body #home.banjara-home-top::before{background-size:48px 48px !important}
   html body #home.banjara-home-top::after{width:270px !important;height:270px !important;right:-125px !important;top:-95px !important}
 }
+
+
+/* GlobeDisc Settings panel */
+.settings-modal-content{background:#f7fbfc!important;border-radius:20px!important;overflow:auto!important;padding:0!important}
+.settings-modal-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;background:rgba(255,255,255,.96);border-bottom:1px solid #e4eef0;position:sticky;top:0;z-index:2}
+.settings-modal-header h2{margin:3px 0;color:#102a43;font-size:22px}
+.settings-modal-header p{margin:0;color:#627d98;font-size:12px}
+.settings-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px}
+.settings-section-button{min-height:70px!important}
+@media(max-width:700px){.settings-sections{grid-template-columns:1fr;padding:10px}.settings-modal-header{padding:15px 16px}.settings-modal-header h2{font-size:19px}}
