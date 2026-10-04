@@ -35,6 +35,7 @@ as $$
 $$;
 
 revoke all on function public.search_chat_users_by_phone(text) from public;
+revoke execute on function public.search_chat_users_by_phone(text) from anon;
 grant execute on function public.search_chat_users_by_phone(text) to authenticated;
 
 comment on function public.search_chat_users_by_phone(text)
