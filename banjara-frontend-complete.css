@@ -185,3 +185,26 @@ body.bc-auth-mode .bc-app{padding-bottom:24px}
 .bc-community-banner{height:90px;border-radius:14px;background:linear-gradient(135deg,var(--bc-maroon),var(--bc-orange));display:grid;place-items:center;color:#fff;font-size:30px;margin-bottom:10px}
 .bc-community-detail .bc-stat-row{margin:10px 0}
 @media(max-width:560px){.bc-chat-tools{overflow-x:auto}.bc-chat-tools button{white-space:nowrap}.bc-community-banner{height:78px}}
+
+
+/* Banjara Connect — fresh themed launch intro */
+.banjara-splash-new{position:fixed;inset:0;width:100vw;height:100dvh;z-index:300000;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(145deg,#fffaf2 0%,#fff4e4 52%,#f8ebe0 100%);color:#3a2020;opacity:1;visibility:visible;transition:opacity .65s ease,visibility .65s ease}
+.banjara-splash-new.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.banjara-splash-pattern{position:absolute;inset:-30%;opacity:.18;background-image:radial-gradient(circle,rgba(123,30,43,.18) 1px,transparent 1px);background-size:28px 28px;transform:rotate(12deg)}
+.banjara-splash-glow{position:absolute;border-radius:50%;filter:blur(8px);pointer-events:none}
+.banjara-glow-one{width:360px;height:360px;top:-150px;right:-100px;background:rgba(230,120,48,.20)}
+.banjara-glow-two{width:300px;height:300px;bottom:-130px;left:-100px;background:rgba(123,30,43,.16)}
+.banjara-splash-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 22px}
+.banjara-splash-logo-wrap{position:relative;width:116px;height:116px;display:grid;place-items:center;margin-bottom:22px;animation:banjaraSplashLogo .9s cubic-bezier(.2,.8,.2,1) both}
+.banjara-splash-logo-ring{position:absolute;inset:-10px;border:1px solid rgba(123,30,43,.20);border-radius:50%;box-shadow:0 0 0 8px rgba(230,120,48,.06),0 14px 45px rgba(123,30,43,.12)}
+.banjara-splash-logo-img{width:100px;height:100px;object-fit:contain;filter:drop-shadow(0 12px 20px rgba(123,30,43,.18))}
+.banjara-splash-name{font-size:36px;line-height:1.05;font-weight:850;letter-spacing:-1.2px;color:#7b1e2b;animation:banjaraSplashText .7s .25s ease both}
+.banjara-splash-name span{color:#3a2020}
+.banjara-splash-line{width:48px;height:3px;margin:15px 0 13px;border-radius:99px;background:linear-gradient(90deg,#7b1e2b,#e67830);animation:banjaraSplashText .6s .4s ease both}
+.banjara-splash-tagline{max-width:310px;font-size:13px;line-height:1.5;letter-spacing:.25px;color:#765e55;animation:banjaraSplashText .7s .5s ease both}
+.banjara-splash-loader{width:120px;height:3px;margin-top:27px;overflow:hidden;border-radius:99px;background:rgba(123,30,43,.10);animation:banjaraSplashText .6s .65s ease both}
+.banjara-splash-loader span{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7b1e2b,#e67830);animation:banjaraSplashLoad 3.05s .1s linear forwards}
+@keyframes banjaraSplashLogo{from{opacity:0;transform:scale(.72) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes banjaraSplashText{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes banjaraSplashLoad{to{width:100%}}
+@media(max-width:480px){.banjara-splash-logo-wrap{width:102px;height:102px;margin-bottom:20px}.banjara-splash-logo-img{width:88px;height:88px}.banjara-splash-name{font-size:32px}.banjara-splash-tagline{font-size:12.5px}}
