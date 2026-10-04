@@ -14385,6 +14385,7 @@ async function loadGlobeDiscNewsTopic(topic){
         Gaming:["gaming news today","video game news latest","gaming industry news","games esports news"],
         Environment:["environment news today","climate news latest","environmental news","nature climate news"],
         Education:["education news today","education latest news","school university news","student education news","education policy news","higher education India news","universities colleges latest news"],
+        Religion:["Hindu news today","Sanatan Dharma news today","Hindu temple news latest","Sanatan news India","Hindu festivals news","Hindu religion news","Hindu culture heritage news"],
         Auto:["auto news today","automobile news latest","cars bikes news","electric vehicle news"],
         Travel:["travel news today","tourism news latest","aviation travel news","travel destinations news"],
         Lifestyle:["lifestyle news today","fashion food lifestyle news","wellness lifestyle news","culture lifestyle news"],
@@ -14437,7 +14438,9 @@ async function loadGlobeDiscNewsTopic(topic){
         // Fall back to the existing GDELT news path instead of showing a false
         // "No news" state. Run the fallback with broader topic wording.
         if(!articles.length){
-            const fallbackQueries=[selected+" news",selected+" latest news",selected];
+            const fallbackQueries=selected==="Religion"
+                ? ["Hindu news","Sanatan Dharma news","Hindu temple news","Hindu festivals news"]
+                : [selected+" news",selected+" latest news",selected];
             const fallbackResults=await Promise.allSettled(
                 fallbackQueries.map(query=>fetchInternetPanelData("news",query))
             );
