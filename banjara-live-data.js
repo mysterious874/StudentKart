@@ -59,10 +59,10 @@ async function openChat(chatId,name){
 async function newChat(){
  const sb=SB();if(!sb)return;const {data:{user}}=await sb.auth.getUser();if(!user)return;
  const term=prompt("Search member by mobile number or name");if(!term?.trim())return;
- const digits=term.replace(/\D/g,"");
- let query=sb.from("profiles").select("id,name,phone,city,state").neq("id",user.id).limit(10);
- if(digits.length>=10)query=query.eq("phone","+91"+digits.slice(-10));else query=query.ilike("name","%"+term.trim()+"%");
- const {data,error}=await query;if(error||!data?.length){alert("Member not found.");return;}
+ const digits=term.replace(/\D/g,""); let data=null,error=null;
+ if(digits.length>=10){const r=await sb.functions.invoke("search-profile-by-phone",{body:{phone:term}});data=r.data?.profile?[r.data.profile]:[];error=r.error;}
+ else{const r=await sb.from("profiles").select("id,name,city,state").neq("id",user.id).ilike("name","%"+term.trim()+"%").limit(10);data=r.data;error=r.error;}
+ if(error||!data?.length){alert("Member not found.");return;}
  const p=data[0];
  const {data:mine}=await sb.from("chat_members").select("chat_id").eq("user_id",user.id);
  const mineIds=(mine||[]).map(x=>x.chat_id);
