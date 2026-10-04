@@ -330,3 +330,55 @@ alter policy "reactions read" on public.post_reactions to authenticated;
 alter policy "reactions self insert" on public.post_reactions to authenticated;
 alter policy "reactions self update" on public.post_reactions to authenticated;
 alter policy "reactions self delete" on public.post_reactions to authenticated;
+
+
+-- Chat RLS: only chat creators can add members; members can leave.
+drop policy if exists "chat members join self or creator" on public.chat_members;
+create policy "chat creator adds members" on public.chat_members for insert
+to authenticated with check (
+  exists (select 1 from chats c where c.id=chat_members.chat_id and c.created_by=(select auth.uid()))
+);
+
+drop policy if exists "chats authenticated create" on public.chats;
+create policy "chats authenticated create" on public.chats for insert
+to authenticated with check ((select auth.uid())=created_by);
+
+drop policy if exists "chats members read" on public.chats;
+create policy "chats members read" on public.chats for select
+to authenticated using (exists(select 1 from chat_members cm where cm.chat_id=chats.id and cm.user_id=(select auth.uid())));
+
+drop policy if exists "messages members read" on public.messages;
+create policy "messages members read" on public.messages for select
+to authenticated using (exists(select 1 from chat_members cm where cm.chat_id=messages.chat_id and cm.user_id=(select auth.uid())));
+
+drop policy if exists "messages sender delete" on public.messages;
+create policy "messages sender delete" on public.messages for delete
+to authenticated using ((select auth.uid())=sender_id);
+
+drop policy if exists "messages sender update" on public.messages;
+create policy "messages sender update" on public.messages for update
+to authenticated using ((select auth.uid())=sender_id)
+with check ((select auth.uid())=sender_id);
+
+drop policy if exists "messages member receipts" on public.messages;
+create policy "messages member receipts" on public.messages for update
+to authenticated using (exists(select 1 from chat_members cm where cm.chat_id=messages.chat_id and cm.user_id=(select auth.uid())))
+with check (exists(select 1 from chat_members cm where cm.chat_id=messages.chat_id and cm.user_id=(select auth.uid())));
+
+revoke update on public.messages from authenticated;
+grant update (deleted_at,delivered_at,read_at) on public.messages to authenticated;
+
+-- Community creators can moderate membership; members can still leave themselves.
+drop policy if exists "community admins remove members" on public.community_members;
+create policy "community creator remove members" on public.community_members for delete
+to authenticated using (
+  exists(select 1 from communities c where c.id=community_members.community_id and c.created_by=(select auth.uid()))
+  or user_id=(select auth.uid())
+);
+
+drop policy if exists "community admins update roles" on public.community_members;
+create policy "community creator update member roles" on public.community_members for update
+to authenticated using (
+  exists(select 1 from communities c where c.id=community_members.community_id and c.created_by=(select auth.uid()))
+)
+with check (role in ('member','admin','moderator'));
