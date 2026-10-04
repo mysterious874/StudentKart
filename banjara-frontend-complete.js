@@ -72,7 +72,6 @@ function bind(){
   if(e.target.closest("[data-close-modal]")||e.target.id==="bcModal"){closeModal();return}
   const demo=e.target.closest("[data-demo]");if(demo){toast(demo.dataset.demo);return}
   const tab=e.target.closest(".bc-tab,.bc-chip");if(tab){const group=tab.parentElement;$(".bc-tab,.bc-chip",group).forEach(x=>x.classList.remove("active"));tab.classList.add("active");toast(tab.textContent.trim()+" selected");return}
-  if(e.target.closest(".bc-setting-list .bc-setting"))return;
   const auth=e.target.closest("[data-auth]");if(auth){state.auth=auth.dataset.auth;renderAll();showScreen("auth");return}
   if(e.target.closest("[data-do-search]")){state.query=$("[data-search]")?.value||"";toast(state.query?"Searching "+state.query+"…":"Type something to search");return}
   const refresh=e.target.closest(".bc-section-head button");if(refresh && refresh.textContent.trim()==="Refresh"){toast("Suggestions refreshed");return}
