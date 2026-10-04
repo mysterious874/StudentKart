@@ -1,0 +1,55 @@
+/* Banjara Connect AI — dedicated full-screen page */
+#aiAssistantPage{
+  position:fixed;
+  inset:0;
+  z-index:180000;
+  min-height:100dvh;
+  box-sizing:border-box;
+  flex-direction:column;
+  background:var(--bc-cream,#fbf4e8);
+  color:var(--bc-text,#241c19);
+  font-family:"DM Sans",system-ui,sans-serif;
+}
+.ai-assistant-navbar{
+  flex:0 0 auto;
+  background:rgba(255,250,242,.96);
+  border-bottom:1px solid var(--bc-line,#eadbc8);
+  backdrop-filter:blur(16px);
+}
+.ai-assistant-navbar-inner{
+  width:min(100%,760px);
+  min-height:60px;
+  margin:auto;
+  padding:8px 14px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.ai-assistant-back,.ai-assistant-new-chat{
+  width:40px;height:40px;border:1px solid var(--bc-line,#eadbc8);
+  border-radius:12px;background:var(--bc-paper,#fffaf2);
+  color:var(--bc-maroon,#7b1e2b);display:grid;place-items:center;
+}
+.ai-assistant-brand{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
+.ai-assistant-brand-icon img{width:34px;height:34px;border-radius:11px;display:block}
+.ai-assistant-brand strong{display:block;font-size:14px;color:var(--bc-maroon,#7b1e2b)}
+.ai-assistant-brand small{display:block;margin-top:2px;font-size:9px;color:var(--bc-muted,#766a62)}
+.ai-assistant-shell{width:min(100%,760px);margin:auto;display:flex;flex:1;min-height:0;flex-direction:column;padding:0 14px 14px;box-sizing:border-box}
+.ai-assistant-messages{flex:1;min-height:0;overflow:auto;padding:18px 2px 12px}
+.ai-assistant-welcome{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.ai-assistant-welcome-icon img{width:72px;height:72px;border-radius:22px;display:block;box-shadow:0 10px 25px rgba(84,18,28,.14)}
+.ai-assistant-welcome h1{margin:16px 0 6px;color:var(--bc-maroon,#7b1e2b);font-size:24px}
+.ai-assistant-welcome p{margin:0;max-width:430px;color:var(--bc-muted,#766a62);font-size:12px;line-height:1.55}
+.ai-assistant-composer{display:flex;gap:8px;align-items:flex-end;padding:8px;background:var(--bc-paper,#fffaf2);border:1px solid var(--bc-line,#eadbc8);border-radius:17px;box-shadow:0 10px 30px rgba(84,18,28,.1)}
+.ai-assistant-composer textarea{flex:1;min-height:40px;max-height:120px;resize:none;border:0;outline:0;background:transparent;color:var(--bc-text,#241c19);padding:10px;font-size:13px;box-sizing:border-box}
+.ai-assistant-composer button{width:40px;height:40px;border:0;border-radius:12px;background:var(--bc-maroon,#7b1e2b);color:#fff}
+.ai-assistant-message{display:flex;gap:8px;align-items:flex-start;margin:0 0 12px}
+.ai-assistant-message.is-user{justify-content:flex-end}
+.ai-assistant-message-avatar img{width:30px;height:30px;border-radius:10px}
+.ai-assistant-message-bubble{max-width:min(82%,560px);padding:10px 12px;border-radius:14px;background:#fff;border:1px solid var(--bc-line,#eadbc8);font-size:12px;line-height:1.55;white-space:pre-wrap}
+.ai-assistant-message.is-user .ai-assistant-message-bubble{background:var(--bc-maroon,#7b1e2b);border-color:var(--bc-maroon,#7b1e2b);color:#fff}
+@media(max-width:560px){
+  .ai-assistant-welcome-icon img{width:64px;height:64px}
+  .ai-assistant-welcome h1{font-size:21px}
+}
