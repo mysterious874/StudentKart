@@ -24,7 +24,11 @@ const parseGoogleNewsRss = (xml: string) => {
       const m = block.match(new RegExp("<" + tag + "[^>]*>([\\s\\S]*?)</" + tag + ">", "i"));
       return m ? cleanXml(m[1]) : "";
     };
-    return { title:getTag("title"), url:getTag("link"), source:getTag("source")||"Google News", date:getTag("pubDate"), image:"", description:getTag("description") };
+    const imageMatch = block.match(/<(?:media:content|media:thumbnail|enclosure)[^>]*(?:url|href)=["']([^"']+)["'][^>]*>/i);
+    const descriptionRaw = getTag("description");
+    const descriptionImage = block.match(/<description>[\\s\\S]*?<img[^>]+src=["']([^"']+)["']/i);
+    const image = cleanXml(imageMatch?.[1] || descriptionImage?.[1] || "");
+    return { title:getTag("title"), url:getTag("link"), source:getTag("source")||"Google News", date:getTag("pubDate"), image, description:descriptionRaw };
   }).filter((item) => item.title && item.url);
 };
 
