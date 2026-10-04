@@ -73,15 +73,19 @@ async function openChat(chatId,name){
  return '<button type="button" class="bc-msg '+(mine?"mine":"theirs")+'" data-message-id="'+m.id+'">'+quoted+content+'<small>'+ago(m.created_at)+receipt+'</small>'+(reactionHtml?'<div class="bc-msg-reactions">'+reactionHtml+'</div>':"")+'</button>';
  };
  let currentMessages=[];
- const reactionMap=()=>{const map=new Map();(reactionRows||[]).forEach(r=>{if(!map.has(r.message_id))map.set(r.message_id,[]);map.get(r.message_id).push(r);});return map;}; let reactions=reactionMap();
+ const {data:hiddenRows}=await sb.from("message_hidden").select("message_id").eq("user_id",user.id);
+ const messageIds=(data||[]).map(x=>x.id);
+ const {data:reactionRows}=messageIds.length
+   ? await sb.from("message_reactions").select("message_id,user_id,reaction").in("message_id",messageIds)
+   : {data:[]};
+ const reactionMap=()=>{const map=new Map();(reactionRows||[]).forEach(r=>{if(!map.has(r.message_id))map.set(r.message_id,[]);map.get(r.message_id).push(r);});return map;};
+ let reactions=reactionMap();
  const render=async rows=>{
    currentMessages=rows||[];
    const el=box.querySelector("#bcChatMessages");
    const html=await Promise.all(currentMessages.map(renderMessage));
    el.innerHTML=html.join("");el.scrollTop=el.scrollHeight;
  };
- const {data:hiddenRows}=await sb.from("message_hidden").select("message_id").eq("user_id",user.id);
- const {data:reactionRows}=await sb.from("message_reactions").select("message_id,user_id,reaction").in("message_id",(data||[]).map(x=>x.id));
  const hiddenIds=new Set((hiddenRows||[]).map(x=>x.message_id));
  const q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url,reply_to_id,delivered_at,read_at").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
  const {data,error}=await q;if(error){box.querySelector("#bcChatMessages").innerHTML='<div class="bc-empty"><strong>Could not load messages</strong><span>Please try again.</span></div>';return;}
