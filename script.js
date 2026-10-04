@@ -6005,7 +6005,7 @@ async function enrichWikiFacts(items){
     }
 }
 
-async function fetchInternetPanelData(mode, query){
+async function fetchInternetPanelData(mode, query, newsTimespan="24h"){
     const q=String(query||"").trim();
     if(!q) return [];
     try{
@@ -6028,7 +6028,7 @@ async function fetchInternetPanelData(mode, query){
         }
 
         if(mode==="news"){
-            const url="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=30&timespan=24h&format=json";
+            const url="https://api.gdeltproject.org/api/v2/doc/doc?query="+encodeURIComponent(q)+"&mode=artlist&maxrecords=30&timespan="+encodeURIComponent(newsTimespan)+"&format=json";
             const response=await fetchWithTimeout(url,{headers:{"Accept":"application/json"}},9000);
             if(!response.ok) return [];
             const data=await response.json();
@@ -6050,7 +6050,20 @@ async function fetchInternetPanelData(mode, query){
 function getNewsThumbnail(image){
     const src=String(image||"").trim();
     if(!src) return "";
-    return "https://images.weserv.nl/?url="+encodeURIComponent(src)+"&w=440&h=312&fit=cover&output=webp";
+    return "https://images.weserv.nl/?url="+encodeURIComponent(src)+"&w=900&h=600&fit=cover&output=webp";
+}
+function newsImageMarkup(item){
+    const title=String(item?.title||"GlobeDisc News").trim();
+    const source=String(item?.source||"NEWS").trim();
+    const original=String(item?.image||"").trim();
+    const proxy=getNewsThumbnail(original);
+    const fallback=newsFallbackDataUri(title,source);
+    const safeTitle=escapeHTML(title);
+    const safeSource=escapeHTML(source);
+    if(!original){
+        return '<img src="'+fallback+'" alt="" loading="lazy" data-news-title="'+safeTitle+'" data-news-source="'+safeSource+'">';
+    }
+    return '<img src="'+escapeHTML(original)+'" alt="" loading="lazy" referrerpolicy="no-referrer" data-news-proxy="'+escapeHTML(proxy)+'" data-news-title="'+safeTitle+'" data-news-source="'+safeSource+'" onerror=\'if(this.dataset.newsProxyUsed!=="1"&&this.dataset.newsProxy){this.dataset.newsProxyUsed="1";this.src=this.dataset.newsProxy;}else{this.onerror=null;this.src=newsFallbackDataUri(this.dataset.newsTitle,this.dataset.newsSource);}\'>';
 }
 function newsFallbackDataUri(title="",source=""){
     const safeTitle=String(title||"GlobeDisc News").replace(/<[^>]+>/g,"").trim().slice(0,58)||"GlobeDisc News";
@@ -14164,9 +14177,7 @@ async function loadGlobalDiscoveryHomepage(){
     };
 
     const articleHtml=(item,featured=false)=>{
-        const fallback=newsFallbackDataUri(item.title,item.source);
-        const thumb=getNewsThumbnail(item.image);
-        const image='<img src="'+escapeHTML(thumb||fallback)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='+JSON.stringify(fallback)+';">';
+        const image=newsImageMarkup(item);
         return featured
             ? '<article class="world-news-featured">'+image+'<div class="world-news-featured-body"><div class="world-news-meta"><span><i class="fas '+escapeHTML(item.topicIcon)+'"></i>'+escapeHTML(item.topic)+'</span><span>'+escapeHTML(item.source)+'</span></div><h3>'+escapeHTML(item.title)+'</h3><p>'+escapeHTML(item.description||"Latest details from the reported story.")+'</p><a href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer">Read full story <i class="fas fa-arrow-up-right-from-square"></i></a></div></article>'
             : '<article class="world-news-card">'+image+'<div class="world-news-card-body"><div class="world-news-meta"><span>'+escapeHTML(item.topic)+'</span><small>'+escapeHTML(item.source)+'</small></div><h3>'+escapeHTML(item.title)+'</h3>'+(item.description?'<p>'+escapeHTML(item.description)+'</p>':'')+'<a href="'+escapeHTML(item.url)+'" target="_blank" rel="noopener noreferrer">Details <i class="fas fa-arrow-right"></i></a></div></article>';
@@ -14385,7 +14396,7 @@ async function loadGlobeDiscNewsTopic(topic){
         Gaming:["gaming news today","video game news latest","gaming industry news","games esports news"],
         Environment:["environment news today","climate news latest","environmental news","nature climate news"],
         Education:["education news today","education latest news","school university news","student education news","education policy news","higher education India news","universities colleges latest news"],
-        Religion:["Hindu news today","Sanatan Dharma news today","Hindu temple news latest","Sanatan news India","Hindu festivals news","Hindu religion news","Hindu culture heritage news"],
+        Religion:["Hindu news today","Sanatan Dharma latest news","Hindu temple news latest","Hindu festivals news","Hindu culture heritage news","Hinduism Today news","Sanatan news India"],
         Auto:["auto news today","automobile news latest","cars bikes news","electric vehicle news"],
         Travel:["travel news today","tourism news latest","aviation travel news","travel destinations news"],
         Lifestyle:["lifestyle news today","fashion food lifestyle news","wellness lifestyle news","culture lifestyle news"],
@@ -14462,11 +14473,7 @@ async function loadGlobeDiscNewsTopic(topic){
         }
 
         grid.innerHTML='<div class="world-news-scope topic-filter-results"><div class="world-news-scope-heading"><div><span class="world-news-scope-icon"><i class="fas fa-newspaper"></i></span><div><strong>'+escapeHTML(selected)+' News</strong><small>Latest stories for this topic</small></div></div><span class="world-news-scope-count">'+articles.slice(0,24).length+' stories</span></div><div class="world-news-card-grid">'+articles.slice(0,24).map(article=>{
-            const fallback=newsFallbackDataUri(article.title,article.source);
-            const thumb=getNewsThumbnail(article.image);
-            const image=thumb
-                ? '<img src="'+escapeHTML(thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='+JSON.stringify(fallback)+';">'
-                : '<img src="'+fallback+'" alt="" loading="lazy">';
+            const image=newsImageMarkup(article);
             return '<article class="world-news-card">'+image+'<div class="world-news-card-body"><div class="world-news-meta"><span>'+escapeHTML(selected)+'</span><small>'+escapeHTML(article.source)+'</small></div><h3>'+escapeHTML(article.title)+'</h3>'+(article.description?'<p>'+escapeHTML(article.description)+'</p>':'')+'<a href="'+escapeHTML(article.url)+'" target="_blank" rel="noopener noreferrer">Details <i class="fas fa-arrow-right"></i></a></div></article>';
         }).join("")+'</div></div>';
     }catch(error){
