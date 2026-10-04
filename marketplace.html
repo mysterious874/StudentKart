@@ -7,7 +7,7 @@
 <title>GlobeDisc — New Products</title>
 <link rel="icon" type="image/svg+xml" href="/icons/globedisc-icon.svg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="style.css?v=20261004-marketplace-fast-2">
+<link rel="stylesheet" href="style.css?v=20261004-marketplace-fast-3">
 <style>
 body.marketplace-page-active .new-products-grid{display:grid!important;visibility:visible!important;opacity:1!important}
 body.marketplace-page-active .new-products-section{display:block!important;visibility:visible!important}
@@ -177,64 +177,48 @@ body.marketplace-page-active .new-products-section{display:block!important;visib
   }
 
   async function loadAdminProducts(){
+    const timeoutFetch = async (url, options={}, timeout=12000) => {
+      const controller = new AbortController();
+      const timer = setTimeout(()=>controller.abort(), timeout);
+      try{return await fetch(url,{...options,signal:controller.signal});}
+      finally{clearTimeout(timer);}
+    };
+    const mapProducts = list => (Array.isArray(list)?list:[]).map(p=>({
+      id:p.id,name:p.name,category:p.category,price:Number(p.price||0),
+      source:p.source||"Store",image:p.image||"",url:p.url||"#"
+    })).filter(p=>p.name && p.url && p.url!=="#");
+
     try{
-      const pageSize = 1000;
-      const remote = [];
+      status.innerHTML='<i class="fas fa-spinner fa-spin"></i> Loading live catalog…';
+      const functionUrl=SUPABASE_URL+"/functions/v1/new-products?q="+encodeURIComponent(input.value.trim()||"student essentials");
+      const functionResponse=await timeoutFetch(functionUrl,{
+        headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"}
+      },15000);
 
-      // PostgREST may return a server-side page limit. Keep requesting
-      // batches until the catalog is exhausted, so there is no 10/1000
-      // product cap in the GlobeDisc marketplace UI.
-      for(let from = 0; ; from += pageSize){
-        const controller = new AbortController();
-        const timer = setTimeout(()=>controller.abort(), 5000);
-
-        try{
-          const response = await fetch(
-            SUPABASE_URL + "/rest/v1/new_products?select=id,name,category,price,source,image,url,created_at&order=created_at.desc&limit=" + pageSize + "&offset=" + from,
-            {
-              headers:{
-                apikey:SUPABASE_KEY,
-                Authorization:"Bearer " + SUPABASE_KEY,
-                Accept:"application/json"
-              },
-              signal:controller.signal
-            }
-          );
-
-          if(!response.ok) break;
-
-          const batch = await response.json();
-          if(!Array.isArray(batch) || !batch.length) break;
-          remote.push(...batch);
-
-          if(batch.length < pageSize) break;
-        } finally {
-          clearTimeout(timer);
-        }
+      let liveProducts=[];
+      if(functionResponse.ok){
+        const payload=await functionResponse.json();
+        liveProducts=mapProducts(payload?.products);
       }
 
-      products = remote.map(p=>({
-        id:p.id,
-        name:p.name,
-        category:p.category,
-        price:Number(p.price||0),
-        source:p.source||"Store",
-        image:p.image||"",
-        url:p.url||"#"
-      }));
-
-      if(!products.length){
-        render();
-        status.innerHTML='<i class="fas fa-box-open"></i> No products added yet';
-        return;
+      // Manual/admin catalog remains a fallback.
+      if(!liveProducts.length){
+        const response=await timeoutFetch(
+          SUPABASE_URL+"/rest/v1/new_products?select=id,name,category,price,source,image,url,created_at&order=created_at.desc&limit=1000",
+          {headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"}},10000
+        );
+        if(response.ok) liveProducts=mapProducts(await response.json());
       }
 
-      // The database is the complete catalog. Do not merge a fixed local list.
-
+      products=liveProducts;
       render();
       renderSuggestions();
+      if(!products.length) status.innerHTML='<i class="fas fa-box-open"></i> Live product catalog is currently unavailable';
     }catch(e){
-      console.warn("Admin product feed unavailable:",e);
+      console.warn("Live product feed unavailable:",e);
+      products=[];
+      render();
+      status.innerHTML='<i class="fas fa-triangle-exclamation"></i> Could not load the live catalog. Tap Refresh to retry.';
     }
   }
 
