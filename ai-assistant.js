@@ -76,7 +76,7 @@ function closeAI(){
 async function ask(question){
  const q=String(question||"").trim(); if(!q)return;
  const send=$("aiAssistantSend"),input=$("aiAssistantInput");
- if(send)send.disabled=true;if(input)input.disabled=true;
+ if(send)send.disabled=true;if(input)input.readOnly=true;
  addMessage("user",q);const pending=addMessage("assistant","Thinking…");
  try{
   const controller=new AbortController(); const timeout=setTimeout(()=>controller.abort(),30000); const response=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",signal:controller.signal,headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({question:q,history,research:false})});
@@ -88,7 +88,7 @@ async function ask(question){
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=error?.name==="AbortError"?"AI is taking too long. Please try again.":(error?.message||"Could not get an AI answer.");
  }finally{
   if(send)send.disabled=false;if(input){
-   input.disabled=false;
+   input.readOnly=false;
    input.value="";
    setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();scrollAIToBottom("smooth");},40);
   }
