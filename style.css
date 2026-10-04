@@ -19354,3 +19354,15 @@ html body.ai-assistant-page-active .mobile-bottom-nav{
 #aiAssistantPage .ai-photo-card img,#aiAssistantPage .ai-news-card img{border-color:#242c42}
 #aiAssistantPage .ai-thinking{color:#8f9ab3}
 @media(max-width:700px){#aiAssistantPage .ai-assistant-messages{padding:20px 12px 105px}#aiAssistantPage .ai-assistant-welcome h1{font-size:23px}}
+
+/* GlobeDisc AI chat — clear two-sided conversation layout. */
+.ai-assistant-messages{display:flex;flex-direction:column;align-items:stretch;gap:12px;}
+.ai-assistant-message{width:100%;display:flex;align-items:flex-end;gap:8px;margin:0;}
+.ai-assistant-message.is-user{justify-content:flex-end;}
+.ai-assistant-message.is-ai{justify-content:flex-start;}
+.ai-assistant-message-bubble{width:fit-content;max-width:min(78%,680px);padding:11px 15px;border-radius:18px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 2px 8px rgba(16,42,67,.07);}
+.ai-assistant-message.is-user .ai-assistant-message-bubble{background:#0f8b8d;color:#fff;border-bottom-right-radius:5px;}
+.ai-assistant-message.is-ai .ai-assistant-message-bubble{background:#fff;color:#102a43;border:1px solid #d9e2ec;border-bottom-left-radius:5px;}
+.ai-assistant-message-avatar{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:50%;background:#e5f7f7;border:1px solid #c7e9e6;overflow:hidden;}
+.ai-assistant-message-avatar img{width:21px;height:21px;object-fit:contain;}
+@media(max-width:600px){.ai-assistant-message-bubble{max-width:84%;padding:10px 13px;}.ai-assistant-message-avatar{width:27px;height:27px;flex-basis:27px;}.ai-assistant-message-avatar img{width:19px;height:19px;}}
