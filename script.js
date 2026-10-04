@@ -12017,86 +12017,116 @@ async function handleSettingAction(action) {
 }
 
 const SETTINGS_SECTION_TEMPLATES = {
-    account: {
-        title: "Account", icon: "fa-user", subtitle: "Manage your profile and account details.",
-        html: `
-            <button class="settings-row" type="button" data-setting-action="edit-profile"><span><i class="fas fa-pen"></i><b>Edit Profile</b><small>Update your profile details</small></span><i class="fas fa-chevron-right"></i></button>
-        `
-    },
-    notifications: {
-        title: "Notifications", icon: "fa-bell", subtitle: "Manage all notification preferences.",
-        html: `
-            <button class="settings-row settings-toggle-row" type="button" data-setting-action="chat-notifications"><span><i class="fas fa-message"></i><b>New Chat Messages</b><small>Get notified about new chats</small></span><span class="settings-switch"><span></span></span></button>
-            <button class="settings-row settings-toggle-row" type="button" data-setting-action="wishlist-notifications"><span><i class="fa-regular fa-heart"></i><b>Wishlist Updates</b><small>Updates about saved listings</small></span><span class="settings-switch"><span></span></span></button>
-            <button class="settings-row settings-toggle-row" type="button" data-setting-action="listing-notifications"><span><i class="fas fa-box"></i><b>Listing Updates</b><small>Updates about your listings</small></span><span class="settings-switch"><span></span></span></button>
-            <button class="settings-row settings-toggle-row" type="button" data-setting-action="buyer-seller-notifications"><span><i class="fas fa-handshake"></i><b>Interested Buyer/Seller</b><small>Get notified about interest</small></span><span class="settings-switch"><span></span></span></button>
-            <button class="settings-row settings-toggle-row" type="button" data-setting-action="sold-notifications"><span><i class="fas fa-circle-check"></i><b>Sold Listing</b><small>Get notified when listings are sold</small></span><span class="settings-switch"><span></span></span></button>
-            <button class="settings-row settings-toggle-row" type="button" data-setting-action="push-notifications"><span><i class="fas fa-mobile-screen-button"></i><b>Push Notifications</b><small>Allow GlobeDisc notifications</small></span><span class="settings-switch"><span></span></span></button>`
-    },
-    privacy: {title:"Privacy & Safety",icon:"fa-shield-halved",subtitle:"Control your privacy and safety preferences.",html:`
-        <button class="settings-row" type="button" data-setting-action="profile-visibility"><span><i class="fas fa-eye"></i><b>Who Can See My Profile</b><small>Control profile visibility</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row settings-toggle-row" type="button" data-setting-action="hide-phone"><span><i class="fas fa-phone"></i><b>Hide Phone Number</b><small>Control phone visibility</small></span><span class="settings-switch"><span></span></span></button>
-        <button class="settings-row settings-toggle-row" type="button" data-setting-action="hide-email"><span><i class="fas fa-envelope"></i><b>Hide Email</b><small>Control email visibility</small></span><span class="settings-switch"><span></span></span></button>
-        <button class="settings-row" type="button" data-setting-action="blocked-users"><span><i class="fas fa-user-slash"></i><b>Blocked Users</b><small>Manage blocked accounts</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="report-problem"><span><i class="fas fa-flag"></i><b>Report a Problem</b><small>Tell us about an issue</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="safety-tips"><span><i class="fas fa-lock"></i><b>Safety Tips</b><small>Stay safe while buying and selling</small></span><i class="fas fa-chevron-right"></i></button>`},
-    location:{title:"Location",icon:"fa-location-dot",subtitle:"Manage location and nearby listing preferences.",html:`
-        <button class="settings-row" type="button" data-setting-action="current-location"><span><i class="fas fa-location-crosshairs"></i><b>Current Location</b><small>Use your current area</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="change-location"><span><i class="fas fa-map-pin"></i><b>Change Location</b><small>Choose a different location</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="state-city-area"><span><i class="fas fa-map"></i><b>State / City / Area</b><small>Set your preferred area</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="nearby-distance"><span><i class="fas fa-route"></i><b>Nearby Listings Distance</b><small>Choose your search radius</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="location-permission"><span><i class="fas fa-location-dot"></i><b>Location Permission</b><small>Manage location access</small></span><i class="fas fa-chevron-right"></i></button>`},
-    preferences:{title:"App Preferences",icon:"fa-palette",subtitle:"Customize how GlobeDisc looks and behaves.",html:`
-        <button class="settings-row" type="button" data-setting-action="theme"><span><i class="fas fa-moon"></i><b>Dark Mode / Light Mode</b><small>Choose your app appearance</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="language"><span><i class="fas fa-language"></i><b>Language</b><small>Choose your preferred language</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row settings-toggle-row" type="button" data-setting-action="vibration"><span><i class="fas fa-mobile-screen-button"></i><b>Vibration / Notification Preferences</b><small>Manage interaction feedback</small></span><span class="settings-switch"><span></span></span></button>`},
-    security:{title:"Security",icon:"fa-lock",subtitle:"Manage account sessions and security.",html:`
-        <button class="settings-row" type="button" data-setting-action="login-sessions"><span><i class="fas fa-laptop"></i><b>Login Sessions</b><small>View active sessions</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="logout-all"><span><i class="fas fa-right-from-bracket"></i><b>Logout from All Devices</b><small>Sign out of other sessions</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="account-security"><span><i class="fas fa-shield"></i><b>Account Security</b><small>Review account security</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row danger-row" type="button" data-setting-action="delete-account"><span><i class="fas fa-trash-can"></i><b>Delete Account</b><small>Permanently remove your account</small></span><i class="fas fa-chevron-right"></i></button>`},
-    about:{title:"About & Support",icon:"fa-circle-info",subtitle:"Explore GlobeDisc information, help and support.",html:`        <button class="settings-row" type="button" data-setting-action="how"><span><i class="fas fa-route"></i><b>How It Works</b><small>Learn how buying and selling works</small></span><i class="fas fa-chevron-right"></i></button>
-
-        <button class="settings-row" type="button" data-setting-action="about"><span><i class="fas fa-circle-info"></i><b>About GlobeDisc</b><small>Learn more about GlobeDisc</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="terms"><span><i class="fas fa-file-contract"></i><b>Terms & Conditions</b><small>Platform terms</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="privacy-policy"><span><i class="fas fa-user-shield"></i><b>Privacy Policy</b><small>How information is handled</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="safety-about"><span><i class="fas fa-shield-heart"></i><b>Safety</b><small>Safe buying and selling guidance</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="developer"><span><i class="fas fa-code"></i><b>Developer</b><small>Meet the creator of GlobeDisc</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="contact"><span><i class="fas fa-headset"></i><b>Contact Us</b><small>Get in touch with GlobeDisc</small></span><i class="fas fa-chevron-right"></i></button>
-        <div class="settings-version"><span>App Version</span><strong>1.0.0</strong></div>`},
-    "account-actions":{title:"Account Actions",icon:"fa-door-open",subtitle:"Manage your account session.",html:`
-        <button class="settings-row" type="button" data-setting-action="logout"><span><i class="fas fa-right-from-bracket"></i><b>Logout</b><small>Sign out of this account</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row danger-row" type="button" data-setting-action="delete-account"><span><i class="fas fa-trash-can"></i><b>Delete Account</b><small>This action cannot be undone</small></span><i class="fas fa-chevron-right"></i></button>`}
+  profile: {
+    title:"Profile", icon:"fa-user", subtitle:"Manage your personal information.",
+    html:`
+      <button class="settings-row" data-new-setting="profile"><span><i class="fas fa-user-pen"></i><b>Edit Profile</b><small>Change your name and profile details</small></span><i class="fas fa-chevron-right"></i></button>
+      <button class="settings-row" data-new-setting="account-info"><span><i class="fas fa-id-card"></i><b>Account Information</b><small>View your account details</small></span><i class="fas fa-chevron-right"></i></button>`
+  },
+  notifications: {
+    title:"Notifications", icon:"fa-bell", subtitle:"Choose what you want to be notified about.",
+    html:`
+      <button class="settings-row settings-toggle-row" data-new-toggle="notifications"><span><i class="fas fa-bell"></i><b>Notifications</b><small>Enable app notifications</small></span><span class="settings-switch"><span></span></span></button>
+      <button class="settings-row settings-toggle-row" data-new-toggle="messageNotifications"><span><i class="fas fa-message"></i><b>Messages</b><small>Notifications for new messages</small></span><span class="settings-switch"><span></span></span></button>
+      <button class="settings-row settings-toggle-row" data-new-toggle="newsNotifications"><span><i class="fas fa-newspaper"></i><b>News & Updates</b><small>Important GlobeDisc updates</small></span><span class="settings-switch"><span></span></span></button>`
+  },
+  appearance: {
+    title:"Appearance", icon:"fa-palette", subtitle:"Make GlobeDisc look the way you prefer.",
+    html:`
+      <button class="settings-row" data-new-setting="theme"><span><i class="fas fa-circle-half-stroke"></i><b>Theme</b><small>Light, dark or system appearance</small></span><i class="fas fa-chevron-right"></i></button>
+      <button class="settings-row" data-new-setting="accent"><span><i class="fas fa-droplet"></i><b>Accent</b><small>Choose your app accent style</small></span><i class="fas fa-chevron-right"></i></button>`
+  },
+  language: {
+    title:"Language", icon:"fa-language", subtitle:"Choose the language you want to use.",
+    html:`
+      <button class="settings-row" data-new-setting="language"><span><i class="fas fa-language"></i><b>App Language</b><small id="newLanguageValue">English</small></span><i class="fas fa-chevron-right"></i></button>`
+  },
+  privacy: {
+    title:"Privacy", icon:"fa-shield-halved", subtitle:"Control what information the app can access.",
+    html:`
+      <button class="settings-row settings-toggle-row" data-new-toggle="location"><span><i class="fas fa-location-dot"></i><b>Location Access</b><small>Allow location-based features</small></span><span class="settings-switch"><span></span></span></button>
+      <button class="settings-row settings-toggle-row" data-new-toggle="analytics"><span><i class="fas fa-chart-line"></i><b>Usage Analytics</b><small>Help improve the app</small></span><span class="settings-switch"><span></span></span></button>
+      <button class="settings-row" data-new-setting="blocked"><span><i class="fas fa-user-slash"></i><b>Blocked Accounts</b><small>Manage accounts you have blocked</small></span><i class="fas fa-chevron-right"></i></button>`
+  },
+  security: {
+    title:"Security", icon:"fa-lock", subtitle:"Keep your account secure.",
+    html:`
+      <button class="settings-row" data-new-setting="sessions"><span><i class="fas fa-mobile-screen-button"></i><b>Active Sessions</b><small>Review where your account is signed in</small></span><i class="fas fa-chevron-right"></i></button>
+      <button class="settings-row" data-new-setting="password"><span><i class="fas fa-key"></i><b>Password</b><small>Change your account password</small></span><i class="fas fa-chevron-right"></i></button>`
+  },
+  help: {
+    title:"Help & About", icon:"fa-circle-info", subtitle:"Get help and learn about GlobeDisc.",
+    html:`
+      <button class="settings-row" data-new-setting="help"><span><i class="fas fa-circle-question"></i><b>Help Center</b><small>Find answers and guidance</small></span><i class="fas fa-chevron-right"></i></button>
+      <button class="settings-row" data-new-setting="feedback"><span><i class="fas fa-comment-dots"></i><b>Send Feedback</b><small>Tell us what we can improve</small></span><i class="fas fa-chevron-right"></i></button>
+      <button class="settings-row" data-new-setting="about"><span><i class="fas fa-globe"></i><b>About GlobeDisc</b><small>Version and app information</small></span><i class="fas fa-chevron-right"></i></button>`
+  },
+  account: {
+    title:"Account", icon:"fa-user-gear", subtitle:"Manage your GlobeDisc account.",
+    html:`
+      <button class="settings-row" data-new-setting="logout"><span><i class="fas fa-right-from-bracket"></i><b>Log Out</b><small>Sign out of this device</small></span><i class="fas fa-chevron-right"></i></button>
+      <button class="settings-row danger-row" data-new-setting="delete"><span><i class="fas fa-trash-can"></i><b>Delete Account</b><small>Permanently remove your account</small></span><i class="fas fa-chevron-right"></i></button>`
+  }
 };
 
-document.addEventListener("click", event => {
-    const sectionButton = event.target.closest("[data-settings-section]");
-    if (!sectionButton) return;
-    event.preventDefault();
-    event.stopPropagation();
-    const key = sectionButton.dataset.settingsSection;
-    const config = SETTINGS_SECTION_TEMPLATES[key];
-    if (!config) return;
-    closeModal("settingsModal");
-    const title = $("settingsDetailTitle"), subtitle = $("settingsDetailSubtitle"), icon = $("settingsDetailIcon"), content = $("settingsDetailContent");
-    if (title) title.textContent = config.title;
-    if (subtitle) subtitle.textContent = config.subtitle;
-    if (icon) icon.className = "fas " + config.icon;
-    if (content) content.innerHTML = config.html;
-    openModal("settingsDetailModal");
-});
+function openNewSettingsSection(key) {
+  const config = SETTINGS_SECTION_TEMPLATES[key];
+  if (!config) return;
+  closeModal("settingsModal");
+  const title=$("settingsDetailTitle"), subtitle=$("settingsDetailSubtitle"), icon=$("settingsDetailIcon"), content=$("settingsDetailContent");
+  if(title) title.textContent=config.title;
+  if(subtitle) subtitle.textContent=config.subtitle;
+  if(icon) icon.className="fas "+config.icon;
+  if(content) content.innerHTML=config.html;
+  content?.querySelectorAll("[data-new-toggle]").forEach(el=>{
+    const key=el.dataset.newToggle;
+    const value=localStorage.getItem("bc_setting_"+key)==="1";
+    el.classList.toggle("is-on",value);
+    const knob=el.querySelector(".settings-switch span");
+    if(knob) knob.style.transform=value?"translateX(18px)":"translateX(0)";
+  });
+  const lang=localStorage.getItem("bc_language")||"English";
+  const lv=$("newLanguageValue"); if(lv) lv.textContent=lang;
+  openModal("settingsDetailModal");
+}
 
 document.addEventListener("click", event => {
-    const row = event.target.closest("[data-setting-action]");
-    if (!row) return;
-    event.preventDefault();
-    event.stopPropagation();
-    handleSettingAction(row.dataset.settingAction);
+  const section=event.target.closest("[data-settings-section]");
+  if(section){ event.preventDefault(); event.stopPropagation(); openNewSettingsSection(section.dataset.settingsSection); return; }
+  const toggle=event.target.closest("[data-new-toggle]");
+  if(toggle){
+    event.preventDefault(); event.stopPropagation();
+    const key=toggle.dataset.newToggle;
+    const next=localStorage.getItem("bc_setting_"+key)!=="1";
+    localStorage.setItem("bc_setting_"+key,next?"1":"0");
+    toggle.classList.toggle("is-on",next);
+    const knob=toggle.querySelector(".settings-switch span"); if(knob) knob.style.transform=next?"translateX(18px)":"translateX(0)";
+    return;
+  }
+  const action=event.target.closest("[data-new-setting]");
+  if(action){ event.preventDefault(); event.stopPropagation(); handleNewSettingsAction(action.dataset.newSetting); }
 });
 
+function handleNewSettingsAction(action){
+  if(action==="theme"){ document.documentElement.classList.toggle("bc-dark"); localStorage.setItem("bc_theme",document.documentElement.classList.contains("bc-dark")?"dark":"light"); return; }
+  if(action==="language"){ const current=localStorage.getItem("bc_language")||"English"; const next=current==="English"?"Hindi":current==="Hindi"?"Lambadi":"English"; localStorage.setItem("bc_language",next); openNewSettingsSection("language"); return; }
+  if(action==="about"){ showNewSettingsInfo("About GlobeDisc","GlobeDisc is your global discovery platform for search, information, news and community features."); return; }
+  if(action==="help"){ showNewSettingsInfo("Help Center","Use the search bar to discover information. For account or feature problems, use Send Feedback."); return; }
+  if(action==="feedback"){ showNewSettingsInfo("Send Feedback","Feedback form will be connected here next. Your suggestions will help shape GlobeDisc."); return; }
+  if(action==="profile"){ if(typeof window.openProfile==="function") window.openProfile(); else showNewSettingsInfo("Profile","Profile editing is being connected to the new account system."); return; }
+  if(action==="account-info"){ showNewSettingsInfo("Account Information","Your account details are kept private and managed through your GlobeDisc account."); return; }
+  if(action==="sessions"){ showNewSettingsInfo("Active Sessions","Session management is being connected to the new mobile-only account system."); return; }
+  if(action==="password"){ showNewSettingsInfo("Password","Password management is being connected to the new mobile-only account system."); return; }
+  if(action==="blocked"){ showNewSettingsInfo("Blocked Accounts","Your blocked-account manager will appear here."); return; }
+  if(action==="logout"){ if(typeof window.logout==="function") window.logout(); else if(typeof window.handleLogout==="function") window.handleLogout(); return; }
+  if(action==="delete"){ showNewSettingsInfo("Delete Account","Account deletion will permanently remove your account and associated data."); return; }
+}
 
-
-const footerInfoContent = {
+function showNewSettingsInfo(title,body){
+  const content=$("settingsDetailContent"); if(!content) return;
+  content.innerHTML='<div class="settings-info-card"><div class="settings-info-icon"><i class="fas fa-circle-info"></i></div><h3>'+title+'</h3><p>'+body+'</p><button class="btn btn-primary" type="button" onclick="closeModal(\\'settingsDetailModal\\')">Done</button></div>';
+}
+\nconst footerInfoContent = {
     about: {
         title: "About StudentKart",
         body: `
