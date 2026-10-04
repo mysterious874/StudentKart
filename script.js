@@ -717,31 +717,82 @@ async function submitAiQuestion(question) {
         const web = Array.isArray(results?.web) ? results.web : [];
         const wiki = Array.isArray(results?.wiki) ? results.wiki : [];
         const news = Array.isArray(results?.news) ? results.news : [];
-        const sources = [...web, ...wiki, ...news].filter(Boolean).slice(0, 5);
+        const sources = [...web, ...wiki, ...news]
+            .filter(Boolean)
+            .slice(0, 8)
+            .map(item => ({
+                title: String(item.title || item.name || "Source").trim(),
+                url: String(item.url || item.link || "").trim(),
+                snippet: String(item.snippet || item.description || item.extract || "").trim(),
+                source: String(item.source || item.publisher || "").trim()
+            }));
 
-        if (thinking) thinking.remove();
+        const response = await fetch(
+            SUPABASE_URL + "/functions/v1/ai-chat",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_KEY
+                },
+                body: JSON.stringify({
+                    question: q,
+                    sources
+                })
+            }
+        );
 
-        let answer = "";
-        if (!sources.length) {
-            answer = "I couldn't find useful live sources for that question yet. Try asking it in a different way.";
-        } else {
-            answer = "I found these live sources for your question:\n\n" +
-                sources.map((item, index) => {
-                    const title = String(item.title || item.name || "Source").trim();
-                    const snippet = String(item.snippet || item.description || item.extract || "").trim();
-                    return (index + 1) + ". " + title + (snippet ? "\n" + snippet.slice(0, 220) : "");
-                }).join("\n\n") +
-                "\n\nGlobeDisc AI will use these sources as the research layer. More direct AI synthesis, images, videos and richer source cards are the next integration layer.";
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data?.error || "AI request failed");
         }
-        appendAiMessage("assistant", answer);
-    } catch (error) {
-        console.error("GlobeDisc AI search error:", error);
+
         if (thinking) thinking.remove();
-        appendAiMessage("assistant", "I couldn't reach the live search sources right now. Please try again.");
+        appendAiMessage("assistant", data.answer || "I couldn't generate an answer for that yet.");
+
+        if (Array.isArray(data.sources) && data.sources.length) {
+            appendAiSourceCards(data.sources);
+        }
+    } catch (error) {
+        console.error("GlobeDisc AI error:", error);
+        if (thinking) thinking.remove();
+        appendAiMessage(
+            "assistant",
+            error?.message?.includes("AI backend is not configured")
+                ? "AI backend is ready, but its secure AI key still needs to be configured in Supabase."
+                : "I couldn't generate the AI answer right now. Please try again."
+        );
     } finally {
         if (send) send.disabled = false;
         input?.focus();
     }
+}
+
+function appendAiSourceCards(sources) {
+    const messages = $("aiAssistantMessages");
+    if (!messages) return;
+
+    const valid = sources.filter(item => item?.title);
+    if (!valid.length) return;
+
+    const wrap = document.createElement("div");
+    wrap.className = "ai-source-cards";
+    wrap.innerHTML = '<div class="ai-source-heading"><i class="fas fa-link"></i><span>Sources</span></div>' +
+        valid.map(item => {
+            const title = escapeHTML(item.title);
+            const snippet = escapeHTML(String(item.snippet || "").slice(0, 180));
+            const source = escapeHTML(item.source || "Web");
+            const url = String(item.url || "").trim();
+            if (!/^https?:\\/\\//i.test(url)) {
+                return '<div class="ai-source-card"><div><small>' + source + '</small><strong>' + title + '</strong>' +
+                    (snippet ? '<p>' + snippet + '</p>' : '') + '</div></div>';
+            }
+            return '<a class="ai-source-card" href="' + escapeHTML(url) + '" target="_blank" rel="noopener noreferrer">' +
+                '<div><small>' + source + '</small><strong>' + title + '</strong>' +
+                (snippet ? '<p>' + snippet + '</p>' : '') + '</div><i class="fas fa-arrow-up-right-from-square"></i></a>';
+        }).join("");
+    messages.appendChild(wrap);
+    messages.scrollTop = messages.scrollHeight;
 }
 
 window.addEventListener("popstate", event => {
