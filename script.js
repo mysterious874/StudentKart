@@ -11339,7 +11339,7 @@ function mergeSettings(base, extra) {
     return base;
 }
 
-function getStudentKartSettings() {
+function getGlobeDiscSettings() {
     const metadata = currentUser?.user_metadata?.studentkart_settings;
     let local = null;
     try {
@@ -11353,7 +11353,7 @@ function getStudentKartSettings() {
     );
 }
 
-async function saveStudentKartSettings(nextSettings, silent = false) {
+async function saveGlobeDiscSettings(nextSettings, silent = false) {
     if (!currentUser) return false;
 
     const settings = mergeSettings(
@@ -11383,13 +11383,13 @@ async function saveStudentKartSettings(nextSettings, silent = false) {
 
     if (data?.user) currentUser = data.user;
     if (!silent) showToast("Setting saved", "success");
-    applyStudentKartSettings();
+    applyGlobeDiscSettings();
     return true;
 }
 
-function applyStudentKartSettings() {
+function applyGlobeDiscSettings() {
     if (!currentUser) return;
-    const settings = getStudentKartSettings();
+    const settings = getGlobeDiscSettings();
     const theme = settings.preferences.theme === "dark";
     document.body.classList.toggle("studentkart-dark", theme);
     document.documentElement.lang = settings.preferences.language === "hi" ? "hi" : "en";
@@ -11419,7 +11419,7 @@ function applyStudentKartSettings() {
     const profileVisibilityRow = document.querySelector('[data-setting-action="profile-visibility"]');
     const profileVisibilitySmall = profileVisibilityRow?.querySelector("small");
     if (profileVisibilitySmall) {
-        const labels = { public: "Anyone can see your profile", students: "Visible to StudentKart users", private: "Profile visibility is limited" };
+        const labels = { public: "Anyone can see your profile", students: "Visible to GlobeDisc users", private: "Profile visibility is limited" };
         profileVisibilitySmall.textContent = labels[settings.privacy.profileVisibility] || "Control profile visibility";
     }
     const blockedRow = document.querySelector('[data-setting-action="blocked-users"]');
@@ -11435,13 +11435,13 @@ function applyStudentKartSettings() {
 }
 
 async function settingsToggle(path) {
-    const settings = getStudentKartSettings();
+    const settings = getGlobeDiscSettings();
     const parts = path.split(".");
     let obj = settings;
     for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
     const key = parts[parts.length - 1];
     obj[key] = !Boolean(obj[key]);
-    return saveStudentKartSettings(settings);
+    return saveGlobeDiscSettings(settings);
 }
 
 function openSettingsActionModal({title, description="", fields=[], options=[], danger=false, confirmText="Save", onConfirm}) {
@@ -11514,7 +11514,7 @@ async function settingsEmail() {
     if (!currentUser) return;
     openSettingsActionModal({
         title: "Change Email",
-        description: "Update the email connected to your StudentKart account.",
+        description: "Update the email connected to your GlobeDisc account.",
         fields: [{id:"email", label:"New Email Address", type:"email", value:currentUser.email || "", placeholder:"you@example.com"}],
         confirmText: "Update Email",
         onConfirm: async values => {
@@ -11556,10 +11556,10 @@ async function settingsLocationCurrent() {
     if (!navigator.geolocation) { showToast("Location is not supported by this browser","warning"); return; }
     showToast("Requesting your current location...","info");
     navigator.geolocation.getCurrentPosition(async position => {
-        const settings=getStudentKartSettings();
+        const settings=getGlobeDiscSettings();
         settings.location.latitude=Number(position.coords.latitude.toFixed(6));
         settings.location.longitude=Number(position.coords.longitude.toFixed(6));
-        await saveStudentKartSettings(settings,true);
+        await saveGlobeDiscSettings(settings,true);
         showToast("Current location saved","success");
     }, error => {
         console.warn("Geolocation error",error);
@@ -11568,10 +11568,10 @@ async function settingsLocationCurrent() {
 }
 
 async function settingsLocationDetails() {
-    const settings=getStudentKartSettings();
+    const settings=getGlobeDiscSettings();
     openSettingsActionModal({
         title:"Change Location",
-        description:"Set the area you want StudentKart to use for local listings.",
+        description:"Set the area you want GlobeDisc to use for local listings.",
         fields:[
             {id:"state",label:"State",value:settings.location.state},
             {id:"city",label:"City",value:settings.location.city},
@@ -11582,20 +11582,20 @@ async function settingsLocationDetails() {
             settings.location.state=values.state;
             settings.location.city=values.city;
             settings.location.area=values.area;
-            await saveStudentKartSettings(settings);
+            await saveGlobeDiscSettings(settings);
         }
     });
 }
 
 async function settingsDistance() {
-    const settings=getStudentKartSettings();
+    const settings=getGlobeDiscSettings();
     openSettingsActionModal({
         title:"Nearby Listings Distance",
-        description:"Choose how far StudentKart should search around your preferred location.",
+        description:"Choose how far GlobeDisc should search around your preferred location.",
         options:[5,10,25,50,100].map(km=>({value:String(km),label:km+" km",description:"Show listings within "+km+" km",icon:"fa-route"})),
         onConfirm:async value=>{
             settings.location.distanceKm=Number(value);
-            await saveStudentKartSettings(settings);
+            await saveGlobeDiscSettings(settings);
         }
     });
 }
@@ -11603,7 +11603,7 @@ async function settingsDistance() {
 async function settingsLocationPermission() {
     openSettingsActionModal({
         title:"Location Permission",
-        description:"StudentKart uses browser location access only when you request your current location.",
+        description:"GlobeDisc uses browser location access only when you request your current location.",
         options:[
             {value:"request",label:"Request Location Access",description:"Ask the browser for location permission",icon:"fa-location-crosshairs"},
             {value:"status",label:"Check Permission Status",description:"See whether location access is allowed",icon:"fa-circle-info"}
@@ -11619,20 +11619,20 @@ async function settingsLocationPermission() {
 }
 
 async function settingsTheme() {
-    const settings=getStudentKartSettings();
+    const settings=getGlobeDiscSettings();
     openSettingsActionModal({
         title:"Appearance",
-        description:"Choose how StudentKart should look on your device.",
+        description:"Choose how GlobeDisc should look on your device.",
         options:[
-            {value:"light",label:"Light Mode",description:"Clean light StudentKart interface",icon:"fa-sun"},
+            {value:"light",label:"Light Mode",description:"Clean light GlobeDisc interface",icon:"fa-sun"},
             {value:"dark",label:"Dark Mode",description:"Dark interface for low-light use",icon:"fa-moon"}
         ],
-        onConfirm:async value=>{settings.preferences.theme=value;await saveStudentKartSettings(settings);}
+        onConfirm:async value=>{settings.preferences.theme=value;await saveGlobeDiscSettings(settings);}
     });
 }
 
 async function settingsLanguage() {
-    const settings=getStudentKartSettings();
+    const settings=getGlobeDiscSettings();
     openSettingsActionModal({
         title:"Language",
         description:"Choose your preferred app language.",
@@ -11640,26 +11640,26 @@ async function settingsLanguage() {
             {value:"en",label:"English",description:"Use English throughout the interface",icon:"fa-language"},
             {value:"hi",label:"Hindi",description:"Hindi preference (interface translation can be expanded)",icon:"fa-language"}
         ],
-        onConfirm:async value=>{settings.preferences.language=value;await saveStudentKartSettings(settings);}
+        onConfirm:async value=>{settings.preferences.language=value;await saveGlobeDiscSettings(settings);}
     });
 }
 
 async function settingsProfileVisibility() {
-    const settings=getStudentKartSettings();
+    const settings=getGlobeDiscSettings();
     openSettingsActionModal({
         title:"Profile Visibility",
-        description:"Choose who can discover your StudentKart profile.",
+        description:"Choose who can discover your GlobeDisc profile.",
         options:[
-            {value:"public",label:"Public",description:"Anyone using StudentKart can see your profile",icon:"fa-earth-asia"},
-            {value:"students",label:"Students",description:"Keep your profile visible to the StudentKart community",icon:"fa-user-group"},
+            {value:"public",label:"Public",description:"Anyone using GlobeDisc can see your profile",icon:"fa-earth-asia"},
+            {value:"students",label:"Students",description:"Keep your profile visible to the GlobeDisc community",icon:"fa-user-group"},
             {value:"private",label:"Private",description:"Limit profile visibility",icon:"fa-lock"}
         ],
-        onConfirm:async value=>{settings.privacy.profileVisibility=value;await saveStudentKartSettings(settings);}
+        onConfirm:async value=>{settings.privacy.profileVisibility=value;await saveGlobeDiscSettings(settings);}
     });
 }
 
 async function settingsBlockedUsers() {
-    const settings = getStudentKartSettings();
+    const settings = getGlobeDiscSettings();
     const blocked = Array.isArray(settings.privacy?.blockedUsers)
         ? settings.privacy.blockedUsers.map(String).filter(Boolean)
         : [];
@@ -11728,7 +11728,7 @@ async function settingsBlockedUsers() {
                         : []
                     ).filter(x => x !== id);
 
-                const saved = await saveStudentKartSettings(settings, true);
+                const saved = await saveGlobeDiscSettings(settings, true);
 
                 if (!saved) {
                     showToast("Could not unblock this user", "error");
@@ -11759,7 +11759,7 @@ async function settingsBlockedUsers() {
 
                 settings.privacy.blockedUsers = [...currentBlocked, id];
 
-                const saved = await saveStudentKartSettings(settings, true);
+                const saved = await saveGlobeDiscSettings(settings, true);
 
                 if (!saved) {
                     showToast("Could not block this user", "error");
@@ -11776,12 +11776,12 @@ async function settingsReportProblem() {
         title:"Report a Problem",
         description:"Tell us what went wrong. Your email app will open with the report ready to send.",
         fields:[
-            {id:"subject",label:"Subject",value:"StudentKart Problem Report"},
+            {id:"subject",label:"Subject",value:"GlobeDisc Problem Report"},
             {id:"message",label:"What happened?",type:"textarea",placeholder:"Describe the problem..."}
         ],
         confirmText:"Prepare Report",
         onConfirm:async values=>{
-            const subject=encodeURIComponent(values.subject||"StudentKart Problem Report");
+            const subject=encodeURIComponent(values.subject||"GlobeDisc Problem Report");
             const body=encodeURIComponent(values.message||"");
             window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
         }
@@ -11793,7 +11793,7 @@ async function settingsLoginSessions() {
     const expires=data?.session?.expires_at?new Date(data.session.expires_at*1000).toLocaleString("en-IN"):"Unknown";
     openSettingsActionModal({
         title:"Login Session",
-        description:error?"Could not read your current session.":"This browser currently has an active StudentKart session.",
+        description:error?"Could not read your current session.":"This browser currently has an active GlobeDisc session.",
         options:error?[]:[{value:"current",label:"Current Session Active",description:"Session expiry: "+expires,icon:"fa-circle-check"}],
         onConfirm:async()=>{}
     });
@@ -11802,7 +11802,7 @@ async function settingsLoginSessions() {
 async function settingsLogoutAll() {
     openSettingsActionModal({
         title:"Logout From All Devices",
-        description:"This will sign out the current account. Continue only if you want to end your StudentKart session.",
+        description:"This will sign out the current account. Continue only if you want to end your GlobeDisc session.",
         options:[
             {value:"logout",label:"Logout From All Devices",description:"End the current Supabase session",icon:"fa-right-from-bracket"}
         ],
@@ -11819,7 +11819,7 @@ function settingsAccountSecurity() {
     if (!currentUser) return;
     openSettingsActionModal({
         title:"Account Security",
-        description:"Review the security state of your StudentKart account.",
+        description:"Review the security state of your GlobeDisc account.",
         options:[
             {value:"email",label:"Email",description:(currentUser.email||"Not added")+" · "+(currentUser.email_confirmed_at?"Verified":"Verification may be required"),icon:"fa-envelope"},
             {value:"phone",label:"Mobile",description:(currentUser.phone||"Not added")+" · "+(currentUser.phone_confirmed_at?"Verified":"Verification may be required"),icon:"fa-mobile-screen"},
@@ -11838,8 +11838,8 @@ function settingsDeleteAccount() {
         danger:true,
         onConfirm:async values=>{
             if(values.confirm!=="DELETE"){showToast("Type DELETE exactly to continue","warning");return false;}
-            const subject=encodeURIComponent("StudentKart account deletion request");
-            const body=encodeURIComponent("Please delete my StudentKart account. Account ID: "+(currentUser?.id||"unknown"));
+            const subject=encodeURIComponent("GlobeDisc account deletion request");
+            const body=encodeURIComponent("Please delete my GlobeDisc account. Account ID: "+(currentUser?.id||"unknown"));
             window.location.href="mailto:rathodharish004@gmail.com?subject="+subject+"&body="+body;
             showToast("Deletion request prepared","warning");
         }
@@ -11873,7 +11873,7 @@ async function handleSettingAction(action) {
     }
 
     if (action === "push-notifications") {
-        const settings = getStudentKartSettings();
+        const settings = getGlobeDiscSettings();
         if (!settings.notifications.push && "Notification" in window) {
             const permission = await Notification.requestPermission();
             if (permission !== "granted") {
@@ -11890,8 +11890,8 @@ async function handleSettingAction(action) {
     if (action === "blocked-users") return settingsBlockedUsers();
 
     if (action === "report-problem") {
-        const body = encodeURIComponent("StudentKart problem report:\n\n");
-        window.location.href = `mailto:rathodharish004@gmail.com?subject=StudentKart%20Problem%20Report&body=${body}`;
+        const body = encodeURIComponent("GlobeDisc problem report:\n\n");
+        window.location.href = `mailto:rathodharish004@gmail.com?subject=GlobeDisc%20Problem%20Report&body=${body}`;
         return;
     }
 
@@ -11903,8 +11903,8 @@ async function handleSettingAction(action) {
             <div class="developer-page">
                 <div class="developer-hero">
                     <div class="developer-hero-photo">
-                        <img src="assets/developer-photo.jpg" alt="Harish Rathod — StudentKart Developer">
-                        <span class="developer-status"><i class="fas fa-circle"></i> Building StudentKart</span>
+                        <img src="assets/developer-photo.jpg" alt="Harish Rathod — GlobeDisc Developer">
+                        <span class="developer-status"><i class="fas fa-circle"></i> Building GlobeDisc</span>
                     </div>
                     <div class="developer-hero-copy">
                         <span class="developer-eyebrow"><i class="fas fa-code"></i> STUDENTKART DEVELOPER</span>
@@ -11924,7 +11924,7 @@ async function handleSettingAction(action) {
                         <span class="section-label">ABOUT THE DEVELOPER</span>
                         <h3>From learning to building</h3>
                     </div>
-                    <p>Harish Rathod is the founder and developer behind StudentKart. The project combines a student-focused marketplace with authentication, listings, wishlist, search, notifications and chat features.</p>
+                    <p>Harish Rathod is the founder and developer behind GlobeDisc. The project combines a student-focused marketplace with authentication, listings, wishlist, search, notifications and chat features.</p>
                     <p>The goal is to keep learning practical: understand a problem, build a feature, test it, fix what breaks and keep improving the product.</p>
                 </div>
 
@@ -11934,7 +11934,7 @@ async function handleSettingAction(action) {
                         <h3>Current focus</h3>
                     </div>
                     <div class="developer-feature-grid">
-                        <div class="developer-feature-card"><i class="fas fa-store"></i><div><strong>StudentKart</strong><span>Marketplace, listings and student-first UX</span></div></div>
+                        <div class="developer-feature-card"><i class="fas fa-store"></i><div><strong>GlobeDisc</strong><span>Marketplace, listings and student-first UX</span></div></div>
                         <div class="developer-feature-card"><i class="fas fa-comments"></i><div><strong>Real-time Features</strong><span>Chat, inquiries and notifications</span></div></div>
                         <div class="developer-feature-card"><i class="fas fa-mobile-screen"></i><div><strong>Responsive UI</strong><span>Mobile-friendly and desktop-ready interfaces</span></div></div>
                         <div class="developer-feature-card"><i class="fas fa-shield-halved"></i><div><strong>Cybersecurity</strong><span>Learning networking, Linux and web security fundamentals</span></div></div>
@@ -11944,7 +11944,7 @@ async function handleSettingAction(action) {
                 <div class="developer-section">
                     <div class="developer-section-heading">
                         <span class="section-label">TECH STACK</span>
-                        <h3>What powers StudentKart</h3>
+                        <h3>What powers GlobeDisc</h3>
                     </div>
                     <div class="developer-stack">
                         <span><i class="fab fa-html5"></i> HTML5</span>
@@ -11962,14 +11962,14 @@ async function handleSettingAction(action) {
                     <i class="fas fa-lightbulb"></i>
                     <div>
                         <span class="section-label">VISION</span>
-                        <p>“StudentKart is being built to make campus life more connected, convenient and student-friendly.”</p>
+                        <p>“GlobeDisc is being built to make campus life more connected, convenient and student-friendly.”</p>
                     </div>
                 </div>
 
                 <div class="developer-footer-card">
                     <div>
                         <strong>Harish Rathod</strong>
-                        <span>Founder & Developer · StudentKart</span>
+                        <span>Founder & Developer · GlobeDisc</span>
                     </div>
                     <a href="mailto:rathodharish004@gmail.com" class="btn btn-primary"><i class="fas fa-envelope"></i> Contact</a>
                 </div>
@@ -12031,7 +12031,7 @@ const SETTINGS_SECTION_TEMPLATES = {
             <button class="settings-row settings-toggle-row" type="button" data-setting-action="listing-notifications"><span><i class="fas fa-box"></i><b>Listing Updates</b><small>Updates about your listings</small></span><span class="settings-switch"><span></span></span></button>
             <button class="settings-row settings-toggle-row" type="button" data-setting-action="buyer-seller-notifications"><span><i class="fas fa-handshake"></i><b>Interested Buyer/Seller</b><small>Get notified about interest</small></span><span class="settings-switch"><span></span></span></button>
             <button class="settings-row settings-toggle-row" type="button" data-setting-action="sold-notifications"><span><i class="fas fa-circle-check"></i><b>Sold Listing</b><small>Get notified when listings are sold</small></span><span class="settings-switch"><span></span></span></button>
-            <button class="settings-row settings-toggle-row" type="button" data-setting-action="push-notifications"><span><i class="fas fa-mobile-screen-button"></i><b>Push Notifications</b><small>Allow StudentKart notifications</small></span><span class="settings-switch"><span></span></span></button>`
+            <button class="settings-row settings-toggle-row" type="button" data-setting-action="push-notifications"><span><i class="fas fa-mobile-screen-button"></i><b>Push Notifications</b><small>Allow GlobeDisc notifications</small></span><span class="settings-switch"><span></span></span></button>`
     },
     privacy: {title:"Privacy & Safety",icon:"fa-shield-halved",subtitle:"Control your privacy and safety preferences.",html:`
         <button class="settings-row" type="button" data-setting-action="profile-visibility"><span><i class="fas fa-eye"></i><b>Who Can See My Profile</b><small>Control profile visibility</small></span><i class="fas fa-chevron-right"></i></button>
@@ -12046,7 +12046,7 @@ const SETTINGS_SECTION_TEMPLATES = {
         <button class="settings-row" type="button" data-setting-action="state-city-area"><span><i class="fas fa-map"></i><b>State / City / Area</b><small>Set your preferred area</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="nearby-distance"><span><i class="fas fa-route"></i><b>Nearby Listings Distance</b><small>Choose your search radius</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="location-permission"><span><i class="fas fa-location-dot"></i><b>Location Permission</b><small>Manage location access</small></span><i class="fas fa-chevron-right"></i></button>`},
-    preferences:{title:"App Preferences",icon:"fa-palette",subtitle:"Customize how StudentKart looks and behaves.",html:`
+    preferences:{title:"App Preferences",icon:"fa-palette",subtitle:"Customize how GlobeDisc looks and behaves.",html:`
         <button class="settings-row" type="button" data-setting-action="theme"><span><i class="fas fa-moon"></i><b>Dark Mode / Light Mode</b><small>Choose your app appearance</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="language"><span><i class="fas fa-language"></i><b>Language</b><small>Choose your preferred language</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row settings-toggle-row" type="button" data-setting-action="vibration"><span><i class="fas fa-mobile-screen-button"></i><b>Vibration / Notification Preferences</b><small>Manage interaction feedback</small></span><span class="settings-switch"><span></span></span></button>`},
@@ -12055,14 +12055,14 @@ const SETTINGS_SECTION_TEMPLATES = {
         <button class="settings-row" type="button" data-setting-action="logout-all"><span><i class="fas fa-right-from-bracket"></i><b>Logout from All Devices</b><small>Sign out of other sessions</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="account-security"><span><i class="fas fa-shield"></i><b>Account Security</b><small>Review account security</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row danger-row" type="button" data-setting-action="delete-account"><span><i class="fas fa-trash-can"></i><b>Delete Account</b><small>Permanently remove your account</small></span><i class="fas fa-chevron-right"></i></button>`},
-    about:{title:"About & Support",icon:"fa-circle-info",subtitle:"Explore StudentKart information, help and support.",html:`        <button class="settings-row" type="button" data-setting-action="how"><span><i class="fas fa-route"></i><b>How It Works</b><small>Learn how buying and selling works</small></span><i class="fas fa-chevron-right"></i></button>
+    about:{title:"About & Support",icon:"fa-circle-info",subtitle:"Explore GlobeDisc information, help and support.",html:`        <button class="settings-row" type="button" data-setting-action="how"><span><i class="fas fa-route"></i><b>How It Works</b><small>Learn how buying and selling works</small></span><i class="fas fa-chevron-right"></i></button>
 
-        <button class="settings-row" type="button" data-setting-action="about"><span><i class="fas fa-circle-info"></i><b>About StudentKart</b><small>Learn more about StudentKart</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="about"><span><i class="fas fa-circle-info"></i><b>About GlobeDisc</b><small>Learn more about GlobeDisc</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="terms"><span><i class="fas fa-file-contract"></i><b>Terms & Conditions</b><small>Platform terms</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="privacy-policy"><span><i class="fas fa-user-shield"></i><b>Privacy Policy</b><small>How information is handled</small></span><i class="fas fa-chevron-right"></i></button>
         <button class="settings-row" type="button" data-setting-action="safety-about"><span><i class="fas fa-shield-heart"></i><b>Safety</b><small>Safe buying and selling guidance</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="developer"><span><i class="fas fa-code"></i><b>Developer</b><small>Meet the creator of StudentKart</small></span><i class="fas fa-chevron-right"></i></button>
-        <button class="settings-row" type="button" data-setting-action="contact"><span><i class="fas fa-headset"></i><b>Contact Us</b><small>Get in touch with StudentKart</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="developer"><span><i class="fas fa-code"></i><b>Developer</b><small>Meet the creator of GlobeDisc</small></span><i class="fas fa-chevron-right"></i></button>
+        <button class="settings-row" type="button" data-setting-action="contact"><span><i class="fas fa-headset"></i><b>Contact Us</b><small>Get in touch with GlobeDisc</small></span><i class="fas fa-chevron-right"></i></button>
         <div class="settings-version"><span>App Version</span><strong>1.0.0</strong></div>`},
     "account-actions":{title:"Account Actions",icon:"fa-door-open",subtitle:"Manage your account session.",html:`
         <button class="settings-row" type="button" data-setting-action="logout"><span><i class="fas fa-right-from-bracket"></i><b>Logout</b><small>Sign out of this account</small></span><i class="fas fa-chevron-right"></i></button>
