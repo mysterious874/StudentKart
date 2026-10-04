@@ -5623,33 +5623,21 @@ async function loadMyListings() {
    ========================================================= */
 
 function performSearch() {
+    const heroSearch = $("heroSearchInput");
+    const query = String(heroSearch?.value || "").trim();
+    if (!query) return;
 
-    const heroSearch =
-        $("heroSearch");
-
-    const marketplaceSearch =
-        $("marketplaceSearch");
-
-    if (
-        heroSearch &&
-        marketplaceSearch
-    ) {
-
-        marketplaceSearch.value =
-            heroSearch.value;
+    if (typeof showSearchResultsPage === "function") {
+        showSearchResultsPage(query);
+    } else {
+        const marketplaceSearch = $("marketplaceSearch");
+        if (marketplaceSearch) marketplaceSearch.value = query;
+        applyFilters();
+        document.querySelector("#marketplace")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
     }
-
-    applyFilters();
-
-    const marketplace =
-        document.querySelector(
-            "#marketplace"
-        );
-
-    marketplace?.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
 }
 
 function showHomePageFromCategory() {
@@ -12334,7 +12322,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!navSearchButton || !searchPanel || !searchInput) return;
 
     const runSearch = () => {
-        if (marketplaceSearch) marketplaceSearch.value = searchInput.value;
+        const query = String(searchInput?.value || "").trim();
+        if (!query) return;
+        if (typeof showSearchResultsPage === "function") {
+            showSearchResultsPage(query);
+            return;
+        }
+        if (marketplaceSearch) marketplaceSearch.value = query;
         applyFilters();
         document.getElementById("marketplace")?.scrollIntoView({behavior:"smooth",block:"start"});
     };
