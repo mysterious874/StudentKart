@@ -13931,8 +13931,10 @@ async function loadGlobalDiscoveryHomepage(){
     const area=newsLocation.area;
     const city=newsLocation.city;
     const state=newsLocation.state;
-    // Geolocation is intentionally background-only so first paint stays fast.
-    void resolveNewsLocation().then(loc=>{
+    // Start location resolution once and reuse the same promise below.
+    // It is raced with a short fallback so news never blocks the page.
+    const locationPromise=resolveNewsLocation();
+    void locationPromise.then(loc=>{
         try{ localStorage.setItem("globedisc_last_news_location",JSON.stringify(loc||{})); }catch(_){}
     }).catch(()=>{});
 
