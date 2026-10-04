@@ -106,7 +106,7 @@ async function openChat(chatId,name){
      const b=a.target.closest("[data-action]");if(!b)return;const kind=b.dataset.action;close();
      if(kind==="reply"){setReply(m);return;}
      if(kind==="hide"){const r=await sb.from("message_hidden").insert({message_id:m.id,user_id:user.id});if(!r.error)await render(currentMessages.filter(x=>x.id!==m.id));return;}
-     if(kind==="delete"){const r=await sb.from("messages").update({deleted_at:new Date().toISOString()}).eq("id",m.id).eq("sender_id",user.id);if(!r.error)await render(currentMessages.filter(x=>x.id!==m.id));}
+     if(kind==="delete"){const r=await sb.from("messages").update({deleted_at:new Date().toISOString()}).eq("id",m.id).eq("sender_id",user.id);if(!r.error){if(m.attachment_url)await sb.storage.from("banjara-media").remove([m.attachment_url]);await render(currentMessages.filter(x=>x.id!==m.id));}}
    };
    setTimeout(()=>document.addEventListener("click",close,{once:true}),0);
  };
@@ -118,24 +118,24 @@ async function openChat(chatId,name){
    attachBtn.disabled=true;attachBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
    const up=await sb.storage.from("banjara-media").upload(path,file,{contentType:mime,upsert:false});
    if(up.error){alert("Could not upload attachment.");attachBtn.disabled=false;attachBtn.innerHTML='<i class="fas fa-paperclip"></i>';return;}
-   const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body:type==="file"?file.name:"",message_type:type,attachment_url:path}).select("id,body,sender_id,created_at,message_type,attachment_url").single();
+   const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body:type==="file"?file.name:"",message_type:type,attachment_url:path,reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url,reply_to_id,delivered_at,read_at").single();
    if(ins.error){await sb.storage.from("banjara-media").remove([path]);alert("Could not send attachment.");}
    else await render([...currentMessages,ins.data]);
    attachBtn.disabled=false;attachBtn.innerHTML='<i class="fas fa-paperclip"></i>';attachInput.value="";input.focus();
  };
  attachBtn.onclick=()=>attachInput.click();attachInput.onchange=()=>sendAttachment(attachInput.files?.[0]);
- let recorder=null,chunks=[],recordStartedAt=0,recordTimer=null;
+ let recorder=null,chunks=[],recordStartedAt=0,recordTimer=null,cancelRecording=false;
  const updateRecordTimer=()=>{const s=Math.floor((Date.now()-recordStartedAt)/1000);voiceBtn.setAttribute("data-recording-time",String(s).padStart(2,"0")+"s");};
  voiceBtn.onclick=async()=>{
 
-   if(recorder&&recorder.state==="recording"){recorder.stop();return;}
+   if(recorder&&recorder.state==="recording"){cancelRecording=true;recorder.stop();return;}
    if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){alert("Voice recording is not supported in this browser.");return;}
    try{
-     const stream=await navigator.mediaDevices.getUserMedia({audio:true});chunks=[];
+     const stream=await navigator.mediaDevices.getUserMedia({audio:true});chunks=[];cancelRecording=false;
      recorder=new MediaRecorder(stream);voiceBtn.classList.add("recording");voiceBtn.innerHTML='<i class="fas fa-stop"></i>';
      recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
      recorder.onstop=async()=>{
-       stream.getTracks().forEach(t=>t.stop());clearInterval(recordTimer);voiceBtn.classList.remove("recording");voiceBtn.innerHTML='<i class="fas fa-microphone"></i>';voiceBtn.removeAttribute("data-recording-time");
+       stream.getTracks().forEach(t=>t.stop());clearInterval(recordTimer);voiceBtn.classList.remove("recording");voiceBtn.innerHTML='<i class="fas fa-microphone"></i>';voiceBtn.removeAttribute("data-recording-time");if(cancelRecording){chunks=[];return;}
        const blob=new Blob(chunks,{type:recorder.mimeType||"audio/webm"});if(blob.size>25*1024*1024)return;
        const ext=(blob.type.includes("ogg")?"ogg":blob.type.includes("mp4")?"m4a":"webm"),path=user.id+"/"+chatId+"/"+crypto.randomUUID()+"."+ext;
        const up=await sb.storage.from("banjara-media").upload(path,blob,{contentType:blob.type||"audio/webm",upsert:false});
