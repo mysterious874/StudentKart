@@ -185,7 +185,8 @@ function bind(){
   if(e.target.closest("[data-close-modal]")||e.target.id==="bcModal"){closeModal();return}
   const connect=e.target.closest("[data-connect-user]");if(connect){void bcSendConnection(connect.dataset.connectUser,connect);return}
   if(e.target.closest("[data-community-id]")){toast("Community selected");return}
-  const demo=e.target.closest("[data-demo]");if(demo){const label=demo.dataset.demo||"";if(label==="Chat opened"){modal("Chat",'<div class="bc-chat-window"><div class="bc-chat-messages"><div class="bc-chat-bubble incoming">Hi! Welcome to Banjara Connect.</div><div class="bc-chat-bubble outgoing">Hello 👋</div></div><div class="bc-chat-composer"><input placeholder="Type a message..." data-chat-input><button data-send-chat><i class="fas fa-paper-plane"></i></button></div></div>');return}if(label==="Community opened"){modal("Community",'<div class="bc-card"><h3>Community</h3><p>Community details and actions are ready for the backend data.</p><button class="bc-action primary" data-close-modal>Done</button></div>');return}if(label==="Connection request sent"){demo.textContent="Requested";demo.disabled=true;toast("Connection request sent");return}toast(label);return}
+  const unblock=e.target.closest("[data-unblock-user]");if(unblock){void (async()=>{const sb=BC_SUPABASE();const {data:{user}}=await sb.auth.getUser();if(!user)return;const {error}=await sb.from("user_blocks").delete().eq("blocker_id",user.id).eq("blocked_id",unblock.dataset.unblockUser);if(error){toast("Could not unblock user");return;}toast("User unblocked");await bcLoadBlockedAccounts();})();return;}
+ const demo=e.target.closest("[data-demo]");if(demo){const label=demo.dataset.demo||"";if(label==="Chat opened"){modal("Chat",'<div class="bc-chat-window"><div class="bc-chat-messages"><div class="bc-chat-bubble incoming">Hi! Welcome to Banjara Connect.</div><div class="bc-chat-bubble outgoing">Hello 👋</div></div><div class="bc-chat-composer"><input placeholder="Type a message..." data-chat-input><button data-send-chat><i class="fas fa-paper-plane"></i></button></div></div>');return}if(label==="Community opened"){modal("Community",'<div class="bc-card"><h3>Community</h3><p>Community details and actions are ready for the backend data.</p><button class="bc-action primary" data-close-modal>Done</button></div>');return}if(label==="Connection request sent"){demo.textContent="Requested";demo.disabled=true;toast("Connection request sent");return}toast(label);return}
   const tab=e.target.closest(".bc-tab,.bc-chip");if(tab){const group=tab.parentElement;$(".bc-tab,.bc-chip",group).forEach(x=>x.classList.remove("active"));tab.classList.add("active");toast(tab.textContent.trim()+" selected");return}
   const auth=e.target.closest("[data-auth]");if(auth){state.auth=auth.dataset.auth;renderAll();showScreen("auth");return}
   if(e.target.closest("[data-do-search]")){state.query=$("[data-search]")?.value||"";toast(state.query?"Searching "+state.query+"…":"Type something to search");return}
@@ -202,6 +203,18 @@ function bind(){
  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 }
 
+async function bcLoadBlockedAccounts(){
+ const sb=BC_SUPABASE();if(!sb)return;
+ const {data:{user}}=await sb.auth.getUser();if(!user)return;
+ const panel=document.querySelector("#bcBlockedAccountsPanel");if(!panel)return;
+ const {data,error}=await sb.from("user_blocks").select("blocked_id,created_at").eq("blocker_id",user.id).order("created_at",{ascending:false});
+ if(error){panel.innerHTML='<div class="bc-empty"><strong>Could not load blocked accounts</strong><span>Please try again.</span></div>';return;}
+ const ids=(data||[]).map(x=>x.blocked_id);
+ if(!ids.length){panel.innerHTML='<div class="bc-empty"><i class="fas fa-user-check"></i><strong>No blocked accounts</strong><span>People you block will appear here.</span></div>';return;}
+ const {data:profiles}=await sb.from("profiles").select("id,name,city,state,avatar_url").in("id",ids);
+ const map=new Map((profiles||[]).map(x=>[x.id,x]));
+ panel.innerHTML=(data||[]).map(x=>{const p=map.get(x.blocked_id)||{};return '<div class="bc-blocked-row"><div class="bc-avatar">'+esc((p.name||"Member").split(" ").map(v=>v[0]).join("").slice(0,2).toUpperCase())+'</div><div class="bc-blocked-main"><strong>'+esc(p.name||"Banjara Member")+'</strong><small>'+esc([p.city,p.state].filter(Boolean).join(" • ")||"Banjara Connect member")+'</small></div><button class="bc-action" data-unblock-user="'+x.blocked_id+'">Unblock</button></div>';}).join("");
+}
 function bcSettingsPanel(index){
  const titles=["Profile","Notifications","Appearance","Language","Privacy","Security","Blocked accounts","Sessions","Help & About","Account"];
  const title=titles[index]||"Settings";
@@ -212,11 +225,13 @@ function bcSettingsPanel(index){
  if(index===3) body='<div class="bc-card"><p>Select your preferred app language.</p><div class="bc-choice-row"><button class="bc-action" data-lang-choice="English">English</button><button class="bc-action" data-lang-choice="Hindi">हिन्दी</button><button class="bc-action" data-lang-choice="Gor Boli">Gor Boli</button></div></div>';
  if(index===4) body='<div class="bc-card"><label class="bc-setting-toggle"><span><strong>Profile visibility</strong><small>Allow other members to discover your profile</small></span><input type="checkbox" data-pref="profile_visibility" checked></label><label class="bc-setting-toggle"><span><strong>Connection visibility</strong><small>Show your connection status to others</small></span><input type="checkbox" data-pref="connection_visibility" checked></label><button class="bc-action primary" data-save-prefs>Save privacy</button></div>';
  if(index===5) body='<div class="bc-card"><strong>Account security</strong><p>Your account uses a mobile number and 6-digit password. Keep your password private.</p><button class="bc-action" data-demo="Password change will be connected to secure recovery">Change password</button></div>';
- if(index===6) body='<div class="bc-card"><strong>No blocked accounts</strong><p>People you block will appear here. Blocking controls will be available from profiles and chats.</p></div>';
+ if(index===6) body='<div class="bc-card" id="bcBlockedAccountsPanel"><div class="bc-empty"><i class="fas fa-spinner fa-spin"></i><strong>Loading blocked accounts...</strong></div></div>';
  if(index===7) body='<div class="bc-card"><strong>Current session</strong><p>This device is currently signed in. A new login on the same mobile number can replace older sessions.</p><button class="bc-action" data-logout>Log out this device</button></div>';
  if(index===8) body='<div class="bc-card"><strong>Banjara Connect Help</strong><p>For account, chat, community or safety issues, use the in-app controls or contact the app administrator.</p><p><small>Version 1.0 • Banjara Connect</small></p></div>';
  if(index===9) body='<div class="bc-card"><strong>Account</strong><p>Your Banjara Connect account is linked to your mobile number.</p><button class="bc-action" data-logout>Log out</button></div>';
  modal(title,body);
+ if(index===6) void bcLoadBlockedAccounts();
+
 }
 function bcSavePref(key,value){try{localStorage.setItem("bc_pref_"+key,String(value));}catch(e){}}
 function bcLoadPref(key,fallback){try{const v=localStorage.getItem("bc_pref_"+key);return v===null?fallback:v==="true"?true:v==="false"?false:v;}catch(e){return fallback;}}
