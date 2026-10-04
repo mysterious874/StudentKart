@@ -13874,73 +13874,81 @@ async function loadGlobalDiscoveryHomepage(){
     const grid=$("worldNewsGrid");
     if(!grid) return;
 
-    // Never block the first paint on GPS/reverse-geocoding.
-    // Use the saved profile location immediately; browser location can refresh
-    // the next feed load without making users stare at a spinner.
-    const profile=typeof getSavedProfile==="function" ? (getSavedProfile()||{}) : {};
-    let area=String(profile.area||"").trim();
-    let city=String(profile.city||"").trim();
-    let state=String(profile.state||"").trim();
     const locationPromise=resolveNewsLocation();
+    const area="";
+    const city="";
+    const state="";
+    const city=location.city;
+    const state=location.state;
+
+    // Hyperlocal-first: the most specific saved place is always searched first.
+    // We do not pretend to know exact GPS distance; this is based on the user's
+    // saved area/city/state hierarchy.
+    const localLabel=area || city || state || "your area";
+    const locationTerms=[area,city,state].filter(Boolean);
 
     const cleanPart=value=>String(value||"").replace(/["\\]/g,"").trim();
-    const localLabel=area||city||state||"your area";
+    const localQueries=locationTerms.length
+        ? [
+            '"' + cleanPart(area||city) + '"',
+            area && city ? '"' + cleanPart(area) + '" "' + cleanPart(city) + '"' : '',
+            area && state ? '"' + cleanPart(area) + '" "' + cleanPart(state) + '"' : '',
+            city ? '"' + cleanPart(city) + '" local news' : '',
+            city ? '"' + cleanPart(city) + '" latest news' : '',
+            area ? '"' + cleanPart(area) + '" latest news' : ''
+          ].filter(Boolean)
+        : [];
 
-    const makeLocalQueries=()=>{
-        const queries=[
-            area ? '"'+cleanPart(area)+'"' : "",
-            area&&city ? '"'+cleanPart(area)+'" "'+cleanPart(city)+'"' : "",
-            area&&state ? '"'+cleanPart(area)+'" "'+cleanPart(state)+'"' : "",
-            city ? '"'+cleanPart(city)+'" local news' : "",
-            city ? '"'+cleanPart(city)+'" latest news' : "",
-            area ? '"'+cleanPart(area)+'" latest news' : ""
-        ].filter(Boolean);
-
-        const localName=(area+" "+city).toLowerCase();
-        if(localName.includes("titwala")){
-            queries.push(
-                '"Titwala" "Kalyan"',
-                '"Titwala" "Thane"',
-                '"Titwala" "Kalyan-Dombivli"',
-                '"Titwala" railway',
-                '"Titwala" civic',
-                '"Titwala" Maharashtra'
-            );
-        }
-        return queries;
-    };
+    // Titwala sits in the Kalyan-Titwala/Thane news belt. When the user's
+    // saved area is Titwala, add the immediate local corridor without allowing
+    // it to outrank Titwala itself.
+    const localName=(area+" "+city).toLowerCase();
+    if(localName.includes("titwala")){
+        localQueries.push(
+            '"Titwala" "Kalyan"',
+            '"Titwala" "Thane"',
+            '"Titwala" "Kalyan-Dombivli"',
+            '"Titwala" railway',
+            '"Titwala" civic',
+            '"Titwala" Maharashtra'
+        );
+    }
 
     const scopes=[
         {
             key:"local",
-            label:localLabel+" • Nearby",
+            label:localLabel + " • Nearby",
             icon:"fa-location-dot",
-            queries:makeLocalQueries(),
+            queries:localQueries,
             emptyText:"Add your city or area in Profile to see nearby news first."
         },
         {
             key:"nearby",
-            label:city ? city+" & Nearby" : "Nearby",
+            label:city ? city + " & Nearby" : "Nearby",
             icon:"fa-map-location-dot",
-            queries:city ? [
-                '"'+cleanPart(city)+'" local news',
-                '"'+cleanPart(city)+'" latest news',
-                '"'+cleanPart(city)+'" civic',
-                '"'+cleanPart(city)+'" traffic',
-                '"'+cleanPart(city)+'" railway',
-                '"'+cleanPart(city)+'" Maharashtra'
-            ] : [],
+            queries:city
+                ? [
+                    '"' + cleanPart(city) + '" local news',
+                    '"' + cleanPart(city) + '" latest news',
+                    '"' + cleanPart(city) + '" civic',
+                    '"' + cleanPart(city) + '" traffic',
+                    '"' + cleanPart(city) + '" railway',
+                    '"' + cleanPart(city) + '" Maharashtra'
+                  ]
+                : [],
             emptyText:""
         },
         {
             key:"state",
-            label:state ? state+" Regional" : "Maharashtra Regional",
+            label:state ? state + " Regional",
             icon:"fa-map",
-            queries:state ? [
-                '"'+cleanPart(state)+'" latest news',
-                '"'+cleanPart(state)+'" local news',
-                '"'+cleanPart(state)+'" regional news'
-            ] : ["Maharashtra latest news","Maharashtra regional news"],
+            queries:state
+                ? [
+                    '"' + cleanPart(state) + '" latest news',
+                    '"' + cleanPart(state) + '" local news',
+                    '"' + cleanPart(state) + '" regional news'
+                  ]
+                : ["Maharashtra latest news","Maharashtra regional news"],
             emptyText:""
         },
         {
@@ -13954,7 +13962,13 @@ async function loadGlobalDiscoveryHomepage(){
             key:"world",
             label:"World",
             icon:"fa-earth-americas",
-            queries:["world latest news","international latest news","technology science AI space","business economy markets","sports entertainment culture"],
+            queries:[
+                "world latest news",
+                "international latest news",
+                "technology science AI space",
+                "business economy markets",
+                "sports entertainment culture"
+            ],
             emptyText:""
         }
     ];
@@ -14183,8 +14197,50 @@ async function loadGlobalDiscoveryHomepage(){
     },{root:null,rootMargin:"1200px 0px",threshold:0});
 
     try{
-        const locationPartsFast=[area,city,state].filter(Boolean);
-        const cacheKey="globedisc_news_cache_v3_"+[area,city,state].join("|").toLowerCase();
+        // Resolve location with a short race, then paint immediately.
+        // If permission/reverse-geocoding is slow, the saved profile location
+        // remains the fallback rather than blocking the news UI.
+        const resolvedLocation=await Promise.race([
+            locationPromise,
+            new Promise(resolve=>setTimeout(()=>resolve({
+                area:String(getSavedProfile?.()?.area||"").trim(),
+                city:String(getSavedProfile?.()?.city||"").trim(),
+                state:String(getSavedProfile?.()?.state||"").trim()
+            }),1800))
+        ]);
+
+        const resolvedArea=String(resolvedLocation?.area||"").trim();
+        const resolvedCity=String(resolvedLocation?.city||"").trim();
+        const resolvedState=String(resolvedLocation?.state||"").trim();
+
+        // Rebuild the scope queries from the fast location result.
+        const localLabelFast=resolvedArea||resolvedCity||resolvedState||"your area";
+        const locationPartsFast=[resolvedArea,resolvedCity,resolvedState].filter(Boolean);
+        scopes[0].label=localLabelFast+" • Nearby";
+        scopes[0].queries=[
+            resolvedArea ? '"'+cleanPart(resolvedArea)+'"' : "",
+            resolvedArea&&resolvedCity ? '"'+cleanPart(resolvedArea)+'" "'+cleanPart(resolvedCity)+'"' : "",
+            resolvedCity ? '"'+cleanPart(resolvedCity)+'" local news' : ""
+        ].filter(Boolean);
+
+        scopes[1].label=resolvedCity ? resolvedCity+" & Nearby" : "Nearby";
+        scopes[1].queries=resolvedCity ? [
+            '"'+cleanPart(resolvedCity)+'" latest news',
+            '"'+cleanPart(resolvedCity)+'" local news',
+            '"'+cleanPart(resolvedCity)+'" civic',
+            '"'+cleanPart(resolvedCity)+'" traffic',
+            '"'+cleanPart(resolvedCity)+'" railway',
+            '"'+cleanPart(resolvedCity)+'" Maharashtra'
+        ] : [];
+
+        scopes[2].label=resolvedState ? resolvedState+" Regional" : "Maharashtra Regional";
+        scopes[2].queries=resolvedState ? [
+            '"'+cleanPart(resolvedState)+'" latest news',
+            '"'+cleanPart(resolvedState)+'" local news',
+            '"'+cleanPart(resolvedState)+'" regional news'
+        ] : ["Maharashtra latest news","Maharashtra regional news"];
+
+        const cacheKey="globedisc_news_cache_v2_"+[resolvedArea,resolvedCity,resolvedState].join("|").toLowerCase();
         let cached=[];
         try{
             cached=JSON.parse(localStorage.getItem(cacheKey)||"[]");
@@ -14201,28 +14257,11 @@ async function loadGlobalDiscoveryHomepage(){
             activeScopeIndex=1;
             setTimeout(()=>loadNextScope(),0);
         }else{
+            grid.innerHTML='<div class="world-news-loading"><i class="fas fa-spinner fa-spin"></i><h3>'+escapeHTML(startText)+'</h3><p>Getting the first nearby stories…</p></div>';
             if(!locationPartsFast.length) activeScopeIndex=1;
-            // Do not wait for a location/network placeholder before starting.
-            // The first news request is the only thing that determines when
-            // live cards appear.
             grid.innerHTML="";
-            loadNextScope();
+            await loadNextScope();
         }
-
-        // Browser location is allowed to resolve in the background. If it
-        // differs from the saved profile, remember it for the next refresh.
-        locationPromise.then(resolved=>{
-            const nextArea=String(resolved?.area||"").trim();
-            const nextCity=String(resolved?.city||"").trim();
-            const nextState=String(resolved?.state||"").trim();
-            if(nextArea||nextCity||nextState){
-                try{
-                    localStorage.setItem("globedisc_last_news_location",JSON.stringify({
-                        area:nextArea,city:nextCity,state:nextState,updatedAt:Date.now()
-                    }));
-                }catch(_){}
-            }
-        }).catch(()=>{});
 
         // Keep a small instant-start cache for the next visit.
         const firstScopeItems=scopeQueues.get("local")||[];
