@@ -19446,49 +19446,50 @@ html body.studentkart-search-results-active .mobile-bottom-nav{
 }
 
 
-/* GlobeDisc home background — subtle logo box pattern */
-#home, .home-section, body {
-  --gd-box-pattern: linear-gradient(135deg, rgba(15,139,141,.055) 0 2px, transparent 2px 100%);
+/* GlobeDisc home background — visible logo box pattern */
+#home{
+  position:relative !important;
+  overflow:hidden !important;
+  isolation:isolate !important;
+  background:#f8fcfe !important;
 }
-#home {
-  position:relative;
-  overflow:hidden;
-  isolation:isolate;
-  background-color:#f8fcfe!important;
-}
-#home::before {
+#home::before{
   content:"";
-  position:absolute;
-  inset:-90px;
-  z-index:-1;
-  pointer-events:none;
-  opacity:.72;
+  position:absolute !important;
+  inset:0 !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+  opacity:1 !important;
   background-image:
-    linear-gradient(90deg, transparent 0 27px, rgba(15,139,141,.055) 27px 29px, transparent 29px 100%),
-    linear-gradient(0deg, transparent 0 27px, rgba(15,139,141,.045) 27px 29px, transparent 29px 100%);
-  background-size:58px 58px;
-  transform:rotate(-2deg) scale(1.04);
-  mask-image:linear-gradient(to bottom,transparent 0,#000 18%,#000 82%,transparent 100%);
-  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18%,#000 82%,transparent 100%);
+    linear-gradient(90deg,transparent 0 27px,rgba(15,139,141,.075) 27px 29px,transparent 29px 100%),
+    linear-gradient(0deg,transparent 0 27px,rgba(15,139,141,.065) 27px 29px,transparent 29px 100%) !important;
+  background-size:58px 58px !important;
+  transform:none !important;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.15),#000 12%,#000 88%,rgba(0,0,0,.15)) !important;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.15),#000 12%,#000 88%,rgba(0,0,0,.15)) !important;
 }
-#home::after {
+#home::after{
   content:"";
-  position:absolute;
-  width:430px;height:430px;
-  right:-170px;top:20px;
-  z-index:-1;
-  pointer-events:none;
-  border-radius:42px;
-  opacity:.32;
-  background:
-    linear-gradient(90deg,rgba(15,139,141,.08) 2px,transparent 2px),
-    linear-gradient(rgba(15,139,141,.08) 2px,transparent 2px);
-  background-size:54px 54px;
-  transform:rotate(12deg);
-  box-shadow:-260px 250px 0 -95px rgba(15,139,141,.045), -520px 40px 0 -150px rgba(15,139,141,.04);
+  position:absolute !important;
+  width:420px !important;
+  height:420px !important;
+  right:-160px !important;
+  top:15px !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+  opacity:.5 !important;
+  border-radius:0 !important;
+  background-image:
+    linear-gradient(90deg,rgba(15,139,141,.07) 2px,transparent 2px),
+    linear-gradient(rgba(15,139,141,.07) 2px,transparent 2px) !important;
+  background-size:54px 54px !important;
+  transform:rotate(8deg) !important;
 }
-#home > * { position:relative; z-index:1; }
+#home > *{
+  position:relative !important;
+  z-index:1 !important;
+}
 @media(max-width:600px){
-  #home::before{background-size:48px 48px;opacity:.58}
-  #home::after{width:300px;height:300px;right:-150px;top:35px;background-size:46px 46px}
+  #home::before{background-size:48px 48px !important;}
+  #home::after{width:300px !important;height:300px !important;right:-135px !important;background-size:46px 46px !important;}
 }
