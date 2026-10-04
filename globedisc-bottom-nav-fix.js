@@ -18,24 +18,11 @@
       event.stopImmediatePropagation();
 
       const id = item.id;
-
-      if (id === "bottomMoreButton") { if (typeof window.openGlobeDiscMore === "function") window.openGlobeDiscMore(); return; }
-
-      if (id === "bottomMarketplaceButton") {
-        window.location.href = "/marketplace.html";
+      if (id === "bottomSettingsButton") {
+        if (typeof window.openModal === "function" && document.getElementById("settingsModal")) window.openModal("settingsModal");
         return;
       }
 
-      if (id === "bottomWishlistButton") {
-        if (typeof window.openWishlist === "function") {
-          window.openWishlist();
-        } else if (typeof window.openModal === "function" && document.getElementById("wishlistModal")) {
-          window.openModal("wishlistModal");
-        } else {
-          window.location.hash = "wishlist";
-        }
-        return;
-      }
       if (id === "bottomProfileButton") {
         if (typeof window.openProfile === "function") {
           window.openProfile();
