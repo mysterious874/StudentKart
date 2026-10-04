@@ -13850,14 +13850,34 @@ document.addEventListener("DOMContentLoaded", () => {
 /* =========================================================
    GLOBAL DISCOVERY HOMEPAGE
    ========================================================= */
+async function resolveNewsLocation(){
+    const profile=typeof getSavedProfile==="function" ? getSavedProfile() : null;
+    const saved={area:String(profile?.area||"").trim(),city:String(profile?.city||"").trim(),state:String(profile?.state||"").trim()};
+    if(!navigator.geolocation) return saved;
+    try{
+        const position=await new Promise(function(resolve,reject){
+            navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:false,maximumAge:600000,timeout:5000});
+        });
+        const lat=Number(position.coords.latitude);
+        const lon=Number(position.coords.longitude);
+        if(!Number.isFinite(lat)||!Number.isFinite(lon)) return saved;
+        const reverseUrl="https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat="+encodeURIComponent(lat)+"&lon="+encodeURIComponent(lon)+"&zoom=10&addressdetails=1";
+        const response=await fetchWithTimeout(reverseUrl,{headers:{"Accept":"application/json","Accept-Language":"en-IN"}},6000);
+        if(!response.ok) return saved;
+        const address=(await response.json()).address||{};
+        return {area:String(address.suburb||address.neighbourhood||address.town||address.village||saved.area).trim(),city:String(address.city||address.town||address.municipality||address.county||saved.city).trim(),state:String(address.state||saved.state).trim()};
+    }catch(error){
+        return saved;
+    }
+}
 async function loadGlobalDiscoveryHomepage(){
     const grid=$("worldNewsGrid");
     if(!grid) return;
 
-    const profile=typeof getSavedProfile==="function" ? getSavedProfile() : null;
-    const area=String(profile?.area||"").trim();
-    const city=String(profile?.city||"").trim();
-    const state=String(profile?.state||"").trim();
+    const location=await resolveNewsLocation();
+    const area=location.area;
+    const city=location.city;
+    const state=location.state;
 
     // Hyperlocal-first: the most specific saved place is always searched first.
     // We do not pretend to know exact GPS distance; this is based on the user's
