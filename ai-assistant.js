@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  $("aiAssistantBack")?.addEventListener("click",closeAI);
  $("aiAssistantNewChat")?.addEventListener("click",()=>{
   history=[];const box=$("aiAssistantMessages");
-  if(box)box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon">✦</div><h1>What can I help you with?</h1><p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p></div>';
+  if(box)box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc"></div><h1>What can I help you with?</h1><p>Ask anything. GlobeDisc AI will bring together answers and useful sources.</p></div>';
   $("aiAssistantInput")?.focus();
  });
  $("aiAssistantForm")?.addEventListener("submit",e=>{e.preventDefault();ask($("aiAssistantInput")?.value);});
