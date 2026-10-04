@@ -73,7 +73,7 @@
 
         const modal=ensureModal();
         modal._product=product;
-        modal.querySelector("#reportListingInfo").innerHTML=`<strong>${esc(product.name)}</strong><br><span>Listed by ${esc(product.seller||"Student")} · ${esc(product.location||"Campus")}</span>`;
+        modal.querySelector("#reportListingInfo").innerHTML=`<strong>${esc(product.name)}</strong><br><span>Listed by ${esc(product.seller||"Student")} · ${esc(product.location||"Community")}</span>`;
         modal.querySelector("#reportListingForm").reset();
         modal.classList.remove("hidden");
     }
