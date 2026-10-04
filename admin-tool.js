@@ -83,105 +83,21 @@
             return Number(result.count || 0);
         };
         try {
-            const [users, listings, reports] = await Promise.all([
+            const [users, reports] = await Promise.all([
                 count("profiles"),
-                count("products"),
                 count("reports", q => q.eq("status","pending")),
             ]);
             modal.querySelector("#adminStatUsers").textContent = users;
-            modal.querySelector("#adminStatListings").textContent = listings;
             modal.querySelector("#adminStatReports").textContent = reports;
         } catch (error) {
             console.warn("Admin live stats:", error);
-            ["adminStatUsers","adminStatListings","adminStatReports"].forEach(id=>{
+            ["adminStatUsers","adminStatReports"].forEach(id=>{
                 const el=modal.querySelector("#"+id);
                 if(el) el.textContent="—";
             });
         } finally {
             stats.classList.remove("sk-admin-stats-loading");
         }
-    }
-
-    function openAddProduct() {
-        const modalId = "adminAddProductModal";
-        let modal = document.getElementById(modalId);
-        if (!modal) {
-            modal = document.createElement("div");
-            modal.id = modalId;
-            modal.className = "modal sk-admin-product-modal hidden";
-            modal.innerHTML = `
-                <div class="modal-overlay" data-close-add-product></div>
-                <div class="modal-content">
-                    <div class="settings-page-header">
-                        <div class="settings-title-wrap">
-                            <div class="settings-icon"><i class="fas fa-box-open"></i></div>
-                            <div>
-                                <span class="section-label">NEW PRODUCTS</span>
-                                <h2>Add New Product</h2>
-                                <p>Add a new, non-used product to the GlobeDisc marketplace.</p>
-                            </div>
-                        </div>
-                        <button type="button" class="modal-close" data-close-add-product aria-label="Close">&times;</button>
-                    </div>
-                    <form class="sk-admin-product-form" id="adminAddProductForm">
-                        <div class="row">
-                            <label>Product name<input name="name" required maxlength="180" placeholder="e.g. HP 15 Laptop"></label>
-                            <label>Category
-                                <select name="category" required>
-                                    <option value="electronics">Electronics</option>
-                                    <option value="books">Books</option>
-                                    <option value="fashion">Fashion</option>
-                                    <option value="home">Home</option>
-                                    <option value="gaming">Gaming</option>
-                                </select>
-                            </label>
-                        </div>
-                        <div class="row">
-                            <label>Price (₹)<input name="price" type="number" min="0" step="1" required placeholder="42999"></label>
-                            <label>Store / Source<input name="source" required maxlength="80" placeholder="Amazon, Flipkart, HP, etc."></label>
-                        </div>
-                        <label>Product image URL<input name="image" type="url" maxlength="1000" placeholder="https://..."></label>
-                        <label>Product URL<input name="url" type="url" maxlength="1000" required placeholder="https://..."></label>
-                        <div class="sk-admin-product-message" id="adminAddProductMessage"></div>
-                        <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-plus"></i> Add Product</button>
-                    </form>
-                </div>`;
-            document.body.appendChild(modal);
-            const close=()=>modal.classList.add("hidden");
-            modal.querySelectorAll("[data-close-add-product]").forEach(el=>el.addEventListener("click",close));
-            modal.querySelector("#adminAddProductForm")?.addEventListener("submit", async (event)=>{
-                event.preventDefault();
-                const form=event.currentTarget;
-                const message=modal.querySelector("#adminAddProductMessage");
-                const button=form.querySelector("button[type=submit]");
-                const values=Object.fromEntries(new FormData(form).entries());
-                const payload={
-                    name:String(values.name||"").trim(),
-                    category:String(values.category||"electronics"),
-                    price:Number(values.price||0),
-                    source:String(values.source||"").trim(),
-                    image:String(values.image||"").trim()||null,
-                    url:String(values.url||"").trim()
-                };
-                message.className="sk-admin-product-message";
-                message.textContent="Saving product…";
-                message.style.display="block";
-                button.disabled=true;
-                try{
-                    if(typeof supabaseClient==="undefined") throw new Error("Supabase is not available.");
-                    const {error}=await supabaseClient.from("new_products").insert(payload);
-                    if(error) throw error;
-                    message.textContent="Product added successfully.";
-                    form.reset();
-                    setTimeout(close,700);
-                }catch(error){
-                    console.warn("Add new product:",error);
-                    message.className="sk-admin-product-message error";
-                    message.textContent=(error?.message||"Could not add product.")+" Run the new_products SQL migration if the table does not exist.";
-                }finally{button.disabled=false;}
-            });
-        }
-        modal.classList.remove("hidden");
     }
 
     function openDashboard() {
@@ -213,15 +129,10 @@
 
                         <div class="sk-admin-live-stats sk-admin-stats-loading" id="adminLiveStats">
                             <div class="sk-admin-live-stat"><strong id="adminStatUsers">—</strong><span>Users</span></div>
-                            <div class="sk-admin-live-stat"><strong id="adminStatListings">—</strong><span>Listings</span></div>
                             <div class="sk-admin-live-stat pending"><strong id="adminStatReports">—</strong><span>Pending Reports</span></div>
                             </div>
                         <div class="sk-admin-dashboard-grid">
                             <button type="button" class="sk-admin-dashboard-card" id="adminUsersTool"><i class="fas fa-users"></i><strong>Users</strong><span>View registered GlobeDisc profiles.</span></button>
-                            <button type="button" class="sk-admin-dashboard-card" id="adminListingsTool"><i class="fas fa-box-open"></i><strong>Listings</strong><span>Review marketplace listings.</span></button>
-                            <button type="button" class="sk-admin-dashboard-card" id="adminAddProductTool">
-                                <i class="fas fa-circle-plus"></i><strong>Add New Product</strong><span>Add a new product to the GlobeDisc New Products marketplace.</span>
-                            </button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminReportsTool"><i class="fas fa-flag"></i><strong>Reports</strong><span>Review and moderate reports.</span></button>
                         </div>
                         <button type="button" class="btn btn-outline btn-full" id="adminCloseDashboard"><i class="fas fa-arrow-left"></i> Back</button>
@@ -236,9 +147,7 @@
             };
             modal.querySelectorAll("[data-close-admin-tool]").forEach(el => el.addEventListener("click", close));
             modal.querySelector("#adminCloseDashboard")?.addEventListener("click", backToSettings);
-            modal.querySelector("#adminAddProductTool")?.addEventListener("click", () => {
-                openAddProduct();
-            });
+
             modal.querySelector("#adminReportsTool")?.addEventListener("click", async () => {
                 const open = async () => {
                     if (window.GlobeDiscAdminReports?.openReports) await window.GlobeDiscAdminReports.openReports();
@@ -269,7 +178,7 @@
         section.className = "settings-group sk-admin-settings-card";
         section.innerHTML = `
             <button class="settings-section-button" type="button" id="settingsAdminToolButton">
-                <span><i class="fas fa-shield-halved"></i><b>Admin Tool <span class="sk-admin-settings-badge">Admin</span></b><small>Manage platform moderation</small></span>
+                <span><i class="fas fa-shield-halved"></i><b>Admin Tool <span class="sk-admin-settings-badge">Admin</span></b><small>Manage platform reports</small></span>
                 <i class="fas fa-chevron-right"></i>
             </button>`;
         grid.appendChild(section);
