@@ -10,6 +10,12 @@ function addMessage(role,text){
  $("aiAssistantWelcome")?.classList.add("hidden");
  const item=document.createElement("div");
  item.className="ai-assistant-message "+(role==="user"?"is-user":"is-ai");
+ if(role!=="user"){
+  const avatar=document.createElement("span");
+  avatar.className="ai-assistant-message-avatar";
+  avatar.innerHTML='<img src="/icons/globedisc-icon-v2.svg" alt="GlobeDisc AI">';
+  item.appendChild(avatar);
+ }
  const bubble=document.createElement("div"); bubble.className="ai-assistant-message-bubble"; bubble.textContent=String(text||"");
  item.appendChild(bubble); box.appendChild(item); box.scrollTop=box.scrollHeight; return item;
 }
