@@ -19006,3 +19006,31 @@ body.marketplace-page-active .new-product-card img{
 #inquiriesModal .chat-search-result-number{margin-top:2px;font-size:12px;color:#71858a}
 #inquiriesModal .chat-search-result-location{margin-top:2px;font-size:11px;color:#93a2a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #inquiriesModal .chat-search-state{padding:16px 12px;text-align:center;font-size:12px;color:#7c8e92}
+
+
+/* =========================================================
+   GLOBEDISC NEWS — NEARBY FIRST / PROGRESSIVE DISCOVERY
+   ========================================================= */
+.world-news-scope{display:grid;gap:16px;margin-top:6px}
+.world-news-scope-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:4px 2px}
+.world-news-scope-heading>div:first-child{display:flex;align-items:center;gap:11px;min-width:0}
+.world-news-scope-icon{width:42px;height:42px;flex:0 0 42px;border-radius:13px;display:grid;place-items:center;background:#e8f5f3;color:#0f8b8d;font-size:17px}
+.world-news-scope-heading strong{display:block;font-size:19px;line-height:1.2}
+.world-news-scope-heading small{display:block;margin-top:3px;color:#64748b;font-size:12px}
+.world-news-scope-count{flex:0 0 auto;color:#64748b;font-size:12px;font-weight:700;background:#f4f7f7;border:1px solid #e3ebeb;border-radius:999px;padding:7px 10px}
+.world-news-location-note{display:flex;align-items:center;gap:13px;padding:16px 18px;border:1px solid #dce9e8;border-radius:16px;background:#f6fbfa;color:#315c5b}
+.world-news-location-note>i{font-size:20px;color:#0f8b8d}
+.world-news-location-note div{display:flex;flex-direction:column;gap:3px}
+.world-news-location-note strong{font-size:14px}
+.world-news-location-note span{font-size:12px;color:#64748b}
+.world-news-more-loader{min-height:82px;display:flex;align-items:center;justify-content:center;gap:10px;color:#64748b}
+.world-news-more-loader i{color:#0f8b8d}
+.world-news-load-more-sentinel{height:2px;width:100%}
+@media(max-width:600px){
+ .world-news-scope-heading{align-items:flex-start}
+ .world-news-scope-icon{width:38px;height:38px;flex-basis:38px}
+ .world-news-scope-heading strong{font-size:17px}
+ .world-news-scope-heading small{font-size:11px}
+ .world-news-scope-count{font-size:10px;padding:6px 8px}
+ .world-news-location-note{padding:14px}
+}
