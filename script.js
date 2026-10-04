@@ -3614,109 +3614,71 @@ async function searchStudentKartUsers(query) {
     const box = $("chatUserSearchResults");
     if (!box) return;
 
-    const q = String(query || "").trim().toLowerCase();
+    const q = String(query || "").trim();
     window.clearTimeout(studentKartUserSearchTimer);
-
-    if (!q) {
-        box.classList.remove("hidden");
-    }
-
     const requestId = ++studentKartUserSearchRequest;
 
     studentKartUserSearchTimer = window.setTimeout(async () => {
         box.classList.remove("hidden");
         box.innerHTML =
-            '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding numbers...</span></div>';
+            '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding mobile users...</span></div>';
 
         try {
-            // Load the public profile directory in pages so suggestions are not
-            // limited to an arbitrary 10/20/1000-user cap.
             const { data: profiles, error } = await supabaseClient
                 .rpc("search_chat_users", { search_query: q });
 
             if (error) throw error;
-
             if (requestId !== studentKartUserSearchRequest) return;
 
             const normalizeDigits = value => String(value || "").replace(/[^0-9]/g, "");
             const searchDigits = normalizeDigits(q);
-            const searchLast10 = searchDigits.length > 10
-                ? searchDigits.slice(-10)
-                : searchDigits;
 
-            const matches = profiles.filter(user => {
-                const name = String(user.name || "").toLowerCase();
-                const username = String(user.username || "").toLowerCase();
-                const phone = String(user.phone || "");
-                const phoneDigits = normalizeDigits(phone);
-                const phoneLast10 = phoneDigits.length > 10
-                    ? phoneDigits.slice(-10)
-                    : phoneDigits;
+            const matches = (profiles || []).filter(user => {
+                const phoneDigits = normalizeDigits(user.phone);
+                if (!phoneDigits) return false;
+                if (!searchDigits) return true;
 
-                return (
-                    name.includes(q) ||
-                    username.includes(q) ||
-                    phone.toLowerCase().includes(q) ||
-                    (searchDigits.length >= 3 && (
-                        phoneDigits.includes(searchDigits) ||
-                        phoneLast10.includes(searchLast10)
-                    ))
-                );
+                const last10 = phoneDigits.slice(-10);
+                const queryLast10 = searchDigits.slice(-10);
+                return phoneDigits.includes(searchDigits) ||
+                    (queryLast10.length >= 3 && last10.includes(queryLast10));
             });
 
-            // Always keep the currently logged-in number available in the
-            // suggestion popup, even when the typed query does not match it.
-            const ownProfile =
-                profiles.find(x => String(x.id) === String(currentUser.id)) || null;
-
-            const ordered = [];
-            if (ownProfile && ownProfile.phone) ordered.push(ownProfile);
-
-            matches.forEach(user => {
-                if (!ordered.some(x => String(x.id) === String(user.id))) {
-                    ordered.push(user);
-                }
-            });
-
-            if (!ordered.length) {
+            if (!matches.length) {
+                box.classList.remove("has-more-results");
                 box.innerHTML =
-                    '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No number found</strong><span>Try a name, username or mobile number.</span></div>';
+                    '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No mobile user found</strong><span>Enter a full or partial mobile number.</span></div>';
                 return;
             }
 
             const numberText = user => {
                 const digits = normalizeDigits(user.phone);
-                if (!digits) return "Mobile not added";
-                return digits.length === 10
-                    ? "+91 " + digits
-                    : "+" + digits;
+                return digits.length === 10 ? "+91 " + digits : "+" + digits;
             };
 
-            box.classList.toggle("has-more-results", ordered.length > 10);
-
+            box.classList.toggle("has-more-results", matches.length > 10);
             box.innerHTML =
-                '<div class="chat-user-search-title"><span>CHAT SUGGESTIONS</span><small>' +
-                ordered.length + (ordered.length === 1 ? " number" : " numbers") +
+                '<div class="chat-user-search-title"><span>MOBILE USERS</span><small>' +
+                matches.length + (matches.length === 1 ? " user" : " users") +
                 '</small></div>' +
                 '<div class="chat-user-search-list">' +
-                ordered.map(user => {
+                matches.map(user => {
                     const isMe = String(user.id) === String(currentUser.id);
                     const displayName = user.name || user.username || "Student";
-                    const phone = numberText(user);
                     const avatar = user.avatar_url
                         ? '<img src="' + escapeHTML(user.avatar_url) + '" alt="">'
                         : '<span>' + escapeHTML(getInitials(displayName)) + '</span>';
 
                     return (
-                        '<button type="button" class="chat-user-search-card" ' +
-                        'data-user-search-id="' + escapeHTML(user.id) + '">' +
-                            '<span class="chat-user-search-avatar">' + avatar + '</span>' +
-                            '<span class="chat-user-search-main">' +
-                                '<strong>' + escapeHTML(isMe ? "You" : displayName) + '</strong>' +
-                                '<small>' + escapeHTML(phone) +
-                                (isMe ? " • Your login number" : "") + '</small>' +
-                            '</span>' +
-                            '<i class="fas fa-chevron-right"></i>' +
+                        '<button type="button" class="chat-user-search-card" data-user-search-id="' +
+                        escapeHTML(user.id) + '">' +
+                        '<span class="chat-user-search-avatar">' + avatar + '</span>' +
+                        '<span class="chat-user-search-main">' +
+                        '<strong>' + escapeHTML(isMe ? "You" : displayName) + '</strong>' +
+                        '<small>' + escapeHTML(numberText(user)) +
+                        (isMe ? " • Your number" : "") + '</small>' +
+                        '</span>' +
+                        '<i class="fas fa-comment-dots"></i>' +
                         '</button>'
                     );
                 }).join("") +
@@ -3725,37 +3687,28 @@ async function searchStudentKartUsers(query) {
             box.querySelectorAll("[data-user-search-id]").forEach(card => {
                 card.addEventListener("click", async () => {
                     const targetId = card.dataset.userSearchId;
-
                     box.classList.add("hidden");
                     box.innerHTML = "";
 
                     const searchInput = $("chatListSearchInput");
                     const clearButton = $("chatListSearchClear");
-
                     if (searchInput) searchInput.value = "";
                     if (clearButton) clearButton.classList.add("hidden");
-
                     applyChatListFilter();
 
-                    // A user's own number cannot create a self-conversation.
-                    // Keep the chat page open when the pinned login number is tapped.
                     if (String(targetId) === String(currentUser.id)) return;
-
                     await openStudentKartUserChat(targetId);
                 });
             });
         } catch (error) {
             if (requestId !== studentKartUserSearchRequest) return;
-
-            console.error("Student number search error:", error);
+            console.error("Student mobile search error:", error);
             box.innerHTML =
                 '<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>' +
-                escapeHTML(error?.message || "Please try again.") +
-                '</span></div>';
+                escapeHTML(error?.message || "Please try again.") + '</span></div>';
         }
-    }, 180);
+    }, 140);
 }
-
 async function openStudentKartUserChat(userId) {
     if (!currentUser || !userId || String(userId) === String(currentUser.id)) return;
 
