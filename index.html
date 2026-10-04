@@ -101,7 +101,7 @@
         <a href="#home" class="bottom-nav-item">
             <i class="fas fa-house"></i><span>Home</span>
         </a>
-        <button type="button" class="bottom-nav-item" id="bottomMarketplaceButton" aria-label="Marketplace" title="Marketplace" onclick="window.location.href='marketplace.html'">
+        <button type="button" class="bottom-nav-item" id="bottomMarketplaceButton" aria-label="Marketplace" title="Marketplace">
             <i class="fas fa-store"></i><span>Marketplace</span>
         </button>
         <button type="button" class="bottom-nav-item bottom-chat-nav-item" onclick="document.getElementById('chatButton')?.click()">
@@ -111,16 +111,16 @@
             </span>
             <span>Chat</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomWishlistButton" aria-label="Wishlist" onclick="typeof openModal==='function' ? openModal('wishlistModal') : document.getElementById('wishlistModal')?.classList.remove('hidden')">
+        <button type="button" class="bottom-nav-item" id="bottomWishlistButton" aria-label="Wishlist">
             <i class="fa-solid fa-heart"></i><span>Wishlist</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomCampusButton" aria-label="Campus" onclick="typeof openModal==='function' ? openModal('campusModal') : document.getElementById('campusModal')?.classList.remove('hidden')">
+        <button type="button" class="bottom-nav-item" id="bottomCampusButton" aria-label="Campus">
             <i class="fas fa-building-columns"></i><span id="bottomCampusLabel">Campus</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomProfileButton" aria-label="Profile" onclick="typeof openModal==='function' ? openModal('profileModal') : document.getElementById('profileModal')?.classList.remove('hidden')">
+        <button type="button" class="bottom-nav-item" id="bottomProfileButton" aria-label="Profile">
             <i class="fas fa-user"></i><span>Profile</span>
         </button>
-        <button type="button" class="bottom-nav-item" id="bottomSettingsButton" aria-label="Settings" onclick="typeof openModal==='function' ? openModal('settingsModal') : document.getElementById('settingsModal')?.classList.remove('hidden')">
+        <button type="button" class="bottom-nav-item" id="bottomSettingsButton" aria-label="Settings">
             <i class="fas fa-gear"></i><span>Settings</span>
         </button>
     </nav>
@@ -918,7 +918,7 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js?v=20261004-audit-fix-1"></script>
+    <script src="script.js?v=20261004-audit-fix-2"></script>
     <script src="/push-notifications.js?v=20261002-push-1"></script>
     <script src="campus-gate.js?v=20261003-verification-1"></script>
     <script src="/admin-campus-verification.js?v=20261003-admin-2"></script>
