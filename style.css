@@ -18988,3 +18988,44 @@ body.marketplace-page-active .new-product-card img{
 .modal-content-narrow {
     max-width: 520px;
 }
+
+
+/* CHAT SEARCH VISIBILITY FIX — keep the Chats search bar rendered on desktop and mobile */
+#inquiriesModal:not(.hidden) .chat-list-header .chat-list-search{
+    display:flex !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    position:relative !important;
+    z-index:60 !important;
+    width:100% !important;
+    min-width:0 !important;
+    min-height:46px !important;
+    height:46px !important;
+    box-sizing:border-box !important;
+    flex:none !important;
+    overflow:visible !important;
+}
+#inquiriesModal:not(.hidden) .chat-list-header .chat-list-search input{
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    min-width:0 !important;
+    width:100% !important;
+    height:100% !important;
+    flex:1 1 auto !important;
+    color:#20373d !important;
+    -webkit-text-fill-color:#20373d !important;
+}
+#inquiriesModal:not(.hidden) .chat-list-header .chat-list-search > i{
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    flex:0 0 auto !important;
+}
+@media(max-width:560px){
+    #inquiriesModal:not(.hidden) .chat-list-header .chat-list-search{
+        min-height:44px !important;
+        height:44px !important;
+        margin-top:2px !important;
+    }
+}
