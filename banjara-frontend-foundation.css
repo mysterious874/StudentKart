@@ -9,3 +9,8 @@ body{min-height:100vh;margin:0;background:radial-gradient(circle at 8% 0%,rgba(2
 button,input,textarea,select{font:inherit}button{touch-action:manipulation}
 @media(min-width:701px){body{padding-bottom:110px}}
 @media(max-width:520px){:root{--bc-nav-height:70px}}
+
+.hidden{display:none!important}
+#aiAssistantPage.hidden{display:none!important}
+#aiAssistantPage:not(.hidden){display:flex!important}
+.banjara-splash{background:var(--bc-cream);color:var(--bc-text)}
