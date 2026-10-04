@@ -3679,17 +3679,6 @@ async function openStudentKartUserChat(userId) {
     }
 }
 
-async function openStudentKartUserProfile(id) {
-    if (!id) return; if (String(id)===String(currentUser?.id)) return openProfile();
-    const r=await supabaseClient.from("profiles").select("id,name,username,phone,email,college,avatar_url,city,area").eq("id",id).maybeSingle();
-    if(r.error||!r.data){showToast("Could not open student profile","error");return;}
-    ensureStudentSearchProfileUI(); const x=r.data;
-    $("studentSearchProfileAvatar").innerHTML=x.avatar_url?'<img src="'+escapeHTML(x.avatar_url)+'" alt="">':escapeHTML(getInitials(x.username||x.name)); $("studentSearchProfileName").textContent=x.name||"Student"; $("studentSearchProfileUsername").textContent=x.username?"@"+x.username:"Username not added"; $("studentSearchProfileCollege").textContent=x.college||"College not added"; $("studentSearchProfileContact").textContent=x.email||x.phone||"Contact not added"; $("studentSearchProfileLocation").textContent=[x.area,x.city].filter(Boolean).join(", ")||"Location not added"; openModal("studentSearchProfileModal");
-}
-function ensureStudentSearchProfileUI(){
-    if($("studentSearchProfileModal"))return; const m=document.createElement("div"); m.id="studentSearchProfileModal";m.className="modal hidden";m.innerHTML='<div class="modal-overlay" data-close-modal></div><div class="modal-content student-search-profile-modal"><button type="button" class="modal-close modal-back-button" data-close-modal aria-label="Back"><i class="fas fa-arrow-left"></i></button><div class="student-search-profile-head"><div id="studentSearchProfileAvatar" class="student-search-profile-avatar"></div><span class="section-label">STUDENTKART USER</span><h2 id="studentSearchProfileName">Student</h2><p id="studentSearchProfileUsername">@username</p></div><div class="student-search-profile-info"><div><i class="fas fa-graduation-cap"></i><span id="studentSearchProfileCollege">College not added</span></div><div><i class="fas fa-location-dot"></i><span id="studentSearchProfileLocation">Location not added</span></div><div><i class="fas fa-address-card"></i><span id="studentSearchProfileContact">Contact not added</span></div></div></div>';document.body.appendChild(m);
-}
-
 function applyChatListFilter() {
     const container = $("inquiriesContainer");
     if (!container) return;
