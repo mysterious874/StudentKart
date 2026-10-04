@@ -14724,21 +14724,32 @@ document.addEventListener("DOMContentLoaded",()=>{
 })();
 
 
+function setAiAssistantFloatingBarHidden(hidden){
+    const nav=document.querySelector(".mobile-bottom-nav");
+    if(!nav)return;
+    nav.classList.toggle("hidden",!!hidden);
+    nav.style.setProperty("display",hidden?"none":"", "important");
+    nav.style.setProperty("visibility",hidden?"hidden":"", "important");
+    nav.style.setProperty("pointer-events",hidden?"none":"", "important");
+}
 function showAiAssistantPage(){
     const home=document.getElementById("home");
     const news=document.getElementById("worldNewsSection");
     const ai=document.getElementById("aiAssistantPage");
     if(!ai)return;
     home?.classList.add("hidden"); news?.classList.add("hidden");
-    document.querySelectorAll("main > section").forEach(s=>{if(s!==ai)s.dataset.aiHidden=s.classList.contains("hidden")?"1":"0";});
+    setAiAssistantFloatingBarHidden(true);
     ai.classList.remove("hidden");
+    document.body.classList.add("ai-assistant-page-active");
     history.pushState({page:"ai-assistant"},"","#ask-with-ai");
-    document.getElementById("aiAssistantInput")?.focus();
+    requestAnimationFrame(()=>document.getElementById("aiAssistantInput")?.focus());
 }
 function hideAiAssistantPage(){
     document.getElementById("aiAssistantPage")?.classList.add("hidden");
     document.getElementById("home")?.classList.remove("hidden");
     document.getElementById("worldNewsSection")?.classList.remove("hidden");
+    document.body.classList.remove("ai-assistant-page-active");
+    setAiAssistantFloatingBarHidden(false);
 }
 function appendAiMessage(role,text){
     const box=document.getElementById("aiAssistantMessages"); if(!box)return;
