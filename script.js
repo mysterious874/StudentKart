@@ -5622,14 +5622,44 @@ async function loadMyListings() {
    SEARCH
    ========================================================= */
 
+function globeDiscRouteSearch(query) {
+    const q = String(query || "").trim();
+    const l = q.toLowerCase();
+    if (!q) return false;
+
+    const routes = [
+        {keys:["emi","loan emi","interest rate","gst","sip","percentage","currency converter"], url:"money-hub.html"},
+        {keys:["emergency","police emergency","ambulance","fire emergency","112"], url:"emergency-hub.html"},
+        {keys:["cybersecurity","cyber security","phishing","scam","online fraud","password safety"], url:"cybersecurity-hub.html"},
+        {keys:["career","career roadmap","internship","internships","jobs","job search","resume"], url:"career-hub.html"},
+        {keys:["travel","trip planner","flight","hotel","tourist","places to visit"], url:"travel.html"},
+        {keys:["study","student","exam","assignment","notes","homework"], url:"student-hub.html"},
+        {keys:["translate","translation","translator"], url:"translator.html"},
+        {keys:["grammar","proofread","correct my english"], url:"grammar-checker.html"},
+        {keys:["code","coding","programming","debug this"], url:"code-helper.html"},
+        {keys:["pdf","summarize pdf","pdf summary"], url:"pdf-summarizer.html"},
+        {keys:["image to text","ocr","extract text from image"], url:"image-to-text.html"},
+        {keys:["voice search","search by voice"], url:"voice-search.html"},
+        {keys:["lens","search with image","visual search"], url:"globedisc-lens.html"},
+        {keys:["ai chat","ask ai","ai assistant"], url:"index.html#aiAssistantPage"}
+    ];
+    for (const route of routes) {
+        if (route.keys.some(k => l === k || l.includes(k))) {
+            location.href = route.url;
+            return true;
+        }
+    }
+    return false;
+}
+
 function performSearch() {
     const heroSearch = $("heroSearchInput");
     const query = String(heroSearch?.value || "").trim();
     if (!query) return;
 
-    if (typeof showSearchResultsPage === "function") {
+    if (!globeDiscRouteSearch(query) && typeof showSearchResultsPage === "function") {
         showSearchResultsPage(query);
-    } else {
+    } else if (!globeDiscRouteSearch(query)) {
         const marketplaceSearch = $("marketplaceSearch");
         if (marketplaceSearch) marketplaceSearch.value = query;
         applyFilters();
