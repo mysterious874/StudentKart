@@ -31,16 +31,37 @@ Deno.serve(async (req) => {
     const { data: authData, error: authError } = await authClient.auth.getUser(token);
     if (authError || !authData.user) return json({ error: "Unauthorized" }, 401);
 
-    const body = await req.json();
-    const sessionId = String(body?.session_id || "").trim();
-    const phone = String(body?.phone || "").replace(/\D/g, "");
+    const rawBody = await req.text();
+    if (new TextEncoder().encode(rawBody).byteLength > 4_000) {
+      return json({ error: "Request too large." }, 413);
+    }
 
+    let body: any;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return json({ error: "Invalid request." }, 400);
+    }
+
+    const sessionId = String(body?.session_id || "").trim();
     if (!/^[A-Za-z0-9_-]{20,128}$/.test(sessionId)) {
       return json({ error: "Invalid session id." }, 400);
     }
 
-    const normalizedPhone = phone.length === 12 && phone.startsWith("91") ? phone.slice(2) : phone;
-    if (!/^\d{10}$/.test(normalizedPhone)) return json({ error: "Invalid mobile number." }, 400);
+    // The mobile number is an account identity. Never trust a client-supplied
+    // phone value when updating the profile; derive it from the authenticated user.
+    const metadataPhone = String(
+      authData.user.user_metadata?.phone ||
+      authData.user.user_metadata?.auth_phone ||
+      ""
+    ).replace(/\D/g, "");
+    const emailMatch = String(authData.user.email || "").match(/^account\+(\d{10})@banjaraconnect\.app$/i);
+    const normalizedPhone = metadataPhone.length === 10
+      ? metadataPhone
+      : (emailMatch?.[1] || "");
+    if (!/^\d{10}$/.test(normalizedPhone)) {
+      return json({ error: "Account mobile number is not configured." }, 409);
+    }
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
