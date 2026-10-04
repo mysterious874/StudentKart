@@ -1,6 +1,6 @@
 {
   "name": "Banjara Connect",
-  "short_name": "Banjara Connect",
+  "short_name": "Connect",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -13,7 +13,7 @@
   },
   "background_color": "#fbf4e8",
   "theme_color": "#7b1e2b",
-  "id": "/?app=banjara-connect-v1",
+  "id": "/?app=banjara-connect-v2",
   "description": "A community connection app for Banjara people — chat, discover, connect and ask AI.",
   "icons": [
     {
