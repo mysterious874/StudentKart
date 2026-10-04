@@ -69,8 +69,11 @@
         const chatButton = document.getElementById("chatButton");
         if (chatButton) {
           chatButton.click();
-        } else if (typeof window.openModal === "function") {
+        } else if (typeof window.openModal === "function" && document.getElementById("inquiriesModal")) {
           window.openModal("inquiriesModal");
+        } else {
+          const modal = document.getElementById("inquiriesModal");
+          if (modal) modal.classList.remove("hidden");
         }
         return;
       }
