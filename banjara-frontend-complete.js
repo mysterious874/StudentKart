@@ -253,6 +253,7 @@ async function bcDeleteAccount(){
    const {data,error}=await sb.functions.invoke("delete-account",{body:{}});
    if(error||!data?.success)throw error||new Error(data?.error||"Could not delete account");
    clearInterval(bcSessionTimer);bcSessionTimer=null;
+   try{sessionStorage.removeItem("bc_active_session_id");}catch(_){}
    await sb.auth.signOut({scope:"local"});
    state.auth="welcome";renderAll();showScreen("auth");toast("Account deleted");
  }catch(e){console.error("Delete account:",e);toast("Could not delete account");}
