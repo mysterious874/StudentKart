@@ -50,9 +50,9 @@
         return;
       }
 
-      if (id === "bottomSettingsButton") {
-        if (typeof window.openModal === "function") {
-          window.openModal("settingsModal");
+      if (id === "bottomMoreButton") {
+        if (typeof window.openGlobeDiscMore === "function") {
+          window.openGlobeDiscMore();
         }
         return;
       }
