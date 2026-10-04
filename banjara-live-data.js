@@ -67,7 +67,7 @@ async function openChat(chatId,name){
    const reply=m.reply_to_id?currentMessages.find(x=>x.id===m.reply_to_id):null;
    const quoted=reply?'<div class="bc-msg-quote">'+escLive(reply.body||("["+reply.message_type+"]"))+'</div>':"";
    const rs=reactions.get(m.id)||[], counts={};rs.forEach(r=>counts[r.reaction]=(counts[r.reaction]||0)+1);const reactionHtml=Object.entries(counts).map(([emoji,count])=>'<span class="bc-msg-reaction">'+emoji+(count>1?'<b>'+count+'</b>':'')+'</span>').join("");
- return '<button type="button" data-message-id="\`m.id\`" class="bc-msg '+(mine?"mine":"theirs")+'" data-message-id="'+m.id+'">'+quoted+content+'<small>'+ago(m.created_at)+receipt+'</small>'+(reactionHtml?'<div class="bc-msg-reactions">'+reactionHtml+'</div>':"")+'</button>';
+ return '<button type="button" class="bc-msg '+(mine?"mine":"theirs")+'" data-message-id="'+m.id+'">'+quoted+content+'<small>'+ago(m.created_at)+receipt+'</small>'+(reactionHtml?'<div class="bc-msg-reactions">'+reactionHtml+'</div>':"")+'</button>';
  };
  let currentMessages=[];
  const reactionMap=()=>{const map=new Map();(reactionRows||[]).forEach(r=>{if(!map.has(r.message_id))map.set(r.message_id,[]);map.get(r.message_id).push(r);});return map;}; let reactions=reactionMap();
