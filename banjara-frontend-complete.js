@@ -43,7 +43,7 @@ function postCard(name,community,text){return '<article class="bc-card bc-post">
 function feedHTML(){return '<div class="bc-hero"><h1>Feed</h1><p>What is happening across your communities.</p></div><div class="bc-section">'+empty("fa-newspaper","Your feed is empty","Real posts from people and communities will appear here.")+'</div>'}
 function notificationsHTML(){return '<div class="bc-hero"><h1>Notifications</h1><p>Stay updated without missing what matters.</p></div><div class="bc-list">'+[['RS','Ravi S.','sent you a connection request','2m'],['NK','Nisha K.','liked your community post','18m'],['🎓','Banjara Students','new event: Study Circle','1h'],['💬','Meena P.','sent you a message','2h']].map(x=>'<div class="bc-row">'+avatar(x[0])+'<div class="bc-row-main"><strong>'+x[1]+'</strong><small>'+x[2]+' • '+x[3]+'</small></div><span class="bc-badge">•</span></div>').join("")+'</div><div class="bc-section">'+empty("fa-bell","All caught up","Read and unread notification states are ready for backend data.")+'</div>'}
 function profileHTML(){return '<div class="bc-profile-hero">'+avatar("HR").replace("bc-avatar","bc-profile-avatar")+'<div><h1>Harish Rathod</h1><p>Building connections through community and culture.</p><button class="bc-action primary" data-edit-profile style="width:auto;padding:0 14px">Edit Profile</button></div></div><div class="bc-stat-row"><div class="bc-stat"><strong>128</strong><span>Connections</span></div><div class="bc-stat"><strong>12</strong><span>Communities</span></div><div class="bc-stat"><strong>24</strong><span>Posts</span></div></div><div class="bc-section"><div class="bc-section-head"><h2>About</h2></div><div class="bc-card"><p>Community builder • Student • Technology enthusiast</p></div></div><div class="bc-section"><div class="bc-section-head"><h2>My posts</h2><button data-screen="feed">View all</button></div>'+postCard("Harish Rathod","Banjara Connect","Welcome to our new community space. ❤️")+'</div>'}
-function settingsHTML(){const rows=[["fa-user","Profile","Personal information"],["fa-bell","Notifications","Choose what you receive"],["fa-palette","Appearance","Theme and visual preferences"],["fa-language","Language","English • Hindi • Lambadi"],["fa-shield-halved","Privacy","Control your visibility"],["fa-lock","Security","Account security"],["fa-user-slash","Blocked accounts","Manage blocked people"],["fa-mobile-screen","Sessions","Manage active sessions"],["fa-circle-info","Help & About","Help, feedback and app info"],["fa-user-gear","Account","Account actions"]];return '<div class="bc-hero"><h1>Settings</h1><p>Make Banjara Connect feel like yours.</p></div><div class="bc-setting-list">'+rows.map((r,i)=>'<button class="bc-setting" data-setting="'+i+'"><span class="bc-setting-icon"><i class="fas '+r[0]+'"></i></span><span class="bc-setting-main"><strong>'+r[1]+'</strong><small>'+r[2]+'</small></span><i class="fas fa-chevron-right"></i></button>').join("")+'</div><div class="bc-section"><button class="bc-action" data-logout style="height:42px">Log out</button></div>'}
+function settingsHTML(){const rows=[["fa-user","Profile","Personal information"],["fa-bell","Notifications","Choose what you receive"],["fa-palette","Appearance","Theme and visual preferences"],["fa-language","Language","English • Hindi • Lambadi"],["fa-shield-halved","Privacy","Control your visibility"],["fa-lock","Security","Account security"],["fa-user-slash","Blocked accounts","Manage blocked people"],["fa-mobile-screen","Sessions","Manage active sessions"],["fa-circle-info","Help & About","Help, feedback and app info"],["fa-user-gear","Account","Account actions"]];return '<div class="bc-hero"><h1>Settings</h1><p>Make Banjara Connect feel like yours.</p></div><div class="bc-setting-list">'+rows.map((r,i)=>'<button class="bc-setting" data-setting="'+i+'"><span class="bc-setting-icon"><i class="fas '+r[0]+'"></i></span><span class="bc-setting-main"><strong>'+r[1]+'</strong><small>'+r[2]+'</small></span><i class="fas fa-chevron-right"></i></button>').join("")+'</div><div class="bc-section"><button class="bc-action" data-demo="Logged out in frontend preview" style="height:42px">Log out</button></div>'}
 function authHTML(){return '<div class="bc-auth"><div class="bc-auth-box">'+(state.auth==="signup"?signupHTML():state.auth==="login"?loginHTML():welcomeHTML())+'</div></div>'}
 function welcomeHTML(){return '<img class="bc-auth-logo" src="/icons/banjara-connect-icon.svg"><h1>Welcome to Banjara Connect</h1><p>People, communities, culture and conversations — all in one place.</p><button class="bc-action primary" data-auth="signup" style="height:42px">Create account</button><button class="bc-action" data-auth="login" style="height:42px">Log in</button>'}
 function loginHTML(){return '<img class="bc-auth-logo" src="/icons/banjara-connect-icon.svg"><h1>Welcome back</h1><p>Log in with your mobile number.</p><form class="bc-form" data-auth-form="login"><div class="bc-field"><label>Mobile number</label><input required inputmode="numeric" placeholder="10-digit mobile number"></div><div class="bc-field"><label>Password</label><input required type="password" placeholder="Password"></div><button class="bc-action primary" style="height:42px">Log in</button></form><div class="bc-switch"><span>New here?</span><button data-auth="signup">Create account</button></div><div class="bc-switch"><button data-demo="Password recovery UI ready">Forgot password?</button></div>'}
@@ -62,11 +62,11 @@ function toast(msg){const t=$("#bcToast");if(!t)return;t.textContent=msg;t.class
 
 const BC_SUPABASE = () => window.supabaseClient;
 function bcNormalizePhone(value){
-  let d=String(value||"").replace(/\D/g,"");
+  let d=String(value||"").replace(/\\D/g,"");
   if(d.startsWith("91")&&d.length===12)d=d.slice(2);
-  return /^\d{10}$/.test(d) ? "+91"+d : null;
+  return /^\\d{10}$/.test(d) ? "+91"+d : null;
 }
-function bcInternalEmail(phone){return "account+"+String(phone).replace(/\D/g,"")+"@banjaraconnect.app";}
+function bcInternalEmail(phone){return "account+"+String(phone).replace(/\\D/g,"")+"@banjaraconnect.app";}
 function bcSessionId(){return crypto.randomUUID ? crypto.randomUUID() : (Date.now()+"-"+Math.random().toString(36).slice(2));}
 async function bcEnsureProfile(user, phone, sessionId){
   const sb=BC_SUPABASE(); if(!sb||!user?.id)return null;
@@ -117,7 +117,7 @@ async function bcHandleAuth(form){
   const phone=bcNormalizePhone(inputs[0]?.value);
   const password=String(inputs[1]?.value||"");
   if(!phone){toast("Enter a valid 10-digit mobile number");return;}
-  if(!/^\d{6}$/.test(password)){toast("Password must be exactly 6 digits");return;}
+  if(!/^\\d{6}$/.test(password)){toast("Password must be exactly 6 digits");return;}
   const sb=BC_SUPABASE(); if(!sb){toast("Authentication is not ready");return;}
   const submit=form.querySelector("button[type=submit]"); if(submit){submit.disabled=true;submit.textContent=mode==="signup"?"Creating...":"Logging in...";}
   try{
@@ -178,7 +178,7 @@ function closeModal(){$("#bcModal").classList.remove("open")}
 function create(){modal("Create",'<div class="bc-create-grid">'+[['fa-pen','Post','Share an update'],['fa-image','Photo / Video','Share a moment'],['fa-square-poll-vertical','Poll','Ask your community'],['fa-calendar-days','Event','Create an event'],['fa-user-group','Group','Start a group'],['fa-people-group','Community','Build a community']].map(x=>'<button class="bc-create" data-demo="'+x[1]+' opened"><i class="fas '+x[0]+'"></i><strong>'+x[1]+'</strong><small>'+x[2]+'</small></button>').join("")+'</div>')}
 function bind(){
  document.addEventListener("click",e=>{
-  const more=e.target.closest(".bc-bottom [data-screen=\"more\"]");if(more){e.preventDefault();e.stopPropagation();showScreen("settings");return}\n  const nav=e.target.closest("[data-screen]");if(nav){e.preventDefault();showScreen(nav.dataset.screen==="more"?"settings":nav.dataset.screen);return}
+  const nav=e.target.closest("[data-screen]");if(nav){e.preventDefault();showScreen(nav.dataset.screen==="more"?"settings":nav.dataset.screen);return}
   if(e.target.closest("[data-create]")){create();return}
   if(e.target.closest("[data-close-modal]")||e.target.id==="bcModal"){closeModal();return}
   const connect=e.target.closest("[data-connect-user]");if(connect){void bcSendConnection(connect.dataset.connectUser,connect);return}
