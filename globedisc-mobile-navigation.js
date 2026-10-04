@@ -1,24 +1,54 @@
 (function () {
   "use strict";
 
+  var STACK_KEY = "banjaraAppNavStack";
+
+  function readStack() {
+    try {
+      var raw = sessionStorage.getItem(STACK_KEY);
+      var stack = raw ? JSON.parse(raw) : [];
+      return Array.isArray(stack) ? stack : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function writeStack(stack) {
+    try { sessionStorage.setItem(STACK_KEY, JSON.stringify(stack.slice(-30))); } catch (_) {}
+  }
+
+  function pushCurrentPage() {
+    try {
+      var current = location.pathname + location.search + location.hash;
+      var stack = readStack();
+      if (stack[stack.length - 1] !== current) {
+        stack.push(current);
+        writeStack(stack);
+      }
+    } catch (_) {}
+  }
+
   function goPrevious() {
     try {
-      var ref = document.referrer ? new URL(document.referrer, location.href) : null;
-      var sameOriginPrevious = ref && ref.origin === location.origin;
+      var stack = readStack();
+      var previous = stack.pop();
 
-      // Never call history.back() when the previous entry is outside the app.
-      // That can close the tab/PWA instead of returning to the app.
-      if (sameOriginPrevious && history.length > 1) {
-        history.back();
-      } else {
-        location.replace("/");
+      if (previous && previous !== (location.pathname + location.search + location.hash)) {
+        writeStack(stack);
+        // Replace instead of history.back(): this can never close the PWA/tab.
+        location.replace(previous);
+        return;
       }
-    } catch (_) {
+
+      writeStack([]);
       location.replace("/");
+    } catch (_) {
+      try { location.replace("/"); } catch (__) {}
     }
   }
 
   window.GlobeDiscBack = goPrevious;
+  window.GlobeDiscPushCurrentPage = pushCurrentPage;
 
   function installBackGuards() {
     document.querySelectorAll('button[onclick*="history.back"], a[onclick*="history.back"]').forEach(function (el) {
@@ -30,8 +60,17 @@
       }, true);
     });
 
-    // Marketplace and similar pages may attach their own back handler.
     document.addEventListener("click", function (e) {
+      var target = e.target && e.target.closest ? e.target.closest(".globedisc-more-item") : null;
+      if (target) {
+        var path = target.getAttribute("data-more-target") || "";
+        if (path && path.charAt(0) !== "#") {
+          // More-menu navigation is our controlled app navigation stack.
+          pushCurrentPage();
+        }
+        return;
+      }
+
       var el = e.target && e.target.closest ? e.target.closest(
         "#marketplaceMobileBack,.marketplace-mobile-back,[data-mobile-back]"
       ) : null;
