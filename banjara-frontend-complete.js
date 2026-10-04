@@ -194,6 +194,20 @@ async function bcRestoreSession(){
       if(!phone){await sb.auth.signOut({scope:"local"});state.auth="login";renderAll();showScreen("auth");toast("Please log in again to restore this session.");return;}
       let sid="";
       try{sid=sessionStorage.getItem("bc_active_session_id")||"";}catch(_){}
+      if(!sid){
+        await sb.auth.signOut({scope:"local"});
+        state.auth="login";renderAll();showScreen("auth");
+        toast("Please log in again to restore this session.");
+        return;
+      }
+      const {data:active,error:activeError}=await sb.functions.invoke("get-active-session");
+      if(!activeError && active?.active_session_id && active.active_session_id!==sid){
+        await sb.auth.signOut({scope:"local"});
+        try{sessionStorage.removeItem("bc_active_session_id");}catch(_){}
+        state.auth="login";renderAll();showScreen("auth");
+        toast("This account is active on another device.");
+        return;
+      }
       await bcAfterLogin(data.session.user,phone,sid);
     }else{showScreen("auth");}
   }catch(e){console.warn("Restore session:",e);showScreen("auth");}
