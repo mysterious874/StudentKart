@@ -6321,6 +6321,10 @@ function handleGlobeDiscSearchIntent(intent, query) {
     const q = String(query || "").trim();
     if (!q) return;
     const mode = String(intent || "All");
+    if (mode === "AI") {
+        showGlobeDiscAISearch(q);
+        return;
+    }
     if (mode === "All" || mode === "Overview") {
         showSearchResultsPage(q);
         return;
@@ -6336,7 +6340,28 @@ function handleGlobeDiscSearchIntent(intent, query) {
     const suffix = {News:" latest news",Reviews:" reviews",Price:" price",Specs:" specifications","How to":" how to"}[mode] || "";
     showSearchResultsPage(q + suffix);
 }
-function resetGlobeDiscSearchIntent(mode="All") {
+async function showGlobeDiscAISearch(query) {
+    const q = String(query || "").trim();
+    if (!q) return;
+    const web = $("searchResultsWebContainer");
+    const products = $("searchResultsProductContainer");
+    if (web) web.innerHTML = '<div class="search-results-section-label"><i class="fas fa-wand-magic-sparkles"></i><span>GlobeDisc AI Search</span></div><div class="empty-state"><h3>Thinking…</h3><p>Preparing a concise answer for “'+String(q).replace(/[<>&]/g,"")+'”.</p></div>';
+    if (products) products.innerHTML = "";
+    try {
+        const r = await fetch("https://yymzfjfkmsrymqhpnfqz.supabase.co/functions/v1/ai-chat", {
+            method:"POST",
+            headers:{apikey:"sb_publishable_tEePI-aSGDkt_2S6oiEfPw_Hy_mEXkw",Authorization:"Bearer sb_publishable_tEePI-aSGDkt_2S6oiEfPw_Hy_mEXkw","Content-Type":"application/json","X-GlobeDisc-Client":"web"},
+            body:JSON.stringify({question:"Answer this search query concisely. Give a useful direct answer, key facts, and if the question is time-sensitive say what may need verification. Do not invent sources: "+q,history:[],research:true})
+        });
+        const x=await r.json();
+        const answer=String(x.answer||x.response||x.text||"No AI answer available.");
+        if (web) web.innerHTML='<div class="search-results-section-label"><i class="fas fa-wand-magic-sparkles"></i><span>AI Search</span></div><article class="card" style="padding:18px"><h2 style="margin-top:0">AI answer</h2><div style="white-space:pre-wrap;line-height:1.65">'+answer.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",\"":"&quot;","'":"&#39;"}[c]))+'</div><p style="font-size:12px;color:#718486;margin-bottom:0">AI-generated answer. Verify important or time-sensitive information.</p></article>';
+        recordGlobeDiscSearch(q);
+    } catch {
+        if (web) web.innerHTML='<div class="empty-state"><h3>AI Search unavailable</h3><p>Try All Search instead.</p></div>';
+    }
+}
+\nfunction resetGlobeDiscSearchIntent(mode="All") {
     document.querySelectorAll("[data-search-intent]").forEach(x=>x.classList.toggle("active", x.dataset.searchIntent===mode));
 }
 
