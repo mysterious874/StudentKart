@@ -14795,8 +14795,8 @@ async function submitAiQuestion(question){
         const res=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({question:q,sources,research,history:getAiConversation()})});
         const data=await res.json();
         if(!res.ok)throw new Error(data?.error||"AI request failed");
-        thinkingMessage.innerHTML=renderAiRichAnswer(data.answer,q,found,photos,news);
-        thinkingMessage.classList.add("ai-chat-rich");
+        thinkingMessage.innerHTML=research?renderAiRichAnswer(data.answer,q,found,photos,news):'<div class="ai-answer-text">'+escapeHTML(String(data.answer||"")).replace(/\n/g,"<br>")+'</div>';
+        if(research)thinkingMessage.classList.add("ai-chat-rich");
         const box=document.getElementById("aiAssistantMessages"); if(box)box.scrollTop=box.scrollHeight;
     }catch(err){console.error("GlobeDisc AI:",err);thinking.textContent="AI is temporarily unavailable. Please try again.";}
 }
