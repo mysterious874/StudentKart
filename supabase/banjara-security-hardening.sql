@@ -279,3 +279,53 @@ begin
     );
   end loop;
 end $$;
+
+
+-- Event-attendee visibility follows the parent event/community visibility.
+create or replace function private.can_view_event(p_event_id uuid)
+returns boolean
+language sql stable security definer
+set search_path=public
+as $$
+  select exists (
+    select 1 from events e
+    where e.id=p_event_id and (
+      e.community_id is null or exists (
+        select 1 from communities c where c.id=e.community_id and (
+          c.is_public or c.created_by=(select auth.uid()) or exists (
+            select 1 from community_members cm
+            where cm.community_id=c.id and cm.user_id=(select auth.uid())
+          )
+        )
+      )
+    )
+  );
+$$;
+revoke all on function private.can_view_event(uuid) from public,anon,authenticated;
+grant execute on function private.can_view_event(uuid) to authenticated;
+
+drop policy if exists "attendees read visible events" on public.event_attendees;
+create policy "attendees read visible events" on public.event_attendees for select
+to authenticated using (private.can_view_event(event_id));
+
+drop policy if exists "attendees self manage visible events" on public.event_attendees;
+create policy "attendees self manage visible events" on public.event_attendees for insert
+to authenticated with check (user_id=(select auth.uid()) and private.can_view_event(event_id));
+
+drop policy if exists "attendees self update" on public.event_attendees;
+create policy "attendees self update" on public.event_attendees for update
+to authenticated using (user_id=(select auth.uid()) and private.can_view_event(event_id))
+with check (user_id=(select auth.uid()) and private.can_view_event(event_id));
+
+drop policy if exists "attendees self delete" on public.event_attendees;
+create policy "attendees self delete" on public.event_attendees for delete
+to authenticated using (user_id=(select auth.uid()));
+
+alter policy "communities authenticated create" on public.communities to authenticated;
+alter policy "communities public read" on public.communities to authenticated;
+alter policy "community creator delete" on public.communities to authenticated;
+alter policy "community creator update" on public.communities to authenticated;
+alter policy "reactions read" on public.post_reactions to authenticated;
+alter policy "reactions self insert" on public.post_reactions to authenticated;
+alter policy "reactions self update" on public.post_reactions to authenticated;
+alter policy "reactions self delete" on public.post_reactions to authenticated;
