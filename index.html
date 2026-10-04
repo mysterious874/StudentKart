@@ -11,17 +11,17 @@
     <link rel="apple-touch-icon" href="/icons/banjara-connect-icon.svg">
     <title>Banjara Connect — Community</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=20261004-globedisc-ai-nav-6">
+    <link rel="stylesheet" href="style.css?v=20261004-banjara-1">
     <link rel="stylesheet" href="/banjara-whatsapp-theme.css?v=20261004-home-theme-1">
 </head>
 
-<body class="globedisc-splash-active">
-    <div id="globediscSplash" class="globedisc-splash" aria-label="Banjara Connect loading" role="status" style="pointer-events:none!important;">
-        <div class="globedisc-splash-orbit globedisc-orbit-one"></div><div class="globedisc-splash-orbit globedisc-orbit-two"></div>
-        <div class="globedisc-splash-logo" aria-hidden="true"><img src="/icons/banjara-connect-icon.svg" alt="" class="banjara-splash-icon"></div>
-        <div class="globedisc-splash-name"><span>Banjara</span><b>Connect</b></div>
-        <div class="globedisc-splash-tagline">Connected by community. Inspired by culture.</div>
-        <div class="globedisc-splash-progress"><span></span></div>
+<body class="banjara-splash-active">
+    <div id="banjaraSplash" class="banjara-splash" aria-label="Banjara Connect loading" role="status" style="pointer-events:none!important;">
+        <div class="banjara-splash-orbit banjara-orbit-one"></div><div class="banjara-splash-orbit banjara-orbit-two"></div>
+        <div class="banjara-splash-logo" aria-hidden="true"><img src="/icons/banjara-connect-icon.svg" alt="" class="banjara-splash-icon"></div>
+        <div class="banjara-splash-name"><span>Banjara</span><b>Connect</b></div>
+        <div class="banjara-splash-tagline">Connected by community. Inspired by culture.</div>
+        <div class="banjara-splash-progress"><span></span></div>
     </div>
     <script>
     (function () {
@@ -34,10 +34,10 @@
     </script>
     <script>
     (function () {
-        var splash = document.getElementById("globediscSplash");
+        var splash = document.getElementById("banjaraSplash");
         if (!splash) return;
         window.setTimeout(function () {
-            document.body.classList.remove("globedisc-splash-active");
+            document.body.classList.remove("banjara-splash-active");
             splash.classList.add("is-hidden");
             splash.style.pointerEvents = "none";
             window.setTimeout(function () {
@@ -47,7 +47,7 @@
     })();
     </script>
 
-        <div id="navbarSearchPanel" class="navbar-search-panel hidden" aria-label="Search GlobeDisc">
+        <div id="navbarSearchPanel" class="navbar-search-panel hidden" aria-label="Search Banjara Connect">
         <div class="navbar-search-inner">
             <div class="navbar-search-field">
                 <i class="fas fa-search"></i>
@@ -437,10 +437,10 @@ if ("serviceWorker" in navigator) {
     });
 }
 </script>
-<script src="/globedisc-mobile-navigation.js?v=20261004-settings-3" defer></script>
+<script src="/banjara-navigation.js?v=20261004-1" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js?v=20261004-ai-chat-10"></script>
-    <script src="globedisc-ux-polish.js?v=20261004-chat-search-3"></script>
+    
     <script src="/admin-tool.js?v=20261003-admin-tool-1"></script>
 <script src="/admin-users.js?v=20261003-users-1"></script>
 <script src="/admin-listings.js?v=20261003-listings-1"></script>
