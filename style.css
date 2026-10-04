@@ -19277,3 +19277,35 @@ html body.ai-assistant-page-active .mobile-bottom-nav{
     border:1px solid #c5dfe0 !important;
     box-shadow:0 2px 8px rgba(16,42,67,.05);
 }
+
+/* GlobeDisc AI rich answers */
+#aiAssistantPage .ai-chat-rich{max-width:94%;width:100%;box-sizing:border-box}
+.ai-rich-answer{font-size:13px;line-height:1.55}
+.ai-answer-text{color:#243b53;margin-bottom:10px}
+.ai-rich-actions{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 14px}
+.ai-rich-link{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid #cbdfe0;border-radius:10px;background:#f8ffff;color:#0f6f72;text-decoration:none;font-size:11px;font-weight:700}
+.ai-rich-section{margin-top:14px}
+.ai-rich-section h4{margin:0 0 8px;font-size:11px;color:#486581;text-transform:uppercase;letter-spacing:.04em}
+.ai-source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ai-source-card{display:flex;gap:9px;align-items:flex-start;padding:10px;border:1px solid #d9e2ec;border-radius:12px;background:#fff;color:#243b53;text-decoration:none;min-width:0}
+.ai-source-card img{width:54px;height:54px;object-fit:cover;border-radius:9px;flex:none}
+.ai-source-icon{width:36px;height:36px;border-radius:9px;background:#eef7f7;color:#0f8b8d;display:flex;align-items:center;justify-content:center;flex:none}
+.ai-source-card strong{display:block;font-size:12px;line-height:1.35;white-space:normal}
+.ai-source-card small{display:block;color:#829ab1;font-size:9px;margin-top:2px}
+.ai-source-card p{margin:4px 0 0;color:#627d98;font-size:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ai-photo-row{display:flex;gap:8px;overflow:auto;padding-bottom:3px}
+.ai-photo-card{width:118px;flex:0 0 118px;text-decoration:none;color:#243b53}
+.ai-photo-card img{display:block;width:118px;height:82px;object-fit:cover;border-radius:10px;border:1px solid #d9e2ec;background:#eef3f7}
+.ai-photo-card span{display:block;font-size:9px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-news-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ai-news-card{display:block;border:1px solid #d9e2ec;border-radius:12px;overflow:hidden;background:#fff;color:#243b53;text-decoration:none}
+.ai-news-card img{width:100%;height:82px;display:block;object-fit:cover;background:#eef3f7}
+.ai-news-card div{padding:8px}
+.ai-news-card strong{display:block;font-size:11px;line-height:1.35}
+.ai-news-card small{display:block;color:#829ab1;font-size:9px;margin-top:4px}
+.ai-thinking{color:#829ab1}
+@media(max-width:700px){
+  #aiAssistantPage .ai-chat-rich{max-width:96%}
+  .ai-source-grid,.ai-news-grid{grid-template-columns:1fr}
+  .ai-source-card p{-webkit-line-clamp:2}
+}
