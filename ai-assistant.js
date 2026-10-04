@@ -65,7 +65,7 @@ function openAI(){
  renderSavedAIHistory();
  if(aiHasOpenedOnce) addMessage("assistant",AI_REOPEN_MESSAGES[Math.floor(Math.random()*AI_REOPEN_MESSAGES.length)]);
  aiHasOpenedOnce=true;
- document.querySelectorAll(".mobile-bottom-nav,.bottom-floating-nav,.floating-bottom-nav,.floating-bar,.floating-nav").forEach(nav=>{nav.style.setProperty("display","none","important");nav.style.setProperty("visibility","hidden","important");nav.style.setProperty("pointer-events","none","important");});
+ forceHideGlobalBottomNav();
  window.scrollTo({top:0,behavior:"auto"});
  const input=$("aiAssistantInput");
  if(input){setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},80);}
@@ -75,7 +75,7 @@ function closeAI(){
  const page=$("aiAssistantPage");
  if(page)page.classList.add("hidden");
  document.body.classList.remove("ai-assistant-open","ai-assistant-page-active");
- document.querySelectorAll(".mobile-bottom-nav,.bottom-floating-nav,.floating-bottom-nav,.floating-bar,.floating-nav").forEach(nav=>{nav.style.removeProperty("display");nav.style.removeProperty("visibility");nav.style.removeProperty("pointer-events");});
+ restoreGlobalBottomNav();
  const homeSection=document.getElementById("home");
  if(homeSection){
   homeSection.classList.remove("hidden");
@@ -110,6 +110,22 @@ async function ask(question){
   }
  }
 }
+function forceHideGlobalBottomNav(){
+ const selectors=[".mobile-bottom-nav",".bottom-floating-nav",".floating-bottom-nav",".floating-bar",".floating-nav"];
+ document.querySelectorAll(selectors.join(",")).forEach(nav=>{
+  if(nav.closest("#aiAssistantPage"))return;
+  nav.setAttribute("data-ai-hidden","1");
+  nav.style.setProperty("display","none","important");
+  nav.style.setProperty("visibility","hidden","important");
+  nav.style.setProperty("pointer-events","none","important");
+ });
+}
+function restoreGlobalBottomNav(){
+ document.querySelectorAll('[data-ai-hidden="1"]').forEach(nav=>{
+  nav.removeAttribute("data-ai-hidden");
+  nav.style.removeProperty("display");nav.style.removeProperty("visibility");nav.style.removeProperty("pointer-events");
+ });
+}
 function bindAIControls(){
  const button=$("askWithAiButton");
  if(button && button.dataset.aiBound!=="1"){
@@ -123,6 +139,8 @@ function bindAIControls(){
 }
 document.addEventListener("DOMContentLoaded",()=>{
  bindAIControls();
+ const aiNavObserver=new MutationObserver(()=>{if(document.body.classList.contains("ai-assistant-open"))forceHideGlobalBottomNav();});
+ aiNavObserver.observe(document.body,{childList:true,subtree:true});
  const box=$("aiAssistantMessages");
  box?.addEventListener("scroll",()=>{
   aiUserNearBottom=(box.scrollHeight-box.scrollTop-box.clientHeight)<100;
