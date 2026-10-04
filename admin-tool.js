@@ -83,7 +83,7 @@
             return Number(result.count || 0);
         };
         try {
-            const [users, listings, reports, verification] = await Promise.all([
+            const [users, listings, reports] = await Promise.all([
                 count("profiles"),
                 count("products"),
                 count("reports", q => q.eq("status","pending")),
@@ -92,10 +92,9 @@
             modal.querySelector("#adminStatUsers").textContent = users;
             modal.querySelector("#adminStatListings").textContent = listings;
             modal.querySelector("#adminStatReports").textContent = reports;
-            modal.querySelector("#adminStatVerification").textContent = verification;
         } catch (error) {
             console.warn("Admin live stats:", error);
-            ["adminStatUsers","adminStatListings","adminStatReports","adminStatVerification"].forEach(id=>{
+            ["adminStatUsers","adminStatListings","adminStatReports"].forEach(id=>{
                 const el=modal.querySelector("#"+id);
                 if(el) el.textContent="—";
             });
@@ -202,7 +201,7 @@
                             <div>
                                 <span class="section-label">GLOBEDISC ADMIN</span>
                                 <h2>Admin Tool</h2>
-                                <p>Manage trusted campus operations.</p>
+                                <p>Manage platform operations.</p>
                             </div>
                         </div>
                         <button type="button" class="modal-close" data-close-admin-tool aria-label="Close">&times;</button>
@@ -217,13 +216,8 @@
                             <div class="sk-admin-live-stat"><strong id="adminStatUsers">—</strong><span>Users</span></div>
                             <div class="sk-admin-live-stat"><strong id="adminStatListings">—</strong><span>Listings</span></div>
                             <div class="sk-admin-live-stat pending"><strong id="adminStatReports">—</strong><span>Pending Reports</span></div>
-                            <div class="sk-admin-live-stat pending"><strong id="adminStatVerification">—</strong><span>Pending Verification</span></div>
-                        </div>
+                            </div>
                         <div class="sk-admin-dashboard-grid">
-                            <button type="button" class="sk-admin-dashboard-card" id="adminVerificationTool">
-                                <i class="fas fa-user-check"></i><strong>Campus Verification</strong>
-                                <span>Review student ID verification requests.</span>
-                            </button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminUsersTool"><i class="fas fa-users"></i><strong>Users</strong><span>View registered GlobeDisc profiles.</span></button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminListingsTool"><i class="fas fa-box-open"></i><strong>Listings</strong><span>Review marketplace listings.</span></button>
                             <button type="button" class="sk-admin-dashboard-card" id="adminAddProductTool">
@@ -260,14 +254,7 @@
                 script.onerror = () => window.showToast?.("Reports tool could not be loaded", "error");
                 document.head.appendChild(script);
             });
-            modal.querySelector("#adminVerificationTool")?.addEventListener("click", async () => {
-                close();
-                const campusModal = document.getElementById("campusModal");
-                if (campusModal) campusModal.classList.remove("hidden");
-                if (window.GlobeDiscAdminVerification?.openAdminPanel) {
-                    await window.GlobeDiscAdminVerification.openAdminPanel();
-                }
-            });
+
         }
         modal.classList.remove("hidden");
         void loadLiveStats(modal);
@@ -283,7 +270,7 @@
         section.className = "settings-group sk-admin-settings-card";
         section.innerHTML = `
             <button class="settings-section-button" type="button" id="settingsAdminToolButton">
-                <span><i class="fas fa-shield-halved"></i><b>Admin Tool <span class="sk-admin-settings-badge">Admin</span></b><small>Manage verification and platform moderation</small></span>
+                <span><i class="fas fa-shield-halved"></i><b>Admin Tool <span class="sk-admin-settings-badge">Admin</span></b><small>Manage platform moderation</small></span>
                 <i class="fas fa-chevron-right"></i>
             </button>`;
         grid.appendChild(section);
