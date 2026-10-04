@@ -648,3 +648,31 @@ html body #home .top-search-strip #heroSearchButton{
   color:#fff!important;
   -webkit-text-fill-color:#fff!important;
 }
+
+
+/* HOMEPAGE HEADER/SEARCH MUST NOT OVERLAP INTERNAL PAGES */
+html body:has(#categoryPage:not(.hidden)) #home,
+html body:has(#searchResultsPage:not(.hidden)) #home,
+html body:has(#aiAssistantPage:not(.hidden)) #home{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
+/* Keep homepage discovery header scoped to the homepage only. */
+html body #home.studentkart-top{
+  position:relative!important;
+  z-index:1!important;
+}
+html body #home .top-search-strip{
+  position:relative!important;
+  z-index:2!important;
+}
+
+/* Internal pages must establish their own stacking context above the home layer. */
+html body #categoryPage:not(.hidden),
+html body #searchResultsPage:not(.hidden),
+html body #aiAssistantPage:not(.hidden){
+  position:relative!important;
+  z-index:10!important;
+}
