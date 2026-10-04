@@ -13072,7 +13072,7 @@ body.studentkart-dark .notification-count { border-color:#102a43; }
 @media (max-width:720px) { .nav-notification-button { width:38px; min-width:38px; height:38px; } }
 
 
-/* GlobeDisc AI — own full-screen page; never show global floating navigation. */
+/* banjara AI — own full-screen page; never show global floating navigation. */
 body.ai-assistant-open .mobile-bottom-nav,
 body.ai-assistant-open > .mobile-bottom-nav,
 body.ai-assistant-open .bottom-floating-nav,
@@ -16966,8 +16966,8 @@ header.navbar,
 .navbar:not(.mobile-bottom-nav){display:none!important;visibility:hidden!important;pointer-events:none!important;}
 
 
-/* GLOBEDISC HOMEPAGE NEWS TOPIC STRIP */
-.globedisc-news-topic-strip{
+/* banjara HOMEPAGE NEWS TOPIC STRIP */
+.banjara-news-topic-strip{
     display:flex;
     align-items:center;
     gap:8px;
@@ -16981,8 +16981,8 @@ header.navbar,
     -webkit-overflow-scrolling:touch;
     overscroll-behavior-x:contain;
 }
-.globedisc-news-topic-strip::-webkit-scrollbar{display:none}
-.globedisc-news-topic{
+.banjara-news-topic-strip::-webkit-scrollbar{display:none}
+.banjara-news-topic{
     flex:0 0 auto;
     height:36px;
     padding:0 15px;
@@ -16996,22 +16996,22 @@ header.navbar,
     cursor:pointer;
     transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease;
 }
-.globedisc-news-topic:hover{
+.banjara-news-topic:hover{
     border-color:#9bb6d2;
     color:#173b68;
 }
-.globedisc-news-topic.active{
+.banjara-news-topic.active{
     background:#173b68;
     border-color:#173b68;
     color:#fff;
 }
 @media(max-width:700px){
-    .globedisc-news-topic-strip{
+    .banjara-news-topic-strip{
         margin-top:10px;
         gap:7px;
         padding-bottom:5px;
     }
-    .globedisc-news-topic{
+    .banjara-news-topic{
         height:34px;
         padding:0 13px;
         font-size:12.5px;
@@ -18670,37 +18670,37 @@ body.marketplace-page-active .marketplace-page-suggestion>.fa-chevron-right{flex
 /* =========================================================
    BANJARA CONNECT — APP OPENING SPLASH
    ========================================================= */
-.globedisc-splash{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;min-height:100dvh;z-index:200000!important;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 43%,rgba(15,139,141,.20),transparent 28%),radial-gradient(circle at 50% 72%,rgba(141,227,223,.08),transparent 32%),#102a43;color:#fff;opacity:1;visibility:visible;transition:opacity 3s ease,visibility 3s ease}
-.globedisc-splash.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
-.globedisc-splash::before{content:"";position:absolute;width:420px;height:420px;border:1px solid rgba(141,227,223,.10);border-radius:50%;box-shadow:0 0 80px rgba(15,139,141,.12)}
-.globedisc-splash-orbit{position:absolute;width:330px;height:105px;border:2px solid rgba(141,227,223,.34);border-radius:50%;transform:rotate(-18deg);box-shadow:0 0 24px rgba(15,139,141,.18);animation:globediscOrbit 2.4s ease-in-out infinite}
-.globedisc-orbit-two{width:350px;height:118px;transform:rotate(28deg);border-color:rgba(15,139,141,.32);animation-delay:-.8s}
-.globedisc-splash-logo{position:relative;width:118px;height:118px;display:grid;place-items:center;filter:drop-shadow(0 0 24px rgba(15,139,141,.48));animation:globediscLogoIn .75s cubic-bezier(.2,.8,.2,1) both}.banjara-splash-icon{width:132px;height:132px;display:block}
-.globedisc-globe{width:86px;height:86px;border:12px solid #8de3df;border-radius:50%;position:relative;box-shadow:inset 0 0 22px rgba(15,139,141,.75),0 0 22px rgba(141,227,223,.22)}
-.globedisc-globe::before,.globedisc-globe::after{content:"";position:absolute;border:3px solid rgba(15,139,141,.9);border-radius:50%}
-.globedisc-globe::before{inset:7px 22px}.globedisc-globe::after{inset:22px 7px}
-.globedisc-ring{position:absolute;width:122px;height:32px;border:8px solid #0f8b8d;border-left-color:#8de3df;border-right-color:#8de3df;border-radius:50%;transform:rotate(-18deg);box-shadow:0 0 18px rgba(15,139,141,.55)}
-.globedisc-splash-name{margin-top:22px;font-size:38px;line-height:1;font-weight:800;letter-spacing:-1.5px;animation:globediscTextIn .65s .45s ease both}
-.globedisc-splash-name span{color:#fff}.globedisc-splash-name b{color:#8de3df}
-.globedisc-splash-tagline{margin-top:12px;color:#d9f4f2;font-size:14px;letter-spacing:.7px;animation:globediscTextIn .65s .65s ease both}
-.globedisc-splash-progress{width:150px;height:4px;margin-top:28px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.14);animation:globediscTextIn .5s .8s ease both}
-.globedisc-splash-progress span{display:block;width:0;height:100%;border-radius:inherit;background:#8de3df;box-shadow:0 0 10px rgba(141,227,223,.8);animation:globediscProgress 3.6s .15s linear forwards}
-@keyframes globediscProgress{to{width:100%}}@keyframes globediscLogoIn{from{opacity:0;transform:scale(.72) rotate(-10deg)}to{opacity:1;transform:scale(1) rotate(0)}}@keyframes globediscTextIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes globediscOrbit{0%,100%{opacity:.35;transform:rotate(-18deg) scale(.98)}50%{opacity:.8;transform:rotate(-18deg) scale(1.04)}}
-@media(max-width:520px){.globedisc-splash::before{width:300px;height:300px}.globedisc-splash-orbit{width:275px;height:90px}.globedisc-orbit-two{width:295px;height:98px}.globedisc-splash-name{font-size:38px}.globedisc-splash-logo,.banjara-splash-icon{width:112px;height:112px}}
-@media(prefers-reduced-motion:reduce){.globedisc-splash *{animation:none!important}}
+.banjara-splash{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;min-height:100dvh;z-index:200000!important;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 43%,rgba(15,139,141,.20),transparent 28%),radial-gradient(circle at 50% 72%,rgba(141,227,223,.08),transparent 32%),#102a43;color:#fff;opacity:1;visibility:visible;transition:opacity 3s ease,visibility 3s ease}
+.banjara-splash.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.banjara-splash::before{content:"";position:absolute;width:420px;height:420px;border:1px solid rgba(141,227,223,.10);border-radius:50%;box-shadow:0 0 80px rgba(15,139,141,.12)}
+.banjara-splash-orbit{position:absolute;width:330px;height:105px;border:2px solid rgba(141,227,223,.34);border-radius:50%;transform:rotate(-18deg);box-shadow:0 0 24px rgba(15,139,141,.18);animation:banjaraOrbit 2.4s ease-in-out infinite}
+.banjara-orbit-two{width:350px;height:118px;transform:rotate(28deg);border-color:rgba(15,139,141,.32);animation-delay:-.8s}
+.banjara-splash-logo{position:relative;width:118px;height:118px;display:grid;place-items:center;filter:drop-shadow(0 0 24px rgba(15,139,141,.48));animation:banjaraLogoIn .75s cubic-bezier(.2,.8,.2,1) both}.banjara-splash-icon{width:132px;height:132px;display:block}
+.banjara-globe{width:86px;height:86px;border:12px solid #8de3df;border-radius:50%;position:relative;box-shadow:inset 0 0 22px rgba(15,139,141,.75),0 0 22px rgba(141,227,223,.22)}
+.banjara-globe::before,.banjara-globe::after{content:"";position:absolute;border:3px solid rgba(15,139,141,.9);border-radius:50%}
+.banjara-globe::before{inset:7px 22px}.banjara-globe::after{inset:22px 7px}
+.banjara-ring{position:absolute;width:122px;height:32px;border:8px solid #0f8b8d;border-left-color:#8de3df;border-right-color:#8de3df;border-radius:50%;transform:rotate(-18deg);box-shadow:0 0 18px rgba(15,139,141,.55)}
+.banjara-splash-name{margin-top:22px;font-size:38px;line-height:1;font-weight:800;letter-spacing:-1.5px;animation:banjaraTextIn .65s .45s ease both}
+.banjara-splash-name span{color:#fff}.banjara-splash-name b{color:#8de3df}
+.banjara-splash-tagline{margin-top:12px;color:#d9f4f2;font-size:14px;letter-spacing:.7px;animation:banjaraTextIn .65s .65s ease both}
+.banjara-splash-progress{width:150px;height:4px;margin-top:28px;overflow:hidden;border-radius:999px;background:rgba(255,255,255,.14);animation:banjaraTextIn .5s .8s ease both}
+.banjara-splash-progress span{display:block;width:0;height:100%;border-radius:inherit;background:#8de3df;box-shadow:0 0 10px rgba(141,227,223,.8);animation:banjaraProgress 3.6s .15s linear forwards}
+@keyframes banjaraProgress{to{width:100%}}@keyframes banjaraLogoIn{from{opacity:0;transform:scale(.72) rotate(-10deg)}to{opacity:1;transform:scale(1) rotate(0)}}@keyframes banjaraTextIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes banjaraOrbit{0%,100%{opacity:.35;transform:rotate(-18deg) scale(.98)}50%{opacity:.8;transform:rotate(-18deg) scale(1.04)}}
+@media(max-width:520px){.banjara-splash::before{width:300px;height:300px}.banjara-splash-orbit{width:275px;height:90px}.banjara-orbit-two{width:295px;height:98px}.banjara-splash-name{font-size:38px}.banjara-splash-logo,.banjara-splash-icon{width:112px;height:112px}}
+@media(prefers-reduced-motion:reduce){.banjara-splash *{animation:none!important}}
 
 
-/* GlobeDisc visible brand mark */
-.globedisc-brand-mark{background:transparent!important;border-radius:50%;overflow:visible}
-.globedisc-brand-mark img{width:40px;height:40px;display:block}
+/* banjara visible brand mark */
+.banjara-brand-mark{background:transparent!important;border-radius:50%;overflow:visible}
+.banjara-brand-mark img{width:40px;height:40px;display:block}
 
 
-/* Force the GlobeDisc launch screen to cover the complete mobile viewport */
-html:has(.globedisc-splash),body:has(.globedisc-splash){width:100%;min-width:100%;min-height:100%;height:100%;margin:0;padding:0;overflow:hidden!important}
-.globedisc-splash{box-sizing:border-box;isolation:isolate}
+/* Force the banjara launch screen to cover the complete mobile viewport */
+html:has(.banjara-splash),body:has(.banjara-splash){width:100%;min-width:100%;min-height:100%;height:100%;margin:0;padding:0;overflow:hidden!important}
+.banjara-splash{box-sizing:border-box;isolation:isolate}
 
 
-/* GlobeDisc mobile + 6-digit PIN authentication */
+/* banjara mobile + 6-digit PIN authentication */
 body #loginModal .auth-pin-input,
 body #signupModal .auth-pin-input {
     width: 100%;
@@ -18891,7 +18891,7 @@ body.marketplace-page-active .new-product-card img{
 
 
 /* =========================================================
-   GLOBEDISC CHAT SUGGESTIONS — 10 VISIBLE + SCROLL
+   banjara CHAT SUGGESTIONS — 10 VISIBLE + SCROLL
    ========================================================= */
 @media(max-width:600px){
   }
@@ -19071,7 +19071,7 @@ body.marketplace-page-active .new-product-card img{
 
 
 /* =========================================================
-   GLOBEDISC NEWS — NEARBY FIRST / PROGRESSIVE DISCOVERY
+   banjara NEWS — NEARBY FIRST / PROGRESSIVE DISCOVERY
    ========================================================= */
 .world-news-scope{display:grid;gap:16px;margin-top:6px}
 .world-news-scope-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:4px 2px}
@@ -19099,17 +19099,17 @@ body.marketplace-page-active .new-product-card img{
 
 
 
-/* GlobeDisc intro: floating navigation stays hidden until the intro ends. */
-body.globedisc-splash-active .mobile-bottom-nav{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+/* banjara intro: floating navigation stays hidden until the intro ends. */
+body.banjara-splash-active .mobile-bottom-nav{display:none!important;visibility:hidden!important;pointer-events:none!important;}
 
 
-/* GlobeDisc floating navigation final state */
+/* banjara floating navigation final state */
 html body .mobile-bottom-nav{
     pointer-events:auto !important;
     touch-action:manipulation !important;
     z-index:120000 !important;
 }
-html body.globedisc-splash-active .mobile-bottom-nav,
+html body.banjara-splash-active .mobile-bottom-nav,
 html body:has(.modal:not(.hidden)) .mobile-bottom-nav,
 html body.studentkart-product-details-open .mobile-bottom-nav,
 html body.studentkart-chat-open .mobile-bottom-nav,
@@ -19121,7 +19121,7 @@ html body.studentkart-search-results-active .mobile-bottom-nav{
 }
 
 
-/* GlobeDisc home hero — compact heading/search spacing */
+/* banjara home hero — compact heading/search spacing */
 .hero.studentkart-top{
     padding-top:30px !important;
     padding-bottom:18px !important;
@@ -19288,7 +19288,7 @@ html body.ai-assistant-page-active .mobile-bottom-nav{
     box-shadow:0 2px 8px rgba(16,42,67,.05);
 }
 
-/* GlobeDisc AI rich answers */
+/* banjara AI rich answers */
 #aiAssistantPage .ai-chat-rich{max-width:94%;width:100%;box-sizing:border-box}
 .ai-rich-answer{font-size:13px;line-height:1.55}
 .ai-answer-text{color:#243b53;margin-bottom:10px}
@@ -19320,7 +19320,7 @@ html body.ai-assistant-page-active .mobile-bottom-nav{
   .ai-source-card p{-webkit-line-clamp:2}
 }
 
-/* GlobeDisc AI — independent cool chat aesthetic */
+/* banjara AI — independent cool chat aesthetic */
 #aiAssistantPage{background:#080b14 !important;color:#eef2ff !important}
 #aiAssistantPage .ai-assistant-navbar{background:rgba(10,13,24,.88) !important;border-bottom:1px solid rgba(139,92,246,.22) !important;backdrop-filter:blur(16px)}
 #aiAssistantPage .ai-assistant-navbar-inner{max-width:980px}
@@ -19355,7 +19355,7 @@ html body.ai-assistant-page-active .mobile-bottom-nav{
 #aiAssistantPage .ai-thinking{color:#8f9ab3}
 @media(max-width:700px){#aiAssistantPage .ai-assistant-messages{padding:20px 12px 105px}#aiAssistantPage .ai-assistant-welcome h1{font-size:23px}}
 
-/* GlobeDisc AI chat — clear two-sided conversation layout. */
+/* banjara AI chat — clear two-sided conversation layout. */
 .ai-assistant-messages{display:flex;flex-direction:column;align-items:stretch;gap:12px;}
 .ai-assistant-message{width:100%;display:flex;align-items:flex-end;gap:8px;margin:0;}
 .ai-assistant-message.is-user{justify-content:flex-end;}
@@ -19367,7 +19367,7 @@ html body.ai-assistant-page-active .mobile-bottom-nav{
 .ai-assistant-message-avatar img{width:21px;height:21px;object-fit:contain;}
 @media(max-width:600px){.ai-assistant-message-bubble{max-width:84%;padding:10px 13px;}.ai-assistant-message-avatar{width:27px;height:27px;flex-basis:27px;}.ai-assistant-message-avatar img{width:19px;height:19px;}}
 
-/* GlobeDisc AI mobile chat — WhatsApp-style keyboard-safe composer. */
+/* banjara AI mobile chat — WhatsApp-style keyboard-safe composer. */
 #aiAssistantPage{
     height:100dvh !important;
     min-height:0 !important;
@@ -19431,7 +19431,7 @@ html body .mobile-bottom-nav .bottom-nav-item{
   touch-action:manipulation !important;
   cursor:pointer !important;
 }
-html body.globedisc-splash-active .mobile-bottom-nav,
+html body.banjara-splash-active .mobile-bottom-nav,
 html body:has(.modal:not(.hidden)) .mobile-bottom-nav,
 html body.studentkart-product-details-open .mobile-bottom-nav,
 html body.studentkart-chat-open .mobile-bottom-nav,
@@ -19446,7 +19446,7 @@ html body.studentkart-search-results-active .mobile-bottom-nav{
 }
 
 
-/* GlobeDisc home background — visible logo box pattern */
+/* banjara home background — visible logo box pattern */
 #home{
   position:relative !important;
   overflow:hidden !important;
