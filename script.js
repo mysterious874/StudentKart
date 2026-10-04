@@ -14509,3 +14509,27 @@ document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindFloatingBar,{once:true});else bindFloatingBar();
 })();
+/* FLOATING BAR TOUCH FALLBACK — resolve taps by screen coordinates */
+(function(){
+  function install(){
+    const nav=document.querySelector(".mobile-bottom-nav");
+    if(!nav || nav.dataset.touchFallback==="1") return;
+    nav.dataset.touchFallback="1";
+    function handle(e){
+      if(document.body.classList.contains("globedisc-splash-active")) return;
+      const p=e.touches?.[0]||e.changedTouches?.[0]||e;
+      if(!p || typeof p.clientX!=="number") return;
+      const r=nav.getBoundingClientRect();
+      if(p.clientX<r.left||p.clientX>r.right||p.clientY<r.top||p.clientY>r.bottom)return;
+      const items=[...nav.querySelectorAll(".bottom-nav-item")];
+      const item=items.find(b=>{const q=b.getBoundingClientRect();return p.clientX>=q.left&&p.clientX<=q.right&&p.clientY>=q.top&&p.clientY<=q.bottom;});
+      if(!item)return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      item.click();
+    }
+    window.addEventListener("pointerup",handle,{capture:true,passive:false});
+    window.addEventListener("touchend",handle,{capture:true,passive:false});
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+})();
