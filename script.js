@@ -12124,9 +12124,12 @@ function handleNewSettingsAction(action){
 
 function showNewSettingsInfo(title,body){
   const content=$("settingsDetailContent"); if(!content) return;
-  content.innerHTML='<div class="settings-info-card"><div class="settings-info-icon"><i class="fas fa-circle-info"></i></div><h3>'+title+'</h3><p>'+body+'</p><button class="btn btn-primary" type="button" onclick="closeModal(\\'settingsDetailModal\\')">Done</button></div>';
+  content.innerHTML='<div class="settings-info-card"><div class="settings-info-icon"><i class="fas fa-circle-info"></i></div><h3>'+title+'</h3><p>'+body+'</p><button class="btn btn-primary" type="button" data-settings-done>Done</button></div>';
+  const done=content.querySelector("[data-settings-done]");
+  if(done) done.addEventListener("click",()=>closeModal("settingsDetailModal"));
 }
-\nconst footerInfoContent = {
+
+const footerInfoContent = {
     about: {
         title: "About StudentKart",
         body: `
