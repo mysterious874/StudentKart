@@ -11,7 +11,7 @@ let communities=[];
 function avatar(x){return '<div class="bc-avatar">'+x+'</div>'}
 function build(){
  const oldMain=$("main"); if(oldMain) oldMain.style.display="none";
- const oldSplash=$("#banjaraSplash"); if(oldSplash){oldSplash.classList.add("is-hidden");oldSplash.remove();}
+ const oldSplash=$("#banjaraSplash"); if(oldSplash){oldSplash.style.pointerEvents="none"; }
  document.body.classList.add("bc-app-ready");document.body.classList.remove("banjara-splash-active");
  const root=document.createElement("div");root.id="bcAppShell";
  root.innerHTML='<div class="bc-app">'+
@@ -197,5 +197,36 @@ function bind(){
  document.addEventListener("submit",e=>{const f=e.target.closest("[data-auth-form]");if(!f)return;e.preventDefault();void bcHandleAuth(f);});
  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 }
+
+/* Frontend interaction router */
+document.addEventListener("click",function(e){
+  const homeTab=e.target.closest("[data-home-tab]");if(homeTab){state.homeTab=homeTab.dataset.homeTab;renderAll();showScreen("home");return;}
+  const ct=e.target.closest("[data-connect-tab]");if(ct){state.connectTab=ct.dataset.connectTab;renderAll();showScreen("connect");return;}
+  const cm=e.target.closest("[data-community-tab]");if(cm){state.communityTab=cm.dataset.communityTab;renderAll();showScreen("community");return;}
+  const cs=e.target.closest("[data-connect-search-btn]");if(cs){state.connectSearch=$("[data-connect-search]")?.value||"";renderAll();showScreen("connect");return;}
+  const cms=e.target.closest("[data-community-search-btn]");if(cms){state.communitySearch=$("[data-community-search]")?.value||"";renderAll();showScreen("community");return;}
+  const chat=e.target.closest("[data-chat-name]");if(chat){bcOpenChat(chat.dataset.chatName);return;}
+  const newChat=e.target.closest("[data-new-chat]");if(newChat){modal("New Chat",'<div class="bc-form"><div class="bc-field"><label>Find a person</label><input data-new-chat-input placeholder="Search by name"></div><button class="bc-action primary" data-demo="New chat ready">Start chat</button></div>');return;}
+  const send=e.target.closest("[data-send-chat]");if(send){const input=$("[data-chat-input]");const v=(input?.value||"").trim();if(!v){toast("Type a message first");return;}const box=$(".bc-chat-messages");if(box){box.insertAdjacentHTML("beforeend",'<div class="bc-chat-bubble outgoing">'+esc(v)+'</div>');box.scrollTop=box.scrollHeight;}if(input)input.value="";return;}
+  const post=e.target.closest("[data-post-action]");if(post){const a=post.dataset.postAction;if(a==="like"){post.classList.toggle("is-active");post.textContent=post.classList.contains("is-active")?"♥ Liked":"♡ Like";}else if(a==="save"){post.classList.toggle("is-active");post.textContent=post.classList.contains("is-active")?"🔖 Saved":"🔖 Save";}else if(a==="comment"){modal("Comments",'<div class="bc-list"><div class="bc-row">'+avatar("RS")+'<span class="bc-row-main"><strong>Ravi S.</strong><small>Looking forward to this! ❤️</small></span></div></div><div class="bc-chat-composer"><input placeholder="Write a comment..." data-comment-input><button data-send-comment><i class="fas fa-paper-plane"></i></button></div>');}else{modal("Share",'<div class="bc-card"><p>Share this post with your connections or communities.</p><button class="bc-action primary" data-demo="Post link copied">Copy link</button></div>');}return;}
+  if(e.target.closest("[data-post-menu]")){modal("Post options",'<div class="bc-setting-list"><button class="bc-setting" data-demo="Post hidden"><span class="bc-setting-main"><strong>Hide post</strong><small>Show fewer posts like this</small></span></button><button class="bc-setting" data-demo="Post reported"><span class="bc-setting-main"><strong>Report post</strong><small>Tell us about a problem</small></span></button></div>');return;}
+  if(e.target.closest("[data-community-id]")){const card=e.target.closest(".bc-community-card");const title=card?.querySelector("h3")?.textContent||"Community";modal(title,'<div class="bc-card"><p>Explore posts, members and events in this community.</p><div class="bc-setting-controls"><button class="bc-action primary" data-demo="Joined community">Join community</button><button class="bc-action" data-close-modal>Close</button></div></div>');return;}
+  if(e.target.closest("[data-event]")){const title=e.target.closest("[data-event]").dataset.event;modal(title,'<div class="bc-card"><p>Community event details, attendees and reminders will appear here.</p><button class="bc-action primary" data-demo="Event interest saved">I'm interested</button></div>');return;}
+  if(e.target.closest("[data-create-post]")){bcComposer("Post","Share something with your community.");return;}
+  if(e.target.closest("[data-create-event]")){bcComposer("Event","Create a community event.");return;}
+  if(e.target.closest("[data-profile-tab]")){toast(e.target.closest("[data-profile-tab]").dataset.profileTab+" section opened");return;}
+  if(e.target.closest("[data-mark-read]")){$(".bc-notif-row .bc-badge").forEach(x=>x.style.display="none");toast("All notifications marked as read");return;}
+  const setting=e.target.closest("[data-setting]");if(setting){const labels=["Profile","Notifications","Appearance","Language","Privacy","Security","Blocked accounts","Sessions","Help & About","Account"];bcSettingDetail(labels[+setting.dataset.setting]||"Settings",+setting.dataset.setting);return;}
+});
+document.addEventListener("input",function(e){
+  if(e.target.matches("[data-chat-search]")){state.chatSearch=e.target.value;renderAll();showScreen("chats");}
+  if(e.target.matches("[data-connect-search]"))state.connectSearch=e.target.value;
+  if(e.target.matches("[data-community-search]"))state.communitySearch=e.target.value;
+});
+function bcOpenChat(name){modal("Chat with "+esc(name),'<div class="bc-chat-window"><div class="bc-chat-messages"><div class="bc-chat-bubble incoming">Hi! Welcome to Banjara Connect.</div><div class="bc-chat-bubble outgoing">Hello 👋</div></div><div class="bc-chat-composer"><button data-demo="Emoji picker opened">😊</button><input placeholder="Type a message..." data-chat-input><button data-send-chat><i class="fas fa-paper-plane"></i></button></div><div class="bc-chat-tools"><button data-demo="Attachment picker opened">📎 Attach</button><button data-demo="Voice recording UI opened">🎙 Voice</button><button data-demo="Reply mode enabled">↩ Reply</button></div></div>');}
+function bcComposer(title,help){modal(title,'<form class="bc-form" data-composer-form><p class="bc-helper">'+help+'</p><div class="bc-field"><label>Title</label><input required placeholder="'+title+' title"></div><div class="bc-field"><label>Description</label><textarea required placeholder="Write here..."></textarea></div><div class="bc-setting-controls"><button class="bc-action" type="button" data-demo="Draft saved">Save draft</button><button class="bc-action primary" type="submit">Publish</button></div></form>');}
+function bcSettingDetail(title,index){const content=["Edit your personal profile details.","Choose which notifications you receive.","Light theme is active. Dark theme UI is available for frontend testing.","English, Hindi and Lambadi are supported in the interface.","Control profile visibility and interaction preferences.","Review account security options.","Blocked accounts will be listed here.","Active login sessions will be listed here.","Help, feedback and app information.","Logout, account deletion and account preferences."][index]||"Settings";modal(title,'<div class="bc-card bc-setting-detail"><p>'+content+'</p><div class="bc-setting-controls"><button class="bc-action primary" data-setting-action="'+index+'">Save</button><button class="bc-action" data-close-modal>Close</button></div></div>');}
+document.addEventListener("submit",function(e){if(!e.target.matches("[data-composer-form]"))return;e.preventDefault();closeModal();toast("Frontend draft published locally");});
+
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",build,{once:true});else build();
 })();
