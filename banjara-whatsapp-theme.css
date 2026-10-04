@@ -612,3 +612,21 @@ html body #home .studentkart-top-content{
 html body #home .home-discovery-heading{
   margin-top:0!important;
 }
+
+
+/* Dark controls inside the top search bar */
+html body #home .top-search-strip>i,
+html body #home .top-search-strip .top-filter-button,
+html body #home .top-search-strip #heroSearchButton{
+  color:var(--bc-maroon)!important;
+  -webkit-text-fill-color:var(--bc-maroon)!important;
+}
+html body #home .top-search-strip .top-filter-button{
+  background:#f1e1d3!important;
+  border-color:#d8b9a4!important;
+}
+html body #home .top-search-strip #heroSearchButton{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  background:var(--bc-maroon)!important;
+}
