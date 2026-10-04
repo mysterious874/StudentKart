@@ -19,20 +19,32 @@
 </head>
 
 <body class="banjara-splash-active">
-    <div id="banjaraSplash" class="banjara-splash" aria-label="Banjara Connect loading" role="status" style="pointer-events:none!important;">
-        <div class="banjara-splash-orbit banjara-orbit-one"></div><div class="banjara-splash-orbit banjara-orbit-two"></div>
-        <div class="banjara-splash-logo" aria-hidden="true"><img src="/icons/banjara-connect-icon.svg" alt="" class="banjara-splash-icon"></div>
-        <div class="banjara-splash-name"><span>Banjara</span><b>Connect</b></div>
-        <div class="banjara-splash-tagline">Connected by community. Inspired by culture.</div>
-        <div class="banjara-splash-progress"><span></span></div>
+    <div id="banjaraSplash" class="banjara-splash-new" aria-label="Banjara Connect loading" role="status">
+        <div class="banjara-splash-glow banjara-glow-one"></div>
+        <div class="banjara-splash-glow banjara-glow-two"></div>
+        <div class="banjara-splash-pattern" aria-hidden="true"></div>
+        <div class="banjara-splash-content">
+            <div class="banjara-splash-logo-wrap">
+                <div class="banjara-splash-logo-ring"></div>
+                <img src="/icons/banjara-connect-icon.svg" alt="Banjara Connect" class="banjara-splash-logo-img">
+            </div>
+            <div class="banjara-splash-name"><span>Banjara</span> Connect</div>
+            <div class="banjara-splash-line"></div>
+            <div class="banjara-splash-tagline">Apni community. Apni pehchaan. Apna connection.</div>
+            <div class="banjara-splash-loader"><span></span></div>
+        </div>
     </div>
     <script>
     (function () {
-        try { if ("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch (e) {}
-        function resetAppScroll() { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }
-        resetAppScroll();
-        window.addEventListener("load", resetAppScroll, { once: true });
-        window.addEventListener("pageshow", resetAppScroll);
+        var splash = document.getElementById("banjaraSplash");
+        if (!splash) return;
+        window.setTimeout(function () {
+            splash.classList.add("is-hidden");
+            document.body.classList.remove("banjara-splash-active");
+            window.setTimeout(function () {
+                if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
+            }, 700);
+        }, 3200);
     })();
     </script>
     <script>
