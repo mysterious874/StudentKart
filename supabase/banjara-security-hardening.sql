@@ -382,3 +382,23 @@ to authenticated using (
   exists(select 1 from communities c where c.id=community_members.community_id and c.created_by=(select auth.uid()))
 )
 with check (role in ('member','admin','moderator'));
+
+
+-- Message receipts use a SECURITY DEFINER RPC so members cannot update
+-- message content or deletion fields merely by being chat members.
+create or replace function public.mark_message_read(p_message_id uuid)
+returns boolean language plpgsql security definer set search_path=public as $$
+declare cid uuid;
+begin
+  select chat_id into cid from messages where id=p_message_id;
+  if cid is null then return false; end if;
+  if not exists(select 1 from chat_members where chat_id=cid and user_id=(select auth.uid())) then return false; end if;
+  update messages set delivered_at=coalesce(delivered_at,now()), read_at=now() where id=p_message_id;
+  return true;
+end; $$;
+revoke all on function public.mark_message_read(uuid) from public,anon,authenticated;
+grant execute on function public.mark_message_read(uuid) to authenticated;
+
+drop policy if exists "messages member receipts" on public.messages;
+revoke update on public.messages from authenticated;
+grant update (deleted_at) on public.messages to authenticated;
