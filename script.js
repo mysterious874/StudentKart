@@ -5657,9 +5657,12 @@ function performSearch() {
     const query = String(heroSearch?.value || "").trim();
     if (!query) return;
 
-    if (!globeDiscRouteSearch(query) && typeof showSearchResultsPage === "function") {
+    const routed = globeDiscRouteSearch(query);
+    if (routed) return;
+
+    if (typeof showSearchResultsPage === "function") {
         showSearchResultsPage(query);
-    } else if (!globeDiscRouteSearch(query)) {
+    } else {
         const marketplaceSearch = $("marketplaceSearch");
         if (marketplaceSearch) marketplaceSearch.value = query;
         applyFilters();
