@@ -80,15 +80,11 @@ Deno.serve(async (req) => {
       return json({ error: "Mobile number or password is incorrect." }, 401);
     }
 
-    // Keep the newest login active and revoke older sessions for this account.
-    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-
-    const revoke = await admin.auth.admin.signOut(data.user.id, "others");
-    if (revoke.error) {
-      console.warn("Could not revoke older sessions:", revoke.error.message);
-    }
+    // Session exclusivity is enforced by the application-level active_session_id
+    // guard. The Admin Auth "signOut(..., others)" endpoint is not reliable here
+    // because it can reject the service-role request as an invalid JWT.
+    // Returning the fresh session lets the client register its new session id;
+    // existing sessions are then signed out by get-active-session polling.
 
     return json({
       success: true,
