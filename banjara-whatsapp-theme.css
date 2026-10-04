@@ -325,3 +325,12 @@ html body #home .banjara-home-search button{
   html body #home .banjara-home-name{font-size:24px!important;margin-bottom:15px!important}
   html body #home .banjara-home-search{height:48px}
 }
+
+
+/* Compact Banjara Connect home header */
+html body #home.banjara-home-top{padding:16px 14px 12px!important}
+html body #home .banjara-home-logo{width:58px!important;height:58px!important;margin-bottom:5px!important}
+html body #home .banjara-home-name{font-size:21px!important;margin-bottom:11px!important}
+html body #home .banjara-home-search{height:43px!important;width:min(560px,100%)!important;padding-left:13px!important;gap:7px!important}
+html body #home .banjara-home-search input{font-size:14px!important}
+html body #home .banjara-home-search button{width:32px!important;height:32px!important;flex-basis:32px!important}
