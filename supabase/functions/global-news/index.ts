@@ -80,12 +80,12 @@ Deno.serve(async (req) => {
       }
 
       const xml = await rssResponse.text();
-      const items = xml.match(/<item>[\\s\\S]*?<\\/item>/gi) || [];
+      const items = xml.match(/<item>[\s\S]*?<\/item>/gi) || [];
 
       const articles = items.map((block) => {
         const getTag = (tag) => {
-          const match = block.match(new RegExp("<" + tag + "(?:\\\\s[^>]*)?>([\\\\s\\\\S]*?)</" + tag + ">", "i"));
-          return match ? match[1].replace(/<!\\[CDATA\\[|\\]\\]>/g, "").replace(/<[^>]*>/g, "").trim() : "";
+          const match = block.match(new RegExp("<" + tag + ">([\\s\\S]*?)</" + tag + ">", "i"));
+          return match ? match[1].replace(/<!\[CDATA\[|\]\]>/g, "").replace(/<[^>]*>/g, "").trim() : "";
         };
 
         return {
