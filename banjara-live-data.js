@@ -72,7 +72,7 @@ async function openChat(chatId,name){
  const hiddenIds=new Set((hiddenRows||[]).map(x=>x.message_id));
  const q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url,reply_to_id").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
  const {data,error}=await q;if(error){box.querySelector("#bcChatMessages").innerHTML='<div class="bc-empty"><strong>Could not load messages</strong><span>Please try again.</span></div>';return;}
- await render((data||[]).filter(m=>!hiddenIds.has(m.id)); await render(data);
+ await render((data||[]).filter(m=>!hiddenIds.has(m.id)));
  await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);
  if(window.__bcLive?.chats){const current=window.__bcLive.chats.find(x=>x.id===chatId);if(current)current.unread=false;}
  const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn");
