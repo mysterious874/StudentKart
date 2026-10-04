@@ -33,14 +33,14 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
     const sessionId = String(body?.session_id || "").trim();
-    const phone = String(body?.phone || "").replace(/D/g, "");
+    const phone = String(body?.phone || "").replace(/\D/g, "");
 
     if (!/^[A-Za-z0-9_-]{20,128}$/.test(sessionId)) {
       return json({ error: "Invalid session id." }, 400);
     }
 
     const normalizedPhone = phone.length === 12 && phone.startsWith("91") ? phone.slice(2) : phone;
-    if (!/^d{10}$/.test(normalizedPhone)) return json({ error: "Invalid mobile number." }, 400);
+    if (!/^\d{10}$/.test(normalizedPhone)) return json({ error: "Invalid mobile number." }, 400);
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
