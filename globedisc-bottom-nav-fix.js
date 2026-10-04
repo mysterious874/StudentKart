@@ -54,19 +54,6 @@
         return;
       }
 
-      if (id === "bottomMoreButton") {
-        if (typeof window.openGlobeDiscMore === "function") {
-          window.openGlobeDiscMore();
-        } else {
-          const more = document.getElementById("globediscMoreMenu");
-          if (more) {
-            more.classList.remove("hidden");
-            more.setAttribute("aria-hidden","false");
-          }
-        }
-        return;
-      }
-
       if (item.classList.contains("bottom-chat-nav-item")) {
         const chatButton = document.getElementById("chatButton");
         if (chatButton) {
