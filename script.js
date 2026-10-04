@@ -14487,3 +14487,25 @@ document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();
         });
     });
 })();
+/* FINAL FLOATING BAR FALLBACK — independent of setupEventListeners */
+(function(){
+  function bindFloatingBar(){
+    if(document.documentElement.dataset.floatingBarFallback==="1") return;
+    document.documentElement.dataset.floatingBarFallback="1";
+    document.addEventListener("click",function(event){
+      const button=event.target.closest(".mobile-bottom-nav .bottom-nav-item");
+      if(!button)return;
+      const id=button.id,isChat=button.classList.contains("bottom-chat-nav-item");
+      if(!id&&!isChat&&!button.matches('a[href="#home"]'))return;
+      event.preventDefault();event.stopImmediatePropagation();
+      if(button.matches('a[href="#home"]')){window.scrollTo({top:0,behavior:"smooth"});return;}
+      if(id==="bottomMarketplaceButton"){window.location.href="marketplace.html";return;}
+      if(isChat){if(!currentUser){openModal("loginModal");showToast("Please login to chat","warning");}else openModal("inquiriesModal");return;}
+      if(id==="bottomWishlistButton"){void openWishlist(event);return;}
+      if(id==="bottomProfileButton"){if(!currentUser){openModal("loginModal");showToast("Please login to view your profile","warning");}else void openProfile();return;}
+      if(id==="bottomSettingsButton"){openModal("settingsModal");return;}
+      if(id==="bottomCampusButton"){openModal("campusModal");return;}
+    },true);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindFloatingBar,{once:true});else bindFloatingBar();
+})();
