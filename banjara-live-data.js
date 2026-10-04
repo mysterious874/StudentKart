@@ -41,9 +41,41 @@ function refreshUI(){
  const ns=document.querySelector("#bc-notifications .bc-list");
  if(ns)ns.innerHTML=d.notifications.length?d.notifications.map(n=>'<div class="bc-row" data-notification-id="'+n.id+'"><div class="bc-avatar">'+initials(n.title)+'</div><div class="bc-row-main"><strong>'+escLive(n.title)+'</strong><small>'+escLive(n.message)+' • '+ago(n.created_at)+'</small></div>'+(n.is_read?'':'<span class="bc-badge">•</span>')+'</div>').join(""):'<div class="bc-empty"><i class="fas fa-bell"></i><strong>All caught up</strong><span>You have no new notifications.</span></div>';
 }
-window.bcReloadLive=loadLive;
-document.addEventListener("click",async e=>{
- const n=e.target.closest("[data-notification-id]"); if(n){await SB().from("notifications").update({is_read:true}).eq("id",n.dataset.notificationId);n.querySelector(".bc-badge")?.remove();return;}
+async function openChat(chatId,name){
+ const existing=document.getElementById("bcChatOverlay"); if(existing)existing.remove();
+ const box=document.createElement("section");box.id="bcChatOverlay";box.className="bc-chat-overlay";
+ box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small>Message</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><form class="bc-chat-composer" id="bcChatForm"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button><i class="fas fa-paper-plane"></i></button></form>';
+ document.body.appendChild(box);
+ const sb=SB(), {data:{user}}=await sb.auth.getUser(); if(!user)return;
+ let q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
+ const {data,error}=await q;if(error){box.querySelector("#bcChatMessages").innerHTML='<div class="bc-empty"><strong>Could not load messages</strong><span>Please try again.</span></div>';return;}
+ const render=rows=>{const el=box.querySelector("#bcChatMessages");el.innerHTML=(rows||[]).map(m=>'<div class="bc-msg '+(m.sender_id===user.id?'mine':'theirs')+'"><div>'+escLive(m.body)+'</div><small>'+ago(m.created_at)+'</small></div>').join("");el.scrollTop=el.scrollHeight;};
+ render(data);
+ box.querySelector("[data-chat-close]").onclick=()=>box.remove();
+ box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const input=box.querySelector("#bcChatInput"),body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text"});if(ins.error){input.value=body;return;}const latest=await sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);render(latest.data||[]);input.focus();};
+ const channel=sb.channel("bc-chat-"+chatId).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},payload=>{if(payload.new.sender_id!==user.id){const el=box.querySelector("#bcChatMessages");const m=payload.new;el.insertAdjacentHTML("beforeend",'<div class="bc-msg theirs"><div>'+escLive(m.body)+'</div><small>'+ago(m.created_at)+'</small></div>');el.scrollTop=el.scrollHeight;}}).subscribe();
+ box.dataset.channel="bc-chat-"+chatId;
+}
+async function newChat(){
+ const sb=SB();if(!sb)return;const {data:{user}}=await sb.auth.getUser();if(!user)return;
+ const term=prompt("Search member by mobile number or name");if(!term?.trim())return;
+ const digits=term.replace(/\D/g,"");
+ let query=sb.from("profiles").select("id,name,mobile,city,state").neq("id",user.id).limit(10);
+ if(digits.length>=10)query=query.eq("mobile","+91"+digits.slice(-10));else query=query.ilike("name","%"+term.trim()+"%");
+ const {data,error}=await query;if(error||!data?.length){alert("Member not found.");return;}
+ const p=data[0];
+ const {data:mine}=await sb.from("chat_members").select("chat_id").eq("user_id",user.id);
+ const mineIds=(mine||[]).map(x=>x.chat_id);
+ let chat=null;
+ if(mineIds.length){const {data:other}=await sb.from("chat_members").select("chat_id").eq("user_id",p.id).in("chat_id",mineIds).limit(1);if(other?.length)chat=other[0].chat_id;}
+ if(!chat){const c=await sb.from("chats").insert({kind:"direct",created_by:user.id}).select("id").single();if(c.error){alert("Could not start chat.");return;}chat=c.data.id;const ins=await sb.from("chat_members").insert([{chat_id:chat,user_id:user.id},{chat_id:chat,user_id:p.id}]);if(ins.error){alert("Could not add member.");return;}}
+ openChat(chat,p.name||"Banjara Member");
+}
+window.bcReloadLive=loadLive;window.bcOpenChat=openChat;window.bcNewChat=newChat;
+
+
+<style id="bc-live-chat-style">#bcChatOverlay{position:fixed;inset:0;z-index:190000;background:var(--bc-cream,#fbf4e8);display:flex;flex-direction:column}.bc-chat-head{height:64px;display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--bc-maroon,#7b1e2b);color:#fff}.bc-chat-head button{border:0;background:transparent;color:#fff;font-size:18px}.bc-chat-head small{display:block;opacity:.75}.bc-chat-messages{flex:1;overflow:auto;padding:18px 14px;display:flex;flex-direction:column;gap:8px}.bc-msg{max-width:78%;padding:9px 12px;border-radius:16px;font-size:14px;line-height:1.35}.bc-msg.mine{align-self:flex-end;background:var(--bc-orange,#d97706);color:#fff;border-bottom-right-radius:5px}.bc-msg.theirs{align-self:flex-start;background:#fff;color:#3b2930;border-bottom-left-radius:5px}.bc-msg small{display:block;font-size:10px;opacity:.6;margin-top:3px}.bc-chat-composer{display:flex;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid rgba(0,0,0,.08);padding-bottom:max(10px,env(safe-area-inset-bottom))}.bc-chat-composer input{flex:1;border:1px solid #ddd;border-radius:22px;padding:11px 14px;outline:0}.bc-chat-composer button{width:44px;border:0;border-radius:50%;background:var(--bc-maroon,#7b1e2b);color:#fff}@media(min-width:800px){#bcChatOverlay{left:50%;top:8%;right:8%;bottom:8%;border-radius:18px;overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.25)}} </style>\ndocument.addEventListener("click",async e=>{
+ const chat=e.target.closest("[data-chat-id]");if(chat){openChat(chat.dataset.chatId,chat.dataset.chatName||"Banjara Member");return;}const newChatBtn=e.target.closest("[data-new-chat]");if(newChatBtn){newChat();return;}const n=e.target.closest("[data-notification-id]"); if(n){await SB().from("notifications").update({is_read:true}).eq("id",n.dataset.notificationId);n.querySelector(".bc-badge")?.remove();return;}
 });
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(loadLive,1200));else setTimeout(loadLive,1200);
 })();
