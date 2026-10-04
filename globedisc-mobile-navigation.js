@@ -67,6 +67,7 @@
       '<button type="button" class="settings-section-button" data-settings-section="account-actions"><span><i class="fas fa-door-open"></i><b>Account Actions</b><small>Logout or delete account</small></span><i class="fas fa-chevron-right"></i></button>' +
       '</div></div>';
     document.body.appendChild(modal);
+    ensureSettingsDetailModal();
     modal.querySelectorAll("[data-settings-close]").forEach(function(btn) {
       btn.addEventListener("click", function() {
         if (typeof window.closeModal === "function") window.closeModal("settingsModal");
@@ -74,6 +75,43 @@
       });
     });
     return modal;
+  }
+
+
+  function ensureSettingsDetailModal() {
+    var detail = document.getElementById("settingsDetailModal");
+    if (detail) return detail;
+    detail = document.createElement("div");
+    detail.id = "settingsDetailModal";
+    detail.className = "modal hidden";
+    detail.innerHTML = '<div class="modal-overlay" data-settings-detail-close></div><div class="modal-content settings-detail-modal-content"><div class="settings-detail-header"><button type="button" class="settings-detail-back" data-settings-detail-back aria-label="Back to Settings"><i class="fas fa-arrow-left"></i></button><div class="settings-detail-icon-wrap"><i id="settingsDetailIcon" class="fas fa-circle-info"></i></div><div class="settings-detail-heading"><h2 id="settingsDetailTitle">Settings</h2><p id="settingsDetailSubtitle">Manage your preferences.</p></div><button type="button" class="modal-close" data-settings-detail-close aria-label="Close">&times;</button></div><div id="settingsDetailContent" class="settings-detail-content"></div></div>';
+    document.body.appendChild(detail);
+
+    function backToSettings() {
+      if (typeof window.closeModal === "function") {
+        try { window.closeModal("settingsDetailModal"); } catch (_) { detail.classList.add("hidden"); }
+      } else {
+        detail.classList.add("hidden");
+      }
+      var settings = document.getElementById("settingsModal");
+      if (settings) {
+        settings.classList.remove("hidden");
+        document.body.classList.add("modal-open");
+        if (typeof window.applyStudentKartSettings === "function") {
+          try { window.applyStudentKartSettings(); } catch (_) {}
+        }
+      }
+    }
+
+    detail.querySelectorAll("[data-settings-detail-close]").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        if (typeof window.closeModal === "function") window.closeModal("settingsDetailModal");
+        else detail.classList.add("hidden");
+      });
+    });
+    var back = detail.querySelector("[data-settings-detail-back]");
+    if (back) back.addEventListener("click", backToSettings);
+    return detail;
   }
 
   function openSettingsFromNav() {
