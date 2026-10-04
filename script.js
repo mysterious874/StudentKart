@@ -6327,7 +6327,7 @@ function handleGlobeDiscSearchIntent(intent, query) {
         return;
     }
     if (mode === "Photos") {
-        window.open("https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(q), "_blank", "noopener");
+        showSearchResultsPage(q + " photos");
         return;
     }
     const suffix = {News:" latest news",Reviews:" reviews",Price:" price",Specs:" specifications","How to":" how to"}[mode] || "";
