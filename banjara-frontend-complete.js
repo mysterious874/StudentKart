@@ -181,7 +181,8 @@ function closeModal(){$("#bcModal").classList.remove("open")}
 function create(){modal("Create",'<div class="bc-create-grid">'+[['fa-pen','Post','Share an update'],['fa-image','Photo / Video','Share a moment'],['fa-square-poll-vertical','Poll','Ask your community'],['fa-calendar-days','Event','Create an event'],['fa-user-group','Group','Start a group'],['fa-people-group','Community','Build a community']].map(x=>'<button class="bc-create" data-create-kind="'+x[1]+'"><i class="fas '+x[0]+'"></i><strong>'+x[1]+'</strong><small>'+x[2]+'</small></button>').join("")+'</div>')}
 function bind(){
  document.addEventListener("click",e=>{
-  const voiceSearch=e.target.closest("[data-voice-search]");if(voiceSearch){e.preventDefault();bcStartVoiceSearch();return;}\n const ai=e.target.closest("[data-ai-open]");if(ai){e.preventDefault();if(window.openBanjaraConnectAI)window.openBanjaraConnectAI();return;}
+  const voiceSearch=e.target.closest("[data-voice-search]");if(voiceSearch){e.preventDefault();bcStartVoiceSearch();return;}
+  const ai=e.target.closest("[data-ai-open]");if(ai){e.preventDefault();if(window.openBanjaraConnectAI)window.openBanjaraConnectAI();return;}
   const more=e.target.closest("[data-more]");if(more){e.preventDefault();e.stopPropagation();showScreen("settings");return}
   const nav=e.target.closest("[data-screen]");if(nav){e.preventDefault();showScreen(nav.dataset.screen);return}
   if(e.target.closest("[data-create]")){create();return}
