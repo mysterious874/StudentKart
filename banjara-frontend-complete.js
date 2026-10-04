@@ -335,7 +335,6 @@ const send=e.target.closest("[data-send-chat]");if(send){const input=$("#bcModal
  const create=e.target.closest(".bc-create");if(create){const label=(create.querySelector("strong")||{}).textContent||"Post";closeModal();bcComposer(label);return;}
  const action=e.target.closest("[data-post-action]");if(action){if(window.bcPostAction){void window.bcPostAction(action.dataset.postAction,action.dataset.postId);}else{toast("Feed is still loading");}return;}
  const setting=e.target.closest("[data-setting]");if(setting){bcSettingsPanel(+setting.dataset.setting);return;}
- const theme=e.target.closest("[data-theme]");if(theme){state.theme=theme.dataset.theme;document.body.classList.toggle("bc-dark",state.theme==="dark");closeModal();renderAll();showScreen("settings");toast(state.theme==="dark"?"Dark theme enabled":"Light theme enabled");return;}
  const lang=e.target.closest("[data-language]");if(lang){state.language=lang.dataset.language;closeModal();renderAll();showScreen("settings");toast("Language: "+state.language);return;}
  const ct=e.target.closest("[data-connect-tab]");if(ct){state.connectTab=ct.dataset.connectTab;renderAll();showScreen("connect");return;}
  const com=e.target.closest("[data-community-tab]");if(com){state.communityTab=com.dataset.communityTab;renderAll();showScreen("community");return;}
