@@ -48,7 +48,7 @@
                 const location=[u.area,u.city,u.state].filter(Boolean).join(", ")||"Not added";
                 const status=u.verification_status||"Not verified";
                 return `<article class="sk-admin-card">
-                  <div class="sk-admin-card-head"><div><strong>${esc(u.name||"Unnamed")}</strong><div class="sk-admin-meta">${esc(u.email||"No email")}${u.username?" · @"+esc(u.username):""}<br>Campus: ${esc(u.college||"Not added")}<br>Location: ${esc(location)}${u.phone?"<br>Phone: "+esc(u.phone):""}<br>Status: ${esc(status)}</div></div></div>
+                  <div class="sk-admin-card-head"><div><strong>${esc(u.name||"Unnamed")}</strong><div class="sk-admin-meta">${esc(u.email||"No email")}${u.username?" · @"+esc(u.username):""}<br>College: ${esc(u.college||"Not added")}<br>Location: ${esc(location)}${u.phone?"<br>Phone: "+esc(u.phone):""}<br>Status: ${esc(status)}</div></div></div>
                 </article>`;
             }).join("");
         }
