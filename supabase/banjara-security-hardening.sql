@@ -394,3 +394,17 @@ using ((select auth.uid())=sender_id or exists(select 1 from chat_members cm whe
 with check ((select auth.uid())=sender_id or exists(select 1 from chat_members cm where cm.chat_id=messages.chat_id and cm.user_id=(select auth.uid())));
 revoke update on public.messages from authenticated;
 grant update (deleted_at,delivered_at,read_at) on public.messages to authenticated;
+
+
+-- Feed media uses user-owned storage paths and follows post visibility.
+drop policy if exists "Banjara media authorized read" on storage.objects;
+create policy "Banjara media authorized read" on storage.objects for select to authenticated
+using (
+  bucket_id='banjara-media' and (
+    exists(select 1 from messages m join chat_members cm on cm.chat_id=m.chat_id
+           where cm.user_id=(select auth.uid()) and m.attachment_url=objects.name)
+    or exists(select 1 from posts p
+              where p.media @> jsonb_build_array(jsonb_build_object('path',objects.name))
+                and private.can_view_post(p.id))
+  )
+);
