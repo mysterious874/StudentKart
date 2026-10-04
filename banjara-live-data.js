@@ -104,12 +104,13 @@ async function openChat(chatId,name){
    const item=ev.target.closest("[data-message-id]");if(!item)return;
    const m=currentMessages.find(x=>x.id===item.dataset.messageId);if(!m)return;
    const action=document.createElement("div");action.className="bc-msg-actions";
-   action.innerHTML='<button type="button" data-action="reply"><i class="fas fa-reply"></i> Reply</button><button type="button" data-action="hide"><i class="fas fa-eye-slash"></i> Delete for me</button>'+(m.sender_id===user.id?'<button type="button" data-action="delete"><i class="fas fa-trash"></i> Delete for everyone</button>':"");
+   action.innerHTML='<button type="button" data-action="reply"><i class="fas fa-reply"></i> Reply</button><button type="button" data-action="hide"><i class="fas fa-eye-slash"></i> Delete for me</button>'+(m.sender_id===user.id?'<button type="button" data-action="delete"><i class="fas fa-trash"></i> Delete for everyone</button>':'<button type="button" data-action="block"><i class="fas fa-user-slash"></i> Block user</button>');
    document.body.appendChild(action);
    const rect=item.getBoundingClientRect();action.style.left=Math.max(10,Math.min(window.innerWidth-220,rect.left))+"px";action.style.top=Math.max(10,rect.top-8-action.offsetHeight)+"px";
    const close=()=>action.remove();action.onclick=async a=>{
      const b=a.target.closest("[data-action]");if(!b)return;const kind=b.dataset.action;close();
      if(kind==="reply"){setReply(m);return;}
+     if(kind==="block"){const ok=confirm("Block this user? You will no longer be able to chat with them.");if(!ok)return;const r=await sb.from("user_blocks").insert({blocker_id:user.id,blocked_id:m.sender_id});if(!r.error){alert("User blocked.");box.remove();}return;}
      if(kind==="hide"){const r=await sb.from("message_hidden").insert({message_id:m.id,user_id:user.id});if(!r.error)await render(currentMessages.filter(x=>x.id!==m.id));return;}
      if(kind==="delete"){const r=await sb.from("messages").update({deleted_at:new Date().toISOString()}).eq("id",m.id).eq("sender_id",user.id);if(!r.error){if(m.attachment_url)await sb.storage.from("banjara-media").remove([m.attachment_url]);await render(currentMessages.filter(x=>x.id!==m.id));}}
    };
