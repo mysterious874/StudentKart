@@ -19109,3 +19109,47 @@ html body.studentkart-search-results-active .mobile-bottom-nav{
     display:none !important;
     pointer-events:none !important;
 }
+
+
+/* GlobeDisc home hero — compact heading/search spacing */
+.hero.studentkart-top{
+    padding-top:30px !important;
+    padding-bottom:18px !important;
+}
+.home-discovery-heading{
+    margin-bottom:10px !important;
+}
+.home-discovery-heading .section-label{
+    margin-bottom:3px !important;
+    font-size:10px !important;
+}
+.home-discovery-heading h1{
+    margin-bottom:5px !important;
+    font-size:clamp(28px,4vw,42px) !important;
+    line-height:1.08 !important;
+    letter-spacing:-1px !important;
+}
+.home-discovery-heading p{
+    margin-bottom:9px !important;
+    font-size:13px !important;
+    line-height:1.4 !important;
+}
+@media(max-width:700px){
+    .hero.studentkart-top{
+        padding-top:20px !important;
+        padding-bottom:12px !important;
+    }
+    .home-discovery-heading{
+        margin-bottom:8px !important;
+    }
+    .home-discovery-heading h1{
+        font-size:25px !important;
+        line-height:1.1 !important;
+        letter-spacing:-.6px !important;
+    }
+    .home-discovery-heading p{
+        margin-bottom:7px !important;
+        font-size:12px !important;
+        line-height:1.35 !important;
+    }
+}
