@@ -135,13 +135,16 @@ async function openChat(chatId,name){
    const {data:cm}=await sb.from("chat_members").select("chat_id").eq("user_id",user.id).neq("chat_id",chatId);
    const ids=[...new Set((cm||[]).map(x=>x.chat_id))];if(!ids.length){alert("No other chats available.");return;}
    const {data:rows}=await sb.from("chat_members").select("chat_id,user_id").in("chat_id",ids);
-   const names=new Map();
-   for(const id of ids){const other=(rows||[]).find(x=>x.chat_id===id&&x.user_id!==user.id);if(other){const p=await sb.from("profiles").select("name").eq("id",other.user_id).maybeSingle();names.set(id,p.data?.name||"Banjara Member");}}
-   const choice=prompt("Forward to:\n"+ids.map((id,i)=>(i+1)+". "+names.get(id)).join("\n")+"\n\nEnter number:");
-   const index=Number(choice)-1;if(!Number.isInteger(index)||!ids[index])return;
-   const target=ids[index];
-   const ins=await sb.from("messages").insert({chat_id:target,sender_id:user.id,body:m.body||"",message_type:m.message_type||"text",attachment_url:m.attachment_url||null}).select("id").single();
-   if(ins.error){alert("Could not forward message.");return;}alert("Message forwarded.");
+   const otherIds=[...new Set((rows||[]).filter(x=>x.user_id!==user.id).map(x=>x.user_id))];
+   const {data:profiles}=otherIds.length?await sb.from("profiles").select("id,name,city,state").in("id",otherIds):{data:[]};
+   const pm=new Map((profiles||[]).map(p=>[p.id,p]));
+   const targets=ids.map(id=>{const other=(rows||[]).find(x=>x.chat_id===id&&x.user_id!==user.id);const p=other?pm.get(other.user_id):null;return {id,name:p?.name||"Banjara Member",sub:[p?.city,p?.state].filter(Boolean).join(" • ")};}).filter(x=>x.id);
+   const overlay=document.createElement("div");overlay.className="bc-forward-overlay";
+   overlay.innerHTML='<div class="bc-forward-card"><div class="bc-forward-head"><strong>Forward message</strong><button type="button" data-forward-close>×</button></div><div class="bc-forward-list">'+targets.map(t=>'<button type="button" class="bc-forward-target" data-forward-chat="'+t.id+'"><span class="bc-avatar">'+initials(t.name)+'</span><span><strong>'+escLive(t.name)+'</strong><small>'+escLive(t.sub||"Banjara Connect member")+'</small></span><i class="fas fa-paper-plane"></i></button>').join("")+'</div></div>';
+   document.body.appendChild(overlay);
+   const close=()=>overlay.remove();overlay.querySelector("[data-forward-close]").onclick=close;
+   overlay.addEventListener("click",async ev=>{const b=ev.target.closest("[data-forward-chat]");if(!b)return;const target=b.dataset.forwardChat;b.disabled=true;const ins=await sb.from("messages").insert({chat_id:target,sender_id:user.id,body:m.body||"",message_type:m.message_type||"text",attachment_url:m.attachment_url||null}).select("id").single();if(ins.error){b.disabled=false;alert("Could not forward message.");return;}close();alert("Message forwarded.");});
+   overlay.addEventListener("click",ev=>{if(ev.target===overlay)close();});
  };
  const sendAttachment=async file=>{
    if(!file)return;if(file.size>25*1024*1024){alert("File is too large. Maximum 25 MB.");return;}
