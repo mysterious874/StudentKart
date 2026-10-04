@@ -104,3 +104,36 @@ body.bc-app-ready>main,body.bc-app-ready>#navbarSearchPanel,body.bc-app-ready>#c
 }
 @media(max-width:560px){.bc-grid{grid-template-columns:repeat(2,1fr)}.bc-card{padding:11px}.bc-hero{padding-top:18px}.bc-topbar{min-height:58px}.bc-brand img{width:34px;height:34px}.bc-create-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:370px){.bc-app{padding-left:11px;padding-right:11px}.bc-bottom{width:calc(100vw - 8px)}.bc-bottom button{font-size:7px}.bc-bottom button i{font-size:14px}}
+
+
+/* Frontend hardening: keep the new Banjara shell isolated from legacy page chrome. */
+body.bc-app-ready>footer,
+body.bc-app-ready>.footer,
+body.bc-app-ready>header:not(#bcAppShell header),
+body.bc-app-ready>nav:not(#bcAppShell nav),
+body.bc-app-ready>.mobile-bottom-nav,
+body.bc-app-ready>.bottom-create-menu,
+body.bc-app-ready>#navbarSearchPanel,
+body.bc-app-ready>#categoryPickerModal,
+body.bc-app-ready>#sellerProfileModal,
+body.bc-app-ready>#editProfileModal,
+body.bc-app-ready>#myListingsModal,
+body.bc-app-ready>#loginModal,
+body.bc-app-ready>#signupModal,
+body.bc-app-ready>#settingsModal,
+body.bc-app-ready>#settingsDetailModal{display:none!important}
+
+body.bc-auth-mode .bc-bottom,
+body.bc-auth-mode .bc-topbar,
+body.bc-auth-mode .bc-desktop-nav{display:none!important}
+body.bc-auth-mode #bcAppShell{min-height:100dvh}
+body.bc-auth-mode .bc-app{padding-bottom:24px}
+
+@media(min-width:760px){
+  .bc-topbar{position:sticky;top:0;z-index:70}
+  .bc-desktop-nav{position:sticky;top:62px;z-index:65}
+}
+@media(max-width:759px){
+  .bc-app{padding-bottom:calc(118px + env(safe-area-inset-bottom))}
+  .bc-topbar{position:sticky;top:0;z-index:70}
+}
