@@ -57,11 +57,11 @@ Deno.serve(async req => {
       (subscriptions || []).map(async row => {
         try {
           await webpush.sendNotification(row.subscription, JSON.stringify({
-            title: "StudentKart • New message",
+            title: "GlobeDisc • New message",
             body: body.slice(0, 180),
-            icon: "/icons/studentkart-icon.svg",
-            badge: "/icons/studentkart-icon.svg",
-            tag: "studentkart-chat-" + String(record.inquiry_id || record.id),
+            icon: "/icons/globedisc-icon-v2.svg",
+            badge: "/icons/globedisc-icon-v2.svg",
+            tag: "globedisc-chat-" + String(record.inquiry_id || record.id),
             url: "/#chat"
           }));
           return { endpoint: row.endpoint, ok: true };
