@@ -11,7 +11,7 @@
   "launch_handler": {
     "client_mode": "navigate-existing"
   },
-  "background_color": "#102a43",
+  "background_color": "#f5fbfc",
   "theme_color": "#0f8b8d",
   "id": "/?app=globedisc-v2",
   "description": "A global search and discovery platform for exploring the web, news, places, media and more.",
