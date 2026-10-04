@@ -1638,75 +1638,169 @@ function updateNavbar() {
    LOAD PRODUCTS
    ========================================================= */
 
-async function loadProducts() {
+let marketplacePageSize = 40;
+let marketplacePage = 0;
+let marketplaceHasMore = true;
+let marketplaceLoadingMore = false;
 
-    const container =
-        $("productContainer");
+function ensureMarketplaceInfiniteScroll() {
+    const container = $("productContainer");
+    if (!container) return null;
 
-    try {
+    let sentinel = $("marketplaceInfiniteSentinel");
+    if (!sentinel) {
+        sentinel = document.createElement("div");
+        sentinel.id = "marketplaceInfiniteSentinel";
+        sentinel.className = "marketplace-infinite-sentinel";
+        sentinel.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading more listings...</span>';
+        container.parentElement?.appendChild(sentinel);
+    }
 
-        if (container) {
+    if (!sentinel.dataset.bound) {
+        sentinel.dataset.bound = "true";
+        const observer = new IntersectionObserver(entries => {
+            if (entries.some(entry => entry.isIntersecting)) {
+                loadMoreProducts();
+            }
+        }, { rootMargin: "700px 0px" });
+        observer.observe(sentinel);
+    }
 
-            container.innerHTML = `
-                <div class="loading-state">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Loading marketplace...</p>
-                </div>
-            `;
-        }
+    return sentinel;
+}
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("products")
-                .select("*")
-                .eq("status", "active")
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                );
+function updateMarketplaceInfiniteState() {
+    const sentinel = $("marketplaceInfiniteSentinel");
+    if (!sentinel) return;
 
-        if (error) {
-            throw error;
-        }
-
-        currentProducts =
-            (data || [])
-                .map(normalizeProduct);
-
-        updateStats();
-
-        applyFilters();
-
-    } catch (error) {
-
-        console.error(
-            "Load products error:",
-            error
-        );
-
-        if (container) {
-
-            container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-triangle-exclamation"></i>
-                    <h3>Could not load products</h3>
-                    <p>Please refresh and try again.</p>
-                </div>
-            `;
-        }
-
-        showToast(
-            "Could not load marketplace",
-            "error"
-        );
+    if (marketplaceLoadingMore) {
+        sentinel.classList.remove("hidden");
+        sentinel.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading more listings...</span>';
+    } else if (!marketplaceHasMore) {
+        sentinel.classList.remove("hidden");
+        sentinel.innerHTML = '<span>✓ You have reached the end of the available listings.</span>';
+    } else {
+        sentinel.classList.remove("hidden");
+        sentinel.innerHTML = '<span>Scroll for more listings</span>';
     }
 }
 
+async function fetchProductPage(page) {
+    const from = page * marketplacePageSize;
+    const to = from + marketplacePageSize - 1;
+
+    const request = supabaseClient
+        .from("products")
+        .select("*")
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .range(from, to);
+
+    const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Marketplace request timed out")), 15000)
+    );
+
+    const { data, error } = await Promise.race([request, timeout]);
+    if (error) throw error;
+
+    const rows = Array.isArray(data) ? data : [];
+    return {
+        products: rows.map(normalizeProduct),
+        hasMore: rows.length === marketplacePageSize
+    };
+}
+
+async function loadProducts() {
+    const container = $("productContainer");
+    if (!container) return;
+
+    marketplacePage = 0;
+    marketplaceHasMore = true;
+    marketplaceLoadingMore = false;
+    currentProducts = [];
+
+    const sentinel = $("marketplaceInfiniteSentinel");
+    if (sentinel) sentinel.remove();
+
+    container.innerHTML = `
+        <div class="loading-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading marketplace...</p>
+        </div>
+    `;
+
+    ensureMarketplaceInfiniteScroll();
+
+    try {
+        const result = await fetchProductPage(0);
+
+        currentProducts = result.products;
+        marketplaceHasMore = result.hasMore;
+        marketplacePage = 0;
+
+        updateStats();
+        await applyFilters();
+        updateMarketplaceInfiniteState();
+
+        // If the first page is too short to fill the viewport, continue
+        // fetching automatically until the viewport has enough content or
+        // the database has no more active listings.
+        if (marketplaceHasMore && container.scrollHeight <= window.innerHeight + 300) {
+            await loadMoreProducts();
+        }
+    } catch (error) {
+        console.error("Load products error:", error);
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>Could not load products</h3>
+                <p>${escapeHTML(error?.message || "Please refresh and try again.")}</p>
+                <button type="button" class="btn btn-outline" id="retryMarketplaceButton">
+                    <i class="fas fa-rotate"></i> Retry
+                </button>
+            </div>
+        `;
+
+        $("retryMarketplaceButton")?.addEventListener("click", loadProducts);
+        showToast("Could not load marketplace", "error");
+    }
+}
+
+async function loadMoreProducts() {
+    if (marketplaceLoadingMore || !marketplaceHasMore) return;
+
+    marketplaceLoadingMore = true;
+    updateMarketplaceInfiniteState();
+
+    try {
+        const nextPage = marketplacePage + 1;
+        const result = await fetchProductPage(nextPage);
+
+        marketplacePage = nextPage;
+        marketplaceHasMore = result.hasMore;
+
+        if (result.products.length) {
+            const existingIds = new Set(currentProducts.map(product => String(product.id)));
+            result.products.forEach(product => {
+                if (!existingIds.has(String(product.id))) {
+                    currentProducts.push(product);
+                }
+            });
+
+            updateStats();
+            await applyFilters();
+        }
+    } catch (error) {
+        console.error("Load more products error:", error);
+        marketplaceHasMore = false;
+        showToast("Could not load more listings. Try again.", "warning");
+    } finally {
+        marketplaceLoadingMore = false;
+        updateMarketplaceInfiniteState();
+    }
+}
 
 
 function updateStats() {
