@@ -93,21 +93,41 @@ async function bcStartSessionGuard(user,sessionId){
     }catch(e){console.warn("Session guard:",e);}
   },5000);
 }
-async function bcAfterLogin(user,phone){
-  const sid=bcSessionId();
+async function bcAfterLogin(user,phone,sessionId){
+  const sid=String(sessionId||"").trim()||bcSessionId();
   try{
     const sb=BC_SUPABASE();
-    const {data:sessionReg,error:sessionRegError}=await sb.functions.invoke("register-active-session",{body:{phone,session_id:sid}});
-    if(sessionRegError||!sessionReg?.success) throw sessionRegError||new Error(sessionReg?.error||"Could not prepare account");
-    const profile=await bcEnsureProfile(user,phone,sid);
-    window.__bcProfile=profile; window.__bcSessionId=sid;
+    const {data:sessionReg,error:sessionRegError}=await sb.functions.invoke("register-active-session",{body:{session_id:sid}});
+    if(sessionRegError||!sessionReg?.success){
+      const detail=sessionReg?.error||sessionRegError?.message||"Could not register this device";
+      throw new Error(detail);
+    }
+    try{sessionStorage.setItem("bc_active_session_id",sid);}catch(_){}
+    window.__bcSessionId=sid;
+    let profile=window.__bcProfile||null;
+    try{
+      profile=await bcEnsureProfile(user,phone,sid);
+    }catch(profileError){
+      console.warn("Profile read failed after login:",profileError);
+      profile=profile||{id:user.id,name:String(user.user_metadata?.name||"Banjara Member"),bio:""};
+    }
+    window.__bcProfile=profile;
     await bcStartSessionGuard(user,sid);
-    state.auth="welcome"; renderAll(); showScreen("home"); await bcLoadSocialData(); toast("Welcome to Banjara Connect");
+    state.auth="welcome";
+    renderAll();
+    showScreen("home");
+    try{
+      await bcLoadSocialData();
+    }catch(dataError){
+      console.warn("Social data load failed after login:",dataError);
+      toast("Signed in. Some community data could not be loaded.");
+      return true;
+    }
+    toast("Welcome to Banjara Connect");
     return true;
   }catch(e){
-    console.error("Profile setup:",e);
-    await BC_SUPABASE().auth.signOut({scope:"local"});
-    toast("Could not prepare account");
+    console.error("Login session setup:",e);
+    toast(String(e?.message||"Could not prepare account"));
     return false;
   }
 }
@@ -172,7 +192,9 @@ async function bcRestoreSession(){
       const match=email.match(/^account\+(\d{10})@banjaraconnect\.app$/i);
       const phone=match?"+91"+match[1]:"";
       if(!phone){await sb.auth.signOut({scope:"local"});state.auth="login";renderAll();showScreen("auth");toast("Please log in again to restore this session.");return;}
-      await bcAfterLogin(data.session.user,phone);
+      let sid="";
+      try{sid=sessionStorage.getItem("bc_active_session_id")||"";}catch(_){}
+      await bcAfterLogin(data.session.user,phone,sid);
     }else{showScreen("auth");}
   }catch(e){console.warn("Restore session:",e);showScreen("auth");}
 }
@@ -202,7 +224,7 @@ function bind(){
   const langChoice=e.target.closest("[data-lang-choice]");if(langChoice){state.language=langChoice.dataset.langChoice;bcSavePref("language",state.language);renderAll();closeModal();toast("Language saved");return}
   const savePrefs=e.target.closest("[data-save-prefs]");if(savePrefs){savePrefs.closest(".bc-card")?.querySelectorAll("[data-pref]").forEach(x=>bcSavePref(x.dataset.pref,x.checked));closeModal();toast("Settings saved");return}
   if(e.target.closest("[data-delete-account]")){void bcDeleteAccount();return}
-  if(e.target.closest("[data-logout]")){void (async()=>{try{clearInterval(bcSessionTimer);bcSessionTimer=null;await BC_SUPABASE()?.auth.signOut({scope:"local"});}catch(err){console.warn(err);}state.auth="welcome";renderAll();showScreen("auth");toast("Logged out");})();return}
+  if(e.target.closest("[data-logout]")){void (async()=>{try{clearInterval(bcSessionTimer);bcSessionTimer=null;try{sessionStorage.removeItem("bc_active_session_id");}catch(_){}await BC_SUPABASE()?.auth.signOut({scope:"local"});}catch(err){console.warn(err);}state.auth="welcome";renderAll();showScreen("auth");toast("Logged out");})();return}
   if(e.target.closest("[data-edit-profile]")){const p=window.__bcProfile||state.profile||{};modal("Edit Profile",'<form class="bc-form" data-profile-form><div class="bc-field"><label>Name</label><input name="name" required value="'+esc(p.name||"")+'"></div><div class="bc-field"><label>Bio</label><textarea name="bio">'+esc(p.bio||"")+'</textarea></div><button type="submit" class="bc-action primary">Save changes</button></form>');return}
  });
  document.addEventListener("submit",e=>{const f=e.target.closest("[data-auth-form]");if(!f)return;e.preventDefault();void bcHandleAuth(f);});
