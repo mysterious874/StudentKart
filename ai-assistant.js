@@ -156,7 +156,7 @@ async function ask(question){
  saveAIHistory();
  const pending=addMessage("assistant","Thinking…");
  try{
-  const controller=new AbortController(); const timeout=setTimeout(()=>controller.abort(),30000); const response=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",signal:controller.signal,headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",Accept:"application/json","X-GlobeDisc-Client":"web"},body:JSON.stringify({question:q,history,research:false})});
+  const controller=new AbortController(); const timeout=setTimeout(()=>controller.abort(),30000); const response=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",signal:controller.signal,headers:{apikey:SUPABASE_KEY,"Content-Type":"application/json",Accept:"application/json","X-GlobeDisc-Client":"web"},body:JSON.stringify({question:q,history,research:false})});
   const data=await response.json().catch(()=>({})); clearTimeout(timeout);
   if(!response.ok||!data.answer)throw new Error(data.error||"AI service is temporarily unavailable.");
   const bubble=pending?.querySelector(".ai-assistant-message-bubble");if(bubble)bubble.textContent=data.answer;
