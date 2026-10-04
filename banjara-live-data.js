@@ -102,7 +102,7 @@ async function openChat(chatId,name){
      recorder.start();
    }catch(e){alert("Microphone permission is required for voice messages.");}
  };
- box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text"}).select("id,body,sender_id,created_at,message_type,attachment_url").single();if(ins.error){input.value=body;return;}await render([...(data||[]),ins.data]);input.focus();};
+ box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text"}).select("id,body,sender_id,created_at,message_type,attachment_url").single();if(ins.error){input.value=body;return;}await render([...currentMessages,ins.data]);input.focus();};
  const channel=sb.channel("bc-chat-"+chatId).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}});
  box.dataset.channel="bc-chat-"+chatId;
 }
