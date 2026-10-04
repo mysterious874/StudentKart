@@ -8811,12 +8811,60 @@ function openSignupFromNewUserGate() {
 }
 
 /* =========================================================
+   FLOATING NAVIGATION — isolated initializer
+   ========================================================= */
+function setupFloatingNavigation() {
+    const nav = document.querySelector(".mobile-bottom-nav");
+    if (!nav || nav.dataset.bound === "1") return;
+    nav.dataset.bound = "1";
+
+    const bind = (selector, handler) => {
+        const button = nav.querySelector(selector);
+        if (!button) return;
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+            try { handler(event); } catch (error) { console.error("Floating nav action failed:", error); }
+        });
+    };
+
+    bind('a[href="#home"]', () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    bind("#bottomMarketplaceButton", () => { window.location.href = "marketplace.html"; });
+    bind(".bottom-chat-nav-item", () => {
+        if (!currentUser) {
+            openModal("loginModal");
+            showToast("Please login to chat", "warning");
+        } else {
+            openModal("inquiriesModal");
+        }
+    });
+    bind("#bottomWishlistButton", () => { void openWishlist(); });
+    bind("#bottomCampusButton", () => {
+        if (typeof renderCampusPicker === "function") renderCampusPicker();
+        openModal("campusModal");
+    });
+    bind("#bottomProfileButton", () => {
+        if (!currentUser) {
+            openModal("loginModal");
+            showToast("Please login to view your profile", "warning");
+        } else {
+            openProfile();
+        }
+    });
+    bind("#bottomSettingsButton", () => openModal("settingsModal"));
+}
+
+/* =========================================================
    INITIALIZE
    ========================================================= */
+
 
 async function initializeStudentKart() {
 
     try {
+
+        // Keep floating navigation independent from the large UI initializer.
+        setupFloatingNavigation();
 
         // Bind UI controls immediately. Never make button interactivity
         // wait for Supabase auth/network requests.
@@ -14486,50 +14534,4 @@ document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();
             }
         });
     });
-})();
-/* FINAL FLOATING BAR FALLBACK — independent of setupEventListeners */
-(function(){
-  function bindFloatingBar(){
-    if(document.documentElement.dataset.floatingBarFallback==="1") return;
-    document.documentElement.dataset.floatingBarFallback="1";
-    document.addEventListener("click",function(event){
-      const button=event.target.closest(".mobile-bottom-nav .bottom-nav-item");
-      if(!button)return;
-      const id=button.id,isChat=button.classList.contains("bottom-chat-nav-item");
-      if(!id&&!isChat&&!button.matches('a[href="#home"]'))return;
-      event.preventDefault();event.stopImmediatePropagation();
-      if(button.matches('a[href="#home"]')){window.scrollTo({top:0,behavior:"smooth"});return;}
-      if(id==="bottomMarketplaceButton"){window.location.href="marketplace.html";return;}
-      if(isChat){if(!currentUser){openModal("loginModal");showToast("Please login to chat","warning");}else openModal("inquiriesModal");return;}
-      if(id==="bottomWishlistButton"){void openWishlist(event);return;}
-      if(id==="bottomProfileButton"){if(!currentUser){openModal("loginModal");showToast("Please login to view your profile","warning");}else void openProfile();return;}
-      if(id==="bottomSettingsButton"){openModal("settingsModal");return;}
-      if(id==="bottomCampusButton"){openModal("campusModal");return;}
-    },true);
-  }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bindFloatingBar,{once:true});else bindFloatingBar();
-})();
-/* FLOATING BAR TOUCH FALLBACK — resolve taps by screen coordinates */
-(function(){
-  function install(){
-    const nav=document.querySelector(".mobile-bottom-nav");
-    if(!nav || nav.dataset.touchFallback==="1") return;
-    nav.dataset.touchFallback="1";
-    function handle(e){
-      if(document.body.classList.contains("globedisc-splash-active")) return;
-      const p=e.touches?.[0]||e.changedTouches?.[0]||e;
-      if(!p || typeof p.clientX!=="number") return;
-      const r=nav.getBoundingClientRect();
-      if(p.clientX<r.left||p.clientX>r.right||p.clientY<r.top||p.clientY>r.bottom)return;
-      const items=[...nav.querySelectorAll(".bottom-nav-item")];
-      const item=items.find(b=>{const q=b.getBoundingClientRect();return p.clientX>=q.left&&p.clientX<=q.right&&p.clientY>=q.top&&p.clientY<=q.bottom;});
-      if(!item)return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      item.click();
-    }
-    window.addEventListener("pointerup",handle,{capture:true,passive:false});
-    window.addEventListener("touchend",handle,{capture:true,passive:false});
-  }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
