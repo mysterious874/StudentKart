@@ -28,6 +28,15 @@
     </div>
     <script>
     (function () {
+        try { if ("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch (e) {}
+        function resetAppScroll() { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }
+        resetAppScroll();
+        window.addEventListener("load", resetAppScroll, { once: true });
+        window.addEventListener("pageshow", resetAppScroll);
+    })();
+    </script>
+    <script>
+    (function () {
         var splash = document.getElementById("globediscSplash");
         if (!splash) return;
         window.setTimeout(function () {
