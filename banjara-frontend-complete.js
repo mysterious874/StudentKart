@@ -186,6 +186,7 @@ function bind(){
   const more=e.target.closest("[data-more]");if(more){e.preventDefault();e.stopPropagation();showScreen("settings");return}
   const nav=e.target.closest("[data-screen]");if(nav){e.preventDefault();showScreen(nav.dataset.screen);return}
   if(e.target.closest("[data-create]")){create();return}
+  const createKind=e.target.closest("[data-create-kind]");if(createKind){bcComposer(createKind.dataset.createKind);return;}
   if(e.target.closest("[data-close-modal]")||e.target.id==="bcModal"){closeModal();return}
   const connect=e.target.closest("[data-connect-user]");if(connect){void (window.bcConnect?window.bcConnect(connect.dataset.connectUser):bcSendConnection(connect.dataset.connectUser,connect));return}
   if(e.target.closest("[data-community-id]")){toast("Community selected");return}
@@ -292,7 +293,7 @@ const send=e.target.closest("[data-send-chat]");if(send){const input=$("#bcModal
  const com=e.target.closest("[data-community-tab]");if(com){state.communityTab=com.dataset.communityTab;renderAll();showScreen("community");return;}
  const ev=e.target.closest("[data-event-open]");if(ev){modal(ev.dataset.eventOpen,'<div class="bc-card"><h3>'+esc(ev.dataset.eventOpen)+'</h3><p>Community gathering and connection event.</p><button class="bc-action primary" data-close-modal>Close</button></div>');return;}
  const ce=e.target.closest("[data-create-event]");if(ce){bcComposer("Event");return;}
- const fc=e.target.closest("[data-feed-create]");if(fc){bcComposer("Post");return;}
+ const fc=e.target.closest("[data-feed-create]");if(fc){bcComposer(fc.dataset.feedKind||"Post");return;}
  const ps=e.target.closest("[data-profile-stat]");if(ps){showScreen(ps.dataset.profileStat==="connections"?"connect":ps.dataset.profileStat==="communities"?"community":"feed");return;}
  const edit=e.target.closest("[data-edit-profile]");if(edit){const p=window.__bcProfile||state.profile||{};modal("Edit Profile",'<form class="bc-form" data-profile-form><div class="bc-field"><label>Name</label><input name="name" required value="'+esc(p.name||"")+'"></div><div class="bc-field"><label>Bio</label><textarea name="bio">'+esc(p.bio||"")+'</textarea></div><button class="bc-action primary" type="submit">Save changes</button></form>');return;}
 
