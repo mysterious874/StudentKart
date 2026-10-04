@@ -562,3 +562,9 @@ html body .world-news-card a{
   color:var(--bc-maroon)!important;
   -webkit-text-fill-color:var(--bc-maroon);
 }
+
+
+/* Banjara Connect — keep the community hero as normal page content and allow full-page scrolling */
+html,body{height:auto!important;min-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:auto!important}
+main{overflow:visible!important}
+.hero.studentkart-top{overflow:visible!important;min-height:0!important;height:auto!important}
