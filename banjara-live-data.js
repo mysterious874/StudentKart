@@ -46,7 +46,7 @@ function refreshUI(){
 async function openChat(chatId,name){
  const existing=document.getElementById("bcChatOverlay");if(existing){const topic=existing.dataset.channel;const old=topic?SB().getChannels().find(x=>x.topic===topic):null;if(old)await SB().removeChannel(old);existing.remove();}
  const box=document.createElement("section");box.id="bcChatOverlay";box.className="bc-chat-overlay";
- box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small>Message</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><form class="bc-chat-composer" id="bcChatForm"><button type="button" class="bc-chat-tool" id="bcAttachBtn" title="Photo, video or file"><i class="fas fa-paperclip"></i></button><input type="file" id="bcAttachInput" hidden accept="image/*,video/*,.pdf"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button type="button" class="bc-chat-tool" id="bcVoiceBtn" title="Voice message"><i class="fas fa-microphone"></i></button><button type="submit" class="bc-send-btn"><i class="fas fa-paper-plane"></i></button></form>';
+ box.innerHTML='<div class="bc-chat-head"><button data-chat-close><i class="fas fa-arrow-left"></i></button><div class="bc-avatar">'+initials(name)+'</div><div><strong>'+escLive(name)+'</strong><small>Message</small></div></div><div class="bc-chat-messages" id="bcChatMessages"></div><div id="bcReplyBar" class="bc-reply-bar" hidden><button type="button" data-reply-cancel><i class="fas fa-xmark"></i></button><div><small>Replying to</small><strong id="bcReplyText"></strong></div></div><form class="bc-chat-composer" id="bcChatForm"><button type="button" class="bc-chat-tool" id="bcAttachBtn" title="Photo, video or file"><i class="fas fa-paperclip"></i></button><input type="file" id="bcAttachInput" hidden accept="image/*,video/*,.pdf"><input id="bcChatInput" autocomplete="off" placeholder="Write a message..."><button type="button" class="bc-chat-tool" id="bcVoiceBtn" title="Voice message"><i class="fas fa-microphone"></i></button><button type="submit" class="bc-send-btn"><i class="fas fa-paper-plane"></i></button></form>';
  document.body.appendChild(box);
  const sb=SB(),{data:{user}}=await sb.auth.getUser();if(!user)return;
  const mediaUrl=async path=>{if(!path)return null;const r=await sb.storage.from("banjara-media").createSignedUrl(path,3600);return r.data?.signedUrl||null;};
@@ -57,16 +57,44 @@ async function openChat(chatId,name){
    else if(type==="video"&&url)content='<video class="bc-msg-video" controls playsinline preload="metadata" src="'+url+'"></video>';
    else if(type==="voice"&&url)content='<audio class="bc-msg-audio" controls preload="metadata" src="'+url+'"></audio>';
    else if(type==="file"&&url)content='<a class="bc-msg-file" href="'+url+'" target="_blank" rel="noopener"><i class="fas fa-file-lines"></i><span>'+escLive(m.body||"Attachment")+'</span></a>';
-   return '<div class="bc-msg '+(mine?"mine":"theirs")+'">'+content+'<small>'+ago(m.created_at)+'</small></div>';
+   const reply=m.reply_to_id?currentMessages.find(x=>x.id===m.reply_to_id):null;
+   const quoted=reply?'<div class="bc-msg-quote">'+escLive(reply.body||("["+reply.message_type+"]"))+'</div>':"";
+   return '<button type="button" class="bc-msg '+(mine?"mine":"theirs")+'" data-message-id="'+m.id+'">'+quoted+content+'<small>'+ago(m.created_at)+'</small></button>';
  };
- let currentMessages=[]; const render=async rows=>{currentMessages=rows||[];const el=box.querySelector("#bcChatMessages");const html=await Promise.all(currentMessages.map(renderMessage));el.innerHTML=html.join("");el.scrollTop=el.scrollHeight;};
- const q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
+ let currentMessages=[];
+ const render=async rows=>{
+   currentMessages=rows||[];
+   const el=box.querySelector("#bcChatMessages");
+   const html=await Promise.all(currentMessages.map(renderMessage));
+   el.innerHTML=html.join("");el.scrollTop=el.scrollHeight;
+ };
+ const {data:hiddenRows}=await sb.from("message_hidden").select("message_id").eq("user_id",user.id);
+ const hiddenIds=new Set((hiddenRows||[]).map(x=>x.message_id));
+ const q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url,reply_to_id").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
  const {data,error}=await q;if(error){box.querySelector("#bcChatMessages").innerHTML='<div class="bc-empty"><strong>Could not load messages</strong><span>Please try again.</span></div>';return;}
- await render(data);
+ await render((data||[]).filter(m=>!hiddenIds.has(m.id)); await render(data);
  await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);
  if(window.__bcLive?.chats){const current=window.__bcLive.chats.find(x=>x.id===chatId);if(current)current.unread=false;}
  const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn");
  box.querySelector("[data-chat-close]").onclick=async()=>{const topic=box.dataset.channel;const ch=topic?sb.getChannels().find(x=>x.topic===topic):null;if(ch)await sb.removeChannel(ch);box.remove();};
+ const replyBar=box.querySelector("#bcReplyBar"),replyText=box.querySelector("#bcReplyText"); let replyTo=null;
+ const setReply=m=>{replyTo=m;replyText.textContent=(m.body||("["+m.message_type+"]")).slice(0,90);replyBar.hidden=false;input.focus();};
+ box.querySelector("[data-reply-cancel]").onclick=()=>{replyTo=null;replyBar.hidden=true;};
+ box.querySelector("#bcChatMessages").onclick=async ev=>{
+   const item=ev.target.closest("[data-message-id]");if(!item)return;
+   const m=currentMessages.find(x=>x.id===item.dataset.messageId);if(!m)return;
+   const action=document.createElement("div");action.className="bc-msg-actions";
+   action.innerHTML='<button type="button" data-action="reply"><i class="fas fa-reply"></i> Reply</button><button type="button" data-action="hide"><i class="fas fa-eye-slash"></i> Delete for me</button>'+(m.sender_id===user.id?'<button type="button" data-action="delete"><i class="fas fa-trash"></i> Delete for everyone</button>':"");
+   document.body.appendChild(action);
+   const rect=item.getBoundingClientRect();action.style.left=Math.max(10,Math.min(window.innerWidth-220,rect.left))+"px";action.style.top=Math.max(10,rect.top-8-action.offsetHeight)+"px";
+   const close=()=>action.remove();action.onclick=async a=>{
+     const b=a.target.closest("[data-action]");if(!b)return;const kind=b.dataset.action;close();
+     if(kind==="reply"){setReply(m);return;}
+     if(kind==="hide"){const r=await sb.from("message_hidden").insert({message_id:m.id,user_id:user.id});if(!r.error)await render(currentMessages.filter(x=>x.id!==m.id));return;}
+     if(kind==="delete"){const r=await sb.from("messages").update({deleted_at:new Date().toISOString()}).eq("id",m.id).eq("sender_id",user.id);if(!r.error)await render(currentMessages.filter(x=>x.id!==m.id));}
+   };
+   setTimeout(()=>document.addEventListener("click",close,{once:true}),0);
+ };
  const sendAttachment=async file=>{
    if(!file)return;if(file.size>25*1024*1024){alert("File is too large. Maximum 25 MB.");return;}
    const mime=file.type||"",type=mime.startsWith("image/")?"image":mime.startsWith("video/")?"video":mime==="application/pdf"?"file":null;
@@ -102,7 +130,7 @@ async function openChat(chatId,name){
      recorder.start();
    }catch(e){alert("Microphone permission is required for voice messages.");}
  };
- box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text"}).select("id,body,sender_id,created_at,message_type,attachment_url").single();if(ins.error){input.value=body;return;}await render([...currentMessages,ins.data]);input.focus();};
+ box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text",reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url").single();if(ins.error){input.value=body;return;}replyTo=null;replyBar.hidden=true;await render([...currentMessages,ins.data]);input.focus();};
  const channel=sb.channel("bc-chat-"+chatId).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}});
  box.dataset.channel="bc-chat-"+chatId;
 }
