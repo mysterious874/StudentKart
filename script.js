@@ -3842,6 +3842,14 @@ function setupNewChatPhoneSearch() {
         }, 180);
     });
 
+    input.addEventListener("focus", () => {
+        clear?.classList.toggle("hidden", Boolean(input.value.trim()));
+        clearTimeout(newChatSearchTimer);
+        newChatSearchTimer = setTimeout(() => {
+            void searchNewChatUsersByPhone(input.value.trim());
+        }, 80);
+    });
+
     input.addEventListener("keydown", event => {
         if (event.key === "Escape") {
             clearNewChatUserSearch();
