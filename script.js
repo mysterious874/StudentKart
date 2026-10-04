@@ -4907,7 +4907,6 @@ async function signupUser(event) {
                 method: "POST",
                 headers: {
                     apikey: SUPABASE_KEY,
-                    Authorization: "Bearer " + SUPABASE_KEY,
                     "Content-Type": "application/json",
                     Accept: "application/json"
                 },
@@ -14717,7 +14716,7 @@ document.addEventListener("DOMContentLoaded",()=>{loadGlobalDiscoveryHomepage();
                         : [query];
                     const responses = await Promise.allSettled(queries.map(q =>
                         fetchWithTimeout(SUPABASE_URL + "/functions/v1/global-news?q=" + encodeURIComponent(q),
-                            {headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,Accept:"application/json"}}, 9000)
+                            {headers:{apikey:SUPABASE_KEY,Accept:"application/json"}}, 9000)
                     ));
                     const seen = new Set(), articles = [];
                     for (const result of responses) {
