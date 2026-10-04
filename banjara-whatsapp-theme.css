@@ -711,3 +711,21 @@ html body #settingsActionModal .settings-action-modal-content{
   .settings-detail-content{padding:8px!important}
   .settings-row{min-height:60px!important;padding:10px!important;border-radius:14px!important}
 }
+
+
+/* Fresh Banjara Connect Settings UI */
+.settings-section-button{min-height:66px!important;border-radius:17px!important;transition:.16s ease!important}
+.settings-section-button:active{transform:scale(.985)!important}
+.settings-row.is-on .settings-switch{background:var(--bc-maroon)!important}
+.settings-row.is-on .settings-switch span{transform:translateX(18px)!important}
+.settings-info-card{
+  margin:4px!important;padding:24px 18px!important;text-align:center!important;
+  background:#fffaf2!important;border:1px solid var(--bc-line)!important;border-radius:20px!important;
+}
+.settings-info-icon{
+  width:52px;height:52px;margin:0 auto 12px;border-radius:16px;display:grid;place-items:center;
+  background:#fff0df!important;color:var(--bc-maroon)!important;font-size:22px!important;
+}
+.settings-info-card h3{margin:0 0 7px!important;color:var(--bc-maroon)!important;font-size:18px!important}
+.settings-info-card p{margin:0 auto 18px!important;max-width:440px;color:var(--bc-muted)!important;font-size:12px!important;line-height:1.55!important}
+.settings-info-card .btn{min-width:110px!important;border-radius:12px!important}
