@@ -79,13 +79,13 @@ function addMessage(role,text){
  const box=$("aiAssistantMessages");if(!box)return null;
  $("aiAssistantWelcome")?.classList.add("hidden");
  const item=document.createElement("div");item.className="ai-assistant-message "+(role==="user"?"is-user":"is-ai");
- if(role!=="user"){const avatar=document.createElement("span");avatar.className="ai-assistant-message-avatar";avatar.innerHTML='<img src="/icons/banjara-icon-v2.svg" alt="Banjara Connect AI">';item.appendChild(avatar);}
+ if(role!=="user"){const avatar=document.createElement("span");avatar.className="ai-assistant-message-avatar";avatar.innerHTML='<img src="/icons/banjara-connect-icon.svg" alt="Banjara Connect AI">';item.appendChild(avatar);}
  const bubble=document.createElement("div");bubble.className="ai-assistant-message-bubble";bubble.textContent=String(text||"");item.appendChild(bubble);box.appendChild(item);
  requestAnimationFrame(()=>scrollAIToBottom("auto"));return item;
 }
 function renderSavedAIHistory(){
  const box=$("aiAssistantMessages");if(!box)return;box.innerHTML="";
- if(!history.length){box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/banjara-icon-v2.svg" alt="Banjara Connect"></div><h1>What can I help you with?</h1><p>Ask anything. Banjara Connect AI will bring together answers and useful sources.</p></div>';return;}
+ if(!history.length){box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/banjara-connect-icon.svg" alt="Banjara Connect"></div><h1>What can I help you with?</h1><p>Ask anything. Banjara Connect AI will bring together answers and useful sources.</p></div>';return;}
  history.forEach(m=>addMessage(m.role==="assistant"?"assistant":"user",m.content));requestAnimationFrame(()=>scrollAIToBottom("auto"));
 }
 function openAI(){
@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  $("aiAssistantBack")?.addEventListener("click",closeAI);
  $("aiAssistantNewChat")?.addEventListener("click",()=>{
   history=[];try{localStorage.removeItem(AI_HISTORY_KEY);}catch(_){}try{localStorage.removeItem(AI_HISTORY_ARCHIVE_KEY);}catch(_){}try{sessionStorage.removeItem(AI_HISTORY_BACKUP_KEY);}catch(_){}saveCloudAIHistoryDelete();
-  const box=$("aiAssistantMessages");if(box)box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/banjara-icon-v2.svg" alt="Banjara Connect"></div><h1>What can I help you with?</h1><p>Ask anything. Banjara Connect AI will bring together answers and useful sources.</p></div>';
+  const box=$("aiAssistantMessages");if(box)box.innerHTML='<div id="aiAssistantWelcome" class="ai-assistant-welcome"><div class="ai-assistant-welcome-icon"><img src="/icons/banjara-connect-icon.svg" alt="Banjara Connect"></div><h1>What can I help you with?</h1><p>Ask anything. Banjara Connect AI will bring together answers and useful sources.</p></div>';
   const input=$("aiAssistantInput");if(input)setTimeout(()=>{input.focus({preventScroll:true});updateAIViewport();},50);
  });
  $("aiAssistantSend")?.addEventListener("pointerdown",e=>{e.preventDefault();const input=$("aiAssistantInput");if(input)input.focus({preventScroll:true});});
