@@ -3610,89 +3610,6 @@ function bindChatLongPress() {
     });
 }
 
-async function searchStudentKartUsers(query) {
-    const box = $("chatUserSearchResults");
-    if (!box) return;
-
-    const q = String(query || "").trim();
-    window.clearTimeout(studentKartUserSearchTimer);
-    const requestId = ++studentKartUserSearchRequest;
-
-    studentKartUserSearchTimer = window.setTimeout(async () => {
-        box.classList.remove("hidden");
-        box.innerHTML =
-            '<div class="chat-user-search-loading"><i class="fas fa-spinner fa-spin"></i><span>Finding users...</span></div>';
-
-        try {
-            const { data: profiles, error } = await supabaseClient
-                .rpc("search_chat_users", { search_query: q });
-
-            if (error) throw error;
-            if (requestId !== studentKartUserSearchRequest) return;
-
-            const matches = (profiles || []).filter(user =>
-                String(user.username || "").trim()
-            );
-
-            if (!matches.length) {
-                box.classList.remove("has-more-results");
-                box.innerHTML =
-                    '<div class="chat-user-search-empty"><i class="fas fa-user-slash"></i><strong>No username found</strong><span>Enter a username to find users.</span></div>';
-                return;
-            }
-
-            box.classList.toggle("has-more-results", matches.length > 10);
-            box.innerHTML =
-                '<div class="chat-user-search-title"><span>USERS</span><small>' +
-                matches.length + (matches.length === 1 ? " user" : " users") +
-                '</small></div>' +
-                '<div class="chat-user-search-list">' +
-                matches.map(user => {
-                    const isMe = String(user.id) === String(currentUser.id);
-                    const displayName = user.name || user.username || "Student";
-                    const avatar = user.avatar_url
-                        ? '<img src="' + escapeHTML(user.avatar_url) + '" alt="">'
-                        : '<span>' + escapeHTML(getInitials(displayName)) + '</span>';
-
-                    return (
-                        '<button type="button" class="chat-user-search-card" data-user-search-id="' +
-                        escapeHTML(user.id) + '">' +
-                        '<span class="chat-user-search-avatar">' + avatar + '</span>' +
-                        '<span class="chat-user-search-main">' +
-                        '<strong>' + escapeHTML(isMe ? "You" : displayName) + '</strong>' +
-                        '<small>@' + escapeHTML(user.username || '') + (isMe ? " • You" : "") + '</small>' +
-                        '</span>' +
-                        '<i class="fas fa-comment-dots"></i>' +
-                        '</button>'
-                    );
-                }).join("") +
-                '</div>';
-
-            box.querySelectorAll("[data-user-search-id]").forEach(card => {
-                card.addEventListener("click", async () => {
-                    const targetId = card.dataset.userSearchId;
-                    box.classList.add("hidden");
-                    box.innerHTML = "";
-
-                    const searchInput = $("chatListSearchInput");
-                    const clearButton = $("chatListSearchClear");
-                    if (searchInput) searchInput.value = "";
-                    if (clearButton) clearButton.classList.add("hidden");
-                    applyChatListFilter();
-
-                    if (String(targetId) === String(currentUser.id)) return;
-                    await openStudentKartUserChat(targetId);
-                });
-            });
-        } catch (error) {
-            if (requestId !== studentKartUserSearchRequest) return;
-            console.error("Student mobile search error:", error);
-            box.innerHTML =
-                '<div class="chat-user-search-empty error"><i class="fas fa-triangle-exclamation"></i><strong>Search unavailable</strong><span>' +
-                escapeHTML(error?.message || "Please try again.") + '</span></div>';
-        }
-    }, 140);
-}
 async function openStudentKartUserChat(userId) {
     if (!currentUser || !userId || String(userId) === String(currentUser.id)) return;
 
@@ -3777,98 +3694,75 @@ function applyChatListFilter() {
     const container = $("inquiriesContainer");
     if (!container) return;
 
-    const query = ($("chatListSearchInput")?.value || "").trim().toLowerCase();
-    const activeTab = document.querySelector(".chat-list-tab.active")?.dataset.chatFilter || "all";
+    const activeTab =
+        document.querySelector(".chat-list-tab.active")?.dataset.chatFilter || "all";
+
     const cards = container.querySelectorAll(".whatsapp-inquiry-card");
     let visible = 0;
 
     cards.forEach(card => {
-        const haystack = [
-            card.dataset.chatName || "",
-            card.dataset.chatPreview || "",
-            card.querySelector(".whatsapp-product-name")?.textContent || ""
-        ].join(" ").toLowerCase();
+        const matchesTab =
+            activeTab !== "unread" ||
+            card.dataset.chatUnread === "true";
 
-        const matchesSearch = !query || haystack.includes(query);
-        const matchesTab = activeTab !== "unread" || card.dataset.chatUnread === "true";
-        const show = matchesSearch && matchesTab;
+        card.classList.toggle("chat-filter-hidden", !matchesTab);
 
-        card.classList.toggle("chat-filter-hidden", !show);
-        if (show) visible++;
+        if (matchesTab) visible++;
     });
 
     const empty = $("chatListFilteredEmpty");
-    if (empty) empty.classList.toggle("hidden", visible > 0 || !cards.length);
-}
-
-let chatUserSearchDelegatedBound = false;
-function bindDelegatedChatUserSearch() {
-    if (chatUserSearchDelegatedBound) return;
-    chatUserSearchDelegatedBound = true;
-
-    document.addEventListener("input", event => {
-        const input = event.target;
-        if (!(input instanceof HTMLInputElement) || input.id !== "chatListSearchInput") return;
-
-        const clear = $("chatListSearchClear");
-        clear?.classList.toggle("hidden", !input.value);
-        applyChatListFilter();
-        searchStudentKartUsers(input.value);
-    });
+    if (empty) {
+        empty.classList.toggle(
+            "hidden",
+            visible > 0 || !cards.length
+        );
+    }
 }
 
 function setupChatListControls() {
-    bindDelegatedChatUserSearch();
-    const input = $("chatListSearchInput");
-    const clear = $("chatListSearchClear");
-    if (input && !input.dataset.bound) {
-        input.dataset.bound = "true";
-        input.addEventListener("input", () => {
-            clear?.classList.toggle("hidden", !input.value);
-            applyChatListFilter();
-        });
-    }
-
-    if (clear && !clear.dataset.bound) {
-        clear.dataset.bound = "true";
-        clear.addEventListener("click", () => {
-            if (!input) return;
-            input.value = "";
-            clear.classList.add("hidden");
-            $("chatUserSearchResults")?.classList.add("hidden");
-            $("chatUserSearchResults") && ($("chatUserSearchResults").innerHTML = "");
-            applyChatListFilter();
-            input.focus();
-        });
-    }
-
     document.querySelectorAll(".chat-list-tab").forEach(tab => {
         if (tab.dataset.bound) return;
+
         tab.dataset.bound = "true";
+
         tab.addEventListener("click", () => {
             document.querySelectorAll(".chat-list-tab").forEach(item => {
                 const active = item === tab;
                 item.classList.toggle("active", active);
-                item.setAttribute("aria-selected", active ? "true" : "false");
+                item.setAttribute(
+                    "aria-selected",
+                    active ? "true" : "false"
+                );
             });
+
             applyChatListFilter();
         });
     });
 
     const refresh = $("chatListRefreshButton");
+
     if (refresh && !refresh.dataset.bound) {
         refresh.dataset.bound = "true";
+
         refresh.addEventListener("click", async () => {
             refresh.classList.add("is-loading");
-            try { await loadReceivedInquiries(); }
-            finally { refresh.classList.remove("is-loading"); }
+
+            try {
+                await loadReceivedInquiries();
+            } finally {
+                refresh.classList.remove("is-loading");
+            }
         });
     }
 
     const close = $("chatListCloseButton");
+
     if (close && !close.dataset.bound) {
         close.dataset.bound = "true";
-        close.addEventListener("click", () => closeModal("inquiriesModal"));
+        close.addEventListener(
+            "click",
+            () => closeModal("inquiriesModal")
+        );
     }
 
     applyChatListFilter();
