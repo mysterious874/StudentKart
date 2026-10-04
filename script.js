@@ -14763,7 +14763,7 @@ function appendAiMessage(role,text){
 function aiRichLink(url,label,icon="fa-arrow-up-right-from-square"){
     return '<a class="ai-rich-link" href="'+escapeHTML(url||"#")+'" target="_blank" rel="noopener noreferrer"><i class="fas '+icon+'"></i><span>'+escapeHTML(label||"Open")+'</span></a>';
 }
-function renderAiRichAnswer(answer,question,found,photos,news){
+function aiNeedsResearch(q){const s=String(q||"").toLowerCase().trim();if(/^(hi|hello|hey|hii|heyy|yo|sup|namaste|thanks|thank you|ok|okay|cool|nice|great|haan|ha|yes|no|bye|goodbye)\\b/.test(s))return false;if(/\\b(how are you|how r u|kaisa hai|kaisi ho|kya haal|kya kar rahe|what are you doing|who are you|tell me about yourself|nice to meet)\\b/.test(s))return false;return /\\b(latest|today|news|current|recent|price|weather|score|match|stock|who is|what is|what’s|where is|when is|why is|how to|how does|explain|compare|vs|research|search|find|photos?|images?|videos?|youtube|wikipedia|map|maps)\\b/.test(s)||s.endsWith("?");}\nfunction getAiConversation(){return [...document.querySelectorAll("#aiAssistantMessages .ai-chat-message")].slice(-10).map(el=>({role:el.classList.contains("ai-chat-user")?"user":"assistant",content:el.textContent.trim()})).filter(x=>x.content);}\nfunction renderAiRichAnswer(answer,question,found,photos,news){
     const web=Array.isArray(found?.web)?found.web.slice(0,5):[];
     const wiki=Array.isArray(found?.wiki)?found.wiki.slice(0,3):[];
     const photoItems=Array.isArray(photos)?photos.slice(0,6):[];
@@ -14789,13 +14789,10 @@ async function submitAiQuestion(question){
     const thinking=appendAiMessage("assistant","<span class=\"ai-thinking\">Thinking and gathering sources…</span>");
     const thinkingMessage=thinking?.parentElement||thinking;
     try{
-        const [found,photos,news]=await Promise.all([
-            Promise.resolve(fetchInternetSearchResults(q)),
-            fetchInternetPanelData("photos",q),
-            fetchInternetPanelData("news",q,"24h")
-        ]);
+        const research=aiNeedsResearch(q);
+        const [found,photos,news]=research?await Promise.all([Promise.resolve(fetchInternetSearchResults(q)),fetchInternetPanelData("photos",q),fetchInternetPanelData("news",q,"24h")]):[{web:[],wiki:[]},[],[]];
         const sources=[...(found?.web||[]),...(found?.wiki||[])].slice(0,8);
-        const res=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({question:q,sources})});
+        const res=await fetch(SUPABASE_URL+"/functions/v1/ai-chat",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({question:q,sources,research,history:getAiConversation()})});
         const data=await res.json();
         if(!res.ok)throw new Error(data?.error||"AI request failed");
         thinkingMessage.innerHTML=renderAiRichAnswer(data.answer,q,found,photos,news);
