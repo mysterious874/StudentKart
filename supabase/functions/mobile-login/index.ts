@@ -53,7 +53,9 @@ Deno.serve(async (req) => {
   if (!allowed(req, "ip")) return json({ error: "Too many attempts. Try again in a minute." }, 429);
 
   try {
-    const body = await req.json();
+    const rawBody = await req.text();
+    if (new TextEncoder().encode(rawBody).byteLength > 8_000) return json({ error: "Request too large" }, 413);
+    const body = JSON.parse(rawBody);
     const phone = normalizePhone(body?.phone);
     const password = String(body?.password ?? "");
 
