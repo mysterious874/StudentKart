@@ -1,5 +1,5 @@
 /* GlobeDisc Web Push Service Worker */
-const CACHE_NAME = "globedisc-shell-v1";
+const CACHE_NAME = "globedisc-shell-v2";
 
 self.addEventListener("install", event => {
   event.waitUntil(
