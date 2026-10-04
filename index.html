@@ -70,49 +70,6 @@
             </div>
         </section>
 
-    <nav class="mobile-bottom-nav banjara-bottom-nav" aria-label="Banjara Connect navigation">
-        <button type="button" class="bottom-nav-item is-active" data-bottom-action="home" aria-label="Home">
-            <i class="fas fa-house"></i><span>Home</span>
-        </button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="chats" aria-label="Chats">
-            <i class="fas fa-comments"></i><span>Chats</span>
-        </button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="connect" aria-label="Connect">
-            <i class="fas fa-user-plus"></i><span>Connect</span>
-        </button>
-        <button type="button" class="bottom-nav-create" id="bottomCreateButton" aria-label="Create">
-            <i class="fas fa-plus"></i>
-        </button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="community" aria-label="Community">
-            <i class="fas fa-users"></i><span>Community</span>
-        </button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="notifications" aria-label="Notifications">
-            <i class="fas fa-bell"></i><span>Alerts</span>
-        </button>
-        <button type="button" class="bottom-nav-item" data-bottom-action="more" aria-label="More">
-            <i class="fas fa-ellipsis"></i><span>More</span>
-        </button>
-    </nav>
-    <div id="bottomCreateMenu" class="bottom-create-menu hidden" aria-hidden="true">
-        <div class="bottom-create-backdrop" data-close-create></div>
-        <div class="bottom-create-sheet">
-            <div class="bottom-create-title"><strong>Create</strong><button type="button" data-close-create aria-label="Close">&times;</button></div>
-            <button type="button" class="bottom-create-option" data-create-action="photo"><i class="fas fa-image"></i><span><b>Photo</b><small>Share a photo with the community</small></span></button>
-            <button type="button" class="bottom-create-option" data-create-action="video"><i class="fas fa-video"></i><span><b>Video</b><small>Share a community video</small></span></button>
-            <button type="button" class="bottom-create-option" data-create-action="post"><i class="fas fa-pen"></i><span><b>Post</b><small>Write an update or thought</small></span></button>
-        </div>
-    </div>
-<!-- Register Banjara Connect service worker early so browsers and PWA validators can detect it. -->
-<script>
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-        navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(function (error) {
-            console.error("Banjara Connect service worker registration failed:", error);
-        });
-    });
-}
-</script>
-<script src="/banjara-frontend-foundation.js?v=20261004-1" defer></script>
 <script src="/banjara-frontend-complete.js?v=20261004-1" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/banjara-supabase-client.js?v=20261004-1"></script>
