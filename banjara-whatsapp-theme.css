@@ -397,3 +397,55 @@ html body #home.banjara-home-top > *{position:relative!important;z-index:1!impor
   html body #home.banjara-home-top::before{background-size:68px 68px!important;background-position:0 0,34px 34px!important}
   html body #home.banjara-home-top::after{width:280px!important;height:280px!important;right:-130px!important;top:-90px!important}
 }
+
+
+/* GlobeDisc — clearly visible but soft home background */
+html body{
+  background:#f4fafb !important;
+}
+html body #home.banjara-home-top{
+  position:relative !important;
+  isolation:isolate !important;
+  overflow:hidden !important;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(141,227,223,.28), transparent 30%),
+    radial-gradient(circle at 86% 65%, rgba(15,139,141,.10), transparent 34%),
+    linear-gradient(180deg,#eefafa 0%,#f7fcfc 58%,#ffffff 100%) !important;
+}
+html body #home.banjara-home-top::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+  opacity:.95 !important;
+  background-image:
+    linear-gradient(90deg,rgba(15,139,141,.075) 1px,transparent 1px),
+    linear-gradient(0deg,rgba(15,139,141,.075) 1px,transparent 1px) !important;
+  background-size:64px 64px !important;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.15),#000 10%,#000 90%,rgba(0,0,0,.15)) !important;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.15),#000 10%,#000 90%,rgba(0,0,0,.15)) !important;
+}
+html body #home.banjara-home-top::after{
+  content:"" !important;
+  position:absolute !important;
+  width:360px !important;
+  height:360px !important;
+  right:-170px !important;
+  top:-150px !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+  border:2px solid rgba(15,139,141,.10) !important;
+  border-radius:50% !important;
+  box-shadow:
+    0 0 0 42px rgba(15,139,141,.035),
+    0 0 0 84px rgba(15,139,141,.022) !important;
+}
+html body #home.banjara-home-top > *{
+  position:relative !important;
+  z-index:1 !important;
+}
+@media(max-width:600px){
+  html body #home.banjara-home-top::before{background-size:48px 48px !important}
+  html body #home.banjara-home-top::after{width:270px !important;height:270px !important;right:-125px !important;top:-95px !important}
+}
