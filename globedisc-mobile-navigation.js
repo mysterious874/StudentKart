@@ -121,7 +121,16 @@
         }
         return;
       }
+    });
 
+    // Catch dynamically-rendered floating-bar buttons as well.
+    document.addEventListener("click", function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('[data-bottom-action="settings"]') : null;
+      if (!btn) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      openSettingsFromNav();
+    }, true);
   }
 
   if (document.readyState === "loading") {
