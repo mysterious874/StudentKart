@@ -1,0 +1,7 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const url=Deno.env.get("SUPABASE_URL")!, key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const cors={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Content-Type":"application/json"};
+const json=(x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers:cors});
+function norm(v:unknown){let d=String(v??"").replace(/\D/g,"");if(d.startsWith("91")&&d.length===12)d=d.slice(2);return /^\d{10}$/.test(d)?"+91"+d:null}
+Deno.serve(async req=>{if(req.method==="OPTIONS")return new Response("ok",{headers:cors});if(req.method!=="POST")return json({error:"Method not allowed"},405);const auth=req.headers.get("authorization")||"";if(!auth.startsWith("Bearer "))return json({error:"Unauthorized"},401);const client=createClient(url,key,{auth:{autoRefreshToken:false,persistSession:false}});const {data:{user},error:ue}=await client.auth.getUser(auth.slice(7));if(ue||!user)return json({error:"Unauthorized"},401);const body=await req.json().catch(()=>({}));const phone=norm(body.phone);if(!phone)return json({error:"Invalid mobile number"},400);const {data,error}=await client.from("profiles").select("id,name,city,state").eq("phone",phone).neq("id",user.id).maybeSingle();if(error)return json({error:"Search failed"},500);return json({success:true,profile:data||null});});
