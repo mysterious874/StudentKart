@@ -354,12 +354,15 @@ html body #home .banjara-home-search input{font-size:12px!important}
 html body #home .banjara-home-search button{width:26px!important;height:26px!important;flex-basis:26px!important}
 
 
-/* GlobeDisc — exact logo diamond/box motif background */
+/* GlobeDisc — clean website-matching home background */
 html body #home.banjara-home-top{
   position:relative!important;
   isolation:isolate!important;
   overflow:hidden!important;
-  background:#fbfeff!important;
+  background:
+    radial-gradient(circle at 12% 18%,rgba(141,227,223,.20),transparent 26%),
+    radial-gradient(circle at 88% 78%,rgba(15,139,141,.07),transparent 30%),
+    linear-gradient(180deg,#f5fcfc 0%,#f8fbfc 48%,#ffffff 100%)!important;
 }
 html body #home.banjara-home-top::before{
   content:""!important;
@@ -367,37 +370,30 @@ html body #home.banjara-home-top::before{
   inset:0!important;
   z-index:0!important;
   pointer-events:none!important;
-  display:block!important;
-  opacity:.48!important;
+  opacity:.55!important;
   background-image:
-    linear-gradient(45deg,transparent 44%,rgba(15,139,141,.10) 44% 48%,transparent 48% 52%,rgba(15,139,141,.10) 52% 56%,transparent 56%),
-    linear-gradient(-45deg,transparent 44%,rgba(15,139,141,.10) 44% 48%,transparent 48% 52%,rgba(15,139,141,.10) 52% 56%,transparent 56%);
-  background-size:72px 72px!important;
-  background-position:center!important;
-  -webkit-mask-image:linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent)!important;
-  mask-image:linear-gradient(to bottom,transparent,#000 8%,#000 92%,transparent)!important;
+    linear-gradient(45deg,transparent 47%,rgba(15,139,141,.075) 48%,rgba(15,139,141,.075) 52%,transparent 53%),
+    linear-gradient(-45deg,transparent 47%,rgba(15,139,141,.075) 48%,rgba(15,139,141,.075) 52%,transparent 53%);
+  background-size:86px 86px!important;
+  background-position:0 0,43px 43px!important;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 16%,#000 82%,transparent 100%)!important;
+  mask-image:linear-gradient(to bottom,transparent 0%,#000 16%,#000 82%,transparent 100%)!important;
 }
 html body #home.banjara-home-top::after{
   content:""!important;
   position:absolute!important;
-  width:310px!important;
-  height:310px!important;
-  right:-120px!important;
-  top:0!important;
+  width:420px!important;
+  height:420px!important;
+  right:-190px!important;
+  top:-170px!important;
   z-index:0!important;
   pointer-events:none!important;
-  opacity:.18!important;
-  background-image:
-    linear-gradient(45deg,transparent 45%,rgba(15,139,141,.18) 45% 50%,transparent 50% 55%,rgba(15,139,141,.18) 55% 60%,transparent 60%),
-    linear-gradient(-45deg,transparent 45%,rgba(15,139,141,.18) 45% 50%,transparent 50% 55%,rgba(15,139,141,.18) 55% 60%,transparent 60%);
-  background-size:58px 58px!important;
-  transform:rotate(8deg)!important;
+  border:1px solid rgba(15,139,141,.08)!important;
+  border-radius:50%!important;
+  box-shadow:0 0 0 38px rgba(15,139,141,.025),0 0 0 76px rgba(15,139,141,.018)!important;
 }
-html body #home.banjara-home-top > *{
-  position:relative!important;
-  z-index:1!important;
-}
+html body #home.banjara-home-top > *{position:relative!important;z-index:1!important}
 @media(max-width:600px){
-  html body #home.banjara-home-top::before{background-size:58px 58px!important}
-  html body #home.banjara-home-top::after{width:250px!important;height:250px!important;right:-105px!important;background-size:48px 48px!important}
+  html body #home.banjara-home-top::before{background-size:68px 68px!important;background-position:0 0,34px 34px!important}
+  html body #home.banjara-home-top::after{width:280px!important;height:280px!important;right:-130px!important;top:-90px!important}
 }
