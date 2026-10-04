@@ -37,6 +37,59 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
+    // Remove user-owned application data first. Public tables do not rely on
+    // an auth.users foreign-key cascade, so deleting the Auth user alone can
+    // otherwise leave an orphaned profile and social records.
+    const chatMemberships = await admin.from("chat_members").select("chat_id").eq("user_id", user.id);
+    const chatIds = (chatMemberships.data || []).map((row: any) => row.chat_id).filter(Boolean);
+
+    if (chatIds.length) {
+      await admin.from("messages").delete().eq("sender_id", user.id);
+      await admin.from("message_hidden").delete().eq("user_id", user.id);
+      await admin.from("message_reactions").delete().eq("user_id", user.id);
+      await admin.from("chat_members").delete().eq("user_id", user.id);
+    }
+
+    const ownedChats = await admin.from("chats").select("id").eq("created_by", user.id);
+    const ownedChatIds = (ownedChats.data || []).map((row: any) => row.id).filter(Boolean);
+    if (ownedChatIds.length) {
+      await admin.from("messages").delete().in("chat_id", ownedChatIds);
+      await admin.from("message_hidden").delete().in("message_id", ownedChatIds);
+      await admin.from("chat_members").delete().in("chat_id", ownedChatIds);
+      await admin.from("chats").delete().in("id", ownedChatIds);
+    }
+
+    const ownedPosts = await admin.from("posts").select("id").eq("author_id", user.id);
+    const postIds = (ownedPosts.data || []).map((row: any) => row.id).filter(Boolean);
+    if (postIds.length) {
+      await admin.from("post_likes").delete().in("post_id", postIds);
+      await admin.from("post_saves").delete().in("post_id", postIds);
+      await admin.from("comments").delete().in("post_id", postIds);
+      await admin.from("post_comments").delete().in("post_id", postIds);
+      await admin.from("post_reactions").delete().in("post_id", postIds);
+      await admin.from("posts").delete().in("id", postIds);
+    }
+
+    const ownedCommunities = await admin.from("communities").select("id").eq("created_by", user.id);
+    const communityIds = (ownedCommunities.data || []).map((row: any) => row.id).filter(Boolean);
+    if (communityIds.length) {
+      await admin.from("community_members").delete().in("community_id", communityIds);
+      await admin.from("events").delete().in("community_id", communityIds);
+      await admin.from("posts").delete().in("community_id", communityIds);
+      await admin.from("communities").delete().in("id", communityIds);
+    }
+
+    await admin.from("connections").delete().or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
+    await admin.from("community_members").delete().eq("user_id", user.id);
+    await admin.from("event_attendees").delete().eq("user_id", user.id);
+    await admin.from("events").delete().eq("created_by", user.id);
+    await admin.from("notifications").delete().eq("user_id", user.id);
+    await admin.from("reports").delete().eq("reporter_id", user.id);
+    await admin.from("user_blocks").delete().or(`blocker_id.eq.${user.id},blocked_id.eq.${user.id}`);
+    await admin.from("blocked_users").delete().or(`blocker_id.eq.${user.id},blocked_id.eq.${user.id}`);
+    await admin.from("ai_chat_histories").delete().eq("user_id", user.id);
+    await admin.from("profiles").delete().eq("id", user.id);
+
     await admin.auth.admin.signOut(user.id, "global");
     const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
     if (deleteError) {
