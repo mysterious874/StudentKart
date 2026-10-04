@@ -5628,7 +5628,8 @@ function globeDiscRouteSearch(query) {
     if (!q) return false;
 
     const routes = [
-        {keys:["emi","loan emi","interest rate","gst","sip","percentage","currency converter"], url:"money-hub.html"},
+        {keys:["emi","loan emi","interest rate","gst","sip","percentage","currency converter","money hub","budget planner"], url:"money-hub.html"},
+        {keys:["calculate","calculator","math","solve equation"], url:"ai-calculator.html"},
         {keys:["emergency","police emergency","ambulance","fire emergency","112"], url:"emergency-hub.html"},
         {keys:["cybersecurity","cyber security","phishing","scam","online fraud","password safety"], url:"cybersecurity-hub.html"},
         {keys:["career","career roadmap","internship","internships","jobs","job search","resume"], url:"career-hub.html"},
