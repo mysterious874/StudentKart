@@ -8336,82 +8336,71 @@ document.addEventListener("click", event => {
    AUTH LISTENER
    ========================================================= */
 
-function setupAuthListener() {
+async function handleAuthStateChange(event, session) {
+    currentUser = session?.user || null;
 
-    supabaseClient.auth
-        .onAuthStateChange(
-            async (event, session) => {
-
-                currentUser =
-                    session?.user ||
-                    null;
-
-                if (currentUser) {
-                    await startSingleSessionListener(
-                        currentUser,
-                        event === "SIGNED_IN"
-                    );
-                    applyStudentKartSettings();
-                } else {
-                    document.body.classList.remove("studentkart-dark");
-                }
-
-                if (currentUser) {
-                    await ensureProfileAfterPasswordSignup(currentUser);
-                }
-
-                updateNavbar();
-
-                if (currentUser) {
-
-                    startNotificationRefresh();
-                    await getWishlist();
-                    updateWishlistButtons();
-
-                    // Start chat unread notifications for this logged-in user.
-                    await updateChatUnreadCount();
-                    await startChatUnreadRealtime();
-
-                } else {
-
-                    await stopSingleSessionListener();
-                    stopNotificationRefresh();
-
-                    if (window.chatUnreadChannel) {
-                        await supabaseClient.removeChannel(
-                            window.chatUnreadChannel
-                        );
-                        window.chatUnreadChannel = null;
-                    }
-
-                    const chatBadge = $("chatUnreadCount");
-                    if (chatBadge) {
-                        chatBadge.textContent = "0";
-                        chatBadge.classList.add("hidden");
-                    }
-
-                    currentNotifications = [];
-
-                    updateNotificationNavbar();
-                    currentWishlist = [];
-                    updateWishlistNavbar();
-                    updateWishlistButtons();
-                }
-
-                if (
-                    event ===
-                    "SIGNED_IN" ||
-                    event ===
-                    "SIGNED_OUT"
-                ) {
-
-                    setTimeout(
-                        loadProducts,
-                        0
-                    );
-                }
-            }
+    if (currentUser) {
+        await startSingleSessionListener(
+            currentUser,
+            event === "SIGNED_IN"
         );
+        applyStudentKartSettings();
+        await ensureProfileAfterPasswordSignup(currentUser);
+
+        updateNavbar();
+        startNotificationRefresh();
+        await getWishlist();
+        updateWishlistButtons();
+
+        // Start chat unread notifications for this logged-in user.
+        await updateChatUnreadCount();
+        await startChatUnreadRealtime();
+    } else {
+        document.body.classList.remove("studentkart-dark");
+        await stopSingleSessionListener();
+        stopNotificationRefresh();
+
+        if (window.chatUnreadChannel) {
+            await supabaseClient.removeChannel(
+                window.chatUnreadChannel
+            );
+            window.chatUnreadChannel = null;
+        }
+
+        const chatBadge = $("chatUnreadCount");
+        if (chatBadge) {
+            chatBadge.textContent = "0";
+            chatBadge.classList.add("hidden");
+        }
+
+        currentNotifications = [];
+        updateNotificationNavbar();
+        currentWishlist = [];
+        updateWishlistNavbar();
+        updateWishlistButtons();
+        updateNavbar();
+    }
+
+    if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        setTimeout(loadProducts, 0);
+    }
+}
+
+function setupAuthListener() {
+    /*
+     * IMPORTANT: Supabase documents a deadlock risk when async Supabase
+     * calls are awaited directly inside onAuthStateChange. Keep the
+     * callback synchronous and defer all async work to the next task.
+     */
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        currentUser = session?.user || null;
+
+        setTimeout(() => {
+            void handleAuthStateChange(event, session).catch(error => {
+                console.error("Deferred auth state handling failed:", error);
+            });
+        }, 0);
+    });
 }
 
 
