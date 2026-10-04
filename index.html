@@ -12,7 +12,7 @@
     <title>GlobeDisc — Discover What's Happening</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=20261004-globedisc-ai-nav-6">
-    <link rel="stylesheet" href="globedisc-ux-polish.css?v=20261004-chat-search-3">\n    <link rel="stylesheet" href="globedisc-feature-bar.css?v=20261004-multifunctional-1">
+    <link rel="stylesheet" href="globedisc-ux-polish.css?v=20261004-chat-search-3">\n    <link rel="stylesheet" href="globedisc-orbit-home.css?v=20261004-orbit-1">\n    <link rel="stylesheet" href="globedisc-feature-bar.css?v=20261004-multifunctional-1">
 </head>
 
 <body class="globedisc-splash-active">
@@ -175,69 +175,102 @@
 
 
     <main>
-        <section id="home" class="hero studentkart-top">
-            <div class="studentkart-top-content">
-                <div class="home-discovery-heading">
-                    <span class="section-label"><i class="fas fa-globe"></i> GLOBAL DISCOVERY</span>
-                    <h1>Discover what’s happening around the world.</h1>
-                    <p>Latest stories, ideas, technology, science, business, sports and more — all in one place.</p>
-                </div>
-                <div class="top-search-strip">
-                    <i class="fas fa-search"></i>
-                    <div class="hero-search-input-wrap">
-                        <input type="text" id="heroSearchInput" placeholder="Search all you need..." autocomplete="off" aria-autocomplete="list" aria-controls="heroSearchSuggestions">
-                        <div id="heroSearchSuggestions" class="hero-search-suggestions hidden" role="listbox"></div>
-                    </div>
-                    <button type="button" id="heroVoiceButton" class="top-filter-button" aria-label="Voice search" title="Voice search" onclick="location.href='voice-search.html'"><i class="fas fa-microphone"></i></button>
-                    <button type="button" id="heroLensButton" class="top-filter-button" aria-label="Search with image" title="Search with image" onclick="location.href='globedisc-lens.html'"><i class="fas fa-camera"></i></button>
-                    <button type="button" id="heroFilterButton" class="top-filter-button" aria-label="Filters" title="Filters"><i class="fas fa-sliders"></i></button>
-                    <button type="button" id="heroSearchButton" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
-                </div>
-                <div class="globedisc-news-topic-strip" id="globediscNewsTopicStrip" aria-label="News topics">
-                    <button type="button" class="globedisc-news-topic active" data-news-topic="All">All</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="India">India</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="World">World</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Politics">Politics</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Business">Business</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Technology">Technology</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Science">Science</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Health">Health</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Sports">Sports</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Entertainment">Entertainment</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Gaming">Gaming</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Environment">Environment</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Education">Education</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Religion">Religion</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Auto">Auto</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Travel">Travel</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Lifestyle">Lifestyle</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Space">Space</button>
-                    <button type="button" class="globedisc-news-topic" data-news-topic="Trending">Trending</button>
-                </div>
-                <div class="hero-filter-panel hidden" id="heroFilterPanel" aria-label="Filter listings">
-                    <div class="hero-filter-header">
-                        <div><strong>Filter Listings</strong><small>Refine marketplace results</small></div>
-                        <button type="button" id="heroFilterClose" aria-label="Close filters">&times;</button>
-                    </div>
-                    <div class="hero-filter-grid">
-                        <label><span>Category</span><select id="heroFilterCategory">
-                            <option value="all">All Categories</option><option value="Books">Books</option><option value="Electronics">Electronics</option><option value="Vehicles">Vehicles</option><option value="Furniture">Furniture</option><option value="Services">Services</option><option value="Fashion">Fashion</option>
-                        </select></label>
-                        <label><span>Min Price</span><input id="heroFilterMin" type="number" min="0" placeholder="₹0"></label>
-                        <label><span>Max Price</span><input id="heroFilterMax" type="number" min="0" placeholder="No limit"></label>
-                        <label><span>Location</span><input id="heroFilterLocation" type="text" placeholder="University / city / area" autocomplete="off"></label>
-                        <label><span>Condition</span><select id="heroFilterCondition">
-                            <option value="all">Any Condition</option><option value="New">New</option><option value="Like New">Like New</option><option value="Good">Good</option><option value="Fair">Fair</option><option value="Used">Used</option>
-                        </select></label>
-                        <label><span>Sort By</span><select id="heroFilterSort">
-                            <option value="newest">Newest First</option><option value="oldest">Oldest First</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option>
-                        </select></label>
-                    </div>
-                    <div class="hero-filter-actions">
-                        <button type="button" class="btn btn-outline" id="heroFilterClear">Clear</button>
-                        <button type="button" class="btn btn-primary" id="heroFilterApply"><i class="fas fa-check"></i> Apply Filters</button>
+        <section id="home" class="hero globedisc-orbit-home" aria-label="GlobeDisc home">
+            <div class="globedisc-orbit-intro">
+                <span class="section-label"><i class="fas fa-orbit"></i> GLOBEDISC UNIVERSE</span>
+                <h1>Explore your world.</h1>
+                <p>Three worlds. One place to search, discover, connect and get things done.</p>
+            </div>
+
+            <div class="globedisc-planets">
+                <div class="globedisc-planet-zone">
+                    <div class="globedisc-orbit-ring r1"></div><div class="globedisc-orbit-ring r2"></div>
+                    <button class="globedisc-orbit-chip c1" onclick="document.getElementById('heroSearchInput')?.focus()"><i class="fas fa-search"></i> Search</button>
+                    <button class="globedisc-orbit-chip c2" onclick="location.href='voice-search.html'"><i class="fas fa-microphone"></i> Voice</button>
+                    <button class="globedisc-orbit-chip c3" onclick="location.href='globedisc-lens.html'"><i class="fas fa-camera"></i> Lens</button>
+                    <button class="globedisc-orbit-chip c4" onclick="location.href='globedisc-answers.html'"><i class="fas fa-wand-magic-sparkles"></i> Answers</button>
+                    <button class="globedisc-orbit-chip c5" onclick="document.getElementById('askWithAiButton')?.click()"><i class="fas fa-robot"></i> AI Chat</button>
+                    <button class="globedisc-orbit-chip c6" onclick="document.querySelector('[data-news-topic=Trending]')?.click()"><i class="fas fa-newspaper"></i> News</button>
+                    <button class="globedisc-orbit-chip c7" onclick="location.href='features.html'"><i class="fas fa-book-open"></i> Knowledge</button>
+                    <div class="globedisc-planet"><div><div class="globedisc-planet-icon">🌍</div><strong>DISCOVER</strong><small>Search · AI · News</small></div></div>
+                    <div class="globedisc-orbit-search">
+                        <div class="top-search-strip">
+                            <i class="fas fa-search"></i><div class="hero-search-input-wrap">
+                                <input type="text" id="heroSearchInput" placeholder="Search all you need..." autocomplete="off" aria-autocomplete="list" aria-controls="heroSearchSuggestions">
+                                <div id="heroSearchSuggestions" class="hero-search-suggestions hidden" role="listbox"></div>
+                            </div>
+                            <button type="button" id="heroVoiceButton" class="top-filter-button" aria-label="Voice search" title="Voice search" onclick="location.href='voice-search.html'"><i class="fas fa-microphone"></i></button>
+                            <button type="button" id="heroLensButton" class="top-filter-button" aria-label="Search with image" title="Search with image" onclick="location.href='globedisc-lens.html'"><i class="fas fa-camera"></i></button>
+                            <button type="button" id="heroFilterButton" class="top-filter-button" aria-label="Filters" title="Filters"><i class="fas fa-sliders"></i></button>
+                            <button type="button" id="heroSearchButton" aria-label="Search"><i class="fas fa-arrow-right"></i></button>
+                        </div>
                     </div>
                 </div>
+
+                <div class="globedisc-planet-zone">
+                    <div class="globedisc-orbit-ring r1"></div><div class="globedisc-orbit-ring r2"></div>
+                    <button class="globedisc-orbit-chip c1" onclick="location.href='weather.html'"><i class="fas fa-cloud-sun"></i> Weather</button>
+                    <button class="globedisc-orbit-chip c2" onclick="location.href='travel.html'"><i class="fas fa-plane"></i> Travel</button>
+                    <button class="globedisc-orbit-chip c3" onclick="location.href='money-hub.html'"><i class="fas fa-wallet"></i> Money</button>
+                    <button class="globedisc-orbit-chip c4" onclick="location.href='emergency-hub.html'"><i class="fas fa-triangle-exclamation"></i> Emergency</button>
+                    <button class="globedisc-orbit-chip c5" onclick="location.href='currency-units.html'"><i class="fas fa-coins"></i> Currency</button>
+                    <button class="globedisc-orbit-chip c6" onclick="location.href='ai-calculator.html'"><i class="fas fa-calculator"></i> Calculator</button>
+                    <button class="globedisc-orbit-chip c7" onclick="location.href='student-hub.html'"><i class="fas fa-graduation-cap"></i> Study</button>
+                    <button class="globedisc-orbit-chip c8" onclick="location.href='cybersecurity-hub.html'"><i class="fas fa-shield-halved"></i> Security</button>
+                    <div class="globedisc-planet"><div><div class="globedisc-planet-icon">🪐</div><strong>LIFE</strong><small>Tools · Travel · Safety</small></div></div>
+                </div>
+
+                <div class="globedisc-planet-zone">
+                    <div class="globedisc-orbit-ring r1"></div><div class="globedisc-orbit-ring r2"></div>
+                    <button class="globedisc-orbit-chip c1" onclick="location.href='marketplace.html'"><i class="fas fa-store"></i> Marketplace</button>
+                    <button class="globedisc-orbit-chip c2" onclick="document.getElementById('chatButton')?.click()"><i class="fas fa-message"></i> Chat</button>
+                    <button class="globedisc-orbit-chip c3" onclick="if(typeof renderCampusPicker==='function')renderCampusPicker();window.openModal?.('campusModal')"><i class="fas fa-building-columns"></i> Campus</button>
+                    <button class="globedisc-orbit-chip c4" onclick="location.href='career-hub.html'"><i class="fas fa-briefcase"></i> Career</button>
+                    <button class="globedisc-orbit-chip c5" onclick="location.href='notes.html'"><i class="fas fa-note-sticky"></i> Notes</button>
+                    <button class="globedisc-orbit-chip c6" onclick="location.href='saved-collections.html'"><i class="fas fa-bookmark"></i> Saved</button>
+                    <button class="globedisc-orbit-chip c7" onclick="location.href='personal-dashboard.html'"><i class="fas fa-chart-line"></i> Dashboard</button>
+                    <button class="globedisc-orbit-chip c8" onclick="window.openProfile?.()"><i class="fas fa-user"></i> Profile</button>
+                    <div class="globedisc-planet"><div><div class="globedisc-planet-icon">🌎</div><strong>CONNECT</strong><small>People · Study · Work</small></div></div>
+                </div>
+            </div>
+
+            <div class="globedisc-orbit-cta">
+                <button type="button" onclick="location.href='features.html'"><i class="fas fa-layer-group"></i> Explore all features</button>
+                <button type="button" onclick="location.href='features.html'"><i class="fas fa-grid-2"></i> Feature Hub</button>
+            </div>
+
+            <div class="globedisc-news-topic-strip" id="globediscNewsTopicStrip" aria-label="News topics" style="margin-top:24px">
+                <button type="button" class="globedisc-news-topic active" data-news-topic="All">All</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="India">India</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="World">World</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Politics">Politics</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Business">Business</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Technology">Technology</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Science">Science</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Health">Health</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Sports">Sports</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Entertainment">Entertainment</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Gaming">Gaming</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Environment">Environment</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Education">Education</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Religion">Religion</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Auto">Auto</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Travel">Travel</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Lifestyle">Lifestyle</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Space">Space</button>
+                <button type="button" class="globedisc-news-topic" data-news-topic="Trending">Trending</button>
+            </div>
+            <div class="hero-filter-panel hidden" id="heroFilterPanel" aria-label="Filter listings">
+                <div class="hero-filter-header"><div><strong>Filter Listings</strong><small>Refine marketplace results</small></div><button type="button" id="heroFilterClose" aria-label="Close filters">&times;</button></div>
+                <div class="hero-filter-grid">
+                    <label><span>Category</span><select id="heroFilterCategory"><option value="all">All Categories</option><option value="Books">Books</option><option value="Electronics">Electronics</option><option value="Vehicles">Vehicles</option><option value="Furniture">Furniture</option><option value="Services">Services</option><option value="Fashion">Fashion</option></select></label>
+                    <label><span>Min Price</span><input id="heroFilterMin" type="number" min="0" placeholder="₹0"></label>
+                    <label><span>Max Price</span><input id="heroFilterMax" type="number" min="0" placeholder="No limit"></label>
+                    <label><span>Location</span><input id="heroFilterLocation" type="text" placeholder="University / city / area" autocomplete="off"></label>
+                    <label><span>Condition</span><select id="heroFilterCondition"><option value="all">Any Condition</option><option value="New">New</option><option value="Like New">Like New</option><option value="Good">Good</option><option value="Fair">Fair</option><option value="Used">Used</option></select></label>
+                    <label><span>Sort By</span><select id="heroFilterSort"><option value="newest">Newest First</option><option value="oldest">Oldest First</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option></select></label>
+                </div>
+                <div class="hero-filter-actions"><button type="button" class="btn btn-outline" id="heroFilterClear">Clear</button><button type="button" class="btn btn-primary" id="heroFilterApply"><i class="fas fa-check"></i> Apply Filters</button></div>
             </div>
         </section>
 
