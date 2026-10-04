@@ -153,3 +153,21 @@ body.bc-auth-mode .bc-app{padding-bottom:24px}
 .bc-helper{font-size:11px!important;text-align:left!important;margin:0!important}.bc-setting-detail{line-height:1.6}.bc-setting-controls{display:flex;gap:8px}.bc-setting-controls .bc-action{flex:1}
 .bc-profile-hero{position:relative;z-index:1;margin-top:-42px;padding:0 8px 16px}.bc-profile-avatar{border:4px solid var(--bc-cream);box-sizing:border-box}
 @media(max-width:560px){.bc-profile-cover{height:78px}.bc-profile-hero{margin-top:-34px}.bc-profile-avatar{width:70px;height:70px}.bc-event-card{grid-template-columns:38px 1fr auto}}
+
+/* Final frontend interaction states */
+.bc-theme-grid,.bc-language-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bc-theme-grid .bc-card{display:flex;flex-direction:column;gap:7px;cursor:pointer;text-align:left;font-size:22px}
+.bc-theme-grid .bc-card strong{font-size:13px;color:var(--bc-text)}
+.bc-theme-grid .bc-card small{font-size:10px;color:var(--bc-muted)}
+.bc-language-grid{grid-template-columns:1fr}
+.bc-language-grid .bc-action{margin-top:0}
+.bc-setting-controls{display:flex;gap:8px}
+.bc-setting-controls>*{flex:1}
+.bc-field input[type=file]{padding:8px}
+.bc-post-actions button,.bc-stat{cursor:pointer}
+.bc-dark #bcAppShell{--bc-cream:#1d1715;--bc-paper:#261e1b;--bc-white:#302622;--bc-text:#f8eee5;--bc-muted:#c9b9ad;--bc-line:#4a3931;--bc-soft:#382a24}
+.bc-dark .bc-topbar,.bc-dark .bc-desktop-nav,.bc-dark .bc-bottom{background:rgba(29,23,21,.96)}
+.bc-dark .bc-search,.bc-dark .bc-card,.bc-dark .bc-row,.bc-dark .bc-setting,.bc-dark .bc-auth-box,.bc-dark .bc-sheet{background:var(--bc-paper);color:var(--bc-text)}
+.bc-dark .bc-field input,.bc-dark .bc-field textarea,.bc-dark .bc-field select{background:#302622;color:var(--bc-text);border-color:var(--bc-line)}
+.bc-dark .bc-tab,.bc-dark .bc-action,.bc-dark .bc-post-actions button{background:#382a24;color:var(--bc-text)}
+.bc-dark .bc-chat-messages{background:#2a211d}
