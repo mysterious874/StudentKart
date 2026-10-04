@@ -52,6 +52,7 @@ async function openChat(chatId,name){
  const mediaUrl=async path=>{if(!path)return null;const r=await sb.storage.from("banjara-media").createSignedUrl(path,3600);return r.data?.signedUrl||null;};
  const renderMessage=async m=>{
    const mine=m.sender_id===user.id, type=m.message_type||"text", url=await mediaUrl(m.attachment_url);
+   const receipt=mine?'<span class="bc-msg-receipt '+(m.read_at?"seen":"")+'">'+(m.read_at?"✓✓":m.delivered_at?"✓✓":"✓")+'</span>':"";
    let content=escLive(m.body||"");
    if(type==="image"&&url)content='<img class="bc-msg-image" src="'+url+'" alt="Image" loading="lazy">';
    else if(type==="video"&&url)content='<video class="bc-msg-video" controls playsinline preload="metadata" src="'+url+'"></video>';
@@ -59,7 +60,7 @@ async function openChat(chatId,name){
    else if(type==="file"&&url)content='<a class="bc-msg-file" href="'+url+'" target="_blank" rel="noopener"><i class="fas fa-file-lines"></i><span>'+escLive(m.body||"Attachment")+'</span></a>';
    const reply=m.reply_to_id?currentMessages.find(x=>x.id===m.reply_to_id):null;
    const quoted=reply?'<div class="bc-msg-quote">'+escLive(reply.body||("["+reply.message_type+"]"))+'</div>':"";
-   return '<button type="button" class="bc-msg '+(mine?"mine":"theirs")+'" data-message-id="'+m.id+'">'+quoted+content+'<small>'+ago(m.created_at)+'</small></button>';
+   return '<button type="button" class="bc-msg '+(mine?"mine":"theirs")+'" data-message-id="'+m.id+'">'+quoted+content+'<small>'+ago(m.created_at)+receipt+'</small></button>';
  };
  let currentMessages=[];
  const render=async rows=>{
@@ -70,10 +71,11 @@ async function openChat(chatId,name){
  };
  const {data:hiddenRows}=await sb.from("message_hidden").select("message_id").eq("user_id",user.id);
  const hiddenIds=new Set((hiddenRows||[]).map(x=>x.message_id));
- const q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url,reply_to_id").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
+ const q=sb.from("messages").select("id,body,sender_id,created_at,message_type,attachment_url,reply_to_id,delivered_at,read_at").eq("chat_id",chatId).is("deleted_at",null).order("created_at",{ascending:true}).limit(200);
  const {data,error}=await q;if(error){box.querySelector("#bcChatMessages").innerHTML='<div class="bc-empty"><strong>Could not load messages</strong><span>Please try again.</span></div>';return;}
  await render((data||[]).filter(m=>!hiddenIds.has(m.id)));
  await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);
+ const now=new Date().toISOString(); await sb.from("messages").update({delivered_at:now,read_at:now}).eq("chat_id",chatId).neq("sender_id",user.id).is("read_at",null);
  if(window.__bcLive?.chats){const current=window.__bcLive.chats.find(x=>x.id===chatId);if(current)current.unread=false;}
  const input=box.querySelector("#bcChatInput"),attachInput=box.querySelector("#bcAttachInput"),attachBtn=box.querySelector("#bcAttachBtn"),voiceBtn=box.querySelector("#bcVoiceBtn");
  const presenceEl=box.querySelector("#bcChatPresence"); let typingTimer=null;
@@ -139,10 +141,10 @@ async function openChat(chatId,name){
      recorder.start();
    }catch(e){alert("Microphone permission is required for voice messages.");}
  };
- box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text",reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url").single();if(ins.error){input.value=body;return;}replyTo=null;replyBar.hidden=true;await render([...currentMessages,ins.data]);input.focus();};
+ box.querySelector("#bcChatForm").onsubmit=async ev=>{ev.preventDefault();const body=input.value.trim();if(!body)return;input.value="";const ins=await sb.from("messages").insert({chat_id:chatId,sender_id:user.id,body,message_type:"text",reply_to_id:replyTo?.id||null}).select("id,body,sender_id,created_at,message_type,attachment_url,delivered_at,read_at").single();if(ins.error){input.value=body;return;}replyTo=null;replyBar.hidden=true;await render([...currentMessages,ins.data]);input.focus();};
  const channel=sb.channel("bc-chat-"+chatId)
- .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){currentMessages=[...currentMessages,payload.new];const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}})
- .on("postgres_changes",{event:"UPDATE",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.deleted_at){await render(currentMessages.filter(x=>x.id!==payload.new.id));}});
+ .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.sender_id!==user.id){currentMessages=[...currentMessages,payload.new];await sb.from("messages").update({delivered_at:new Date().toISOString(),read_at:new Date().toISOString()}).eq("id",payload.new.id);const html=await renderMessage(payload.new),el=box.querySelector("#bcChatMessages");el.insertAdjacentHTML("beforeend",html);el.scrollTop=el.scrollHeight;await sb.from("chat_members").update({last_read_at:new Date().toISOString()}).eq("chat_id",chatId).eq("user_id",user.id);}})
+ .on("postgres_changes",{event:"UPDATE",schema:"public",table:"messages",filter:"chat_id=eq."+chatId},async payload=>{if(payload.new.deleted_at){await render(currentMessages.filter(x=>x.id!==payload.new.id));return;}const i=currentMessages.findIndex(x=>x.id===payload.new.id);if(i>=0){currentMessages[i]=payload.new;await render(currentMessages);}});
  box.dataset.channel="bc-chat-"+chatId;
 }
 async function newChat(){
