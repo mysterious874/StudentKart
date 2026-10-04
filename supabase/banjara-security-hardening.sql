@@ -408,3 +408,8 @@ using (
                 and private.can_view_post(p.id))
   )
 );
+
+
+-- 2026-10-04 security follow-up: remove pg_temp from SECURITY DEFINER search paths.
+alter function private.is_chat_member(uuid) set search_path = public;
+alter function private.notify_connection() set search_path = public;
