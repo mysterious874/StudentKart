@@ -9,6 +9,12 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, OPTIONS",
 };
 
+const rateBuckets = new Map<string, { started: number; count: number }>();
+const RATE_WINDOW_MS = 60_000;
+const RATE_LIMIT = 30;
+
+const clientKey = (req: Request) => req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
@@ -204,6 +210,12 @@ async function getFlipkartProducts(query: string): Promise<Product[]> {
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const key = clientKey(request);
+  const now = Date.now();
+  const bucket = rateBuckets.get(key);
+  if (!bucket || now - bucket.started >= RATE_WINDOW_MS) rateBuckets.set(key, { started: now, count: 1 });
+  else { bucket.count += 1; if (bucket.count > RATE_LIMIT) return json({ products: [], error: "Too many requests. Please try again shortly." }, 429); }
 
   try {
     const url = new URL(request.url);
