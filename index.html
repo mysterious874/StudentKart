@@ -112,13 +112,7 @@
         <a href="#home" class="bottom-nav-item">
             <i class="fas fa-house"></i><span>Home</span>
         </a>
-        <button type="button" class="bottom-nav-item bottom-chat-nav-item">
-            <span class="bottom-nav-icon-wrap">
-                <i class="fas fa-message"></i>
-                <span class="chat-unread-count bottom-chat-unread-count hidden" id="chatBottomUnreadCount">0</span>
-            </span>
-            <span>Chat</span>
-        </button>        <button type="button" class="bottom-nav-item" id="bottomProfileButton" aria-label="Profile">
+        <button type="button" class="bottom-nav-item" id="bottomProfileButton" aria-label="Profile">
             <i class="fas fa-user"></i><span>Profile</span>
         </button>
         <button type="button" class="bottom-nav-item" id="bottomSettingsButton" aria-label="Settings" title="Settings"><i class="fas fa-gear"></i><span>Settings</span></button>
@@ -585,67 +579,6 @@
         </div>
     </div>
 
-    <!-- RECEIVED INQUIRIES -->
-    <div id="inquiriesModal" class="modal hidden">
-        <div class="modal-overlay" data-close-modal></div>
-        <div class="modal-content wide-modal">
-            
-            <div class="chat-list-header">
-                <div class="chat-list-title-row">
-                    <div>
-                        <span class="section-label">BANJARA CONNECT</span>
-                        <h2>Chats</h2>
-                    </div>
-                    <div class="chat-list-header-actions">
-                        <button type="button" class="chat-list-icon-button" id="chatListRefreshButton" title="Refresh chats" aria-label="Refresh chats">
-                            <i class="fas fa-rotate"></i>
-                        </button>
-                        <button type="button" class="chat-list-icon-button" id="chatListCloseButton" title="Close" aria-label="Close chats">
-                            <i class="fas fa-xmark"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="chat-list-search" id="newChatSearchBar">
-        <i class="fas fa-search" aria-hidden="true"></i>
-        <input type="search" id="newChatSearchInput" placeholder="Search mobile number" autocomplete="off" aria-label="Search mobile number">
-        <button type="button" id="newChatSearchClear" class="hidden" aria-label="Clear search">
-          <i class="fas fa-xmark"></i>
-        </button>
-      </div>
-      <div id="newChatSearchResults" class="chat-search-results hidden" role="listbox" aria-label="Users matching mobile number"></div>
-      <div class="chat-list-tabs" role="tablist" aria-label="Chat filters">
-                    <button type="button" class="chat-list-tab active" data-chat-filter="all" role="tab" aria-selected="true">All</button>
-                    <button type="button" class="chat-list-tab" data-chat-filter="unread" role="tab" aria-selected="false">Unread</button>
-                </div>
-                <div class="inquiry-bulk-tools">
-                    <button type="button" id="cancelChatSelectionButton" class="chat-selection-cancel hidden" title="Cancel selection" aria-label="Cancel selection">
-                        <i class="fas fa-xmark"></i>
-                    </button>
-                    <span id="selectedInquiryCount" class="selected-inquiry-count hidden">0 selected</span>
-                    <button type="button" id="bulkMarkReadButton" class="btn btn-outline bulk-action-button hidden">
-                        <i class="fas fa-check-double"></i><span>Mark as Read</span>
-                    </button>
-                    <button type="button" id="bulkMarkUnreadButton" class="btn btn-outline bulk-action-button hidden">
-                        <i class="fas fa-envelope"></i><span>Mark as Unread</span>
-                    </button>
-                    <button type="button" id="bulkMarkRepliedButton" class="btn btn-outline bulk-action-button hidden">
-                        <i class="fas fa-check"></i><span>Mark Replied</span>
-                    </button>
-                    <button type="button" id="bulkDeleteForMeButton" class="btn btn-danger bulk-action-button hidden">
-                        <i class="fas fa-trash-can"></i><span>Delete</span>
-                    </button>
-                </div>
-            </div>
-            <div id="inquiriesContainer">
-                <div class="empty-state">
-                    <div class="empty-icon"><i class="fas fa-message"></i></div>
-                    <h3>No inquiries yet</h3>
-                    <p>You'll see buyer messages here.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- LOGIN -->
     <div id="loginModal" class="modal hidden">
         <div class="modal-overlay" data-close-modal></div>
@@ -793,146 +726,6 @@
         <div id="toastIcon" class="toast-icon"><i class="fas fa-check"></i></div>
         <div id="toastMessage">Done</div>
     </div>
-<!-- CHAT MODAL -->
-<div id="chatModal" class="modal hidden">
-  <div class="modal-overlay" data-close-modal></div>
-  <div class="modal-content chat-modal-content">
-    <div id="chatMessageSelectionHeader" class="chat-message-selection-header hidden">
-      <button type="button" id="chatMessageSelectionCancel" class="chat-selection-header-icon" title="Cancel selection" aria-label="Cancel selection">
-        <i class="fas fa-arrow-left"></i>
-      </button>
-      <strong id="chatMessageSelectionHeaderCount">0</strong>
-      <div class="chat-message-selection-header-actions">
-        <button type="button" id="chatHeaderReplySelected" title="Reply" aria-label="Reply"><i class="fas fa-reply"></i></button>
-        <button type="button" id="chatHeaderCopySelected" title="Copy" aria-label="Copy"><i class="fas fa-copy"></i></button>
-        <button type="button" id="chatHeaderDeleteSelected" title="Delete" aria-label="Delete"><i class="fas fa-trash-can"></i></button>
-        <button type="button" id="chatHeaderMoreSelected" title="More options" aria-label="More options"><i class="fas fa-ellipsis-vertical"></i></button>
-      </div>
-    </div>
-    <div class="chat-head">
-      <button type="button" class="chat-back-button" id="chatBackButton" title="Back to chats" aria-label="Back to chats">
-        <i class="fas fa-arrow-left"></i>
-      </button>
-
-      <div class="chat-person">
-        <div class="chat-avatar" aria-hidden="true">
-          <img id="chatAvatarImage" src="" alt="">
-          <i id="chatAvatarIcon" class="fas fa-user"></i>
-          <span id="chatHeaderOnlineDot" class="chat-header-online-dot hidden"></span>
-        </div>
-        <div class="chat-person-info">
-          <h2 id="chatUserName">Conversation</h2>
-          <p id="chatPresenceStatus"><span class="chat-status-dot"></span><span id="chatUserStatus">Offline</span></p>
-        </div>
-      </div>
-
-      <div class="chat-actions">
-        <button type="button" class="chat-call-button" id="chatVoiceCallButton" title="Voice call" aria-label="Voice call">
-          <i class="fas fa-phone"></i>
-        </button>
-        <button type="button" class="chat-delete-button" id="chatDeleteButton" title="Chat options" aria-label="Chat options">
-          <i class="fas fa-ellipsis-vertical"></i>
-        </button>
-      </div>
-    </div>
-    <div id="chatDeleteMenu" class="chat-delete-menu hidden">
-      <button type="button" id="deleteChatForMeButton">
-        <i class="fas fa-eye-slash"></i>
-        <span>Delete for Me</span>
-      </button>
-      <button type="button" id="deleteChatForEveryoneButton" class="danger">
-        <i class="fas fa-trash-can"></i>
-        <span>Delete for Everyone</span>
-      </button>
-      <button type="button" id="blockChatUserButton" class="danger">
-        <i class="fas fa-user-slash"></i>
-        <span>Block User</span>
-      </button>
-    </div>
-    <div id="chatSelectionBar" class="chat-selection-bar hidden" aria-hidden="true"></div>
-    <div id="chatSelectionDeleteModal" class="chat-selection-delete-modal hidden" aria-hidden="true">
-      <div class="chat-selection-delete-overlay" data-close-selection-delete></div>
-      <div class="chat-selection-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="chatSelectionDeleteTitle">
-        <div class="chat-selection-delete-icon"><i class="fas fa-trash-can"></i></div>
-        <h3 id="chatSelectionDeleteTitle">Delete selected messages?</h3>
-        <p id="chatSelectionDeleteText">Choose how you want to delete the selected messages.</p>
-        <div class="chat-selection-delete-actions">
-          <button type="button" id="deleteSelectedChatForMePopup" class="chat-selection-delete-option">
-            <i class="fas fa-eye-slash"></i>
-            <span><strong>Delete for Me</strong><small>Remove from your chat only</small></span>
-          </button>
-          <button type="button" id="deleteSelectedChatForEveryonePopup" class="chat-selection-delete-option danger">
-            <i class="fas fa-trash-can"></i>
-            <span><strong>Delete for Everyone</strong><small>Remove your sent messages for both users</small></span>
-          </button>
-        </div>
-        <button type="button" id="cancelSelectedChatDelete" class="chat-selection-delete-cancel">Cancel</button>
-      </div>
-    </div>
-    <div id="chatMessages" class="chat-messages">
-      <div class="chat-profile-intro" id="chatProfileIntro">
-        <div class="chat-profile-avatar-large">
-          <img id="chatProfileAvatarImage" src="" alt="">
-          <i id="chatProfileAvatarIcon" class="fas fa-user"></i>
-        </div>
-        <h1 id="chatProfileName">Conversation</h1>
-        <p id="chatProfileCollege" class="chat-profile-college">College</p>
-        <button type="button" id="chatViewProfileButton" class="chat-view-profile-button">
-          View profile
-        </button>
-      </div>
-      <div class="chat-empty"><i class="fas fa-comment-dots"></i><p>No messages yet.</p><span>Start the conversation below.</span></div>
-    </div><div id="chatReplyPreview" class="chat-reply-preview hidden">
-      <div><strong id="chatReplyLabel">Replying</strong><span id="chatReplyText"></span></div>
-      <button type="button" id="cancelChatReply" aria-label="Cancel reply"><i class="fas fa-xmark"></i></button>
-    </div>
-    <div id="chatImagePreview" class="chat-image-preview hidden">
-      <div class="chat-image-preview-card">
-        <img id="chatImagePreviewImg" src="" alt="Selected image">
-        <button type="button" id="removeChatImage" aria-label="Remove image"><i class="fas fa-xmark"></i></button>
-      </div>
-      <span id="chatImagePreviewName"></span>
-    </div>
-    <form id="chatForm" class="chat-form">
-      <div class="chat-attach-wrap">
-        <button type="button" class="chat-media-button" id="chatAttachButton" title="Attachments" aria-label="Attachments" aria-expanded="false">
-          <i class="fas fa-paperclip"></i>
-        </button>
-        <div id="chatAttachmentMenu" class="chat-attachment-menu hidden" role="menu">
-          <button type="button" id="chatCameraOption" role="menuitem">
-            <span class="chat-attachment-icon"><i class="fas fa-camera"></i></span>
-            <span>Camera</span>
-          </button>
-          <button type="button" id="chatPhotoVideoOption" role="menuitem">
-            <span class="chat-attachment-icon"><i class="far fa-image"></i></span>
-            <span>Photo &amp; Video</span>
-          </button>
-          <button type="button" id="chatVideoOption" role="menuitem">
-            <span class="chat-attachment-icon"><i class="fas fa-video"></i></span>
-            <span>Record Video</span>
-          </button>
-        </div>
-      </div>
-      <input type="file" id="chatImageInput" accept="image/*,video/*" hidden>
-      <input type="file" id="chatCameraInput" accept="image/*" capture="environment" hidden>
-      <input type="file" id="chatVideoInput" accept="video/*" capture="environment" hidden>
-
-      <div class="chat-input-pill">
-        <input type="text" id="chatInput" placeholder="Message" autocomplete="off">
-        <button type="button" class="chat-emoji-inside" id="chatEmojiButton" title="Emoji" aria-label="Emoji">
-          <i class="far fa-face-smile"></i>
-        </button>
-      </div>
-      <button type="submit" class="chat-like-button chat-send-button" id="chatLikeButton" aria-label="Send message" title="Send message">
-        <i class="fas fa-paper-plane"></i>
-      </button>
-
-      <div id="chatEmojiPicker" class="chat-emoji-picker hidden">
-        <button type="button">😀</button><button type="button">😂</button><button type="button">😍</button><button type="button">❤️</button><button type="button">👍</button><button type="button">🔥</button><button type="button">🎉</button><button type="button">😢</button><button type="button">😎</button><button type="button">🙏</button><button type="button">🤝</button><button type="button">💯</button>
-      </div>
-    </form>
-  </div>
-</div>
 <!-- Register GlobeDisc service worker early so browsers and PWA validators can detect it. -->
 <script>
 if ("serviceWorker" in navigator) {
@@ -945,7 +738,6 @@ if ("serviceWorker" in navigator) {
 </script>
 <script src="/globedisc-mobile-navigation.js?v=20261004-nav-2" defer></script>\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js?v=20261004-ai-chat-10"></script>
-    <script src="/push-notifications.js?v=20261002-push-1"></script>
     <script src="globedisc-ux-polish.js?v=20261004-chat-search-3"></script>
     <script src="/admin-tool.js?v=20261003-admin-tool-1"></script>
 <script src="/admin-users.js?v=20261003-users-1"></script>
