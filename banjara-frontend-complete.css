@@ -262,3 +262,123 @@ body.bc-auth-mode .bc-app{padding-bottom:24px}
 .bc-msg.theirs{align-self:flex-start;background:#fff;color:#3b2930;border-bottom-left-radius:5px}
 .bc-msg small{display:block;font-size:10px;opacity:.6;margin-top:3px}
 @media(min-width:800px){#bcChatOverlay{left:50%;top:8%;right:8%;bottom:8%;inset:auto}}
+
+
+/* =========================================================
+   BANJARA CONNECT — DARK MODE FINAL OVERRIDES
+   Keeps the existing layout, spacing and button positions unchanged.
+   ========================================================= */
+html[data-theme="dark"]{
+  color-scheme:dark;
+}
+html[data-theme="light"]{
+  color-scheme:light;
+}
+body.bc-dark{
+  background:#0b0f14 !important;
+  color:#eef2f6 !important;
+}
+.bc-dark #bcAppShell{
+  --bc-cream:#0b0f14;
+  --bc-paper:#121820;
+  --bc-white:#18212b;
+  --bc-text:#eef2f6;
+  --bc-muted:#9aa9b8;
+  --bc-line:#293542;
+  --bc-soft:#1a2530;
+}
+.bc-dark .bc-app,
+.bc-dark .bc-screen{
+  background:#0b0f14;
+  color:var(--bc-text);
+}
+.bc-dark .bc-hero{
+  background:linear-gradient(180deg,#101923 0%,#0b1118 100%);
+  border-color:var(--bc-line);
+}
+.bc-dark .bc-section,
+.bc-dark .bc-section-head,
+.bc-dark .bc-hero h1,
+.bc-dark .bc-section h2,
+.bc-dark .bc-row-main strong,
+.bc-dark .bc-setting-main strong{
+  color:var(--bc-text);
+}
+.bc-dark .bc-hero p,
+.bc-dark .bc-section-head p,
+.bc-dark .bc-row-main small,
+.bc-dark .bc-setting-main small,
+.bc-dark .bc-empty span{
+  color:var(--bc-muted);
+}
+.bc-dark .bc-card,
+.bc-dark .bc-row,
+.bc-dark .bc-setting,
+.bc-dark .bc-search,
+.bc-dark .bc-sheet,
+.bc-dark .bc-auth-box{
+  background:#121820 !important;
+  color:var(--bc-text);
+  border-color:var(--bc-line) !important;
+}
+.bc-dark .bc-setting:hover,
+.bc-dark .bc-row:hover{
+  background:#18222c !important;
+}
+.bc-dark .bc-field input,
+.bc-dark .bc-field textarea,
+.bc-dark .bc-field select,
+.bc-dark .bc-search input{
+  background:#0e151d !important;
+  color:var(--bc-text) !important;
+  border-color:#30404e !important;
+}
+.bc-dark .bc-field input::placeholder,
+.bc-dark .bc-field textarea::placeholder,
+.bc-dark .bc-search input::placeholder{
+  color:#6f8191 !important;
+}
+.bc-dark .bc-action:not(.primary),
+.bc-dark .bc-tab,
+.bc-dark .bc-post-actions button{
+  background:#18222c;
+  color:var(--bc-text);
+  border-color:var(--bc-line);
+}
+.bc-dark .bc-action.primary{
+  color:#fff;
+}
+.bc-dark .bc-chat-messages{
+  background:#0e151d !important;
+}
+.bc-dark .bc-chat-bubble.incoming{
+  background:#18222c;
+  color:var(--bc-text);
+  border-color:var(--bc-line);
+}
+.bc-dark .bc-setting-icon,
+.bc-dark .bc-avatar{
+  background:#1a2935;
+  color:#d8e8f0;
+}
+.bc-dark .bc-empty{
+  color:var(--bc-muted);
+}
+.bc-dark .bc-modal{
+  background:rgba(0,0,0,.62);
+}
+@media(max-width:700px){
+  .bc-dark .bc-bottom,
+  .bc-dark .mobile-bottom-nav{
+    background:rgba(12,17,23,.98);
+    border-color:var(--bc-line);
+  }
+}
+
+/* System mode follows the device preference. */
+@media (prefers-color-scheme:dark){
+  html[data-theme="system"] body{
+    background:#0b0f14;
+    color:#eef2f6;
+  }
+}
